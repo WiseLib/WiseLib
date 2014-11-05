@@ -1,4 +1,4 @@
-# server [![Build Status](https://secure.travis-ci.org/WiseLib/Server.png?branch=master)](http://travis-ci.org/WiseLib/Server) [![NPM version](https://badge-me.herokuapp.com/api/npm/server.png)](http://badges.enytc.com/for/npm/server) [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/WiseLib/Server/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+# Server ![David](https://david-dm.org/WiseLib/Server.png) ![Travis CI](https://travis-ci.org/WiseLib/Server.svg) [![Code Climate](https://codeclimate.com/github/WiseLib/Server/badges/gpa.svg)](https://codeclimate.com/github/WiseLib/Server) [![Test Coverage](https://codeclimate.com/github/WiseLib/Server/badges/coverage.svg)](https://codeclimate.com/github/WiseLib/Server)
 
 > A web service for managing and exploring research papers.
 
