@@ -2,8 +2,6 @@ language: node_js
 node_js:
 - 0.10
 notifications:
-  email:
-  - se2-1415@wilma.vub.ac.be
   slack:
     secure: MUOOm6qJXDZ5trIVxFFt2yTmfKeYD0fVbO6OLLM8uiwEhs64Bb7qsaiNYYvMVxIy/QHz/87/fD98ij19dAm8tN56GFkycg6ch5sdyyOBB5CoISV3XgHgb9tShQIM4hUYKmu5k3jYxY+nL6VAsfcYlpfPNcXScNN6b4WH3E38GOs=
 before_install:
