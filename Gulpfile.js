@@ -9,18 +9,34 @@
 'use strict';
 
 var gulp = require('gulp');
-var cp = require('child_process');
-var jsdoc = require('gulp-jsdoc');
-var jshint = require('gulp-jshint');
+var g = require('gulp-load-plugins');
 var mocha = require('gulp-mocha');
+var cp = require('child_process');
 var stylish = require('jshint-stylish');
 
+/**
+ * Development
+ */
+
 gulp.task('jshint', function () {
+
+  // Load jshint module
+  var jshint = g.jshint;
+
   // Minify and copy all JavaScript (except vendor scripts)
   return gulp.src(['./lib/**/*.js', './test/**/*.js'])
     .pipe(jshint())
     .pipe(jshint.reporter(stylish));
 });
+
+// Rerun the task when a file changes
+gulp.task('watch', function () {
+  gulp.watch(['./lib/**/*.js', './test/**/*.js'], ['jshint']);
+});
+
+/**
+ * Testing
+ */
 
 // Copy all static images
 gulp.task('mocha', function () {
@@ -34,38 +50,38 @@ gulp.task('mocha', function () {
     }));
 });
 
-gulp.task('pre-commit', [ 'test' ], function() {
-  
+gulp.task('test', ['mocha']);
+
+/**
+ * Deployment
+ */
+
+gulp.task('package', function () {
+  return gulp.src('lib/*.js')
+    .pipe(g.uglify())
+    .pipe(gulp.dest('./build'))
 });
 
-gulp.task('prepare-commit-msg', function() {
-  
-});
+/**
+ * Git hooks
+ */
 
-gulp.task('commit-msg', function (){ 
+gulp.task('pre-commit', ['test']);
+gulp.task('prepare-commit-msg');
+gulp.task('commit-msg');
+gulp.task('pre-push');
+gulp.task('pre-rebase');
 
-});
-
-gulp.task('pre-push', function() {
-
-});
-
-// Rerun the task when a file changes
-gulp.task('watch', function () {
-  gulp.watch(['./lib/**/*.js', './test/**/*.js'], ['jshint']);
-});
+/**
+ * Documentation
+ */
 
 gulp.task('jsdoc', function () {
-  cp.exec('jsdoc -c .jsdoc.conf .');
+  cp.exec('jsdoc -c .jsdocrc .');
 });
 
-gulp.task('doc', function () {
-
-});
-
-gulp.task('test', function () {
-  gulp.run('mocha', function () {});
-});
+gulp.task('docs', ['jsdoc']);
 
 // The default task (called when you run `gulp` from cli)
-gulp.task('default', ['jshint', 'mocha', 'watch']);
+gulp.task('default', ['jshint', 'test', 'watch']);
+
