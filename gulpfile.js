@@ -80,7 +80,7 @@ gulp.task('jsdoc', function () {
   cp.exec('jsdoc -c .jsdocrc .');
 });
 
-gulp.task('docs', ['jsdoc']);
+gulp.task('doc', ['jsdoc']);
 
 // The default task (called when you run `gulp` from cli)
 gulp.task('default', ['jshint', 'test', 'watch']);
