@@ -1,4 +1,4 @@
-doc/out/
+build/
 node_modules
 .idea/
 *.log

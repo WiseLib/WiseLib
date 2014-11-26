@@ -3,9 +3,7 @@
       "allowUnknownTags": true
   },
   "source": {
-      "exclude": [ "node_modules/" ],
-      "includePattern": "lib/.+\\.js(doc)?$",
-      "excludePattern": "(^|\\/|\\\\)_"
+      "exclude": [ "node_modules/" ]
   },
   "plugins": [ "plugins/markdown" ],
   "templates": {
@@ -24,8 +22,8 @@
     "syntaxTheme"           : "dark"
   },
   "opts": {
-    "destination": "doc/out",
+    "destination": "./build/doc",
     "recurse": true,
-    "tutorials": "doc/tutorials"
+    "tutorials": "./doc/tutorials"
   }
 }
