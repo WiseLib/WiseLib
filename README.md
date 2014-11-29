@@ -1,4 +1,4 @@
-# Server ![David](https://david-dm.org/WiseLib/Server.png) ![Travis CI](https://travis-ci.org/WiseLib/Server.svg) [![Code Climate](https://codeclimate.com/github/WiseLib/Server/badges/gpa.svg)](https://codeclimate.com/github/WiseLib/Server) [![Test Coverage](https://codeclimate.com/github/WiseLib/Server/badges/coverage.svg)](https://codeclimate.com/github/WiseLib/Server)
+# WiseLib Server ![David](https://david-dm.org/WiseLib/Server.png) ![Travis CI](https://travis-ci.org/WiseLib/Server.svg) [![Code Climate](https://codeclimate.com/github/WiseLib/Server/badges/gpa.svg)](https://codeclimate.com/github/WiseLib/Server) [![Test Coverage](https://codeclimate.com/github/WiseLib/Server/badges/coverage.svg)](https://codeclimate.com/github/WiseLib/Server)
 
 > A web service for managing and exploring research papers.
 
