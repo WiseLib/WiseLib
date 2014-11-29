@@ -41,6 +41,7 @@
     "gulp-load-plugins": "^0.7.1",
     "gulp-mocha": "^0.4.1",
     "jshint-stylish": "^0.1.5",
+    "mariasql": "^0.1.21",
     "mocha": "^1.10.0"
   },
   "keywords": []
