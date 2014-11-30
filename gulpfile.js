@@ -34,6 +34,10 @@ gulp.task('watch', function () {
   gulp.watch(['./lib/**/*.js', './test/**/*.js'], ['jshint']);
 });
 
+gulp.task('run', function () {
+  cp.exec('npm start');
+});
+
 /**
  * Testing
  */
