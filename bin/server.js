@@ -17,7 +17,7 @@ var bodyParser = require('body-parser');    // pull information from HTML POST (
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var dbscheme = require('./db.js');
 var Client = require('mariasql');
-var fs = require("fs");
+var fs = require('fs');
 var config = JSON.parse(fs.readFileSync('./wiselib.json'));
 
 // log every request to the console
@@ -31,6 +31,7 @@ var c = new Client();
 c.connect(config.database);
 
 //For validation: should we use... another module? :D like http://blog.ijasoneverett.com/2013/04/form-validation-in-node-js-with-express-validator/
+//Validation for other fields not written yet
 function validateEmail(email) {
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
