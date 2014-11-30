@@ -6,4 +6,4 @@ notifications:
     secure: MUOOm6qJXDZ5trIVxFFt2yTmfKeYD0fVbO6OLLM8uiwEhs64Bb7qsaiNYYvMVxIy/QHz/87/fD98ij19dAm8tN56GFkycg6ch5sdyyOBB5CoISV3XgHgb9tShQIM4hUYKmu5k3jYxY+nL6VAsfcYlpfPNcXScNN6b4WH3E38GOs=
 before_install:
 - openssl aes-256-cbc -K $encrypted_37b4b0348b7f_key -iv $encrypted_37b4b0348b7f_iv
-  -in deploy_key.enc -out deploy_key -d
+  -in .travis/deploy_key.enc -out .travis/deploy_key -d
