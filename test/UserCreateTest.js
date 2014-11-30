@@ -1,6 +1,6 @@
 var should = require('should');
 
-var user = require('../../server/lib/user.js')
+var user = require('../lib/user.js')
 
 describe('User', function(){
   describe('#create()', function(){
