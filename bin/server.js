@@ -32,12 +32,17 @@ c.connect({
     db: 'se2_1415'
 });
 
+//For validation: should we use... another module? :D like http://blog.ijasoneverett.com/2013/04/form-validation-in-node-js-with-express-validator/
+function validateEmail(email) {
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+
 
 app.use(express.static(path.resolve('../../Client/src/app/')));
 app.get('/api/test', function (req, res) {
 	res.send('boo');
 });
-
 
 
 //Get all users
@@ -55,22 +60,105 @@ app.post('/api/person/search', function (req, response) {
 					dbscheme.person.first_name.like('%' + firstName + '%')
 					.and(dbscheme.person.last_name.like('%' + lastName + '%')));
 
+	var result = []
 	c.query(query.toString())
 		.on('result', function (res) {
 			res.on('row', function (row) {
-				console.log('Result row: ' + JSON.stringify(row));
-				response.json(row);
+				//console.log('Result row: ' + JSON.stringify(row));
+				result.push(row)
 			})
 		.on('error', function (err) {
 				console.log('Result error: ' + err);
 			})
 		.on('end', function (info) {
-				console.log('Result finished successfully');
+				console.log('Result finished successfully: ' + JSON.stringify(info));
+				response.send(result);
 			});
 		})
 		.on('end', function () {
 			console.log('Done with all results');
 		});
+});
+
+
+app.post('/api/person', function (req, response) {
+	console.log('Received request');
+
+	if (!validateEmail(req.body.email)) {
+		console.log('invalid email');
+		response.status(500);
+		response.send(new Error('Email not valid'));
+		return;
+	}
+
+
+
+	if(req.body.personId) {
+		console.log('We have a person id');
+		var query = dbscheme.user.insert(
+										dbscheme.user.email_address.value(req.body.email),
+										dbscheme.user.person_id.value(req.body.personId), 
+										dbscheme.user.password.value(req.body.password),
+										dbscheme.user.part_of_affiliation_id.value('VUB'));
+		c.query(query.toString())
+		.on('result', function (res) {
+			res.on('row', function (row) {
+				console.log('Result row: ' + JSON.stringify(row));
+			})
+		.on('error', function (err) {
+				response.send(err);
+			})
+		.on('end', function (info) {
+				console.log('succes info: ' + JSON.stringify(info));
+				response.send('Result finished successfully');
+			});
+		})
+		.on('end', function () {
+			console.log('Done with all results');
+		});
+	} else {
+		console.log('no person id');
+		var firstQuery = dbscheme.person.insert(
+										dbscheme.person.first_name.value(req.body.firstName),
+										dbscheme.person.last_name.value(req.body.lastName));
+		c.query(firstQuery.toString())
+		.on('result', function (res) {
+			res.on('row', function (row) {
+				console.log('Result row: ' + JSON.stringify(row));
+			})
+		.on('error', function (err) {
+				response.send(err);
+			})
+		.on('end', function (info) {
+				var query = dbscheme.user.insert(
+										dbscheme.user.email_address.value(req.body.email), 
+										dbscheme.user.person_id.value(info.insertId), 
+										dbscheme.user.password.value(req.body.password),
+										dbscheme.user.part_of_affiliation_id.value('VUB'));
+				c.query(query.toString())
+				.on('result', function (res) {
+					res.on('row', function (row) {
+						console.log('Result row: ' + JSON.stringify(row));
+					})
+				.on('error', function (err) {
+						response.send(err);
+					})
+				.on('end', function (info) {
+						console.log('succes info: ' + JSON.stringify(info));
+						response.send('Result finished successfully');
+					});
+				})
+				.on('end', function () {
+					console.log('Done with all results');
+				});
+					});
+				})
+				.on('end', function () {
+					console.log('Done with all results');
+				});
+
+
+	}
 });
 
 app.get('*', function (req, res) {
