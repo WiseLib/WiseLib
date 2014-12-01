@@ -84,9 +84,7 @@ app.post('/api/person', function (req, response) {
 	console.log('Received request');
 
 	if (!validateEmail(req.body.email)) {
-		console.log('invalid email');
-		response.status(500);
-		response.send(new Error('Email not valid'));
+		response.send(500, "Invalid email address. Please try again")
 		return;
 	}
 
