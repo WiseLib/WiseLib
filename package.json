@@ -34,9 +34,12 @@
   "dependencies":   
   {
     "express": "^4.10.4",
+<<<<<<< HEAD
     "mariasql": "^0.1.21",
   },
   "devDependencies": {
+=======
+>>>>>>> 5baea2dc2caebcb2ce7d015f15d61d5e5c687d26
     "gulp": "^3.8.10",
     "gulp-jsdoc": "^0.1.4",
     "gulp-jshint": "^1.3.4",
