@@ -34,7 +34,7 @@
   "dependencies":   
   {
     "express": "^4.10.4",
-    "mariasql": "^0.1.21",
+    "mariasql": "^0.1.21"
   },
   "devDependencies": {
     "gulp": "^3.8.10",
