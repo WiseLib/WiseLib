@@ -7,3 +7,12 @@
  * Copyright (c) 2014 WiseLib
  * Licensed under the GPL-2.0 license.
  */
+var express = require('express');
+
+var server = require('../server');
+
+// TODO: extend with command-line arguments (like --port)
+
+var app = express();
+server(app);
+app.listen(8080);

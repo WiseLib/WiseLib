@@ -35,8 +35,14 @@ gulp.task('watch', function () {
 });
 
 gulp.task('run', function () {
-  cp.exec('npm start');
+  var express = require('express');
+  var server = require('./server');
+  var app = express();
+  server(app);
+  app.listen(8080);
 });
+
+gulp.task('start', ['run']);
 
 /**
  * Testing

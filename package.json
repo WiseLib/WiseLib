@@ -20,7 +20,7 @@
       "url": "https://github.com/WiseLib/server/blob/master/LICENSE"
     }
   ],
-  "main": "lib/server",
+  "main": "server",
   "bin": {
     "server": "bin/server.js"
   },
@@ -29,11 +29,12 @@
     "npm": ">=1.4.3"
   },
   "scripts": {
+    "start": "node bin/server.js",
     "test": "gulp test"
   },
-  "dependencies":   
-  {
+  "dependencies": {
     "express": "^4.10.4",
+    "lodash": "^2.4.1",
     "mariasql": "^0.1.21"
   },
   "devDependencies": {
