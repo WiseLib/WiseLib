@@ -32,7 +32,7 @@
                     <personmin person="author"></personmin>
                     <button ng-click="publication.removeAuthor(author)">Remove</button>
                 </div>
-                <select ng-model="discipline.currentDiscipline" ng-options="discipline.id for discipline in publication.fetcher.fetchDisciplines()">
+                <select ng-model="discipline.currentDiscipline" ng-options="discipline.id for discipline in publication.fetcher.fetchDisciplines({})">
                 </select>
                 <button ng-click="publication.addDiscipline(discipline.currentDiscipline)">Add</button>
                 <ul>
