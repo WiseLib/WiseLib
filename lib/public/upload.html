@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.27/angular.min.js"></script>
+        <script src="js/fetcher.js"></script>
+        <script src="../discipline.js"></script>
+        <script src="js/publication-controller.js"></script>
+        <title>title</title>
+    </head>
+    <body>
+        <div ng-app="wiselib" ng-controller="PublicationController as publication">
+            <form id="upload-publication">
+                <label for="title">Title :</label>
+                <input id="title" type="text" placeholder="Title" ng-model="publication.title">
+                <label for="year">Year :</label>
+                <input id="year" type="number" ng-model="publication.year">
+                <label for="nb-pages">Number of Pages :</label>
+                <input id="nb-pages" type="number" ng-model="publication.nbOfPages">
+                <label for="url">URL :</label>
+                <input id="url" type="url" ng-model="publication.url">
+                <label for="co-authors">Co Authors :</label>
+                <label for="firstname">firstname :</label>
+                <input id="firstname" type="text" ng-model="firstname">
+                <label for="lastname">lastname :</label>
+                <input id="lastname" type="text" ng-model="lastname">
+                <button ng-repeat="person in publication.fetcher.fetchPersons(firstname, lastname)" ng-click="publication.addAuthor(person)">
+                    <personmin person="person"></personmin>
+                </button>
+                
+                <div ng-repeat="author in publication.authors">
+                    <personmin person="author"></personmin>
+                    <button ng-click="publication.removeAuthor(author)">Remove</button>
+                </div>
+                <select ng-model="discipline.currentDiscipline" ng-options="discipline.id for discipline in publication.fetcher.fetchDisciplines({})">
+                </select>
+                <button ng-click="publication.addDiscipline(discipline.currentDiscipline)">Add</button>
+                <ul>
+                    <li ng-repeat="discipline in publication.disciplines">
+                        {{discipline.id}}
+                    </li>
+                </ul>
+                <label for="conference">Conference</label>
+                <input id="conference" type="radio" ng-model="publication.type" value="conference">
+                <label for="journal">Journal</label>
+                <input id="journal" type="radio" ng-model="publication.type" value="journal">
+                <div ng-show="publication.type == 'conference'">
+                    <label for="editors">Editors :</label>
+                    <input id="editors" type="text" ng-model="publication.editors">
+                    <label for="publisher">Publisher :</label>
+                    <input id="publisher" type="text" ng-model="publication.publisher">
+                    <label for="city">City :</label>
+                    <input id="city" type="text" ng-model="publication.city">
+                </div>
+                <div ng-show="publication.type == 'journal'">
+                    <label for="volume">Volume :</label>
+                    <input id="volume" type="number" ng-model="publication.volume">
+                    <label for="number">Number :</label>
+                    <input id="number" type="number" ng-model="publication.number">
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

@@ -34,10 +34,17 @@
   },
   "dependencies": {
     "express": "^4.10.4",
+<<<<<<< HEAD
     "lodash": "^2.4.1",
     "mariasql": "^0.1.21"
+=======
+<<<<<<< HEAD
+    "mariasql": "^0.1.21",
+>>>>>>> 6cf8ff42c654a5d327b4641acd50edd42c7f640a
   },
   "devDependencies": {
+=======
+>>>>>>> 5baea2dc2caebcb2ce7d015f15d61d5e5c687d26
     "gulp": "^3.8.10",
     "gulp-jsdoc": "^0.1.4",
     "gulp-jshint": "^1.3.4",
