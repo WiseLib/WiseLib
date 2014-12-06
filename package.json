@@ -36,7 +36,6 @@
     "express": "^4.10.4",
     "lodash": "^2.4.1",
     "mariasql": "^0.1.21"
-    "mariasql": "^0.1.21",
   },
   "devDependencies": {
     "gulp": "^3.8.10",
