@@ -1,35 +1,35 @@
 {
-  "name": "server",
+  "name": "wiselib",
   "description": "A web service for managing and exploring research papers.",
   "version": "0.0.1",
-  "homepage": "https://github.com/WiseLib/server",
+  "homepage": "https://github.com/WiseLib/WiseLib",
   "author": {
     "name": "WiseLib",
     "email": "se2-1415@wilma.vub.ac.be"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/WiseLib/server.git"
+    "url": "git://github.com/WiseLib/WiseLib.git"
   },
   "bugs": {
-    "url": "https://github.com/WiseLib/server/issues"
+    "url": "https://github.com/WiseLib/WiseLib/issues"
   },
   "licenses": [
     {
       "type": "GPL-2.0",
-      "url": "https://github.com/WiseLib/server/blob/master/LICENSE"
+      "url": "https://github.com/WiseLib/WiseLib/blob/master/LICENSE"
     }
   ],
-  "main": "server",
+  "main": "WiseLib",
   "bin": {
-    "server": "bin/server.js"
+    "WiseLib": "bin/wiselib.js"
   },
   "engines": {
     "node": ">= 0.10.26",
     "npm": ">=1.4.3"
   },
   "scripts": {
-    "start": "node bin/server.js",
+    "start": "node bin/wiselib.js",
     "test": "gulp test"
   },
   "dependencies": {
