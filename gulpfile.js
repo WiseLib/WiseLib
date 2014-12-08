@@ -38,7 +38,7 @@ gulp.task('run', function () {
   var express = require('express');
   var wiselib = require('./wiselib');
   var app = express();
-  server(app);
+  wiselib(app);
   app.listen(8080);
 });
 
