@@ -1,6 +1,6 @@
 /*
- * WiseLib Server
- * https://github.com/WiseLib/server
+ * WiseLib 
+ * https://github.com/WiseLib/WiseLib
  *
  * Copyright (c) 2014 WiseLib
  * Licensed under the GPL-2.0 license.
@@ -36,7 +36,7 @@ gulp.task('watch', function () {
 
 gulp.task('run', function () {
   var express = require('express');
-  var server = require('./server');
+  var wiselib = require('./wiselib');
   var app = express();
   server(app);
   app.listen(8080);

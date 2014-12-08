@@ -1,54 +1,47 @@
 {
-  "name": "server",
+  "name": "wiselib",
   "description": "A web service for managing and exploring research papers.",
   "version": "0.0.1",
-  "homepage": "https://github.com/WiseLib/server",
+  "homepage": "https://github.com/WiseLib/WiseLib",
   "author": {
     "name": "WiseLib",
     "email": "se2-1415@wilma.vub.ac.be"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/WiseLib/server.git"
+    "url": "git://github.com/WiseLib/WiseLib.git"
   },
   "bugs": {
-    "url": "https://github.com/WiseLib/server/issues"
+    "url": "https://github.com/WiseLib/WiseLib/issues"
   },
   "licenses": [
     {
       "type": "GPL-2.0",
-      "url": "https://github.com/WiseLib/server/blob/master/LICENSE"
+      "url": "https://github.com/WiseLib/WiseLib/blob/master/LICENSE"
     }
   ],
-  "main": "server",
+  "main": "WiseLib",
   "bin": {
-    "server": "bin/server.js"
+    "WiseLib": "bin/wiselib.js"
   },
   "engines": {
     "node": ">= 0.10.26",
     "npm": ">=1.4.3"
   },
   "scripts": {
-    "start": "node bin/server.js",
+    "start": "node bin/wiselib.js",
     "test": "gulp test"
   },
   "dependencies": {
     "express": "^4.10.4",
-<<<<<<< HEAD
     "lodash": "^2.4.1",
     "mariasql": "^0.1.21"
-=======
-<<<<<<< HEAD
-    "mariasql": "^0.1.21",
->>>>>>> 6cf8ff42c654a5d327b4641acd50edd42c7f640a
   },
   "devDependencies": {
-=======
->>>>>>> 5baea2dc2caebcb2ce7d015f15d61d5e5c687d26
     "gulp": "^3.8.10",
+    "gulp-load-plugins": "^0.7.1",
     "gulp-jsdoc": "^0.1.4",
     "gulp-jshint": "^1.3.4",
-    "gulp-load-plugins": "^0.7.1",
     "gulp-mocha": "^0.4.1",
     "jshint-stylish": "^0.1.5",
     "mocha": "^1.10.0",
