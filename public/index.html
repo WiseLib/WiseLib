@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html ng-app="client">
+<head>
+  <meta charset="utf-8"/>
+  <title>client</title>
+  <!-- inject:vendor:css -->
+  <!-- endinject -->
+  <!-- inject:css -->
+  <!-- endinject -->
+  <!-- SPELLS -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><!-- load jquery -->
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script><!-- load angular -->
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script><!-- load angular-route -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script> <!-- load bootstrap -->
+  <script src="app.js"></script>
+  <script src="controllers/addUser.js"></script>
+  <!-- Latest compiled and minified bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+
+  <style>
+  @font-face {
+    font-family : "lobster";
+    src:url("fonts/Lobster.otf");
+  }
+
+  .form-inline .form-group{
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .logo-name:before {
+    display:inline-block;
+    content:"W";
+    font-family:"lobster";
+    background-color: rgba(179,204,51,0.8);
+    border-radius:50%;
+    margin: 0.2em;
+    padding:0.3em;
+
+  }
+  </style>
+</head>
+<body ng-app="client">
+  <div ng-include='"views/header.html"'></div>
+  <ng-view></ng-view>
+  <!-- inject:vendor:js -->
+  <!-- endinject -->
+  <!-- inject:js -->
+  <!-- endinject -->
+</body>
+</html>
