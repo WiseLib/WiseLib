@@ -1,38 +1,26 @@
-# Server ![David](https://david-dm.org/WiseLib/Server.png) ![Travis CI](https://travis-ci.org/WiseLib/Server.svg) [![Code Climate](https://codeclimate.com/github/WiseLib/Server/badges/gpa.svg)](https://codeclimate.com/github/WiseLib/Server) [![Test Coverage](https://codeclimate.com/github/WiseLib/Server/badges/coverage.svg)](https://codeclimate.com/github/WiseLib/Server)
+# WiseLib ![David](https://david-dm.org/WiseLib/WiseLib.png) ![Travis CI](https://travis-ci.org/WiseLib/WiseLib.svg) [![Code Climate](https://codeclimate.com/github/WiseLib/WiseLib/badges/gpa.svg)](https://codeclimate.com/github/WiseLib/WiseLib) [![Test Coverage](https://codeclimate.com/github/WiseLib/WiseLib/badges/coverage.svg)](https://codeclimate.com/github/WiseLib/WiseLib)
 
 > A web service for managing and exploring research papers.
 
-## Getting Started
-Install the module with: `npm install server`
+## Installation
 
-```javascript
-var server = require('server');
-server.awesome(); // "hello "
-```
+Run the following command in a terminal to install the latest version from GitHub:
 
-## Documentation
+````
+npm install WiseLib/WiseLib#latest
+````
 
-#### .awesome(name)
-
-**Parameter**: `name`
-**Type**: `String`
-**Example**: `Livia`
-
-The 'awesome' method is responsible for showing a name.
-
-How to use this method
-
-```javascript
-server.awesome('livia'); // "hello livia"
-```
+More detailed instructions on how to set up on a production environmnent can be found [here](https://github.com/WiseLib/WiseLib/wiki/Deployment/_edit).
 
 ## Contributing
 
-Please submit all issues and pull requests to the [WiseLib/Server](http://github.com/WiseLib/Server) repository!
+Start by reading [our wiki page](https://github.com/WiseLib/WiseLib/wiki/Development) on how to set-up your development environment.
+
+Please submit all issues and pull requests to the [WiseLib/WiseLib](http://github.com/WiseLib/WiseLib) repository!
 
 ## Support
 
-If you have any problem or suggestion please open an issue [here](https://github.com/WiseLib/Server/issues).
+If you have any problem or suggestion, please open an issue [here](https://github.com/WiseLib/WiseLib/issues).
 
 ## License 
 

@@ -1,5 +1,7 @@
+build/
 node_modules
 .idea/
 *.log
 .DS_Store
-bin/wiselib.json
+.travis/deploy_key
+wiselib.config.json
