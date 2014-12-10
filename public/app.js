@@ -1,4 +1,4 @@
-var app = angular.module('client', ['ngRoute', 'addUser']);
+var app = angular.module('client', ['ngRoute', 'addUser', 'publication']);
 /**
  * Configure the Routes
  */
@@ -8,6 +8,7 @@ app.config(['$routeProvider', function ($routeProvider) {
     // Home
     .when('/', {templateUrl: 'views/start.html', controller: 'mainController'})
     .when('/adduser', {templateUrl: 'views/register.html', controller: 'manageUserController'})
+    .when('/upload', {templateUrl: 'views/upload.html', controller: 'uploadPublicationController as publication'})
     .otherwise({redirectTo: '/'});
 }]);
 
