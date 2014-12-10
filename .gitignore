@@ -4,4 +4,4 @@ node_modules
 *.log
 .DS_Store
 .travis/deploy_key
-wiselib.config.json
+config.json
