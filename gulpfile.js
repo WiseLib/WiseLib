@@ -21,25 +21,25 @@ var stylish = require('jshint-stylish');
 gulp.task('jshint', function () {
 
   // Load jshint module
-  var jshint = g.jshint;
+    var jshint = g.jshint;
 
   // Minify and copy all JavaScript (except vendor scripts)
-  return gulp.src(['./lib/**/*.js', './test/**/*.js'])
-    .pipe(jshint())
-    .pipe(jshint.reporter(stylish));
+    return gulp.src(['./lib/**/*.js', './test/**/*.js'])
+      .pipe(jshint())
+      .pipe(jshint.reporter(stylish));
 });
 
 // Rerun the task when a file changes
 gulp.task('watch', function () {
-  gulp.watch(['./lib/**/*.js', './test/**/*.js'], ['jshint']);
+    gulp.watch(['./lib/**/*.js', './test/**/*.js'], ['jshint']);
 });
 
 gulp.task('run', function () {
-  var express = require('express');
-  var wiselib = require('./wiselib');
-  var app = express();
-  wiselib(app);
-  app.listen(8080);
+    var express = require('express');
+    var wiselib = require('./wiselib');
+    var app = express();
+    wiselib(app);
+    app.listen(8080);
 });
 
 gulp.task('start', ['run']);
@@ -50,13 +50,13 @@ gulp.task('start', ['run']);
 
 // Copy all static images
 gulp.task('mocha', function () {
-  return gulp.src('./test/*.js')
+    return gulp.src('./test/*.js')
     .pipe(mocha({
-      globals: ['chai'],
-      timeout: 6000,
-      ignoreLeaks: false,
-      ui: 'bdd',
-      reporter: 'spec'
+        globals: ['chai'],
+        timeout: 6000,
+        ignoreLeaks: false,
+        ui: 'bdd',
+        reporter: 'spec'
     }));
 });
 
@@ -67,9 +67,9 @@ gulp.task('test', ['mocha']);
  */
 
 gulp.task('package', function () {
-  return gulp.src('lib/*.js')
-    .pipe(g.uglify())
-    .pipe(gulp.dest('./build'))
+    return gulp.src('lib/*.js')
+     .pipe(g.uglify())
+     .pipe(gulp.dest('./build'));
 });
 
 /**
@@ -87,7 +87,7 @@ gulp.task('pre-rebase');
  */
 
 gulp.task('jsdoc', function () {
-  cp.exec('jsdoc -c .jsdocrc .');
+    cp.exec('jsdoc -c .jsdocrc .');
 });
 
 gulp.task('doc', ['jsdoc']);
