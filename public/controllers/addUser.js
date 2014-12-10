@@ -21,7 +21,6 @@ addUser.controller('manageUserController', function($scope, $http) {
     $scope.userForm.radioChecked = false; //Deselect radio button
     $scope.persons = []; //Reset found persons list
     if(!$scope.userForm.firstName || !$scope.userForm.lastName || $scope.userForm.firstName.length < 3 || $scope.userForm.lastName.length < 3) {return;} //Don't search if first or last name is too short
-    console.log('Will search for persons');
     $http.post('/api/person/search.json', {'firstName': $scope.userForm.firstName, 'lastName': $scope.userForm.lastName})
       .success(function (data) {
         console.log('received ' + JSON.stringify(data));
