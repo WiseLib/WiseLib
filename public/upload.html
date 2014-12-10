@@ -67,6 +67,16 @@
                     <input id="city" type="text" ng-model="publication.city">
                 </div>
                 <div ng-show="publication.type == 'Journal'">
+                    <label for="journal">Select a Journal :</label>
+                    <input id="journal" type="text" ng-model="journal.name">
+                    <ul>
+                        <li ng-repeat="possibleJournal in publication.fetcher.fetchJournals(journal)">
+                            <proceedingmin proceeding="possibleJournal" 
+                                           ng-click="publication.journal = possibleJournal">
+                            </proceedingmin>
+                        </li>
+                    </ul>
+                    <proceedingmin proceeding="publication.journal"></proceedingmin>
                     <label for="volume">Volume :</label>
                     <input id="volume" type="number" ng-model="publication.volume">
                     <label for="number">Number :</label>
