@@ -31,7 +31,7 @@
   <div class="col-xs-10">
   <label ng-repeat="person in persons" class="radio">
     <input type="radio" name="personId" ng-model="$parent.userForm.personId" ng-checked="radioChecked" ng-value="person.id" value="{{ person.id }}"/>
-    <span ng-bind="person.first_name + ' ' + person.last_name"></span><br />
+    <span ng-bind="person.firstName + ' ' + person.lastName"></span><br />
   </label>
   <label class="control-label" ng-show="persons.length == 0">
     Your name will be added to the database.

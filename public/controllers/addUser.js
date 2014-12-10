@@ -21,10 +21,10 @@ addUser.controller('manageUserController', function($scope, $http) {
     $scope.userForm.radioChecked = false; //Deselect radio button
     $scope.persons = []; //Reset found persons list
     if(!$scope.userForm.firstName || !$scope.userForm.lastName || $scope.userForm.firstName.length < 3 || $scope.userForm.lastName.length < 3) {return;} //Don't search if first or last name is too short
-    $http.post('/api/person/search.json', {'firstName': $scope.userForm.firstName, 'lastName': $scope.userForm.lastName})
-      .success(function (data) {
-        console.log('received ' + JSON.stringify(data));
-        $scope.persons = data;
+    $http.get('/persons.json' + '?firstName=' + $scope.userForm.firstName + '&lastName=' + $scope.userForm.lastName)
+      .then(function (response) {
+        console.log('received ' + JSON.stringify(response.data.persons));
+        $scope.persons = response.data.persons;
       });
   };
 
@@ -33,7 +33,7 @@ addUser.controller('manageUserController', function($scope, $http) {
  * @return {None}
  */
   $scope.createUser = function() {
-    $http.post('/api/person', $scope.userForm)
+    $http.post('persons.json', $scope.userForm)
     .success(function (data) {
       $scope.successMessage = 'User succesfully added';
     })
