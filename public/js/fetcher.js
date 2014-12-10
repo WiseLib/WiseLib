@@ -3,19 +3,19 @@ var module = angular.module("wiselib", []);
 module.factory("fetcher", ['$http', function($http) {
 
     var isEqual = function(obj1, obj2) {
-        return JSON.stringify(obj1) === JSON.stringify(obj2);
+        return obj1 === obj2;
     };
 
     var fetchForPath = function(path, params) {
         var query = '';
-        for(variable in params) {
+        for(var variable in params) {
             if(query == '') {
                 query += '?';
             }
             else {
                 query += '&';
             }
-            query += variable + '=' + params.variable;
+            query += variable + '=' + params[variable];
         }
         return $http.get(path + query);
     };
@@ -34,9 +34,9 @@ module.factory("fetcher", ['$http', function($http) {
      * Only fetch when params are different than previous request
      */
     var fetchForClass = function(className, params) {
-        if((typeof classes[className] === 'undefined') || !isEqual(classesParams[className], params)) {
+        if((typeof classes[className] === 'undefined') || !isEqual(classesParams[className], JSON.stringify(params))) {
             classes[className] = [];
-            classesParams[className] = params;
+            classesParams[className] = JSON.stringify(params);
             var path = '/' + className.toLowerCase() + 's.json';
             return fetchForPath(path, params).then(function(response) {
                 classes[className] = response.data;
@@ -85,7 +85,7 @@ module.factory("fetcher", ['$http', function($http) {
     }
     var fetchJournals = function(params) {
         //for now, return dummy data
-        if(!isEqual(classesParams['Journal'], params)) {
+        /*if(!isEqual(classesParams['Journal'], params)) {
         classes['Journal'] = [ {
             id: 1,
             name: 'first Journal',
@@ -97,8 +97,8 @@ module.factory("fetcher", ['$http', function($http) {
             rank: 11.2
         }];
         classesParams['Journal'] = params;}
-        return classes['Journal'];
-        //return fetchForClass('Journal', params);
+        return classes['Journal'];*/
+        return fetchForClass('Journal', params).journals;
     }
 
     return {
