@@ -2,8 +2,10 @@ var app = angular.module('client', ['ngRoute', 'addUser', 'publication']);
 /**
  * Configure the Routes
  */
-app.config(['$routeProvider', function ($routeProvider) {
+app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
     'use strict';
+    // use the HTML5 History API & set HTM5 mode true
+    $locationProvider.html5Mode(true);
     $routeProvider
     // Home
     .when('/', {templateUrl: 'views/start.html', controller: 'mainController'})
