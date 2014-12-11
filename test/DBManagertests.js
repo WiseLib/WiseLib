@@ -248,6 +248,4 @@ describe('DbManager tests',function(){
 	describe('postUser',function(){
 
 	});
-
-
 });
