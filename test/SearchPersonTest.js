@@ -16,14 +16,14 @@ var Client = require('mariasql');
  */
 describe('Search person in database test',function(){
 	var result = new Person.fakeresponse();
-	var request = new Person.fakerequest("Jan","Modaal");
+	var request = new Person.fakerequest('Jan','Modaal');
 	describe('Send query to database',function(){
 		it('should not error',function(done){
 
 			result.done = done;
 			
 			try{
-				server['/person']['get'](request,result)
+				server['/persons.json']['get'](request,result)
 			}
 			catch(x){
 				done(x);
