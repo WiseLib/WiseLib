@@ -206,5 +206,4 @@ describe('DbManager tests',function(){
 		});
 	});
 
-
 });
