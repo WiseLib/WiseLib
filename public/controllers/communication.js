@@ -1,10 +1,11 @@
+'use strict';
 var module = angular.module('communication', []);
-module.factory('fetcher', ['$http', function($http) {
+module.factory('fetcher', ['$http', function ($http) {
 
-    var fetchForPath = function(path, params) {
+    var fetchForPath = function (path, params) {
         var query = '';
-        for(var variable in params) {
-            if(query == '') {
+        for (var variable in params) {
+            if (query === '') {
                 query += '?';
             }
             else {
@@ -28,23 +29,23 @@ module.factory('fetcher', ['$http', function($http) {
      * fetch JSON for a core class object according to params
      * Only fetch when params are different than previous request
      */
-    var fetchForClass = function(className, params) {
-        if((typeof classes[className] === 'undefined') || classesParams[className] !== JSON.stringify(params)) {
+    var fetchForClass = function (className, params) {
+        if ((typeof classes[className] === 'undefined') || classesParams[className] !== JSON.stringify(params)) {
             classes[className] = [];
             classesParams[className] = JSON.stringify(params);
             var path = '/' + className.toLowerCase() + 's.json';
-            return fetchForPath(path, params).then(function(response) {
+            return fetchForPath(path, params).then(function (response) {
                 classes[className] = response.data;
                 return classes[className];
             });
         }
         return classes[className];
-    }
+    };
 
-    var fetchDisciplines = function(params) {
+    var fetchDisciplines = function (params) {
         return fetchForClass('Discipline', params).disciplines;
-    }
-    var fetchPersons = function(params) {
+    };
+    var fetchPersons = function (params) {
         //for now, return dummy data
         /*
         if(!isEqual(classesParams['Person'], params)) {
@@ -61,27 +62,28 @@ module.factory('fetcher', ['$http', function($http) {
         classesParams['Person'] = params;}
         return classes['Person'];*/
         return fetchForClass('Person', params).persons;
-    }
-    var fetchProceedings = function(params) {
+    };
+    var fetchProceedings = function (params) {
         //for now, return dummy data
-        if(classesParams['Proceeding'] !== JSON.stringify(params)) {
-        classes['Proceeding'] = [ {
-            id: 1,
-            name: 'first proceeding',
-            rank: 12.3
-        },
-        {
-            id: 2,
-            name: 'second proceeding',
-            rank: 11.2
-        }];
-        classesParams['Proceeding'] = params;}
-        return classes['Proceeding'];
+        if (classesParams.Proceeding !== JSON.stringify(params)) {
+            classes.Proceeding = [ {
+                id: 1,
+                name: 'first proceeding',
+                rank: 12.3
+            },
+            {
+                id: 2,
+                name: 'second proceeding',
+                rank: 11.2
+            }];
+            classesParams.Proceeding = params;
+        }
+        return classes.Proceeding;
         //return fetchForClass('Proceeding', params);
-    }
-    var fetchJournals = function(params) {
+    };
+    var fetchJournals = function (params) {
         return fetchForClass('Journal', params).journals;
-    }
+    };
 
     return {
         fetchDisciplines : fetchDisciplines,
