@@ -33,8 +33,8 @@ addUser.controller('manageUserController', function ($scope, $http) {
    * @return {None}
    */
     $scope.createUser = function () {
-        $http.post('persons.json', $scope.userForm)
-          .success(function (data) {
+        $http.post('user.json', $scope.userForm)
+          .success(function(data) {
             $scope.successMessage = 'User succesfully added';
         })
           .error(function (data) {
