@@ -158,31 +158,52 @@ describe('DbManager tests',function(){
 			})
 		})
 	});
-	//postDiscipline
-	describe('postDiscipline method test',function(){
+	//post/deleteDiscipline
+	describe ('Post and Delete discipline test',function(){
 		var response;
-		
+
 		var parentDiscipline = new Discipline('Computer Science');
 		parentDiscipline.id = 1;
 		var discipline = new Discipline('TestDiscipline'); //discipline with parent
+
+		//var discipline2 = {name: 'TestDiscipline' }; //discipline without parent
+		//discipline2.parent = discipline2;
+
 		parentDiscipline.addChild(discipline);
-		
-		
-	//	var discipline2 = {name: 'TestDiscipline' }; //discipline without parent
-	//	discipline2.parent = discipline2;
-		describe('Call method',function(){
-			it('should execute withour error',function(done){
-				//dbmanager.postDiscipline(discipline, function(res) {response = res; done();});
+
+		describe('postDiscipline method test',function(){
+
+			describe('Call method',function(){
+				it('should execute withour error',function(done){
+					//dbmanager.postDiscipline(discipline, function(res) {response = res; done();});
+					done();
+				})
+				it('query should have succeeded',function(){
+					//TODO check post discipline retrun info
+				})
+			})
+			describe('Check database for newly added disicpline',function(){
+				var result = [];
+				it('database should search the new discipline',function(done){
+					dbmanager.Discipline({id: ID},function(res){result= res;done();}) //ID from response not yet implemented
+					done(); 
+				});
+				it('database should hold the new disicipline',function(){
+					result[0].should.be.an.object;
+					result[0].should.have.property('id',ID);
+					result[0].should.have.property('name','TestDiscipline');
+				})
+			})
+		});
+		describe('deleteDisicipline method test',function(){
+			it('should now delete the previously added discipline',function(done){
+				//dbmanager.deleteDiscipline(discipline,function(res){response = res; done();})
 				done();
 			})
-			it('query should have succeeded',function(){
-
+			it('should have deleted without error',function(){
+				//TODO check return info when implemented
 			})
-		})
-		describe('Check database for newly added disicpline',function(){
-			it('database should hold new discipline',function(done){
-				done(); //TODO complete
-			})
-		})
+		});
 	});
+
 });
