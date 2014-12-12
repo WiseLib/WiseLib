@@ -37,6 +37,7 @@ describe('DbManager tests',function(){
 		})
 	});
 	 */
+
 	var dbmanager = new DBManager(config.database);//DBManger(host,database)
 
 	//executeQuery method test
@@ -152,8 +153,8 @@ describe('DbManager tests',function(){
 				dbmanager.putDiscipline({}, function(res) {response = res, done()});
 			})
 		})
-		describe('Check database for newly added disicpline',function(){
-			it('database should hold new discipline',function(done){
+		describe('Check database for updated disicpline',function(){
+			it('discipline should be updated',function(done){
 				done(); //TODO complete
 			})
 		})
@@ -162,48 +163,91 @@ describe('DbManager tests',function(){
 	describe ('Post and Delete discipline test',function(){
 		var response;
 
-		var parentDiscipline = new Discipline('Computer Science');
-		parentDiscipline.id = 1;
-		var discipline = new Discipline('TestDiscipline'); //discipline with parent
-
-		//var discipline2 = {name: 'TestDiscipline' }; //discipline without parent
-		//discipline2.parent = discipline2;
-
-		parentDiscipline.addChild(discipline);
+		var parentDiscipline = {name: 'TestDiscipline' , parentId: '1'};//discipline with parent
+		var discipline = {name:'TestDiscipline' , parentId : 'NULL' }; //discipline without parent
 
 		describe('postDiscipline method test',function(){
 
 			describe('Call method',function(){
 				it('should execute withour error',function(done){
-					//dbmanager.postDiscipline(discipline, function(res) {response = res; done();});
-					done();
+					dbmanager.postDiscipline(parentDiscipline, function(res) {response = res; done();});
 				})
 				it('query should have succeeded',function(){
-					//TODO check post discipline retrun info
+					response.should.be.a.number;
 				})
 			})
 			describe('Check database for newly added disicpline',function(){
-				var result = [];
+				var result;
 				it('database should search the new discipline',function(done){
-					dbmanager.Discipline({id: ID},function(res){result= res;done();}) //ID from response not yet implemented
-					done(); 
+					dbmanager.getDiscipline({id: response.toString()},function(res){result= res;done();}) 
 				});
-				it('database should hold the new disicipline',function(){
-					result[0].should.be.an.object;
-					result[0].should.have.property('id',ID);
+				it('database should hold the new discipline',function(){
+					result[0].should.have.property('id',response.toString());
 					result[0].should.have.property('name','TestDiscipline');
 				})
 			})
 		});
 		describe('deleteDisicipline method test',function(){
 			it('should now delete the previously added discipline',function(done){
-				//dbmanager.deleteDiscipline(discipline,function(res){response = res; done();})
-				done();
+				dbmanager.deleteDiscipline({id:response.toString()},function(res){response = res; done();})
 			})
 			it('should have deleted without error',function(){
 				//TODO check return info when implemented
 			})
 		});
 	});
+
+	describe('getJournal',function(){
+
+	});
+
+	describe('putJournal',function(){
+
+	});
+
+	describe('postJournal/deleteJournal',function(){
+
+	});
+
+	describe('getProceeding',function(){
+
+	});
+
+	describe('putProceeding',function(){
+
+	});
+
+	describe('postProceeding/deleteProceeding',function(){
+
+	});
+
+	describe('postPublication',function(){
+
+	});
+
+	describe('postJournalPublication',function(){
+
+	});
+
+	describe('postProceedingPublication',function(){
+
+	});
+
+	describe('getPerson',function(){
+
+	});
+
+	describe('getUser',function(){
+
+	});
+
+	describe('postPerson',function(){
+
+	});
+
+	describe('postUser',function(){
+
+	});
+
 
 });

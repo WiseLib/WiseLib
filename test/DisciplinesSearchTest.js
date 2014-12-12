@@ -21,7 +21,7 @@ describe ('Retrieve list of disciplines from server database',function(){
 				var request = new discipline.fakerequest({});
 				try{
 
-					server['/disciplines']['get'](request,response);
+					server['/disciplines.json']['get'](request,response);
 				}
 				catch(x)
 				{
@@ -45,10 +45,10 @@ describe ('Retrieve list of disciplines from server database',function(){
 			it('should excute without error',function(done){
 
 				response.done = done;
-				var request = new discipline.fakerequest({id: 1});
+				var request = new discipline.fakerequest({id: '1'});
 				try{
 
-					server['/disciplines']['get'](request,response);
+					server['/disciplines.json']['get'](request,response);
 				}
 				catch(x)
 				{

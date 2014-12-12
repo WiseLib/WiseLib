@@ -23,7 +23,7 @@ describe ('Retrieve list of journals from server database',function(){
 				response.done=done;
 				var request = new journal.fakerequest({});
 				try{
-					server['/journals']['get'](request,response);
+					server['/journals.json']['get'](request,response);
 				}
 				catch(x)
 				{
@@ -47,9 +47,9 @@ describe ('Retrieve list of journals from server database',function(){
 			it('should excute without error',function(done){
 				
 				response.done=done;
-				var request = new journal.fakerequest({id: 7});
+				var request = new journal.fakerequest({id: '7'});
 				try{
-					server['/journals/:id']['get'](request,response);
+					server['/journals/:id.json']['get'](request,response);
 				}
 				catch(x)
 				{

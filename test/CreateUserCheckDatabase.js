@@ -21,6 +21,7 @@ describe('Create user test', function(){
 	after(function(){
 		// runs after all tests in this block
 		//user.remove();//Remove test person from database for next tests.
+		//TODO Delete user is not yet implemented
 	})
 	
 	describe('Attempt connection',function(){
@@ -35,15 +36,15 @@ describe('Create user test', function(){
 			});
 
 			c.on('connect', function() {
-				console.log('Client connected');
+				//console.log('Client connected');
 				done();
 			})
 			.on('error', function(err) {
-				console.log('Client error: ' + err);
-				done();
+				var err = Error('Client error: ' + err);
+				done(err);
 			})
 			.on('close', function(hadError) {
-				console.log('Client closed');
+				//console.log('Client closed');
 			});
 		})
 	})
@@ -57,7 +58,6 @@ describe('Create user test', function(){
 				var request2 = new User.fakerequest("mail@mail.com","password","4");//person exists with id '4'
 				
 				//server.registerUser(request,response,done);
-				console.log('User created');
 				done();
 			}
 			catch(x)
@@ -83,9 +83,6 @@ describe('Create user test', function(){
 						row.should.have.property('email_address', "mail@mail.com");
 						row.should.have.property('password',"password");
 						if(request.personId) {row.should.have.property('person_id',requestpersonId.toString());};
-						
-						//user.remove();
-						
 						done();
 						c.end();
 					})
@@ -100,7 +97,7 @@ describe('Create user test', function(){
 						var result = info.numRows;
 						if (result < 1){console.log('No results from query ' + query.toString());}
 						if (result > 1){console.log('To many results from query ' + query.toString());}
-						result.should.not.be.lessThan(1).and.not.be.greaterThan(1);//query should return 1 unique result
+						result.should.be.equal(1);//query should return 1 unique result
 						done();
 
 					});
