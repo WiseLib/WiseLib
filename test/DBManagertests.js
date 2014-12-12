@@ -162,7 +162,6 @@ describe('DbManager tests',function(){
 	//post/deleteDiscipline
 	describe ('Post and Delete discipline test',function(){
 		var response;
-
 		var parentDiscipline = {name: 'TestDiscipline' , parentId: '1'};//discipline with parent
 		var discipline = {name:'TestDiscipline' , parentId : 'NULL' }; //discipline without parent
 
@@ -190,6 +189,7 @@ describe('DbManager tests',function(){
 		describe('deleteDisicipline method test',function(){
 			it('should now delete the previously added discipline',function(done){
 				dbmanager.deleteDiscipline({id:response.toString()},function(res){response = res; done();})
+				done();
 			})
 			it('should have deleted without error',function(){
 				//TODO check return info when implemented
