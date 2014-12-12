@@ -49,7 +49,10 @@ describe ('Retrieve list of disciplines from server database',function(){
 				try{
 
 					server['/disciplines.json']['get'](request,response);
+<<<<<<< HEAD
 
+=======
+>>>>>>> Adpated tests to databse changes
 				}
 				catch(x)
 				{

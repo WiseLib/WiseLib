@@ -189,7 +189,6 @@ describe('DbManager tests',function(){
 		describe('deleteDisicipline method test',function(){
 			it('should now delete the previously added discipline',function(done){
 				dbmanager.deleteDiscipline({id:response.toString()},function(res){response = res; done();})
-				done();
 			})
 			it('should have deleted without error',function(){
 				//TODO check return info when implemented
