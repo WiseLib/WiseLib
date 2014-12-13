@@ -46,22 +46,8 @@ module.factory('fetcher', ['$http', function ($http) {
         return fetchForClass('Discipline', params).disciplines;
     };
     var fetchPersons = function (params) {
-        //for now, return dummy data
-        /*
-        if(!isEqual(classesParams['Person'], params)) {
-        classes['Person'] = [ {
-            id: 1,
-            firstName: 'Mathieu',
-            lastName: 'Reymond'
-        },
-        {
-            id: 2,
-            firstName: 'Wout',
-            lastName: 'Van Riel'
-        }];
-        classesParams['Person'] = params;}
-        return classes['Person'];*/
-        return fetchForClass('Person', params).persons;
+        if(params !== undefined){
+        return fetchForClass('Person', params).persons;}
     };
     var fetchProceedings = function (params) {
         //for now, return dummy data
