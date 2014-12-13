@@ -22,7 +22,6 @@ describe('Create user test', function(){
 		// runs after all tests in this block
 		//user.remove();//Remove test person from database for next tests.
 		//TODO Delete user is not yet implemented
-
 	})
 	
 	describe('Attempt connection',function(){
