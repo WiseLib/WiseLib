@@ -35,8 +35,8 @@ describe('Search person in database test',function(){
 	describe('Analyse response',function(){
 		it('should hold the correct persons',function(){
 			result.getresponse().should.not.be.empty;
-			result.getresponse().map(function(x){x.should.have.property('first_name',request.firstName)});
-			result.getresponse().map(function(x){x.should.have.property('last_name',request.lastName)});
+			result.getresponse().map(function(x){x.should.have.property('firstName',request.firstName)});
+			result.getresponse().map(function(x){x.should.have.property('lastName',request.lastName)});
 
 		})
 	})
