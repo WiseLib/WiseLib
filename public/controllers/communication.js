@@ -61,7 +61,8 @@ module.factory('fetcher', ['$http', function ($http) {
         }];
         classesParams['Person'] = params;}
         return classes['Person'];*/
-        return fetchForClass('Person', params).persons;
+        if(params !== undefined){
+        return fetchForClass('Person', params).persons;}
     };
     var fetchProceedings = function (params) {
         //for now, return dummy data
