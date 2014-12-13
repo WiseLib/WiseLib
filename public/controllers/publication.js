@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication', ['communication']);
 
-module.controller('uploadPublicationController', ['fetcher', function (fetcher) {
+module.controller('uploadPublicationController', ['$http', 'fetcher', function ($http, fetcher) {
     this.authors = [];
     this.disciplines = [];
     this.fetcher = fetcher;
@@ -41,7 +41,7 @@ module.controller('uploadPublicationController', ['fetcher', function (fetcher) 
         toPost.authors = authArray;
         toPost.type = this.type;
         if (this.type === 'Journal') {
-            toPost.JournalId = this.journal.id;
+            toPost.journalId = this.journal.id;
             toPost.volume = this.volume;
             toPost.number = this.number;
         }
@@ -52,6 +52,7 @@ module.controller('uploadPublicationController', ['fetcher', function (fetcher) 
             toPost.city = this.city;
         }
         console.log('POST : ' + JSON.stringify(toPost));
+        $http.post('users/1/publications.json', toPost);
     };
 }]);
 module.directive('personmin', function () {
