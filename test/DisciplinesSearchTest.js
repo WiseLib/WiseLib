@@ -49,13 +49,6 @@ describe ('Retrieve list of disciplines from server database',function(){
 				try{
 
 					server['/disciplines.json']['get'](request,response);
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> Adpated tests to databse changes
-=======
->>>>>>> 76297b650d21e5516c79fcb23ccee1e491724d56
 				}
 				catch(x)
 				{
