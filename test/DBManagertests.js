@@ -6,37 +6,11 @@ var Client = require('mariasql');
 var fs = require('fs');
 var config = require('../lib/config.js');
 
-
-//var c = new Client();
-
+/**
+ * This checks all methods defined in the dbmanager. Since every post method has an opposite, the database should remain clean
+ * @test
+ */
 describe('DbManager tests',function(){
-
-	/*
-	//Connection in test so mocha waits
-	describe ('Attempt connection',function(){
-		it('should connect',function(done){
-
-			c.connect({
-				host: config.host,
-				user: config.user,
-				password: config.password,
-				db: config.db
-			});
-
-			c.on('connect', function() {
-				console.log('Client connected');
-				done();
-			})
-			.on('error', function(err) {
-				console.log('Client error: ' + err);
-				done();
-			})
-			.on('close', function(hadError) {
-				console.log('Client closed');
-			});
-		})
-	});
-	 */
 
 	var dbmanager = new DBManager(config.database);//DBManger(host,database)
 

@@ -1,20 +1,22 @@
 var should = require('should');
 var routes = require('../lib/routes.js');
 
+/**
+ * This test checks the validateEmail function. The function is tested by atempting to validate a number of correct and a number of incorrect e-mailadresses.
+ * The test succeeds if all adressess are validated correctly.
+ * 
+ * @test
+ */
 describe('Validate email adress test',function(){
 	describe ('Test correct email adresses',function(){
-		var email1 = 'test@mail.com';
-		var email2 = '123@test.com';
-		var email3 = 'test@mail.server.com';
-		var email4 = '"r@cer"@voorbeeld.be';
-		var email5 = '"test man"@mail.com';
+
+		var email = ['test@mail.com','123@test.com','test@mail.server.com','"r@cer"@voorbeeld.be','"test man"@mail.com']
 
 		var response = true;
 
-		response = routes.validateEmail(email1);
-		response = routes.validateEmail(email2);
-		response = routes.validateEmail(email3);
-		response = routes.validateEmail(email4);
+		email.forEach(function(email){
+			response = routes.validateEmail(email);
+		})
 
 		it('should validate the adresses correctly',function(){
 			response.should.be.true;
@@ -29,13 +31,13 @@ describe('Validate email adress test',function(){
 		var email4 = 'r@cer@voorbeeld.be';
 		var email5 = 'test man@mail.com';
 
+		var email = ['testmail.com','123@testcom','test@mail.routes.com','r@cer@voorbeeld.be','test man@mail.com']
+
 		var response = false;
 
-		response = routes.validateEmail(email1);
-		response = routes.validateEmail(email2);
-		response = routes.validateEmail(email3);
-		response = routes.validateEmail(email4)
-		response = routes.validateEmail(email5)
+		email.forEach(function(email){
+			response = routes.validateEmail(email);
+		})
 
 		it('should validate the adresses correctly',function(){
 			response.should.be.false;

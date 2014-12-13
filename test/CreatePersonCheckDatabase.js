@@ -1,14 +1,18 @@
-/*var should = require('should');
+var should = require('should');
 var Person = require('../lib/person_test.js');
 var dbscheme = require('../lib/db.js');
-var sql = require('sql');
 var Client = require('mariasql');
+var server = require('../lib/routes.js')
 var fs = require('fs');
 var c = new Client();
-var fs = require('fs');
 var config = require('../lib/config.js');
 
-
+/**
+ *	TODO
+ * [description]
+ * @param  {[type]}
+ * @return {[type]}
+ */
 describe('Create person test',function(){
 
 	after(function(){
@@ -20,10 +24,10 @@ describe('Create person test',function(){
 		it('should connect',function(done){
 
 			c.connect({
-				host: config.host,
-				user: config.user,
-				password: config.password,
-				db: config.db
+				host: config.database.host,
+				user: config.database.user,
+				password: config.database.password,
+				db: config.database.db
 			});
 
 			c.on('connect', function() {
@@ -38,12 +42,16 @@ describe('Create person test',function(){
 				console.log('Client closed');
 			});
 		})
-	})
+	});
+
+	var request;
+	var response;
+
 	describe ('Create person without error',function(){
 		it('should create a person without error',function(done){
 			try{
-				//server.registerPerson();//server method still has wrong name
-
+				
+				server['/persons']['post'](request,response);
 				done();
 			}
 			catch(x)
@@ -67,17 +75,16 @@ describe('Create person test',function(){
 					row.should.have.property('first_name', "Test");
 					row.should.have.property('last_name',"Man");
 					done();
-					c.end();
+					c.end();//TODO put c.end in person remove function
 				})
 				.on('error', function (err) {
 					console.log('Result error: ' + err);
-					c.end();
+					c.end();//TODO put c.end in person remove function
 					throw err;
 
 				})
 				.on('end', function (info) {
-					console.log('Result finished successfully: ' + JSON.stringify(info));
-					c.end();
+					c.end();//TODO put c.end in person remove function
 					var result = info.numRows;
 					if (result < 1){console.log('No results from query ' + query.toString());}
 					if (result > 1){console.log('To many results from query ' + query.toString());}
@@ -91,4 +98,4 @@ describe('Create person test',function(){
 		})
 	})
 });
-*/
+
