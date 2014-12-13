@@ -1,6 +1,6 @@
 var should = require('should');
 var User = require('../lib/user_test.js');
-var server = require('../lib/routes.js');//Every method is still in server
+var server = require('../lib/routes.js');//Every method is still in routes
 var dbscheme = require('../lib/db.js');
 var Client = require('mariasql');
 var fs = require('fs');
@@ -16,56 +16,74 @@ var configuration = require('../lib/config.js');
  * 
  * @test
  */
-describe('Create user test', function(){
-	
-	after(function(){
+
+ function removeUser(client,id){ //temporary remove user function TODO use the one from route?
+
+ 	var query = 'DELETE FROM user where person_id=' + id.toString() + ';';
+
+ 	client.query(query);
+ 	client.on('result', function (res) {
+ 		res.on('error', function (err) {
+ 			throw Error(err);
+ 		})
+ 	});
+
+ 	client.end();
+ };
+
+ describe('Create user test', function(){
+
+ 	after(function(){
 		// runs after all tests in this block
 		//user.remove();//Remove test person from database for next tests.
 		//TODO Delete user is not yet implemented
+
+		removeUser(c,request.personId);
 	})
-	
-	describe('Attempt connection',function(){
-		it('should connect',function(done){
 
-			var config = configuration.database;
-			c.connect({
-				host: config.host,
-				user: config.user,
-				password: config.password,
-				db: config.db
-			});
+ 	describe('Attempt connection',function(){
+ 		it('should connect',function(done){
 
-			c.on('connect', function() {
+ 			var config = configuration.database;
+ 			c.connect({
+ 				host: config.host,
+ 				user: config.user,
+ 				password: config.password,
+ 				db: config.db
+ 			});
+
+ 			c.on('connect', function() {
 				//console.log('Client connected');
 				done();
 			})
-			.on('error', function(err) {
-				var err = Error('Client error: ' + err);
-				done(err);
-			})
-			.on('close', function(hadError) {
+ 			.on('error', function(err) {
+ 				var err = Error('Client error: ' + err);
+ 				done(err);
+ 			})
+ 			.on('close', function(hadError) {
 				//console.log('Client closed');
 			});
-		})
-	})
-	var response =  new User.fakeresponse();
-	
+ 		})
+ 	})
+ 	var response =  new User.fakeresponse();
+	var request2 = new User.fakerequest("mail@mail.com","password",false);//person does not already exist
+	var request = new User.fakerequest("mail@mail.com","password","4");//person exists with id '4'
+
 	describe('Create user', function(){
 		it('should create user without error', function(done){//function done makes mocha wait for test completion
+
+			response.done = done;
+
 			try{
 				
-				var request = new User.fakerequest("mail@mail.com","password",false);//person does not already exist
-				var request2 = new User.fakerequest("mail@mail.com","password","4");//person exists with id '4'
 				
-				//server.registerUser(request,response,done);
-				done();
+				
+				server['/user.json']['post'](request,response);
 			}
 			catch(x)
 			{
 				done(x);
 			}	
-
-			//	done();
 		});
 	})
 
@@ -74,26 +92,20 @@ describe('Create user test', function(){
 			var query = dbscheme.user.select(dbscheme.user.star())
 			.from(dbscheme.user)
 			.where(
-					dbscheme.user.email_address.like('%' + "mail@mail.com" + '%'));
+				dbscheme.user.email_address.like('%' + "mail@mail.com" + '%'));
 			try{
 				c.query(query.toString())
 				.on('result', function (res) {
 					res.on('row', function (row) {
-						console.log('Result row: ' + JSON.stringify(row));
 						row.should.have.property('email_address', "mail@mail.com");
 						row.should.have.property('password',"password");
-						if(request.personId) {row.should.have.property('person_id',requestpersonId.toString());};
-						done();
-						c.end();
+						if(request.personId) {row.should.have.property('person_id',request.personId.toString());};
 					})
 					.on('error', function (err) {
 						console.log('Result error: ' + err);
-						c.end();
 						throw err;
 					})
 					.on('end', function (info) {
-						//console.log('Result finished successfully: ' + JSON.stringify(info));
-						c.end();
 						var result = info.numRows;
 						if (result < 1){console.log('No results from query ' + query.toString());}
 						if (result > 1){console.log('To many results from query ' + query.toString());}
@@ -108,7 +120,7 @@ describe('Create user test', function(){
 			}
 
 		})
-	})
+});
 });
 
 
