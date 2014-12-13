@@ -45,6 +45,11 @@
                     <personmin person="chosenAuthor"></personmin>
                     <button ng-click="publication.remove(publication.authors, chosenAuthor)">Remove</button>
                 </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Discipline" class="col-xs-1 control-label">Discipline</label>
+            <div class="col-xs-10">
                 <select ng-model="selectedDiscipline" 
                 ng-options="discipline.name for discipline in publication.fetcher.fetchDisciplines({})">
             </select>
