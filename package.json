@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "express": "^4.10.4",
+    "express-jwt": "^0.5.1",
     "lodash": "^2.4.1",
     "mariasql": "^0.1.21",
     "sql": "^0.42.0"
