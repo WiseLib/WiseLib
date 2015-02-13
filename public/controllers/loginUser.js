@@ -1,4 +1,4 @@
-var loginUser = angular.module('loginUser', []);
+var loginUser = angular.module('loginUser', ['ngMessages']);
 loginUser.controller('loginUserController', ['$scope', '$location', '$window', 'UserService', 'AuthenticationService', 'Page',
     function($scope, $location, $window, UserService, AuthenticationService, Page) {
 	'use strict';
