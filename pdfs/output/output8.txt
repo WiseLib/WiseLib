@@ -1,0 +1,716 @@
+                           Dexpler: Converting Android Dalvik Bytecode
+                              to Jimple for Static Analysis with Soot
+
+                 Alexandre Bartel  Jacques Klein                                                            Martin Monperrus
+                           Yves Le Traon                                                             University of Lille - INRIA, France
+              University of Luxembourg - SnT, Luxembourg                                              martin.monperrus@univ.lille1.fr
+                        firstname.lastname@uni.lu
+
+
+
+
+Abstract                                                                                       Thus, to analyse Android applications, one is forced to
+This paper introduces Dexpler, a software package which                                     use a Dalvik disassembler such as Smali [2] or Androguard
+converts Dalvik bytecode to Jimple. Dexpler is built on top                                 [5]. The problem with disassemblers is that they generaly
+of Dedexer and Soot. As Jimple is Soot’s main internal rep-                                 use their own representation of the bytecode which prevents
+resentation of code, the Dalvik bytecode can be manipu-                                     them to use existing tools.
+lated with any Jimple based tool, for instance for performing                                  Another possibility is to first convert Dalvik bytecode to
+point-to or flow analysis.                                                                  Java bytecode using Ded [7], Dex2jar [16] or undx [17] and
+                                                                                            then use Java tailored static analysis tools such as Soot [20],
+Categories and Subject Descriptors D.3.4 [Software]:                                        BCEL [4] or WALA [9]. Tools which generate Java bytecode
+Programming Languages—Code generation                                                       can leverage existing Java bytecode analyzers. However, the
+                                                                                            conversion from Dalvik to Java bytecode could be avoided
+General Terms Code Generation                                                               by directly converting Dalvik bytecode to the internal repre-
+Keywords Dalvik Bytecode, Android, Soot, Jimple, Static                                     sentation of a tool.
+Analysis                                                                                       We introduce Dexpler, a Soot modification which allows
+                                                                                            Soot to directly read Dalvik bytecode and perform analysis
+                                                                                            and/or transformation on it’s internal Jimple representation.
+1.     Introduction                                                                         Using this method eliminates the intermediate Dalvik to Java
+Android applications are mainly written in Java. However,                                   bytecode conversion step and enables to use a faster and
+they are not distributed as Java bytecode but rather as Dalvik                              simpler tool chain for static analysis. Dexpler only uses a
+bytecode. Indeed, the original Java code is first compiled into                             disassembler and then does the rest of the work itself or by
+Java bytecode which is then transformed into Dalvik byte-                                   using Soot.
+code by the dx tool1 . Dalvik bytecode is register based and                                   The contributions of this paper are the following:
+optimized to run on devices where memory and processing
+power are scarce.
+   Analyzing Android applications with Java static analysis                                  • we describe a Dalvik to Jimple converter tool
+tools means either that the Java source code or the Java byte-
+                                                                                             • we provide a comprehensive table which maps Dalvik
+code of the Android application must be available. Most of
+the time, Android applications developers do not distribute                                    bytecode instructions to Jimple statements
+the source code of their applications. One must then analyze
+the bytecode, for instance for malware detection.
+                                                                                                The reminder of this paper is organized as follows. In
+1 dxis part of the Android SDK available at http://developer.                               Section 2 we explain what Soot is, and how it has been mod-
+android.com/sdk/index.html                                                                  ified to handle Dalvik bytecode. Section 3 is an overview of
+                                                                                            the Dalvik bytecode. In Section 4 we propose a Soot mod-
+                                                                                            ification called Dexpler which enables Soot to read Dalvik
+                                                                                            bytecode. In Section 5 we evaluate Dexpler on test cases
+Permission to make digital or hard copies of all or part of this work for personal or
+classroom use is granted without fee provided that copies are not made or distributed
+                                                                                            and on one Android application, present and discuss the re-
+for profit or commercial advantage and that copies bear this notice and the full citation   sults. Section 6 explains the current limitation of our tool.
+on the first page. To copy otherwise, to republish, to post on servers or to redistribute
+to lists, requires prior specific permission and/or a fee.
+                                                                                            We present the related work in Section 7. Finally we con-
+SOAP’12 June 14, Beijing, China.                                                            clude the paper and discuss open research challenges in Sec-
+Copyright c 2012 ACM ISBN 978-1-4503-1490-9/12/06. . . $10.00                               tion 8.
+,2.      Soot                                                            Header                        Header
+In this Section we give a brief overview of Soot and then               Constant Pool
+                                                                                                       String Constant Pool
+describe how we incorporate Dexpler in Soot.                            Class Definition
+                                                                                                       Class Constant Pool
+                                                                        Field List
+2.1     Soot Overview                                                                                  Field Constant Pool
+                                                                        Method List
+Soot [11, 20] was created as a Java compiler testbed at                                                Method Constant Pool
+                                                                        Data
+McGill University. It has evolved to become a Java static                                              Class 1 Definition
+analysis and transformation tool.                                      class 1
+                                                                                                       Class 1 Field List
+    Soot can be used as a code analyzer to, among others,                             ..               Class 1 Method List
+check that certain properties hold [22] or guarantee correct-                          .
+ness of programs [8].                                                   Header
+                                                                                                                  ..
+                                                                                                                   .
+    Multiple tools based on Soot have been developed to                 Constant Pool
+perform transformations such as translation of Java to C                                               Class N Definition
+                                                                        Class Definition
+[21], instrumentation of Java programs [23], obfuscator for                                            Class N Field List
+                                                                        Field List
+Java [18], software watermarking [3], ...2 .                                                           Class N Method List
+                                                                        Method List
+    Soot accepts Java source code, Java bytecode and Jim-
+                                                                        Data
+ple source code as input files. Whatever the input format,                                            Data
+it is converted into Soot’s internal representation: Jimple.           class N
+Java sIMPLE, is a stack-less, three address representation                                                      dex
+which features only 15 instructions. Any method code can
+be viewed as a graph of Jimple statements associated with a                       (a) Class Files      (b) Dex File
+list of Jimple local variables.
+                                                                                 Figure 1. Dalvik Dex and Java Class
+2.2     From Java Bytecode to Jimple
+We now describe how Soot handles Java bytecode classes.
+    In a typical case, Soot is launched by specifying the tar-   2.3   Soot and Dalvik
+get directory as a parameter. This directory contains the        Soot is missing a Dalvik to Jimple transformation module.
+code of the program to analyze, called Application Code          We implemented such a module called Dexpler and incorpo-
+(only Java bytecode in this example). First, the main()          rated it to Soot using the same structure as Soot’s Java byte-
+method of the Main class is executed and calls Scene.load        code parser module, coffi by adding the DalvikClassSource
+NecessaryClasses(). This method loads basic Java classes         and DalvikMethodSource classes.
+and then loads specific Application classes by calling
+loadClass(). Then, SootResolver.resolveClass()                   3.    Dalvik Bytecode
+is called. The resolver calls SourceLocator.getClass
+                                                                 We present in this Section the structure of a .dex file con-
+Source() to fetch a reference to a ClassSource, an in-
+                                                                 taining Dalvik classes and Dalvik bytecode.
+terface between the file containing the Java bytecode and
+Soot. In our case the class source is a CoffiClassSource         3.1   Overall Structure
+because it is the coffi module which handles the conversion
+                                                                 A single Dalvik executable is produced from N Java byte-
+from Java bytecode to Jimple. When the resolver has a refer-
+                                                                 code classes through the dx compiler. The resulting Dalvik
+ence to a class source, it calls resolve() on it. This meth-
+                                                                 bytecode is stored in a .dex file as represented in Figure 1b.
+ods in turn calls soot.coffi.Util.resolveFromClass
+                                                                     As represented in Figure 1a, there is only a single place
+File() which creates a SootClass from the corresponding
+                                                                 where literal constant values are stored (constant pool) per
+Java bytecode class. All source fields of Soot class’ methods
+                                                                 Java class. It is heterogeneous since different kind of Objects
+are set to refer to a CoffiMethodSource object. This object
+                                                                 are mixed together (ex: Class, MethodRef, Integer, String,
+is used later to get the Jimple representation of the method.
+                                                                 ...). A .dex file contains four homogeneous constants pools:
+    For instance, if during an analysis with Soot the anal-
+                                                                 for Strings, Class, Fields and Methods. It is shared by all
+ysis code calls SootMethod.getActiveBody() and the
+                                                                 the classes. A .dex file contains multiple Class Definitions
+Jimple code of the method was not already generated,
+                                                                 each containing one or more Method definition each of those
+getActiveBody() will call CofficMethodSource.get
+                                                                 being linked to Dalvik bytecode instructions present in the
+Body() to compute Jimple code from the Java bytecode.
+                                                                 Data section.
+The Jimple code representation of the method can then be
+analyzed and/or transformed.                                     3.2   Dalvik Instruction
+2 see  https://svn.sable.mcgill.ca/wiki/index.cgi/SootUsers      The Dalvik virtual machine is register based. This means
+for a comprehensive list                                         most instructions must specify the registers which they ma-
+,int i = 0;                        00: const/4 v0, #int 0        4.3     Instruction Mapping
+Object o = null;                  01: const/4 v1, #int 0
+(Java)                            (Dalvik)                      Each Dalvik instruction is mapped to a corresponding (or
+                                                                a group of) Jimple statements. A comprehensive mapping
+      Figure 2. Dalvik Representation of null and zero          is represented in Table 1 in Appendix A. Unused opcodes
+                                                                are marked as ’-’ and odex opcodes as ’odex’. There are
+                                                                five main groups of instructions: move instructions (0x01 to
+nipulate. Registers could be specified on 4, 8 or 16 bits de-   0x1C), branch instructions (0x27 to 0x3D), getter and set-
+pending on the instruction.                                     ter instructions (0x44 to 0x6D), method invoke instructions
+    There are 237 opcodes present in the Dalvik opcode con-     (0x6E to 0x78) logic and arithmetic instructions (0x7B to
+stant list3 . However, 12 odex (optimized dex) instructions     0xE2).
+can not be found in Android applications Dalvik bytecode
+                                                                4.4     Type Inference
+as they are unsafe instructions generated within the Android
+system to optimize Dalvik bytecode. Moreover, 8 instruc-        The type for local variables is inferred using the fast typing
+tions were never found in application code [15]. According      Soot component. However, the inference algorithm some-
+to those numbers, only 217 instructions can be found in An-     time generates an exception and stop because some Dalvik
+droid PacKages (.apk) in practice.                              instructions (such as the constant initialization instructions
+    The set of instructions can be divided between instruc-     0x12 to 0x19) do not provide enough information and thus
+tions which provide the type of the registers they manipulate   confuse the inference engine.
+(ex: sub-long v1, v2, v3) and those which do not (ex:              The lack of type is present in the following instructions:
+const v0, 0xBEEF). Moreover, there is no distinction be-         • null initialization instructions (zero or null?)
+tween NULL and 0 which are both represented as 0 (see Fig-
+                                                                 • initialization instructions (32 bits: integer or float?, 64
+ure 2). As we will see in Section 4, the lack of type and the
+NULL representation become problematic when translating               bits: long or double?)
+the Dalvik bytecode to Jimple.                                  Null Initialization Figure 4 illustrates the problem with a
+                                                                bytecode snippet generated from the Java code of Figure 3.
+                                                                Register v0 is initialized with 0 at 01. At this point we do
+4.    Dexpler                                                   not know if v0 is an integer, a float or a reference to an
+This section describes Dexpler, the Dalvik to Jimple con-       object. At 02 we still do not have the answer. We have to
+verter tool. It leverages the dedexer [14] Dalvik bytecode      wait until instruction at 04 to known that the type of v0 is
+disassembler and the Soot fast typing Jimple component im-      Coordinate. At this point, the Jimple instruction generated
+plementing a type inferrence algorithm [1] for local vari-      for 01 has to be updated to use NullConstant instead of the
+ables. We first give a brief overview on dedexer and on how     default IntConstant(0). If this is not handled correctly,
+Dexpler is working in Sections 4.1 and 4.2, respectively.       the fast typing component generates an exception and stops.
+Then, we detail issues we have to deal with.
+                                                                Numeric Constant Initialization Similarly, float constants
+                                                                initialization cannot be distinguished from int constants ini-
+4.1   Dedexer
+                                                                tialization and double constants initialization from long con-
+Our tool leverages dedexer a Dalvik bytecode parser and         stants initialization. Thus, we go through the graph of Jim-
+disassembler which generates Jasmin [10, 12] like text files    ple statements to find how constants are used and correct
+containing Dalvik instructions instead of Java instructions.    the initializations Jimple statements when needed. For in-
+We generate Jimple classes, methods and statements from         stance, if a float/int constant (initialized by default to int
+the informations provided by dedexer’s dex file parser.         in the Jimple statement) is later used in a float addition,
+                                                                the constant initialization changes from IntConstant(c)
+4.2   Overview                                                  to FloatConstant(Float.intBitsToFloat(c)).
+Dalvik bytecode instructions are first mapped to Jimple            We implemented the algorithm described by Enck et al.
+statements and registers mapped to Jimple local variables.      [6]. It is based on algorithms which extract typing informa-
+The type of local variables is set to UnknownType. Then,        tion for a variable by looking at how it is used in opera-
+Soot’s Jimple component, fast typing, is applied to infer the   tions whithin which the type of the operands is knows (ex:
+type of the local variables. The third and last step consists   the variable is used as a parameter of a method invocation)
+in applying Soot’s Jimple pack jop, which features com-         [13, 19]. For each ambiguous register declaration, the algo-
+ponents such as nop eleminitor, to optimize the generated       rithm performs a depth first search in the control flow graph
+Jimple code.                                                    of Jimple statements to find out how the declared local vari-
+                                                                able dv (registers are mapped to Jimple local variables) is
+3 dalvik/bytecode/Opcodes.java                                  used. The type of dv is exposed with the following state-
+,Coordinate newCoord = null;                                        component has finished. Indeed, comparisons do not in-
+while (newCoord!=null) {
+ newCoord = new Coordinate(1,1);                                   fluence the type inference. For example, the Jimple state-
+}                                                                  ment generated from 02 in Figure 4 has to be updated to
+if (newCoord == null) {                                            use NullConstant instead of IntConstant(0). If this
+ [...]                                                             is not handled correctly the bytecode generated from Jim-
+}
+                                                                   ple statements does not run correctly and generates an
+        Figure 3. Illustration of the null init problem.           exception similar to the following one: Exception in
+                                                                   thread "main" java.lang.VerifyError: Expecting
+                                                                   to find integer on stack.
+00: const/4 v1, #int 1
+01: const/4 v0, #int 0                                               Dexpler enables us to transform Dalvik bytecode to Jim-
+02: if-eqz v0, 000a                                                ple representation. From there, Soot can be used as a static
+04: new-instance v0, LCoordinate;                                  analysis tool to analyze the code. The next Section evaluates
+06: invoke {v0, v1, v1}, LCoordinate;.<init>:(II)V
+09: goto 0002
+                                                                   Dexpler.
+0a: if-nez v0, 0013
+[...]                                                              5.    Evaluation
+13: ...
+                                                                   We evaluate Dexpler using test cases, and one Android ap-
+      Figure 4. Resulting Dalvik Bytecode from Figure 3            plication: Snake.
+                                                                   5.1   Test Cases
+ments: comparison with a known type, instructions operat-          The first step is to generate the Dalvik bytecode for every test
+ing only on specific types (ex: neg-float), non-void return        case. The test cases are written in Java then compiled into
+instructions and method invocation. The search in a branch         Java bytecode using javac and finally converted into Dalvik
+of the graph is terminated if either the local variable is reas-   bytecode using dx. The second step is to execute Dexpler on
+signed (new declaration) or if there is no more statement that     every generated Dalvik bytecode test case. This generates
+follow the current one (eg: the current statement is a return      .jimple and .class files. We then compare the execution
+or throw statement). When the type information is found it         result from of the versions produced from the original Java
+is forward propagated to all subsequent ambiguous uses be-         bytecode and the Java bytecode produced by Soot from the
+tween the target ambiguous declaration of dv and any new           Dalvik bytecode. Executions of the .class files give the
+declaration of dv.                                                 correct result.
+                                                                      We wrote test cases for arithmetic operations, branches,
+4.5    Handling Branches                                           method calls, array initialization, string manipulation, null
+Dalvik instructions are mapped to Jimple statements. When          and zero usage, exceptions and casts.
+parsing Dalvik bytecode, we keep a mapping between byte-              Since simple test cases do not reflect a real application we
+code instructions addresses and Jimple statements. Thus,           also evaluated our tool on one Android application.
+when a Dalvik branch instruction is parsed, a Jimple jump          5.2   Android Application
+instruction is generated and its target is retrieved by fetching
+the Jimple statement mapped to the Dalvik branch instruc-          The snake application is a demonstration application devel-
+tion target’s address. We add a nop instruction as the first       oped by the Android team to showcase the Android plat-
+instruction of every Jimple methods. This way, if the first        form.4 It features 11 classes, 39 methods and was written in
+Dalvik instruction is a jump or if the jump’s target corre-        550 lines of Java code. The generated Dalvik bytecode takes
+spond to a non-yet generated Jimple statement, we redirect         14 KiB and contains 884 Dalvik instructions.
+it to the this nop Jimple instruction. We correct those Jim-          From the Dalvik bytecode of the Snake application we
+ple jump instructions once the whole Dalvik bytecode of the        generate Jimple code in one second (duration for the Dalvik
+method has been processed: at this point we know the tar-          to Jimple conversion only). Then we ask Soot to generate
+get Jimple statement mapped to the Dalvik jump’s target ad-        Java bytecode from the Jimple representation. We convert
+dress. The Jimple nop instruction we add is removed during         the Java bytecode back to Dalvik, repackage an Android
+the Jimple optimization step.                                      application and launch it on the Android emulator.
+    Branching instructions often rely on the result of a              The application runs smoothly and the game is working.
+comparison of two registers. Dalvik comparisons between            5.3   Static Analysis on Snake
+double or float are explicit and provide typing informa-
+tion. However, when a register r is compared with zero             We use Soot to generate a call graph of the Snake application
+one has to check the type of r. If it is an object, we             as well as a control flow graph represented in Figure 5 in 14
+change the zero value to null since it is a comparison be-         4 http://developer.android.com/resources/samples/Snake/
+
+tween objects. We do this change when the fast typing              index.html
+,                                                                                                                     semble Dalvik bytecode using an intermediate representa-
+                                                                                              r0 := @this
+                                                                                              b0 = 2
+                                                                                              r1 = null
+                                                                                                                     tion.
+                                                                                              z0 = 0
+
+
+
+                                                                                                label0:
+                                                                                                                     Dalvik to Java Bytecode Converter Ded [7] is a Dalvik
+                                                                                        if z0 != 0 goto label6
+                                                                                                                     bytecode to Java bytecode converter. Once the Java bytecode
+            r2 = com.example.android.snake.SnakeView.RNG
+            i1 = com.example.android.snake.SnakeView.mXTileCount
+                                                                                                                     is generated, Soot is used to optimize the code. Dex2jar
+            i7 = i1 - b0
+            i2 = r2.nextInt(i7)
+            i8 = i2
+                                                                                                                     [16] also generates Java bytecode from Dalvik bytecode
+            i3 = i8 + 1
+            r3 = com.example.android.snake.SnakeView.RNG
+            i9 = com.example.android.snake.SnakeView.mYTileCount
+                                                                                                                     but no not use any external tool to optimize the resulting
+            i10 = i9 - b0
+            i11 = r3.nextInt(i10)
+            i12 = i11
+                                                                                                label6:
+                                                                                       if r1 != null goto label7
+                                                                                                                     Java bytecode. Undx [17] is also a Dalvik to Java bytecode
+            i4 = i12 + 1
+            r11 = new com.example.android.snake.SnakeView$Coordinate
+            r1 = r11
+                                                                                                                     converter but seems to be unavailable.
+            specialinvoke r11.<init>(r0, i3, i4)
+            z1 = 0
+            r4 = r0.mSnakeTrail
+                                                                                                                        We on the other hand do not directly generate Java byte-
+            i13 = r4.size()
+            i5 = i13                                                                                                 code but Jimple code. From there, since the Jimple code is
+            i6 = 0
+
+                                                                                                                     within Soot, we can generate Java bytecode as well.
+                                                        r8 = "SnakeView"
+                                  label1:
+                                                        r9 = "Somehow ended up with a null new Coord!"
+                          if i6 >= i5 goto label3
+                                                        android.util.Log.e(r8, r9)                                   Dalvik Assembler/Disassembler Smali [2] or Androguard
+     r5 = r0.mSnakeTrail
+                                                                                                                     [5] can be used to reverse engineer Dalvik bytecode. They
+     r6 = r5.get(i6)
+     r7 = r6
+     r12 = (com.example.android.snake.SnakeView$Coordinate) r7
+                                                                             label3:
+                                                                                                      label7:
+                                                                                               r10 = r0.mAppleList   use their own representation of the Dalvik bytecode: they
+                                                                     if z1 != 0 goto label5    r10.add(r1)
+     z2 = r12.equals(r1)
+     z3 = z2
+     if z3 == 0 goto label2
+                                                                                               return
+                                                                                                                     can not leverage existing analysis tools.
+                                                                                                                        Our tool, use Soot’s internal representation which allows
+                                                                                           label5:
+                      z1 = 1
+                                                                            z4 = 1
+                                                                            z0 = z4
+                                                                                         z5 = 0
+                                                                                         z0 = z5
+                                                                                                                     existing tools to analyze/transform the Dalvik bytecode.
+                                                                                         goto label4
+
+
+
+                       label2:
+                    i6 = i6 + 1
+                                                                                           label4:
+                                                                                         goto label0
+                                                                                                                     8.   Conclusion
+                    goto label1
+                                                    void addRandomApple()
+                                                                                                                     We have presented Dexpler a Soot modification with enables
+                                                                                                                     Soot to analyse Dalvik bytecode and thus Android applica-
+                                                                                                                     tions. This tool leverages dedexer for the parsing of Dalvik
+Figure 5. Control Flow Graph for addRandomApple                                                                      dex files and Soot’s fast typing component for the type in-
+Method Extracted from the Generated Jimple Representa-                                                               ference.
+tion.                                                                                                                   Dexpler converts every Dalvik instruction to Jimple. We
+                                                                                                                     are working on improving Dexpler to make it robust to yet
+seconds (duration from the launch time of Soot until Soot                                                            unhandled typing issues. Once this step is done we will look
+has finished). We perform this to check that the generated                                                           at the performance of this tool compared to current Java
+call graph and CFG correspond to the original code meaning                                                           bytecode generation and analysis tools.
+that the conversion from Dalvik to Jimple is correct for this
+code.                                                                                                                Acknowledgments
+                                                                                                                     This research is supported by the National Research Fund,
+  We have successfully tested our prototype tool on test                                                             Luxembourg.
+cases as well as on an Android application.
+                                                                                                                     References
+6.   Current Liminations                                                                                              [1] B. Bellamy, P. Avgustinov, O. de Moor, and D. Sereni. Effi-
+The current version of Dexpler is able to transform Android                                                               cient local type inference. In G. E. Harris, editor, OOPSLA,
+applications such as the Snake game.                                                                                      pages 475–492. ACM, 2008. ISBN 978-1-60558-215-3.
+   However, it does not handle optimized Dalvik (odex)                                                                [2] Ben Gruver, et al. Smali: An assembler/disassembler for an-
+opcodes.                                                                                                                  droid’s dex format. http://code.google.com/p/smali/,
+   Moreover, when inferring types for ambiguous declara-                                                                  Last accessed: March 20, 2012.
+tions the algorithm supposes that the Dalvik bytecode is le-                                                          [3] P. Cousot and R. Cousot. An abstract interpretation-based
+gal in the sense that it was generated from Java source code                                                              framework for software watermarking. ACM SIGPLAN No-
+and not hand-crafted by malicious developers. In the later                                                                tices, 39(1):173–185, Jan. 2004. ISSN 0362-1340 (print),
+                                                                                                                          1523-2867 (print), 1558-1160 (electronic).
+case assumptions such as ”comparisons always involve vari-
+ables with the same type” may not hold anymore and may                                                                [4] M. Dahm. Byte code engineering. In Proceedings of
+make Dexpler to infer wrong types.                                                                                        Java-Informations-Tage (JIT’99), pages 267–277, D¨usseldorf,
+                                                                                                                          Deutchland, Sept. 1999. ISBN 3-540-66464-5.
+                                                                                                                      [5] A. Desnos and G. Gueguen. Android: From reversing to
+7.   Related Work                                                                                                         decompilation. In Blackhat, 2011.
+To our knowledge no existing tool directly converts Dalvik                                                            [6] W. Enck, D. Octeau, P. McDaniel, and S. Chaudhuri. A study
+bytecode to Jimple. We either found tools to convert Dalvik                                                               of android application security. In Proceedings of the 20th
+bytecode to Java bytecode or tools to disassemble and/or as-                                                              USENIX Security Symposium, San Francisco, CA, aug 2011.
+, [7] W. Enck, D. Octeau, P. McDaniel, and S. Chaudhuri. A study
+     of android application security. In Proc. USENIX Security’
+     11, pages 21–21, Berkeley, CA, USA, 2011.
+         ˚ Fredlund. Guaranteeing correctness properties of a java
+ [8] L.-A.
+     card applet. Electr. Notes Theor. Comput. Sci, 113:217–233,
+     2005.
+ [9] IBM. The T.J. Watson Libraries for Analysis (Wala). http:
+     //wala.sourceforge.net, Last accessed: March 20, 2012.
+[10] Jonathan Meyer, Daniel Reynaud. Jasmin. http://jasmin.
+     sourceforge.net.
+[11] P. Lam, E. Bodden, O. Lhot´ak, and L. Hendren. The Soot
+     framework for Java program analysis: a retrospective. In
+     Cetus Users and Compiler Infastructure Workshop (CETUS
+     2011), Oct. 2011. URL http://www.bodden.de/pubs/
+     lblh11soot.pdf.
+[12] J. Meyer and T. Downing. Java Virtual Machine. O’Reilly,
+     1997.
+[13] R. Milner. A theory of type polymorphism in programming.
+     JCSS, 17:348–375, 1978.
+[14] G. Paller. Dedexer. http://dedexer.sourceforge.net/,
+     Last accessed: March 20, 2012.
+[15] G. Paller. Dalvik opcodes. http://pallergabor.uw.
+     hu/androidblog/dalvik_opcodes.html, Last accessed:
+     March 20, 2012.
+[16] Panxiaobo, et al. Dex2jar: Tools to work with android .dex and
+     java .class files. http://code.google.com/p/dex2jar/,
+     Last accessed: March 20, 2012.
+[17] M. Schnefeld. Reconstructing dalvik applications. In CONFi-
+     dence, 2009.
+[18] M. Sosonkin, G. Naumovich, and N. Memon. Obfuscation
+     of design intent in object-oriented applications. In M. Yung,
+     editor, Proceedings of the 2003 ACM workshop on Digital
+     rights management (DRM-03), pages 142–153, New York,
+     Oct. 27 2003. ACM Press.
+[19] J. Tiuryn. Type inference problems: A survey. In MFCS, pages
+     105–120, 1990.
+[20] R. Vall´ee-Rai, L. Hendren, V. Sundaresan, E. G. Patrick Lam,
+     and P. Co. Soot - a java optimization framework. In Proceed-
+     ings of CASCON 1999, pages 125–135, 1999.
+[21] A. Varma and S. S. Bhattacharyya. Java-through-C com-
+     pilation: An enabling technology for java in embedded sys-
+     tems. In DATE, pages 161–167. IEEE Computer Society,
+     2004. ISBN 0-7695-2085-5.
+[22] E. Yahav and G. Ramalingam. Verifying safety properties
+     using separation and heterogeneous abstractions. ACM SIG-
+     PLAN Notices, 39(6):25–34, May 2004. ISSN 0362-1340
+     (print), 1523-2867 (print), 1558-1160 (electronic).
+[23] C. Zhang, D. Yan, J. Zhao, Y. Chen, and S. Yang. BPGen: an
+     automated breakpoint generator for debugging. In J. Kramer,
+     J. Bishop, P. T. Devanbu, and S. Uchitel, editors, ICSE (2),
+     pages 271–274. ACM, 2010. ISBN 978-1-60558-719-6.
+,A.    Jimple Code
+
+                               Table 1: Jimple Code representation of Dalvik Instructions
+
+     Opcode   Opcode name                         Jimple Code
+      0x00    nop                                 nop
+      0x01    move vx,vy                          vx = vy
+      0x02    move/from16 vx,vy                   vx = vy
+      0x03    move/16                             vx = vy
+      0x04    move-wide                           vx = vy
+      0x05    move-wide/from16 vx,vy              vx = vy
+      0x06    move-wide/16                        vx = vy
+      0x07    move-object vx,vy                   vx = vy
+      0x08    move-object/from16 vx,vy            vx = vy
+      0x09    move-object/16                      vx = vy
+     0x0A     move-result vx                      vx = mres
+     0x0B     move-result-wide vx                 vx = mres
+     0x0C     move-result-object vx               vx = mres
+     0x0D     move-exception vx                   vx = mres
+      0x0E    return-void                         return
+      0x0F    return vx                           return vx
+      0x10    return-wide vx                      return vx
+      0x11    return-object vx                    return vx
+      0x12    const/4 vx,lit4                     vx = lit4
+      0x13    const/16 vx,lit16                   vx = lit16
+      0x14    const vx, lit32                     vx = lit32
+      0x15    const/high16 v0, lit16              vx = lit16 << 16
+      0x16    const-wide/16 vx, lit16             vx = lit16
+      0x17    const-wide/32 vx, lit32             vx = lit32
+      0x18    const-wide vx, lit64                vx = lit64
+      0x19    const-wide/high16 vx,lit16          vx = lit16 << 48
+     0x1A     const-string vx,string id           vx = string
+     0x1B     const-string-jumbo vx,string        vx = string
+     0x1C     const-class vx,type id              vx = class ”type”
+     0x1D     monitor-enter vx                    monitorenter vx
+      0x1E    monitor-exit vx                     monitorexit vx
+      0x1F    check-cast vx, type id              checkcast = (type) vx
+      0x20    instance-of vx,vy,type id           vx = vy instanceof type
+      0x21    array-length vx,vy                  vx = length(vy)
+      0x22    new-instance vx,type                vx = new type
+      0x23    new-array vx,vy,type id             vx = new type[vy]
+      0x24    filled-new-array                    vx = new array type[size]; vx[0] = e1; ... vx[N] = eN;
+              {parameters},type id
+     0x25     filled-new-array-range              vx = new array type[size]; vx[0] = e1; ... vx[N] = eN;
+              {vx..vy},type id
+     0x26     fill-array-data                     vx[0] = e1; ... vx[N] = eN;
+              vx,array data offset
+     0x27     throw vx                            throw vx
+     0x28     goto target                         goto target
+     0x29     goto/16 target                      goto target
+     0x2A     goto/32 target                      goto target
+     0x2B     packed-switch vx,table              switch (vx) { case C1: goto target1; ... case CN: goto targetN; }
+,                          Table 1: Jimple Code representation of Dalvik Instructions
+
+Opcode   Opcode name                         Jimple Code
+0x2C     sparse-switch vx,table              switch (vx) { case C1: goto target1; ... case CN: goto targetN; }
+0x2D     cmpl-float                          vx = vy cmpl vz
+ 0x2E    cmpg-float vx, vy, vz               vx = vy cmpg vz
+ 0x2F    cmpl-double vx,vy,vz                vx = vy cmpl vz
+ 0x30    cmpg-double vx, vy, vz              vx = vy cmpg vz
+ 0x31    cmp-long vx, vy, vz                 vx = vy cmp vz
+ 0x32    if-eq vx,vy,target                  if (vx == vy) goto target;
+ 0x33    if-ne vx,vy,target                  if (vx != vy) goto target;
+ 0x34    if-lt vx,vy,target                  if (vx < vy) goto target;
+ 0x35    if-ge vx, vy,target                 if (vx >= vy) goto target;
+ 0x36    if-gt vx,vy,target                  if (vx > vy) goto target;
+ 0x37    if-le vx,vy,target                  if (vx <= vy) goto target;
+ 0x38    if-eqz vx,target                    if (vx == 0) goto target;
+ 0x39    if-nez vx,target                    if (vx != 0) goto target;
+0x3A     if-ltz vx,target                    if (vx < 0) goto target;
+0x3B     if-gez vx,target                    if (vx >= 0) goto target;
+0x3C     if-gtz vx,target                    if (vx > 0) goto target;
+0x3D     if-lez vx,target                    if (vx <= 0) goto target;
+ 0x3E    unused 3E                           -
+ 0x3F    unused 3F                           -
+ 0x40    unused 40                           -
+ 0x41    unused 41                           -
+ 0x42    unused 42                           -
+ 0x43    unused 43                           -
+ 0x44    aget vx,vy,vz                       vx = vy[vz]
+ 0x45    aget-wide vx,vy,vz                  vx = vy[vz]
+ 0x46    aget-object vx,vy,vz                vx = vy[vz]
+ 0x47    aget-boolean vx,vy,vz               vx = vy[vz]
+ 0x48    aget-byte vx,vy,vz                  vx = vy[vz]
+ 0x49    aget-char vx, vy,vz                 vx = vy[vz]
+0x4A     aget-short vx,vy,vz                 vx = vy[vz]
+0x4B     aput vx,vy,vz                       vy[vz] = vx
+0x4C     aput-wide vx,vy,vz                  vy[vz] = vx
+0x4D     aput-object vx,vy,vz                vy[vz] = vx
+ 0x4E    aput-boolean vx,vy,vz               vy[vz] = vx
+ 0x4F    aput-byte vx,vy,vz                  vy[vz] = vx
+ 0x50    aput-char vx,vy,vz                  vy[vz] = vx
+ 0x51    aput-short vx,vy,vz                 vy[vz] = vx
+ 0x52    iget vx, vy, field id               vx = field id
+ 0x53    iget-wide vx,vy,field id            vx = field id
+ 0x54    iget-object vx,vy,field id          vx = field id
+ 0x55    iget-boolean vx,vy,field id         vx = field id
+ 0x56    iget-byte vx,vy,field id            vx = field id
+ 0x57    iget-char vx,vy,field id            vx = field id
+ 0x58    iget-short vx,vy,field id           vx = field id
+ 0x59    iput vx,vy, field id                field id = vx
+0x5A     iput-wide vx,vy, field id           field id = vx
+0x5B     iput-object vx,vy,field id          field id = vx
+0x5C     iput-boolean vx,vy, field id        field id = vx
+,                          Table 1: Jimple Code representation of Dalvik Instructions
+
+Opcode   Opcode name                         Jimple Code
+0x5D     iput-byte vx,vy,field id            field id = vx
+ 0x5E    iput-char vx,vy,field id            field id = vx
+ 0x5F    iput-short vx,vy,field id           field id = vx
+ 0x60    sget vx,field id                    vx = field id
+ 0x61    sget-wide vx, field id              vx = field id
+ 0x62    sget-object vx,field id             vx = field id
+ 0x63    sget-boolean vx,field id            vx = field id
+ 0x64    sget-byte vx,field id               vx = field id
+ 0x65    sget-char vx,field id               vx = field id
+ 0x66    sget-short vx,field id              vx = field id
+ 0x67    sput vx, field id                   field id = vx
+ 0x68    sput-wide vx, field id              field id = vx
+ 0x69    sput-object vx,field id             field id = vx
+0x6A     sput-boolean vx,field id            field id = vx
+0x6B     sput-byte vx,field id               field id = vx
+0x6C     sput-char vx,field id               field id = vx
+0x6D     sput-short vx,field id              field id = vx
+ 0x6E    invoke-virtual { parameters },      invoke-virtual
+         methodtocall
+0x6F     invoke-super                        invoke-special
+         {parameter},methodtocall
+0x70     invoke-direct { parameters },       invoke-special
+         methodtocall
+0x71     invoke-static       {parameters},   invoke-static
+         methodtocall
+0x72     invoke-interface                    invoke-interface
+         {parameters},methodtocall
+0x73     unused 73                           -
+0x74     invoke-virtual/range                invoke-virtual
+         {vx..vy},methodtocall
+0x75     invoke-super/range                  invoke-special
+0x76     invoke-direct/range                 invoke-special
+         {vx..vy},methodtocall
+0x77     invoke-static/range                 invoke-static
+         {vx..vy},methodtocall
+0x78     invoke-interface-range              invoke-interface
+0x79     unused 79                           -
+0x7A     unused 7A                           -
+0x7B     neg-int vx,vy                       vx = 0 -vy
+0x7C     not-int vx,vy                       vx = vy ˆ (-1)
+0x7D     neg-long vx,vy                      vx = 0 -vy
+0x7E     not-long vx,vy                      vx = vy ˆ (-1)
+0x7F     neg-float vx,vy                     vx = 0 -vy
+0x80     neg-double vx,vy                    vx = 0 -vy
+0x81     int-to-long vx, vy                  vx = (long) vy
+0x82     int-to-float vx, vy                 vx = (float) vy
+0x83     int-to-double vx, vy                vx = (double) vy
+0x84     long-to-int vx,vy                   vx = (int) vy
+0x85     long-to-float vx, vy                vx = (float) vy
+,                          Table 1: Jimple Code representation of Dalvik Instructions
+
+Opcode   Opcode name                         Jimple Code
+ 0x86    long-to-double vx, vy               vx = (double) vy
+ 0x87    float-to-int vx, vy                 vx = (int) vy
+ 0x88    float-to-long vx,vy                 vx = (long) vy
+ 0x89    float-to-double vx, vy              vx = (double) vy
+0x8A     double-to-int vx, vy                vx = (int) vy
+0x8B     double-to-long vx, vy               vx = (long) vy
+0x8C     double-to-float vx, vy              vx = (float) vy
+0x8D     int-to-byte vx,vy                   vx = (byte) vy
+ 0x8E    int-to-char vx,vy                   vx = (char) vy
+ 0x8F    int-to-short vx,vy                  vx = (short) vy
+ 0x90    add-int vx,vy,vz                    vx = vy + vz
+ 0x91    sub-int vx,vy,vz                    vx = vy - vz
+ 0x92    mul-int vx, vy, vz                  vx = vy * vz
+ 0x93    div-int vx,vy,vz                    vx = vy / vz
+ 0x94    rem-int vx,vy,vz                    vx = vy % vz
+ 0x95    and-int vx, vy, vz                  vx = vy & vz
+ 0x96    or-int vx, vy, vz                   vx = vy | vz
+ 0x97    xor-int vx, vy, vz                  vx = vy ˆ vz
+ 0x98    shl-int vx, vy, vz                  vx = vy << vz
+ 0x99    shr-int vx, vy, vz                  vx = vy >> vz
+0x9A     ushr-int vx, vy, vz                 vx = vy >> vz
+0x9B     add-long vx, vy, vz                 vx = vy + vz
+0x9C     sub-long vx,vy,vz                   vx = vy - vz
+0x9D     mul-long vx,vy,vz                   vx = vy * vz
+ 0x9E    div-long vx, vy, vz                 vx = vy / vz
+ 0x9F    rem-long vx,vy,vz                   vx = vy % vz
+0xA0     and-long vx, vy, vz                 vx = vy & vz
+0xA1     or-long vx, vy, vz                  vx = vy | vz
+0xA2     xor-long vx, vy, vz                 vx = vy ˆ vz
+0xA3     shl-long vx, vy, vz                 vx = vy << vz
+0xA4     shr-long vx,vy,vz                   vx = vy >> vz
+0xA5     ushr-long vx, vy, vz                vx = vy >> vz
+0xA6     add-float vx,vy,vz                  vx = vy + vz
+0xA7     sub-float vx,vy,vz                  vx = vy - vz
+0xA8     mul-float vx, vy, vz                vx = vy * vz
+0xA9     div-float vx, vy, vz                vx = vy / vz
+0xAA     rem-float vx,vy,vz                  vx = vy % vz
+0xAB     add-double vx,vy,vz                 vx = vy + vz
+0xAC     sub-double vx,vy,vz                 vx = vy - vz
+0xAD     mul-double vx, vy, vz               vx = vy * vz
+0xAE     div-double vx, vy, vz               vx = vy / vz
+0xAF     rem-double vx,vy,vz                 vx = vy % vz
+0xB0     add-int/2addr vx,vy                 vx = vx + vy
+0xB1     sub-int/2addr vx,vy                 vx = vx - vy
+0xB2     mul-int/2addr vx,vy                 vx = vx * vy
+0xB3     div-int/2addr vx,vy                 vx = vx / vy
+0xB4     rem-int/2addr vx,vy                 vx = vx % vy
+0xB5     and-int/2addr vx, vy                vx = vx & vy
+0xB6     or-int/2addr vx, vy                 vx = vx | vy
+,                           Table 1: Jimple Code representation of Dalvik Instructions
+
+Opcode   Opcode name                          Jimple Code
+0xB7     xor-int/2addr vx, vy                 vx = vx ˆ vy
+0xB8     shl-int/2addr vx, vy                 vx = vx << vy
+0xB9     shr-int/2addr vx, vy                 vx = vx >> vy
+0xBA     ushr-int/2addr vx, vy                vx = vx >> vy
+0xBB     add-long/2addr vx,vy                 vx = vx + vy
+0xBC     sub-long/2addr vx,vy                 vx = vx - vy
+0xBD     mul-long/2addr vx,vy                 vx = vx * vy
+0xBE     div-long/2addr vx, vy                vx = vx / vy
+0xBF     rem-long/2addr vx,vy                 vx = vx % vy
+0xC0     and-long/2addr vx, vy                vx = vx & vy
+0xC1     or-long/2addr vx, vy                 vx = vx | vy
+0xC2     xor-long/2addr vx, vy                vx = vx ˆ vy
+0xC3     shl-long/2addr vx, vy                vx = vx << vy
+0xC4     shr-long/2addr vx, vy                vx = vx >> vy
+0xC5     ushr-long/2addr vx, vy               vx = vx >> vy
+0xC6     add-float/2addr vx,vy                vx = vx + vy
+0xC7     sub-float/2addr vx,vy                vx = vx - vy
+0xC8     mul-float/2addr vx, vy               vx = vx * vy
+0xC9     div-float/2addr vx, vy               vx = vx / vy
+0xCA     rem-float/2addr vx,vy                vx = vx % vy
+0xCB     add-double/2addr vx, vy              vx = vx + vy
+0xCC     sub-double/2addr vx, vy              vx = vx - vy
+0xCD     mul-double/2addr vx, vy              vx = vx * vy
+0xCE     div-double/2addr vx, vy              vx = vx / vy
+0xCF     rem-double/2addr vx,vy               vx = vx % vy
+0xD0     add-int/lit16 vx,vy,lit16            vx = vy + lit16
+0xD1     sub-int/lit16 vx,vy,lit16            vx = vy - lit16
+0xD2     mul-int/lit16 vx,vy,lit16            vx = vy * lit16
+0xD3     div-int/lit16 vx,vy,lit16            vx = vy / lit16
+0xD4     rem-int/lit16 vx,vy,lit16            vx = vy % lit16
+0xD5     and-int/lit16 vx,vy,lit16            vx = vy & lit16
+0xD6     or-int/lit16 vx,vy,lit16             vx = vy | lit16
+0xD7     xor-int/lit16 vx,vy,lit16            vx = vy ˆ lit16
+0xD8     add-int/lit8 vx,vy,lit8              vx = vy + lit8
+0xD9     sub-int/lit8 vx,vy,lit8              vx = vy - lit8
+0xDA     mul-int/lit-8 vx,vy,lit8             vx = vy * lit8
+0xDB     div-int/lit8 vx,vy,lit8              vx = vy / lit8
+0xDC     rem-int/lit8 vx,vy,lit8              vx = vy % lit8
+0xDD     and-int/lit8 vx,vy,lit8              vx = vy & lit8
+0xDE     or-int/lit8 vx, vy, lit8             vx = vy | lit8
+0xDF     xor-int/lit8 vx, vy, lit8            vx = vy ˆ lit8
+ 0xE0    shl-int/lit8 vx, vy, lit8            vx = vy + lit8
+ 0xE1    shr-int/lit8 vx, vy, lit8            vx = vy + lit8
+ 0xE2    ushr-int/lit8 vx, vy, lit8           vx = vy + lit8
+ 0xE3    unused E3                            -
+ 0xE4    unused E4                            -
+ 0xE5    unused E5                            -
+ 0xE6    unused E6                            -
+ 0xE7    unused E7                            -
+,                          Table 1: Jimple Code representation of Dalvik Instructions
+
+Opcode   Opcode name                         Jimple Code
+ 0xE8    unused E8                           -
+ 0xE9    unused E9                           -
+0xEA     unused EA                           -
+0xEB     unused EB                           -
+0xEC     unused EC                           -
+0xED     unused ED                           -
+0xEE     execute-inline                      odex
+         {parameters},inline ID
+0xEF     unused EF                           -
+0xF0     invoke-direct-empty                 odex
+0xF1     unused F1                           -
+0xF2     iget-quick vx,vy,offset             odex
+0xF3     iget-wide-quick vx,vy,offset        odex
+0xF4     iget-object-quick vx,vy,offset      odex
+0xF5     iput-quick vx,vy,offset             odex
+0xF6     iput-wide-quick vx,vy,offset        odex
+0xF7     iput-object-quick vx,vy,offset      odex
+0xF8     invoke-virtual-quick                odex
+         {parameters},vtable offset
+0xF9     invoke-virtual-quick/range          odex
+         {parameter range},vtable offset
+0xFA     invoke-super-quick                  odex
+         {parameters},vtable offset
+0xFB     invoke-super-quick/range            odex
+         {register range},vtable offset
+0xFC     unused FC                           -
+0xFD     unused FD                           -
+0xFE     unused FE                           -
+0xFF     unused FF                           -
+

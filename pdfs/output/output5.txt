@@ -1,0 +1,1144 @@
+                            A Study of Android Application Security
+
+               William Enck, Damien Octeau, Patrick McDaniel, and Swarat Chaudhuri
+                       Systems and Internet Infrastructure Security Laboratory
+                         Department of Computer Science and Engineering
+                                 The Pennsylvania State University
+                           {enck, octeau, mcdaniel, swarat}@cse.psu.edu
+
+
+                       Abstract                               ingly desire it, markets are not in a position to provide
+                                                              security in more than a superficial way [30]. The lack of
+The fluidity of application markets complicate smart-
+                                                              a common definition for security and the volume of ap-
+phone security. Although recent efforts have shed light
+                                                              plications ensures that some malicious, questionable, and
+on particular security issues, there remains little insight
+                                                              vulnerable applications will find their way to market.
+into broader security characteristics of smartphone ap-
+                                                                 In this paper, we broadly characterize the security of
+plications. This paper seeks to better understand smart-
+                                                              applications in the Android Market. In contrast to past
+phone application security by studying 1,100 popular
+                                                              studies with narrower foci, e.g., [14, 12], we consider a
+free Android applications. We introduce the ded decom-
+                                                              breadth of concerns including both dangerous functional-
+piler, which recovers Android application source code
+                                                              ity and vulnerabilities, and apply a wide range of analysis
+directly from its installation image. We design and exe-
+                                                              techniques. In this, we make two primary contributions:
+cute a horizontal study of smartphone applications based
+on static analysis of 21 million lines of recovered code.        • We design and implement a Dalvik decompilier,
+Our analysis uncovered pervasive use/misuse of person-             ded. ded recovers an application’s Java source
+al/phone identifiers, and deep penetration of advertising          solely from its installation image by inferring lost
+and analytics networks. However, we did not find ev-               types, performing DVM-to-JVM bytecode retarget-
+idence of malware or exploitable vulnerabilities in the            ing, and translating class and method structures.
+studied applications. We conclude by considering the             • We analyze 21 million LOC retrieved from the top
+implications of these preliminary findings and offer di-           1,100 free applications in the Android Market using
+rections for future analysis.                                      automated tests and manual inspection. Where pos-
+                                                                   sible, we identify root causes and posit the severity
+1   Introduction                                                   of discovered vulnerabilities.
+                                                                 Our popularity-focused security analysis provides in-
+The rapid growth of smartphones has lead to a renais-         sight into the most frequently used applications. Our
+sance for mobile services. Go-anywhere applications           findings inform the following broad observations.
+support a wide array of social, financial, and enterprise
+services for any user with a cellular data plan. Appli-        1. Similar to past studies, we found wide misuse of
+cation markets such as Apple’s App Store and Google’s             privacy sensitive information—particularly phone
+Android Market provide point and click access to hun-             identifiers and geographic location. Phone iden-
+dreds of thousands of paid and free applications. Mar-            tifiers, e.g., IMEI, IMSI, and ICC-ID, were used
+kets streamline software marketing, installation, and             for everything from “cookie-esque” tracking to ac-
+update—therein creating low barriers to bring applica-            counts numbers.
+tions to market, and even lower barriers for users to ob-      2. We found no evidence of telephony misuse, back-
+tain and use them.                                                ground recording of audio or video, abusive connec-
+   The fluidity of the markets also presents enormous se-         tions, or harvesting lists of installed applications.
+curity challenges. Rapidly developed and deployed ap-          3. Ad and analytic network libraries are integrated
+plications [40], coarse permission systems [16], privacy-         with 51% of the applications studied, with Ad Mob
+invading behaviors [14, 12, 21], malware [20, 25, 38],            (appearing in 29.09% of apps) and Google Ads (ap-
+and limited security models [36, 37, 27] have led to ex-          pearing in 18.72% of apps) dominating. Many ap-
+ploitable phones and applications. Although users seem-           plications include more than one ad library.
+,    4. Many developers fail to securely use Android APIs.                  Installed Applications                                           System
+                                                                                                                                          Applications                       Display
+       These failures generally fall into the classification
+
+
+
+
+                                                                         Application
+
+
+                                                                                       Application
+
+
+                                                                                                     Application
+
+
+                                                                                                                    Application
+
+
+
+                                                                                                                                  Application
+
+
+                                                                                                                                                Application
+
+
+                                                                                                                                                              Application
+       of insufficient protection of privacy sensitive infor-                                                                                                               Bluetooth
+       mation. However, we found no exploitable vulnera-
+       bilities that can lead malicious control of the phone.                                                                                                                GPS
+
+
+
+
+                                                                           DVM
+
+
+
+                                                                                         DVM
+
+
+
+                                                                                                       DVM
+
+
+
+                                                                                                                      DVM
+
+
+
+
+                                                                                                                                    DVM
+
+
+
+                                                                                                                                                  DVM
+
+
+
+                                                                                                                                                                DVM
+                                                                                                                                                                            Receiver
+
+   This paper is an initial but not final word on An-                                                                                                                       Cellular
+                                                                                                                   Binder                                                    Radio
+droid application security. Thus, one should be cir-
+cumspect about any interpretation of the following re-                                                                 Embedded Linux
+
+sults as a definitive statement about how secure appli-
+cations are today. Rather, we believe these results are                Figure 1: The Android system architecture
+indicative of the current state, but there remain many
+                                                                it. Permission assignment—and indirectly the security
+aspects of the applications that warrant deeper analy-
+                                                                policy for the phone—is largely delegated to the phone’s
+sis. We plan to continue with this analysis in the fu-
+                                                                owner: the user is presented a screen listing the permis-
+ture and have made the decompiler freely available at
+                                                                sions an application requests at install time, which they
+http://siis.cse.psu.edu/ded/ to aid the broader
+                                                                can accept or reject.
+security community in understanding Android security.
+   The following sections reflect the two thrusts of this       Dalvik Virtual Machine: Android applications are writ-
+work: Sections 2 and 3 provide background and detail            ten in Java, but run in the DVM. The DVM and Java byte-
+our decompilation process, and Sections 4 and 5 detail          code run-time environments differ substantially:
+the application study. The remaining sections discuss our       Application Structure. Java applications are composed
+limitations and interpret the results.                          of one or more .class files, one file per class. The JVM
+                                                                loads the bytecode for a Java class from the associated
+2     Background                                                .class file as it is referenced at run time. Conversely, a
+                                                                Dalvik application consists of a single .dex file contain-
+Android: Android is an OS designed for smartphones.
+                                                                ing all application classes.
+Depicted in Figure 1, Android provides a sandboxed ap-
+                                                                   Figure 2 provides a conceptual view of the compila-
+plication execution environment. A customized embed-
+                                                                tion process for DVM applications. After the Java com-
+ded Linux system interacts with the phone hardware and
+                                                                piler creates JVM bytecode, the Dalvik dx compiler con-
+an off-processor cellular radio. The Binder middleware
+                                                                sumes the .class files, recompiles them to Dalvik byte-
+and application API runs on top of Linux. To simplify,
+                                                                code, and writes the resulting application into a single
+an application’s only interface to the phone is through
+                                                                .dex file. This process consists of the translation, recon-
+these APIs. Each application is executed within a Dalvik
+                                                                struction, and interpretation of three basic elements of
+Virtual Machine (DVM) running under a unique UNIX
+                                                                the application: the constant pools, the class definitions,
+uid. The phone comes pre-installed with a selection of
+                                                                and the data segment. A constant pool describes, not sur-
+system applications, e.g., phone dialer, address book.
+                                                                prisingly, the constants used by a class. This includes,
+   Applications interact with each other and the phone
+                                                                among other items, references to other classes, method
+through different forms of IPC. Intents are typed inter-
+                                                                names, and numerical constants. The class definitions
+process messages that are directed to particular appli-
+                                                                consist in the basic information such as access flags and
+cations or systems services, or broadcast to applications
+                                                                class names. The data element contains the method code
+subscribing to a particular intent type. Persistent content
+                                                                executed by the target VM, as well as other information
+provider data stores are queried through SQL-like inter-
+                                                                related to methods (e.g., number of DVM registers used,
+faces. Background services provide RPC and callback
+                                                                local variable table, and operand stack sizes) and to class
+interfaces that applications use to trigger actions or ac-
+                                                                and instance variables.
+cess data. Finally user interface activities receive named
+action signals from the system and other applications.          Register architecture.       The DVM is register-based,
+   Binder acts as a mediation point for all IPC. Access         whereas existing JVMs are stack-based. Java bytecode
+to system resources (e.g., GPS receivers, text messag-          can assign local variables to a local variable table before
+ing, phone services, and the Internet), data (e.g., address     pushing them onto an operand stack for manipulation by
+books, email) and IPC is governed by permissions as-            opcodes, but it can also just work on the stack without
+signed at install time. The permissions requested by the        explicitly storing variables in the table. Dalvik bytecode
+application and the permissions required to access the          assigns local variables to any of the 216 available regis-
+application’s interfaces/data are defined in its manifest       ters. The Dalvik opcodes directly manipulate registers,
+file. To simplify, an application is allowed to access a        rather than accessing elements on a program stack.
+resource or interface if the required permission allows         Instruction set. The Dalvik bytecode instruction set is
+,                     Java
+                   Compiler
+                                              dx                       ison for these purposes: a comparison between two in-
+                              Class1.class
+                              Constant Pool
+                                                       .dex file
+                                                        Header
+                                                                       tegers, and a comparison of an integer and zero, respec-
+                               Class Info                              tively. This requires the decompilation process to recover
+       Java
+                                  Data              Constant Pool
+                                                                       types for integer comparisons used in DVM bytecode.
+  Source Code
+   (.java files)
+                                                   Class1 definition
+                                                                       Storage of primitive types in arrays. The Dalvik byte-
+                              ClassN.class
+                                                   ClassN definition
+                                                                       code uses ambiguous opcodes to store and retrieve el-
+                              Constant Pool
+                               Class Info               Data           ements in arrays of primitive types (e.g., aget for in-
+                                 Data                                  t/float and aget-wide for long/double) whereas the cor-
+                                                                       responding Java bytecode is unambiguous. The array
+                                                                       type must be recovered for correct translation.
+ Figure 2: Compilation process for DVM applications
+                                                                       3     The ded decompiler
+substantially different than that of Java. Dalvik has 218
+opcodes while Java has 200; however, the nature of the                 Building a decompiler from DEX to Java for the study
+opcodes is very different. For example, Java has tens                  proved to be surprisingly challenging. On the one hand,
+of opcodes dedicated to moving elements between the                    Java decompilation has been studied since the 1990s—
+stack and local variable table. Dalvik instructions tend to            tools such as Mocha [5] date back over a decade, with
+be longer than Java instructions; they often include the               many other techniques being developed [39, 32, 31, 4,
+source and destination registers. As a result, Dalvik ap-              3, 1]. Unfortunately, prior to our work, there existed no
+plications require fewer instructions. In Dalvik bytecode,             functional tool for the Dalvik bytecode.1 Because of the
+applications have on average 30% fewer instructions than               vast differences between JVM and DVM, simple modifi-
+in Java, but have a 35% larger code size (bytes) [9].                  cation of existing decompilers was not possible.
+Constant pool structure. Java applications replicate ele-                 This choice to decompile the Java source rather than
+ments in constant pools within the multiple .class files,              operate on the DEX opcodes directly was grounded in
+e.g., referrer and referent method names. The dx com-                  two reasons. First, we wanted to leverage existing tools
+piler eliminates much of this replication. Dalvik uses a               for code analysis. Second, we required access to source
+single pool that all classes simultaneously reference. Ad-             code to identify false-positives resulting from automated
+ditionally, dx eliminates some constants by inlining their             code analysis, e.g., perform manual confirmation.
+values directly into the bytecode. In practice, integers,                 ded extraction occurs in three stages: a) retarget-
+long integers, and single and double precision floating-               ing, b) optimization, and c) decompilation. This sec-
+point elements disappear during this process.                          tion presents the challenges and process of ded, and con-
+                                                                       cludes with a brief discussion of its validation. Interested
+Control flow Structure.      Control flow elements such
+                                                                       readers are referred to [35] for a thorough treatment.
+as loops, switch statements and exception handlers are
+structured differently in Dalvik and Java bytecode. Java
+bytecode structure loosely mirrors the source code,                    3.1    Application Retargeting
+whereas Dalvik bytecode does not.
+                                                                       The initial stage of decompilation retargets the applica-
+Ambiguous primitive types.           Java bytecode vari-               tion .dex file to Java classes. Figure 3 overviews this
+able assignments distinguish between integer (int) and                 process: (1) recovering typing information, (2) translat-
+single-precision floating-point (float) constants and be-              ing the constant pool, and (3) retargeting the bytecode.
+tween long integer (long) and double-precision floating-
+                                                                       Type Inference: The first step in retargeting is to iden-
+point (double) constants. However, Dalvik assignments
+                                                                       tify class and method constants and variables. However,
+(int/float and long/double) use the same opcodes for
+                                                                       the Dalvik bytecode does not always provide enough in-
+integers and floats, e.g., the opcodes are untyped beyond
+                                                                       formation to determine the type of a variable or constant
+specifying precision.
+                                                                       from its register declaration. There are two generalized
+Null references. The Dalvik bytecode does not specify                  cases where variable types are ambiguous: 1) constant
+a null type, instead opting to use a zero value constant.              and variable declaration only specifies the variable width
+Thus, constant zero values present in the Dalvik byte-                 (e.g., 32 or 64 bits), but not whether it is a float, integer,
+code have ambiguous typing that must be recovered.                     or null reference; and 2) comparison operators do not
+Comparison of object references. The Java bytecode                     distinguish between integer and object reference compar-
+uses typed opcodes for the comparison of object refer-                 ison (i.e., null reference checks).
+ences (if acmpeq and if acmpne) and for null compar-                      Type inference has been widely studied [44]. The sem-
+ison of object references (ifnull and ifnonnull). The                  inal Hindley-Milner [33] algorithm provides the basis for
+Dalvik bytecode uses a more simplistic integer compar-                 type inference algorithms used by many languages such
+,                                                               minate: a) when the register is reassigned to another vari-
+                                              CFG
+      (1) DEX Parsing
+                                           Construction        able (e.g., a new declaration is encountered), b) when a
+                                                               return function is encountered, and c) when an exception
+                                          Type Inference
+                                            Processing
+                                                               is thrown. After a branch is abandoned, the next branch
+                        Missing Type                           is popped off the stack and the search continues. Lastly,
+                         Inference
+                                             Constant          type information is forward propagated, modulo register
+      (2) Java .class   Constant Pool
+                                           Identification
+                                                               reassignment, through the control flow graph from each
+        Conversion       Conversion                            register declaration to all subsequent ambiguous uses.
+                                          Constant Pool
+                                           Translation         This algorithm resolves all ambiguous primitive types,
+                        Method Code
+                         Retargeting                           except for one isolated case when all paths leading to
+                                            Bytecode
+                                          Reorganization
+                                                               a type ambiguous instruction originate with ambiguous
+                                                               constant instructions (e.g., all paths leading to an integer
+      (3) Java .class
+       Optimization                       Instruction Set      comparison originate with registers assigned a constant
+                                            Translation
+                                                               zero). In this case, the type does not impact decompila-
+                                                               tion, and a default type (e.g., integer) can be assigned.
+           Figure 3: Dalvik bytecode retargeting               Constant Pool Conversion: The .dex and .class file
+                                                               constant pools differ in that: a) Dalvik maintains a sin-
+as Haskell and ML. These approaches determine un-              gle constant pool for the application and Java maintains
+known types by observing how variables are used in op-         one for each class, and b) Dalvik bytecode places primi-
+erations with known type operands. Similar techniques          tive type constants directly in the bytecode, whereas Java
+are used by languages with strong type inference, e.g.,        bytecode uses the constant pool for most references. We
+OCAML, as well weaker inference, e.g., Perl.                   convert constant pool information in two steps.
+   ded adopts the accepted approach: it infers register           The first step is to identify which constants are needed
+types by observing how they are used in subsequent op-         for a .class file. Constants include references to
+erations with known type operands. Dalvik registers            classes, methods, and instance variables. ded traverses
+loosely correspond to Java variables. Because Dalvik           the bytecode for each method in a class, noting such ref-
+bytecode reuses registers whose variables are no longer        erences. ded also identifies all constant primitives.
+in scope, we must evaluate the register type within its
+                                                                  Once ded identifies the constants required by a class,
+context of the method control flow, i.e., inference must
+                                                               it adds them to the target .class file. For primitive type
+be path-sensitive. Note further that ded type inference is
+                                                               constants, new entries are created. For class, method,
+also method-local. Because the types of passed param-
+                                                               and instance variable references, the created Java con-
+eters and return values are identified by method signa-
+                                                               stant pool entries are based on the Dalvik constant pool
+tures, there is no need to search outside the method.
+                                                               entries. The constant pool formats differ in complex-
+   There are three ways ded infers a register’s type. First,   ity. Specifically, Dalvik constant pool entries use sig-
+any comparison of a variable or constant with a known          nificantly more references to reduce memory overhead.
+type exposes the type. Comparison of dissimilar types
+requires type coercion in Java, which is propagated to         Method Code Retargeting: The final stage of the re-
+the Dalvik bytecode. Hence legal Dalvik comparisons al-        targeting process is the translation of the method code.
+ways involve registers of the same type. Second, instruc-      First, we preprocess the bytecode to reorganize structures
+tions such as add-int only operate on specific types,          that cannot be directly retargeted. Second, we linearly
+manifestly exposing typing information. Third, instruc-        traverse the DVM bytecode and translate to the JVM.
+tions that pass registers to methods or use a return value        The preprocessing phase addresses multidimensional
+expose the type via the method signature.                      arrays. Both Dalvik and Java use blocks of bytecode
+   The ded type inference algorithm proceeds as follows.       instructions to create multidimensional arrays; however,
+After reconstructing the control flow graph, ded identi-       the instructions have different semantics and layout. ded
+fies any ambiguous register declaration. For each such         reorders and annotates the bytecode with array size and
+register, ded walks the instructions in the control flow       type information for translation.
+graph starting from its declaration. Each branch of the           The bytecode translation linearly processes each
+control flow encountered is pushed onto an inference           Dalvik instruction. First, ded maps each referenced reg-
+stack, e.g., ded performs a depth-first search of the con-     ister to a Java local variable table index. Second, ded
+trol flow graph looking for type-exposing instructions. If     performs an instruction translation for each encountered
+a type-exposing instruction is encountered, the variable       Dalvik instruction. As Dalvik bytecode is more compact
+is labeled and the process is complete for that variable.2     and takes more arguments, one Dalvik instruction fre-
+There are three events that cause a branch search to ter-      quently expands to multiple Java instructions. Third, ded
+,patches the relative offsets used for branches based on          Table 1: Studied Applications (from Android Market)
+preprocessing annotations. Finally, ded defines excep-                            Total Retargeted Decompiled
+tion tables that describe try/catch/finally blocks.             Category         Classes Classes     Classes   LOC
+The resulting translated code is combined with the con-         Comics             5627 99.54%       94.72%    415625
+stant pool to creates a legal Java .class file.                 Communication     23000 99.12%       92.32%   1832514
+   The following is an example translation for add-int:         Demo               8012 99.90%       94.75%    830471
+                Dalvik                 Java                     Entertainment     10300 99.64%       95.39%    709915
+                add-int d0 , s0 , s1   iload s�0                Finance           18375 99.34%       94.29%   1556392
+                                       iload s�1                Games (Arcade)     8508 99.27%       93.16%    766045
+                                       iadd                     Games (Puzzle)     9809 99.38%       94.58%    727642
+                                       istore d0�               Games (Casino)    10754 99.39%       93.38%    985423
+where ded creates a Java local variable for each regis-         Games (Casual)     8047 99.33%       93.69%    681429
+ter, i.e., d0 → d0� , s0 → s�0 , etc. The translation creates   Health            11438 99.55%       94.69%    847511
+four Java instructions: two to push the variables onto the      Lifestyle          9548 99.69%       95.30%    778446
+stack, one to add, and one to pop the result.                   Multimedia        15539 99.20%       93.46%   1323805
+                                                                News/Weather      14297 99.41%       94.52%   1123674
+3.2    Optimization and Decompilation                           Productivity      14751 99.25%       94.87%   1443600
+                                                                Reference         10596 99.69%       94.87%    887794
+At this stage, the retargeted .class files can be de-           Shopping          15771 99.64%       96.25%   1371351
+compiled using existing tools, e.g., Fernflower [1] or          Social            23188 99.57%       95.23%   2048177
+Soot [45]. However, ded’s bytecode translation process          Libraries          2748 99.45%       94.18%    182655
+yields unoptimized Java code. For example, Java tools           Sports             8509 99.49%       94.44%    651881
+often optimize out unnecessary assignments to the local         Themes             4806 99.04%       93.30%    310203
+variable table, e.g., unneeded return values. Without op-       Tools              9696 99.28%       95.29%    839866
+                                                                Travel            18791 99.30%       94.47%   1419783
+timization, decompiled code is complex and frustrates
+                                                                Total            262110 99.41%      94.41% 21734202
+analysis. Furthermore, artifacts of the retargeting pro-
+cess can lead to decompilation errors in some decompil-
+ers. The need for bytecode optimization is easily demon-           We also used ded to recover the source code for the
+strated by considering decompiled loops. Most decom-            top 50 free applications (as listed by the Android Market)
+pilers convert for loops into infinite loops with break         from each of the 22 application categories—1,100 in to-
+instructions. While the resulting source code is func-          tal. The application images were obtained from the mar-
+tionally equivalent to the original, it is significantly more   ket using a custom retrieval tool on September 1, 2010.
+difficult to understand and analyze, especially for nested      Table 1 lists decompilation statistics. The decompilation
+loops. Thus, we use Soot as a post-retargeting optimizer.       of all 1,100 applications took 497.7 hours (about 20.7
+While Soot is centrally an optimization tool with the abil-     days) of compute time. Soot dominated the processing
+ity to recover source code in most cases, it does not pro-      time: 99.97% of the total time was devoted to Soot opti-
+cess certain legal program idioms (bytecode structures)         mization and decompilation. The decompilation process
+generated by ded. In particular, we encountered two             was able to recover over 247 thousand classes spread
+central problems involving, 1) interactions between syn-        over 21.7 million lines of code. This represents about
+chronized blocks and exception handling, and 2) com-            94% of the total classes in the applications. All decom-
+plex control flows caused by break statements. While the        pilation errors are manifest during/after decompilation,
+Java bytecode generated by ded is legal, the source code        and thus are ignored for the study reported in the latter
+failure rate reported in the following section is almost en-    sections. There are two categories of failures:
+tirely due to Soot’s inability to extract source code from      Retargeting Failures. 0.59% of classes were not retar-
+these two cases. We will consider other decompilers in          geted. These errors fall into three classes: a) unresolved
+future work, e.g., Jad [4], JD [3], and Fernflower [1].         references which prevent optimization by Soot, b) type
+                                                                violations caused by Android’s dex compiler and c) ex-
+3.3    Source Code Recovery Validation                          tremely rare cases in which ded produces illegal byte-
+We have performed extensive validation testing of               code. Recent efforts have focused on improving opti-
+ded [35]. The included tests recovered the source code          mization, as well as redesigning ded with a formally de-
+for small, medium and large open source applications            fined type inference apparatus. Parallel work on improv-
+and found no errors in recovery. In most cases the recov-       ing ded has been able to reduce these errors by a third,
+ered code was virtually indistinguishable from the origi-       and we expect further improvements in the near future.
+nal source (modulo comments and method local-variable           Decompilation Failures. 5% of the classes were suc-
+names, which are not included in the bytecode).                 cessfully retargeted, but Soot failed to recover the source
+,code. Here we are limited by the state of the art in de-                         targeted              error
+                                                                                                                 p1 = i.$new_class(...)
+compilation. In order to understand the impact of de-                                                            p2 = i.$new(...) |
+                                                                            p1                                        i.$new_action(...)
+compiling ded retargeted classes verses ordinary Java                init
+                                                                                                                 p3 = i.$set_class(...) |
+                                                                                                 p5
+.class files, we performed a parallel study to evaluate                           p3                      p6
+                                                                                                                      i.$set_component(...)
+                                                                                                                 p4 = i.$put_extra(...)
+Soot on Java applications generated with traditional Java                                                        p5 = i.$set_class(...) |
+                                                                            p2                                        i.$set_component(...)
+compilers. Of 31,553 classes from a variety of packages,                                                         p6 = $unprotected_send(i) |
+                                                                                            p4                        $protected_send(i, null)
+Soot was able to decompile 94.59%, indicating we can-                            empty                has_data
+not do better while using Soot for decompilation.
+                                                                      Figure 4: Example control flow specification
+   A possible way to improve this is to use a different de-
+compiler. Since our study, Fernflower [1] was available        Data flow analysis. Data flow analysis permits the
+for a short period as part of a beta test. We decompiled       declarative specification of problematic data flows in the
+the same 1,100 optimized applications using Fernflower         input program. For example, an Android phone contains
+and had a recovery rate of 98.04% of the 1.65 million          several pieces of private information that should never
+retargeted methods–a significant improvement. Future           leave the phone: the user’s phone number, IMEI (device
+studies will investigate the fidelity of Fernflower’s output   ID), IMSI (subscriber ID), and ICC-ID (SIM card serial
+and its appropriateness as input for program analysis.         number). In our study, we wanted to check that this infor-
+                                                               mation is not leaked to the network. While this property
+4     Evaluating Android Security                              can in principle be coded using automata, data flow spec-
+Our Android application study consisted of a broad range       ification allows for a much easier encoding. The specifi-
+of tests focused on three kinds of analysis: a) exploring      cation declaratively labels program statements matching
+issues uncovered in previous studies and malware advi-         certain syntactic patterns as data flow sources and sinks.
+sories, b) searching for general coding security failures,     Data flows between the sources and sinks are violations.
+and c) exploring misuse/security failures in the use of        Structural analysis.        Structural analysis allows for
+Android framework. The following discusses the pro-            declarative pattern matching on the abstract syntax of
+cess of identifying and encoding the tests.                    the input source code. Structural analysis specifications
+                                                               are not concerned with program executions or data flow,
+4.1    Analysis Specification                                  therefore, analysis is local and straightforward. For ex-
+                                                               ample, in our study, we wanted to specify a bug pattern
+We used four approaches to evaluate recovered source           where an Android application mines the device ID of the
+code: control flow analysis, data flow analysis, struc-        phone on which it runs. This pattern was defined using
+tural analysis, and semantic analysis. Unless otherwise        a structural rule that stated that the input program called
+specified, all tests used the Fortify SCA [2] static anal-     a method getDeviceId() whose enclosing class was an-
+ysis suite, which provides these four types of analysis.       droid.telephony.TelephonyManager.
+The following discusses the general application of these
+                                                               Semantic analysis. Semantic analysis allows the specifi-
+approaches. The details for our analysis specifications
+                                                               cation of a limited set of constraints on the values used by
+can be found in the technical report [15].
+                                                               the input program. For example, a property of interest in
+Control flow analysis. Control flow analysis imposes           our study was that an Android application does not send
+constraints on the sequences of actions executed by an         SMS messages to hard-coded targets. To express this
+input program P, classifying some of them as errors. Es-       property, we defined a pattern matching calls to Android
+sentially, a control flow rule is an automaton A whose         messaging methods such as sendTextMessage(). Seman-
+input words are sequences of actions of P—i.e., the rule       tic specifications permit us to directly specify that the
+monitors executions of P. An erroneous action sequence         first parameter in these calls (the phone number) is not
+is one that drives A into a predefined error state. To stat-   a constant. The analyzer detects violations to this prop-
+ically detect violations specified by A, the program anal-     erty using constant propagation techniques well known
+ysis traces each control flow path in the tool’s model of      in program analysis literature.
+P, synchronously “executing” A on the actions executed
+along this path. Since not all control flow paths in the
+model are feasible in concrete executions of P, false pos-     4.2      Analysis Overview
+itives are possible. False negatives are also possible in
+principle, though uncommon in practice. Figure 4 shows         Our analysis covers both dangerous functionality and
+an example automaton for sending intents. Here, the er-        vulnerabilities. Selecting the properties for study was a
+ror state is reached if the intent contains data and is sent   significant challenge. For brevity, we only provide an
+unprotected without specifying the target component, re-       overview of the specifications. The technical report [15]
+sulting in a potential unintended information leakage.         provides a detailed discussion of specifications.
+,Misuse of Phone Identifiers (Section 5.1.1). Previous                  Table 2: Access of Phone Identifier APIs
+studies [14, 12] identified phone identifiers leaking to re-     Identifier        # Calls # Apps # w/ Permission∗
+mote network servers. We seek to identify not only the           Phone Number        167        129           105
+existence of data flows, but understand why they occur.          IMEI                378        216          184†
+                                                                 IMSI                 38         30           27
+Exposure of Physical Location (Section 5.1.2). Previous          ICC-ID               33         21           21
+studies [14] identified location exposure to advertisement       Total Unique          -        246          210†
+servers. Many applications provide valuable location-            ∗ Defined as having the READ_PHONE_STATE permission.
+aware utility, which may be desired by the user. By man-         † Only 1 app did not also have the INTERNET permission.
+ually inspecting code, we seek to identify the portion of
+the application responsible for the exposure.                  5.1     Information Misuse
+Abuse of Telephony Services (Section 5.2.1). Smart-            In this section, we explore how sensitive information is
+phone malware has sent SMS messages to premium-rate            being leaked [12, 14] through information sinks includ-
+numbers. We study the use of hard-coded phone num-             ing OutputStream objects retrieved from URLConnec-
+bers to identify SMS and voice call abuse.                     tions, HTTP GET and POST parameters in HttpClient
+Eavesdropping on Audio/Video (Section 5.2.2). Audio            connections, and the string used for URL objects. Future
+and video eavesdropping is a commonly discussed smart-         work may also include SMS as a sink.
+phone threat [41]. We examine cases where applications
+                                                               5.1.1   Phone Identifiers
+record audio or video without control flows to UI code.
+Botnet Characteristics (Sockets) (Section 5.2.3).    PC        We studied four phone identifiers: phone number, IMEI
+botnet clients historically use non-HTTP ports and pro-        (device identifier), IMSI (subscriber identifier), and ICC-
+tocols for command and control. Most applications use          ID (SIM card serial number). We performed two types of
+HTTP client wrappers for network connections, there-           analysis: a) we scanned for APIs that access identifiers,
+fore, we examine Socket use for suspicious behavior.           and b) we used data flow analysis to identify code capa-
+                                                               ble of sending the identifiers to the network.
+Harvesting Installed Applications (Section 5.2.4). The            Table 2 summarizes APIs calls that receive phone
+list of installed applications is a valuable demographic       identifiers. In total, 246 applications (22.4%) included
+for marketing. We survey the use of APIs to retrieve this      code to obtain a phone identifier; however, only 210 of
+list to identify harvesting of installed applications.         these applications have the READ_PHONE_STATE permis-
+Use of Advertisement Libraries (Section 5.3.1). Pre-           sion required to obtain access. Section 5.3 discusses code
+vious studies [14, 12] identified information exposure to      that probes for permissions. We observe from Table 2
+ad and analytics networks. We survey inclusion of ad and       that applications most frequently access the IMEI (216
+analytics libraries and the information they access.           applications, 19.6%). The phone number is used second
+Dangerous Developer Libraries (Section 5.3.2). During          most (129 applications, 11.7%). Finally, the IMSI and
+our manual source code inspection, we observed danger-         ICC-ID are very rarely used (less than 3%).
+ous functionality replicated between applications. We re-         Table 3 indicates the data flows that exfiltrate phone
+port on this replication and the implications.                 identifiers. The 33 applications have the INTERNET
+                                                               permission, but 1 application does not have the READ_
+Android-specific Vulnerabilities (Section 5.4).      We        PHONE_STATE permission. We found data flows for all
+search for non-secure coding practices [17, 10], includ-       four identifier types: 25 applications have IMEI data
+ing: writing sensitive information to logs, unprotected        flows; 10 applications have phone number data flows;
+broadcasts of information, IPC null checks, injection at-      5 applications have IMSI data flows; and 4 applications
+tacks on intent actions, and delegation.                       have ICC-ID data flows.
+General Java Application Vulnerabilities. We look for             To gain a better understanding of how phone identi-
+general Java application vulnerabilities, including mis-       fiers are used, we manually inspected all 33 identified ap-
+use of passwords, misuse of cryptography, and tradi-           plications, as well as several additional applications that
+tional injection vulnerabilities. Due to space limitations,    contain calls to identifier APIs. We confirmed exfiltration
+individual results for the general vulnerability analysis      for all but one application. In this case, code complexity
+are reported in the technical report [15].                     hindered manual confirmation; however we identified a
+                                                               different data flow not found by program analysis. The
+                                                               analysis informs the following findings.
+5   Application Analysis Results                               Finding 1 - Phone identifiers are frequently leaked
+In this section, we document the program analysis results      through plaintext requests.         Most sinks are HTTP
+and manual inspection of identified violations.                GET or POST parameters. HTTP parameter names
+,    Table 3: Detected Data Flows to Network Sinks            information and other PII. For example, applications
+                    Phone Identifiers      Location Info.    (e.g. com.slacker.radio and com.statefarm.pocketagent)
+ Sink               # Flows # Apps       # Flows # Apps      include the IMEI in account registration and login re-
+ OutputStream          10        9           0         0     quests. In another application (com.amazon.mp3), the
+ HttpClient Param      24        9          12         4     method linkDevice() includes the IMEI. Code inspec-
+ URL Object            59       19          49        10     tion indicated that this method is called when the user
+ Total Unique           -       33           -        13     chooses to “Enter a claim code” to redeem gift cards.
+                                                             We also found IMEI use in code for sending comments
+for the IMEI include: “uid,” “user-id,” “imei,” “devi-
+                                                             and reporting problems (e.g., com.morbe.guarder and
+ceId,” “deviceSerialNumber,” “devicePrint,” “X-DSN,”
+                                                             com.fm207.discount). Finally, we found one application
+and “uniquely code”; phone number names include
+                                                             (com.andoop.highscore) that appears to bundle the IMEI
+“phone” and “mdn”; and IMSI names include “did” and
+                                                             when submitting high scores for games. Thus, it seems
+“imsi.” In one case we identified an HTTP parameter for
+                                                             clear that databases containing mappings between phys-
+the ICC-ID, but the developer mislabeled it “imei.”
+                                                             ical users and IMEIs are being created.
+Finding 2 - Phone identifiers are used as device fin-
+                                                             Finding 5 - Not all phone identifier use leads to exfiltra-
+gerprints. Several data flows directed us towards code
+                                                             tion. Several applications that access phone identifiers
+that reports not only phone identifiers, but also other
+                                                             did not exfiltrate the values. For example, one applica-
+phone properties to a remote server. For example, a wall-
+                                                             tion (com.amazon.kindle) creates a device fingerprint for
+paper application (com.eoeandroid.eWallpapers.cartoon)
+                                                             a verification check. The fingerprint is kept in “secure
+contains a class named SyncDeviceInfosService that col-
+                                                             storage” and does not appear to leave the phone. An-
+lects the IMEI and attributes such as the OS ver-
+                                                             other application (com.match.android.matchmobile) as-
+sion and device hardware. The method sendDevice-
+                                                             signs the phone number to a text field used for account
+Infos() sends this information to a server. In an-
+                                                             registration. While the value is sent to the network dur-
+other application (com.avantar.wny), the method Phon-
+                                                             ing registration, the user can easily change or remove it.
+eStats.toUrlFormatedString() creates a URL parameter
+string containing the IMEI, device model, platform, and      Finding 6 - Phone identifiers are sent to advertise-
+application name. While the intent is not clear, such fin-   ment and analytics servers. Many applications have
+gerprinting indicates that phone identifiers are used for    custom ad and analytics functionality. For example,
+more than a unique identifier.                               in one application (com.accuweather.android), the class
+                                                             ACCUWX AdRequest is an IMEI data flow sink. Another
+Finding 3 - Phone identifiers, specifically the IMEI,
+                                                             application (com.amazon.mp3) defines Android service
+are used to track individual users.              Several
+                                                             component AndroidMetricsManager, which is an IMEI
+applications contain code that binds the IMEI as
+                                                             data flow sink. Phone identifier data flows also occur
+a unique identifier to network requests.        For ex-
+                                                             in ad libraries. For example, we found a phone num-
+ample, some applications (e.g.          com.Qunar and
+                                                             ber data flow sink in the com/wooboo/adlib_android
+com.nextmobileweb.craigsphone) appear to bundle the
+                                                             library used by several applications (e.g., cn.ecook,
+IMEI in search queries; in a travel application
+                                                             com.superdroid.sqd, and com.superdroid.ewc). Sec-
+(com.visualit.tubeLondonCity), the method refreshLive-
+                                                             tion 5.3 discusses ad libraries in more detail.
+Info() includes the IMEI in a URL; and a “keyring” appli-
+cation (com.froogloid.kring.google.zxing.client.android)
+                                                             5.1.2   Location Information
+appends the IMEI to a variable named retailer-
+LookupCmd. We also found functionality that in-              Location information is accessed in two ways: (1) calling
+cludes the IMEI when checking for updates (e.g.,             getLastKnownLocation(), and (2) defining callbacks in
+com.webascender.callerid, which also includes the            a LocationListener object passed to requestLocationUp-
+phone number) and retrieving advertisements (see Find-       dates(). Due to code recovery failures, not all Location-
+ing 6).     Furthermore, we found two applications           Listener objects have corresponding requestLocationUp-
+(com.taobo.tao and raker.duobao.store) with network ac-      dates() calls. We scanned for all three constructs.
+cess wrapper methods that include the IMEI for all con-         Table 4 summarizes the access of location informa-
+nections. These behaviors indicate that the IMEI is used     tion. In total, 505 applications (45.9%) attempt to access
+as a form of “tracking cookie”.                              location, only 304 (27.6%) have the permission to do so.
+Finding 4 - The IMEI is tied to personally identifi-         This difference is likely due to libraries that probe for
+able information (PII). The common belief that the           permissions, as discussed in Section 5.3. The separa-
+IMEI to phone owner mapping is not visible outside           tion between LocationListener and requestLocationUp-
+the cellular network is no longer true. In several           dates() is primarily due to the AdMob library, which de-
+cases, we found code that bound the IMEI to account          fined the former but has no calls to the latter.
+,           Table 4: Access of Location APIs                      ing a constant destination number for the SMS API.
+ Identifier                    # Uses # Apps # w/ Perm.∗         Note that our analysis specification is limited to constants
+ getLastKnownLocation           428        204        148        passed directly to the API and final variables, and there-
+ LocationListener               652        469        282        fore may have false negatives. We found two applica-
+ requestLocationUpdates         316        146        128        tions creating URI objects with the “tel:” prefix and
+ Total Unique                     -        505        304†       containing the string “900”. One application included
+ ∗ Defined as having a LOCATION permission.
+                                                                 code to call “tel://0900-9292”, which is a premium-
+ † In total, 5 apps did not also have the INTERNET permission.
+                                                                 rate number (e0.70 per minute) for travel advice in the
+                                                                 Netherlands. However, this did not appear malicious, as
+   Table 3 shows detected location data flows to the net-
+                                                                 the application (com.Planner9292) is designed to provide
+work. To overcome missing code challenges, the data
+                                                                 travel advice. The other application contained several
+flow source was defined as the getLatitude() and getLon-
+                                                                 hard-coded numbers with “900” in the last four digits
+gitude() methods of the Location object retrieved from
+                                                                 of the number. The SMS and premium-rate analysis re-
+the location APIs. We manually inspected the 13 appli-
+                                                                 sults are promising indicators for non-existence of ma-
+cations with location data flows. Many data flows ap-
+                                                                 licious behavior. Future analysis should consider more
+peared to reflect legitimate uses of location for weather,
+                                                                 premium-rate prefixes.
+classifieds, points of interest, and social networking ser-
+vices. Inspection of the remaining applications informs          Finding 10 - Applications do not appear to be misus-
+the following findings:                                          ing voice services.     We found 468 URI objects with
+Finding 7 - The granularity of location reporting may            the “tel:” prefix in 358 applications. We manually
+not always be obvious to the user.          In one applica-      inspected a sample of applications to better understand
+tion (com.andoop.highscore) both the city/country and            phone number use. We found: (1) applications fre-
+geographic coordinates are sent along with high scores.          quently include call functionality for customer service;
+Users may be aware of regional geographic information            (2) the “CALL” and “DIAL” intent actions were used
+associated with scores, but it was unclear if users are          equally for the same purpose (CALL calls immediately
+aware that precise coordinates are also used.                    and requires the CALL_PHONE permission, whereas DIAL
+                                                                 has user confirmation the dialer and requires no permis-
+Finding 8 - Location information is sent to advertise-           sion); and (3) not all hard-coded telephone numbers are
+ment servers. Several location data flows appeared to            used to make phone calls, e.g., the AdMob library had a
+terminate in network connections used to retrieve ads.           apparently unused phone number hard coded.
+For example, two applications (com.avantar.wny and
+com.avantar.yp) appended the location to the variable
+                                                                 5.2.2   Background Audio/Video
+webAdURLString. Motivated by [14], we inspected the
+AdMob library to determine why no data flow was found            Microphone and camera eavesdropping on smartphones
+and determined that source code recovery failures led to         is a real concern [41]. We analyzed application eaves-
+the false negatives. Section 5.3 expands on ad libraries.        dropping behaviors, specifically: (1) recording video
+                                                                 without calling setPreviewDisplay() (this API is always
+5.2    Phone Misuse                                              required for still image capture); (2) AudioRecord.read()
+This section explores misuse of the smartphone inter-            in code not reachable from an Android activity compo-
+faces, including telephony services, background record-          nent; and (3) MediaRecorder.start() in code not reach-
+ing of audio and video, sockets, and accessing the list of       able from an activity component.
+installed applications.                                          Finding 11 - Applications do not appear to be misusing
+                                                                 video recording. We found no applications that record
+5.2.1 Telephony Services                                         video without calling setPreviewDisplay(). The query
+Smartphone malware can provide direct compensation               reasonably did not consider the value passed to the pre-
+using phone calls or SMS messages to premium-rate                view display, and therefore may create false negatives.
+numbers [18, 25]. We defined three queries to identify           For example, the “preview display” might be one pixel
+such malicious behavior: (1) a constant used for the SMS         in size. The MediaRecorder.start() query detects audio
+destination number; (2) creation of URI objects with a           recording, but it also detects video recording. This query
+“tel:” prefix (used for phone call intent messages) and          found two applications using video in code not reachable
+the string “900” (a premium-rate number prefix in the            from an activity; however the classes extended Surface-
+US); and (3) any URI objects with a “tel:” prefix. The           View, which is used by setPreviewDisplay().
+analysis informs the following findings.                         Finding 12 - Applications do not appear to be misus-
+Finding 9 - Applications do not appear to be using fixed         ing audio recording. We found eight uses in seven ap-
+phone number services. We found zero applications us-            plications of AudioRecord.read() without a control flow
+,path to an activity component. Of these applications,        of applications have socket connections to hard-coded
+three provide VoIP functionality, two are games that re-     IP address and non-standard ports. For example, one
+peat what the user says, and one provides voice search.      application (com.eingrad.vintagecomicdroid) downloads
+In these applications, audio recording is expected; the      comics from 208.94.242.218 on port 2009. Addition-
+lack of reachability was likely due to code recovery fail-   ally, two of the aforementioned financial applications
+ures. The remaining application did not have the required    (com.miraeasset.mstock and kvp.jjy.MispAndroid320)
+RECORD_AUDIO permission and the code most likely was         include the kr/co/shiftworks library that connects to
+part of a developer toolkit. The MediaRecorder.start()       221.143.48.118 on port 9001. Furthermore, one applica-
+query identified an additional five applications recording   tion (com.tf1.lci) connects to 209.85.227.147 on port 80
+audio without reachability to an activity. Three of these    in a class named AdService and subsequently calls getLo-
+applications have legitimate reasons to record audio:        calAddress() to retrieve the phone’s IP address. Overall,
+voice search, game interaction, and VoIP. Finally, two       we found no evidence of malicious behavior, but several
+games included audio recording in a developer toolkit,       applications warrant deeper investigation.
+but no record permission, which explains the lack of
+reachability. Section 5.3.2 discusses developer toolkits.    5.2.4   Installed Applications
+                                                             The list of installed applications provides valuable mar-
+5.2.3 Socket API Use
+                                                             keting data. Android has two relevant APIs types: (1)
+Java sockets represent an open interface to external ser-    a set of get APIs returning the list of installed applica-
+vices, and thus are a potential source of malicious be-      tions or package names; and (2) a set of query APIs that
+havior. For example, smartphone-based botnets have           mirrors Android’s runtime intent resolution, but can be
+been found to exist on “jailbroken” iPhones [8]. We ob-      made generic. We found 54 uses of the get APIs in 45
+serve that most Internet-based smartphone applications       applications, and 1015 uses of the query APIs in 361 ap-
+are HTTP clients. Android includes useful classes (e.g.,     plications. Sampling these applications, we observe:
+HttpURLConnection and HttpClient) for communicating
+                                                             Finding 15 - Applications do not appear to be har-
+with Web servers. Therefore, we queried for applications
+                                                             vesting information about which applications are in-
+that make network connections using the Socket class.
+                                                             stalled on the phone.             In all but two cases,
+Finding 13 - A small number of applications include          the sampled applications using the get APIs search
+code that uses the Socket class directly.       We found     the results for a specific application. One applica-
+177 Socket connections in 75 applications (6.8%). Many       tion (com.davidgoemans.simpleClockWidget) defines a
+applications are flagged for inclusion of well-known         method that returns the list of all installed applications,
+network libraries such as org/apache/thrift, org/            but the results were only displayed to the user. The
+apache/commons, and org/eclipse/jetty, which                 second application (raker.duobao.store) defines a simi-
+use sockets directly. Socket factories were also detected.   lar method, but it only appears to be called by unused
+Identified factory names such as TrustAllSSLSocket-          debugging code. Our survey of the query APIs identi-
+Factory, AllTrustSSLSocketFactory, and NonValidat-           fied three calls within the AdMob library duplicated in
+ingSSLSocketFactory are interesting as potential vulnera-    many applications. These uses queried specific function-
+bilities, but we found no evidence of malicious use. Sev-    ality and thus are not likely to harvest application infor-
+eral applications also included their own HTTP wrapper       mation. The one non-AdMob application we inspected
+methods that duplicate functionality in the Android li-      queried for specific functionality, e.g., speech recogni-
+braries, but did not appear malicious. Among the appli-      tion, and thus did not appear to attempt harvesting.
+cations including custom network connection wrappers
+is a group of applications in the “Finance” category im-
+plementing cryptographic network protocols (e.g., in the
+                                                             5.3     Included Libraries
+com/lumensoft/ks library). We note that these appli-         Libraries included by applications are often easy to iden-
+cations use Asian character sets for their market descrip-   tify due to namespace conventions: i.e., the source
+tions, and we could not determine their exact purpose.       code for com.foo.appname typically exists in com/foo/
+Finding 14 - We found no evidence of malicious behav-        appname. During our manual inspection, we docu-
+ior by applications using Socket directly. We manu-          mented advertisement and analytics library paths. We
+ally inspected all 75 applications to determine if Socket    also found applications sharing what we term “developer
+use seemed appropriate based on the application descrip-     toolkits,” i.e., a common set of developer utilities.
+tion. Our survey yielded a diverse array of Socket uses,
+including: file transfer protocols, chat protocols, au-      5.3.1   Advertisement and Analytics Libraries
+dio and video streaming, and network connection tether-      We identified 22 library paths containing ad or analytics
+ing, among other uses excluded for brevity. A handful        functionality. Sampled applications frequently contained
+,   Table 5: Identified Ad and Analytics Library Paths                        type, “system id extended” uses phone identifiers (IMEI,
+ Library Path                            # Apps Format          Obtains∗     IMSI, and ICC-ID). It is unclear which identifier type
+ com/admob/android/ads                     320       Obf.       L            was used by the application. Other libraries provide sim-
+ com/google/ads                            206       Plain      -            ilar configuration. For example, the AdMob SDK docu-
+ com/flurry/android                         98       Obf.       -
+ com/qwapi/adclient/android                 74       Plain      L, P, E
+                                                                             mentation [6] indicates that location information is only
+ com/google/android/apps/analytics          67       Plain      -            included if a package manifest configuration enables it.
+ com/adwhirl                                60       Plain      L            Finding 17 - Analytics library reporting frequency is of-
+ com/mobclix/android/sdk                    58       Plain      L, E‡
+ com/millennialmedia/android                52       Plain      -            ten configurable. During manual inspection, we encoun-
+ com/zestadz/android                        10       Plain      -            tered one application (com.handmark.mpp.news.reuters)
+ com/admarvel/android/ads                   8        Plain      -            in which the phone number is passed to FlurryA-
+ com/estsoft/adlocal                        8        Plain      L            gent.onEvent() as generic data. This method is called
+ com/adfonic/android                        5        Obf.       -
+ com/vdroid/ads                             5        Obf.       L, E         throughout the application, specifying event labels such
+ com/greystripe/android/sdk                 4        Obf.       E            as “GetMoreStories,” “StoryClickedFromList,” and “Im-
+ com/medialets                              4        Obf.       L            ageZoom.” Here, we observe the main application code
+ com/wooboo/adlib android                   4        Obf.       L, P, I†
+                                                                             not only specifies the phone number to be reported, but
+ com/adserver/adview                        3        Obf.       L
+ com/tapjoy                                 3        Plain      -            also report frequency.
+ com/inmobi/androidsdk                      2        Plain      E‡           Finding 18 - Ad and analytics libraries probe for permis-
+ com/apegroup/ad                            1        Plain      -
+ com/casee/adsdk                            1        Plain      S
+                                                                             sions. The com/webtrends/mobile library accesses
+ com/webtrends/mobile                       1        Plain      L, E, S, I   the IMEI, IMSI, ICC-ID, and location. The (Webtrend-
+ Total Unique Apps                         561       -          -            sAndroidValueFetcher) class uses try/catch blocks that
+ ∗ L = Location; P = Phone number; E = IMEI; S = IMSI; I = ICC-ID            catch the SecurityException that is thrown when an appli-
+ † In 1 app, the library included “L”, while the other 3 included “P, I”.
+ ‡ Direct API use not decompiled, but wrapper .getDeviceId() called.
+                                                                             cation does not have the proper permission. Similar func-
+                                                                             tionality exists in the com/casee/adsdk library (used
+multiple of these libraries. Using the paths listed in Ta-                   by com.fish.luny). In AdFetcher.getDeviceId(), An-
+ble 5, we found: 1 app has 8 libraries; 10 apps have 7 li-                   droid’s checkCallingOrSelfPermission() method is eval-
+braries; 8 apps have 6 libraries; 15 apps have 5 libraries;                  uated before accessing the IMSI.
+37 apps have 4 libraries; 32 apps have 3 libraries; 91 apps
+have 2 libraries; and 367 apps have 1 library.                               5.3.2   Developer Toolkits
+   Table 5 shows advertisement and analytics library use.                    Several inspected applications use developer toolkits
+In total, at least 561 applications (51%) include these                      containing common sets of utilities identifiable by class
+libraries; however, additional libraries may exist, and                      name or library path. We observe the following.
+some applications include custom ad and analytics func-                      Finding 19 - Some developer toolkits replicate dan-
+tionality. The AdMob library is used most pervasively,                       gerous functionality.      We found three wallpaper
+existing in 320 applications (29.1%). Google Ads is used                     applications by developer “callmejack” that include
+by 206 applications (18.7%). We observe from Table 5                         utilities in the library path com/jackeeywu/apps/
+that only a handful of libraries are used pervasively.                       eWallpaper        (com.eoeandroid.eWallpapers.cartoon,
+   Several libraries access phone identifier and location                    com.jackeey.wallpapers.all1.orange, and com.jackeey.
+APIs. Given the library purpose, it is easy to specu-                        eWallpapers.gundam). This library has data flow sinks
+late data flows to network APIs. However, many of                            for the phone number, IMEI, IMSI, and ICC-ID. In July
+these flows were not detected by program analysis. This                      2010, Lookout, Inc. reported a wallpaper application
+is (likely) a result of code recovery failures and flows                     by developer “jackeey,wallpaper” as sending these
+through Android IPC. For example, AdMob has known                            identifiers to imnet.us [29]. This report also indicated
+location to network data flows [14], and we identified                       that the developer changed his name to “callmejack”.
+a code recovery failure for the class implementing that                      While the original “jackeey,wallpaper” application was
+functionality. Several libraries are also obfuscated, as                     removed from the Android Market, the applications by
+mentioned in Section 6. Interesting, 6 of the 13 li-                         “callmejack” remained as of September 2010.3
+braries accessing sensitive information are obfuscated.                      Finding 20 - Some developer toolkits probe for permis-
+The analysis informs the following additional findings.                      sions. In one application (com.july.cbssports.activity),
+Finding 16 - Ad and analytics library use of phone iden-                     we found code in the com/julysystems library that
+tifiers and location is sometimes configurable.     The                      evaluates Android’s checkPermission() method for the
+com/webtrends/mobile analytics library (used by                              READ_PHONE_STATE and ACCESS_FINE_LOCATION per-
+com.statefarm.pocketagent), defines the WebtrendsId-                         missions before accessing the IMEI, phone number, and
+Method class specifying four identifier types. Only one                      last known location, respectively. A second application
+,(v00032.com.wordplayer) defines the CustomException-                  Application: pkgname              Application: malicous
+
+Hander class to send an exception event to an HTTP
+                                                              Partially Specified Intent Message   malicous.BarReceiver
+URL. The class attempts to retrieve the phone num-            - Action: "pkgname.intent.ACTION"    - Filter: "pkgname.intent.ACTION"
+
+ber within a try/catch block, catching a generic Ex-
+ception. However, the application does not have the
+READ_PHONE_STATE permission, indicating the class is          Fully Specified Intent Message
+                                                                                                   pkgname.FooReceiver
+likely used in multiple applications.                         - Action: "pkgname.intent.ACTION"
+                                                              - Component: "pkgname.FooReceiver"
+                                                                                                   - Filter: "pkgname.intent.ACTION"
+
+Finding 21 - Well-known brands sometimes commis-
+sion developers that include dangerous functional-               Figure 5: Eavesdropping on unprotected intents
+ity.     The com/julysystems developer toolkit iden-
+tified as probing for permissions exists in two appli-       protect the broadcast with a permission (permission vari-
+cations with reputable application providers. “CBS           ant not shown). This is unsafe if the intent contains sensi-
+Sports Pro Football” (com.july.cbssports.activity) is pro-   tive information. We found 271 such unsafe intent broad-
+vided by “CBS Interactive, Inc.”, and “Univision F¨utbol”    casts with “extras” data in 92 applications (8.4%). Sam-
+(com.july.univision) is provided by “Univision Interac-      pling these applications, we found several such intents
+tive Media, Inc.”. Both have location and phone state        used to install shortcuts to the home screen.
+permissions, and hence potentially misuse information.       Finding 23 - Applications broadcast private informa-
+    Similarly, “USA TODAY” (com.usatoday.android.            tion in IPC accessible to all applications. We found
+news) provided by “USA TODAY” and “FOX News”                 many cases of applications sending unsafe intents to
+(com.foxnews.android) provided by “FOX News Net-             action strings containing the application’s namespace
+work, LLC” contain the com/mercuryintermedia                 (e.g., “pkgname.intent.ACTION” for application pkg-
+toolkit. Both applications contain an Android ac-            name). The contents of the bundled information var-
+tivity component named MainActivity. In the ini-             ied. In some instances, the data was not sensitive,
+tialization phase, the IMEI is retrieved and passed          e.g., widget and task identifiers. However, we also
+to ProductConfiguration.initialize() (part of the com/       found sensitive information. For example one applica-
+mecuryintermedia toolkit). Both applications have            tion (com.ulocate) broadcasts the user’s location to the
+IMEI to network data flows through this method.              “com.ulocate.service.LOCATION” intent action string
+                                                             without protection. Another application (com.himsn)
+5.4   Android-specific Vulnerabilities                       broadcasts the instant messaging client’s status to the
+This section explores Android-specific vulnerabilities.      “cm.mz.stS” action string. These vulnerabilities allow
+The technical report [15] provides specification details.    malicious applications to eavesdrop on sensitive infor-
+                                                             mation in IPC, and in some cases, gain access to infor-
+5.4.1 Leaking Information to Logs                            mation that requires a permission (e.g., location).
+Android provides centralized logging via the Log API,
+which can displayed with the “logcat” command.               5.4.3 Unprotected Broadcast Receivers
+While logcat is a debugging tool, applications with the      Applications use broadcast receiver components to re-
+READ_LOGS permission can read these log messages. The        ceive intent messages. Broadcast receivers define “intent
+Android documentation for this permission indicates that     filters” to subscribe to specific event types are public. If
+“[the logs] can contain slightly private information about   the receiver is not protected by a permission, a malicious
+what is happening on the device, but should never con-       application can forge messages.
+tain the user’s private information.” We looked for data     Finding 24 - Few applications are vulnerable to forg-
+flows from phone identifier and location APIs to the An-     ing attacks to dynamic broadcast receivers. We found
+droid logging interface and found the following.             406 unprotected broadcast receivers in 154 applications
+Finding 22 - Private information is written to Android’s     (14%). We found an large number of receivers sub-
+general logging interface. We found 253 data flows in 96     scribed to system defined intent types. These receivers
+applications for location information, and 123 flows in      are indirectly protected by Android’s “protected broad-
+90 applications for phone identifiers. Frequently, URLs      casts” introduced to eliminate forging. We found one
+containing this private information are logged just before   application with an unprotected broadcast receiver for a
+a network connection is made. Thus, the READ_LOGS            custom intent type; however it appears to have limited
+permission allows access to private information.             impact. Additional sampling may uncover more cases.
+
+5.4.2 Leaking Information via IPC                            5.4.4 Intent Injection Attacks
+Shown in Figure 5, any application can receive intent        Intent messages are also used to start activity and service
+broadcasts that do not specify the target component or       components. An intent injection attack occurs if the in-
+,tent address is derived from untrusted input.                   get and the main application. None of these cases allow
+   We found 10 data flows from the network to an in-            manipulation by a malicious application. We found two
+tent address in 1 application. We could not confirm             applications that send unsafe pending intents via IPC.
+the data flow and classify it a false positive. The data        However, exploiting these vulnerabilities appears to pro-
+flow sink exists in a class named ProgressBroadcasting-         vides negligible adversarial advantage. We also note that
+FileInputStream. No decompiled code references this             more a more sophisticated analysis framework could be
+class, and all data flow sources are calls to URLCon-           used to eliminate the aforementioned false positives.
+nection.getInputStream(), which is used to create Input-
+StreamReader objects. We believe the false positives re-        5.4.6   Null Checks on IPC Input
+sults from the program analysis modeling of classes ex-         Android applications frequently process information
+tending InputStream.                                            from intent messages received from other applications.
+   We found 80 data flows from IPC to an intent address         Null dereferences cause an application to crash, and can
+in 37 applications. We classified the data flows by the         thus be used to as a denial of service.
+sink: the Intent constructor is the sink for 13 applica-        Finding 27 - Applications frequently do not perform null
+tions; setAction() is the sink for 16 applications; and set-    checks on IPC input. We found 3,925 potential null
+Component() is the sink for 8 applications. These sets          dereferences on IPC input in 591 applications (53.7%).
+are disjoint. Of the 37 applications, we found that 17          Most occur in classes for activity components (2,484
+applications set the target component class explicitly (all     dereferences in 481 applications). Null dereferences in
+except 3 use the setAction() data flow sink), e.g., to relay    activity components have minimal impact, as the appli-
+the action string from a broadcast receiver to a service.       cation crash is obvious to the user. We found 746 poten-
+We also found four false positives due to our assumption        tial null dereferences in 230 applications within classes
+that all Intent objects come from IPC (a few exceptions         defining broadcast receiver components. Applications
+exist). For the remaining 16 cases, we observe:                 commonly use broadcast receivers to start background
+Finding 25 - Some applications define intent addresses          services, therefore it is unclear what effect a null deref-
+based on IPC input. Three applications use IPC input            erence in a broadcast receiver will have. Finally, we
+strings to specify the package and component names for          found 72 potential null dereferences in 36 applications
+the setComponent() data flow sink. Similarly, one appli-        within classes defining service components. Applica-
+cation uses the IPC “extras” input to specify an action to      tions crashes corresponding to these null dereferences
+an Intent constructor. Two additional applications start        have a higher probability of going unnoticed. The re-
+an activity based on the action string returned as a result     maining potential null dereferences are not easily associ-
+from a previously started activity. However, to exploit         ated with a component type.
+this vulnerability, the applications must first start a ma-
+licious activity. In the remaining cases, the action string     5.4.7   SDcard Use
+used to start a component is copied directly into a new         Any application that has access to read or write data on
+intent object. A malicious application can exploit this         the SDcard can read or write any other application’s data
+vulnerability by specifying the vulnerable component’s          on the SDcard. We found 657 references to the SDcard in
+name directly and controlling the action string.                251 applications (22.8%). Sampling these applications,
+                                                                we found a few unexpected uses. For example, the com/
+5.4.5 Delegating Control
+                                                                tapjoy ad library (used by com.jnj.mocospace.android)
+Applications can delegate actions to other applications         determines the free space available on the SDcard. An-
+using a “pending intent.” An application first creates an       other application (com.rent) obtains a URL from a file
+intent message as if it was performing the action. It then      named connRentInfo.dat at the root of the SDcard.
+creates a reference to the intent based on the target com-
+ponent type (restricting how it can be used). The pend-         5.4.8   JNI Use
+ing intent recipient cannot change values, but it can fill in
+                                                                Applications can include functionality in native libraries
+missing fields. Therefore, if the intent address is unspec-
+                                                                using the Java Native Interface (JNI). As these methods
+ified, the remote application can redirect an action that is
+                                                                are not written in Java, they have inherent dangers. We
+performed with the original application’s permissions.
+                                                                found 2,762 calls to native methods in 69 applications
+Finding 26 - Few applications unsafely delegate actions.        (6.3%). Investigating the application package files, we
+We found 300 unsafe pending intent objects in 116 appli-        found that 71 applications contain .so files. This indi-
+cations (10.5%). Sampling these applications, we found          cates two applications with an .so file either do not call
+an overwhelming number of pending intents used for ei-          any native methods, or the code calling the native meth-
+ther: (1) Android’s UI notification service; (2) Android’s      ods was not decompiled. Across these 71 applications,
+alarm service; or (3) communicating between a UI wid-           we found 95 .so files, 82 of which have unique names.
+,6   Study Limitations                                           privacy sensitive information such as phone identifiers
+                                                                and location information. One might speculate this oc-
+Our study section was limited in three ways: a) the stud-       cur due to the difficulty in assigning malicious intent.
+ied applications were selected with a bias towards popu-           Arguably more important than identifying the exis-
+larity; b) the program analysis tool cannot compute data        tence the information misuse, our manual source code
+and control flows for IPC between components; and c)            inspection sheds more light on how information is mis-
+source code recovery failures interrupt data and control        used. We found phone identifiers, e.g., phone number,
+flows. Missing data and control flows may lead to false         IMEI, IMSI, and ICC-ID, were used for everything from
+negatives. In addition to the recovery failures, the pro-       “cookie-esque” tracking to account numbers. Our find-
+gram analysis tool could not parse 8,042 classes, reduc-        ings also support the existence of databases external to
+ing coverage to 91.34% of the classes.                          cellular providers that link identifiers such as the IMEI
+   Additionally, a portion of the recovered source code         to personally identifiable information.
+was obfuscated before distribution. Code obfuscation
+                                                                   Our analysis also identified significant penetration of
+significantly impedes manual inspection. It likely exists
+                                                                ad and analytic libraries, occurring in 51% of the studied
+to protect intellectual property; Google suggests obfus-
+                                                                applications. While this might not be surprising for free
+cation using ProGuard (proguard.sf.net) for applica-
+                                                                applications, the number of ad and analytics libraries in-
+tions using its licensing service [23]. ProGuard protects
+                                                                cluded per application was unexpected. One application
+against readability and does not obfuscate control flow.
+                                                                included as many as eight different libraries. It is unclear
+Therefore it has limited impact on program analysis.
+                                                                why an application needs more than one advertisement
+   Many forms of obfuscated code are easily recogniz-
+                                                                and one analytics library.
+able: e.g., class, method, and field names are converted
+                                                                   From a vulnerability perspective, we found that many
+to single letters, producing single letter Java filenames
+                                                                developers fail to take necessary security precautions.
+(e.g., a.java). For a rough estimate on the use of obfus-
+                                                                For example, sensitive information is frequently writ-
+cation, we searched applications containing a.java. In
+                                                                ten to Android’s centralized logs, as well as occasionally
+total, 396 of the 1,100 applications contain this file. As
+                                                                broadcast to unprotected IPC. We also identified the po-
+discussed in Section 5.3, several advertisement and ana-
+                                                                tential for IPC injection attacks; however, no cases were
+lytics libraries are obfuscated. To obtain a closer estimate
+                                                                readily exploitable.
+of the number of applications whose main code is obfus-
+                                                                   Finally, our study only characterized one edge of the
+cated, we searched for a.java within a file path equiva-
+                                                                application space. While we found no evidence of tele-
+lent to the package name (e.g., com/foo/appname for
+                                                                phony misuse, background recording of audio or video,
+com.foo.appname). Only 20 applications (1.8%) have
+                                                                or abusive network connections, one might argue that
+this obfuscation property, which is expected for free ap-
+                                                                such malicious functionality is less likely to occur in
+plications (as opposed to paid applications). However,
+                                                                popular applications. We focused our study on popular
+we stress that the a.java heuristic is not intended to be
+                                                                applications to characterize those most frequently used.
+a firm characterization of the percentage of obfuscated
+                                                                Future studies should take samples that span application
+code, but rather a means of acquiring insight.
+                                                                popularity. However, even these samples may miss the
+                                                                existence of truly malicious applications. Future studies
+7   What This All Means                                         should also consider several additional attacks, including
+Identifying a singular take-away from a broad study such        installing new applications [43], JNI execution [34], ad-
+as this is non-obvious. We come away from the study             dress book exfiltration, destruction of SDcard contents,
+with two central thoughts; one having to do with the            and phishing [20].
+study apparatus, and the other regarding the applications.
+   ded and the program analysis specifications are en-          8   Related Work
+abling technologies that open a new door for application        Many tools and techniques have been designed to iden-
+certification. We found the approach rather effective de-       tify security concerns in software. Software written in
+spite existing limitations. In addition to further studies of   C is particularly susceptible to programming errors that
+this kind, we see the potential to integrate these tools into   result in vulnerabilities. Ashcraft and Engler [7] use
+an application certification process. We leave such dis-        compiler extensions to identify errors in range checks.
+cussions for future work, noting that such integration is       MOPS [11] uses model checking to scale to large
+challenging for both logistical and technical reasons [30].     amounts of source code [42]. Java applications are in-
+   On a technical level, we found the security character-       herently safer than C applications and avoid simple vul-
+istics of the top 1,100 free popular applications to be con-    nerabilities such as buffer overflows. Ware and Fox [46]
+sistent with smaller studies (e.g., Enck et al. [14]). Our      compare eight different open source and commercially
+findings indicate an overwhelming concern for misuse of         available Java source code analysis tools, finding that
+,no one tool detects all vulnerabilities. Hovemeyer and          cal challenges. Our future work will consider these chal-
+Pugh [22] study six popular Java applications and li-           lenges, and broaden our analysis to new areas, including
+braries using FindBugs extended with additional checks.         application installation, malicious JNI, and phishing.
+While analysis included non-security bugs, the results
+motivate a strong need for automated analysis by all de-        Acknowledgments
+velopers. Livshits and Lam [28] focus on Java-based
+                                                                We would like to thank Fortify Software Inc. for pro-
+Web applications. In the Web server environment, inputs
+                                                                viding us with a complementary copy of Fortify SCA
+are easily controlled by an adversary, and left unchecked
+                                                                to perform the study. We also thank Suneel Sundar
+can lead to SQL injection, cross-site scripting, HTTP re-
+                                                                and Joy Marie Forsythe at Fortify for helping us debug
+sponse splitting, path traversal, and command injection.
+                                                                custom rules. Finally, we thank Kevin Butler, Stephen
+Felmetsger et al. [19] also study Java-based web applica-
+                                                                McLaughlin, Patrick Traynor, and the SIIS lab for their
+tions; they advance vulnerability analysis by providing
+                                                                editorial comments during the writing of this paper. This
+automatic detection of application-specific logic errors.
+                                                                material is based upon work supported by the National
+   Spyware and privacy breaching software have also
+                                                                Science Foundation Grant No. CNS-0905447, CNS-
+been studied. Kirda et al. [26] consider behavioral prop-
+                                                                0721579, and CNS-0643907. Any opinions, findings,
+erties of BHOs and toolbars. Egele et al. [13] target
+                                                                and conclusions or recommendations expressed in this
+information leaks by browser-based spyware explicitly
+                                                                material are those of the author(s) and do not necessarily
+using dynamic taint analysis. Panaorama [47] consid-
+                                                                reflect the views of the National Science Foundation.
+ers privacy-breaching malware in general using whole-
+system, fine-grained taint tracking. Privacy Oracle [24]        References
+uses differential black box fuzz testing to find privacy
+                                                                 [1] Fernflower - java decompiler. http://www.reversed-java.
+leaks in applications.                                               com/fernflower/.
+   On smartphones, TaintDroid [14] uses system-wide
+                                                                 [2] Fortify 360 Source Code Analyzer (SCA).                https:
+dynamic taint tracking to identify privacy leaks in An-              //www.fortify.com/products/fortify360/
+droid applications. By using static analysis, we were able           source-code-analyzer.html.
+to study a far greater number of applications (1,100 vs.         [3] Jad. http://www.kpdus.com/jad.html.
+30). However, TaintDroid’s analysis confirms the exfil-          [4] Jd java decompiler. http://java.decompiler.free.fr/.
+tration of information, while our static analysis only con-      [5] Mocha, the java decompiler. http://www.brouhaha.com/
+firms the potential for it. Kirin [16] also uses static anal-        ~eric/software/mocha/.
+ysis, but focuses on permissions and other application           [6] A D M OB.     AdMob Android SDK: Installation Instruc-
+configuration data, whereas our study analyzes source                tions. http://www.admob.com/docs/AdMob_Android_SDK_
+code. Finally, PiOS [12] performs static analysis on iOS             Instructions.pdf. Accessed November 2010.
+applications for the iPhone. The PiOS study found the            [7] A SHCRAFT, K., AND E NGLER , D. Using Programmer-Written
+majority of analyzed applications to leak the device ID              Compiler Extensions to Catch Security Holes. In Proceedings of
+                                                                     the IEEE Symposium on Security and Privacy (2002).
+and over half of the applications include advertisement
+and analytics libraries.                                         [8] BBC N EWS.       New iPhone worm can act like botnet
+                                                                     say experts. http://news.bbc.co.uk/2/hi/technology/
+                                                                     8373739.stm, November 23, 2009.
+9   Conclusions                                                  [9] B ORNSTEIN , D. Google i/o 2008 - dalvik virtual machine inter-
+Smartphones are rapidly becoming a dominant comput-                  nals. http://www.youtube.com/watch?v=ptjedOZEXPM.
+ing platform. Low barriers of entry for application de-         [10] B URNS , J. Developing Secure Mobile Applications for Android.
+velopers increases the security risk for end users. In this          iSEC Partners, October 2008. http://www.isecpartners.
+                                                                     com/files/iSEC_Securing_Android_Apps.pdf.
+paper, we described the ded decompiler for Android ap-
+plications and used decompiled source code to perform a         [11] C HEN , H., D EAN , D., AND WAGNER , D. Model Checking One
+                                                                     Million Lines of C Code. In Proceedings of the 11th Annual Net-
+breadth study of both dangerous functionality and vul-               work and Distributed System Security Symposium (Feb. 2004).
+nerabilities. While our findings of exposure of phone
+                                                                [12] E GELE , M., K RUEGEL , C., K IRDA , E., AND V IGNA , G. PiOS:
+identifiers and location are consistent with previous stud-          Detecting Privacy Leaks in iOS Applications. In Proceedings of
+ies, our analysis framework allows us to observe not only            the Network and Distributed System Security Symposium (2011).
+the existence of dangerous functionality, but also how it       [13] E GELE , M., K RUEGEL , C., K IRDA , E., Y IN , H., AND S ONG ,
+occurs within the context of the application.                        D. Dynamic Spyware Analysis. In Proceedings of the USENIX
+   Moving forward, we foresee ded and our analysis                   Annual Technical Conference (June 2007), pp. 233–246.
+specifications as enabling technologies that will open          [14] E NCK , W., G ILBERT, P., C HUN , B.-G., C OX , L. P., J UNG ,
+                                                                     J., M C DANIEL , P., AND S HETH , A. N. TaintDroid: An
+new doors for application certification. However, the in-            Information-Flow Tracking System for Realtime Privacy Moni-
+tegration of these technologies into an application certifi-         toring on Smartphones. In Proceedings of the USENIX Sympo-
+cation process requires overcoming logistical and techni-            sium on Operating Systems Design and Implementation (2010).
+,[15] E NCK , W., O CTEAU , D., M C DANIEL , P., AND C HAUDHURI ,          [33] M ILNER , R. A theory of type polymorphism in programming.
+     S. A Study of Android Application Security. Tech. Rep. NAS-               Journal of Computer and System Sciences 17 (August 1978).
+     TR-0144-2011, Network and Security Research Center, Depart-          [34] O BERHEIDE , J. Android Hax. In Proceedings of SummerCon
+     ment of Computer Science and Engineering, Pennsylvania State              (June 2010).
+     University, University Park, PA, USA, January 2011.
+                                                                          [35] O CTEAU , D., E NCK , W., AND M C DANIEL , P. The ded Decom-
+[16] E NCK , W., O NGTANG , M., AND M C DANIEL , P.              On
+                                                                               piler. Tech. Rep. NAS-TR-0140-2010, Network and Security Re-
+     Lightweight Mobile Phone Application Certification. In Proceed-
+                                                                               search Center, Department of Computer Science and Engineer-
+     ings of the 16th ACM Conference on Computer and Communica-
+                                                                               ing, Pennsylvania State University, University Park, PA, USA,
+     tions Security (CCS) (Nov. 2009).
+                                                                               Sept. 2010.
+[17] E NCK , W., O NGTANG , M., AND M C DANIEL , P. Understand-
+                                                                          [36] O NGTANG , M., B UTLER , K., AND M C DANIEL , P. Porscha:
+     ing Android Security. IEEE Security & Privacy Magazine 7, 1
+                                                                               Policy Oriented Secure Content Handling in Android. In Proc. of
+     (January/February 2009), 50–57.
+                                                                               the Annual Computer Security Applications Conference (2010).
+[18] F-S ECURE C ORPORATION.  Virus Description: Viver.A.
+                                                                          [37] O NGTANG , M., M C L AUGHLIN , S., E NCK , W., AND M C -
+     http://www.f-secure.com/v-descs/trojan_symbos_
+                                                                               DANIEL , P. Semantically Rich Application-Centric Security in
+     viver_a.shtml.
+                                                                               Android. In Proceedings of the Annual Computer Security Appli-
+[19] F ELMETSGER , V., C AVEDON , L., K RUEGEL , C., AND V IGNA ,              cations Conference (2009).
+     G. Toward Automated Detection of Logic Vulnerabilities in Web
+     Applications. In Proceedings of the USENIX Security Symposium        [38] P ORRAS , P., S AIDI , H., AND Y EGNESWARAN , V. An Analysis
+     (2010).                                                                   of the Ikee.B (Duh) iPhone Botnet. Tech. rep., SRI International,
+                                                                               Dec. 2009. http://mtc.sri.com/iPhone/.
+[20] F IRST T ECH C REDIT U NION. Security Fraud: Rogue Android
+     Smartphone app created. http://www.firsttechcu.com/                  [39] P ROEBSTING , T. A., AND WATTERSON , S. A. Krakatoa: De-
+     home/security/fraud/security_fraud.html, Dec. 2009.                       compilation in java (does bytecode reveal source?). In Proceed-
+                                                                               ings of the USENIX Conference on Object-Oriented Technologies
+[21] G OODIN , D.       Backdoor in top iphone games stole                     and Systems (1997).
+     user data, suit claims.   The Register, November 2009.
+     http://www.theregister.co.uk/2009/11/06/iphone_                      [40] R APHEL , J. Google: Android wallpaper apps were not security
+     games_storm8_lawsuit/.                                                    threats. Computerworld (August 2010).
+
+[22] H OVEMEYER , D., AND P UGH , W. Finding Bugs is Easy. In Pro-        [41] S CHLEGEL , R., Z HANG , K., Z HOU , X., I NTWALA , M., K APA -
+     ceedings of the ACM conference on Object-Oriented Program-                DIA , A., AND WANG , X. Soundcomber: A Stealthy and Context-
+     ming Systems, Languages, and Applications (2004).                         Aware Sound Trojan for Smartphones. In Proceedings of the Net-
+                                                                               work and Distributed System Security Symposium (2011).
+[23] J OHNS , T.     Securing Android LVL Applications.
+     http://android-developers.blogspot.com/2010/                         [42] S CHWARZ , B., C HEN , H., WAGNER , D., M ORRISON , G.,
+     09/securing-android-lvl-applications.html, 2010.                          W EST, J., L IN , J., AND T U , W. Model Checking an Entire
+                                                                               Linux Distribution for Security Violations. In Proceedings of the
+[24] J UNG , J., S HETH , A., G REENSTEIN , B., W ETHERALL , D.,               Annual Computer Security Applications Conference (2005).
+     M AGANIS , G., AND KOHNO , T. Privacy Oracle: A System for
+     Finding Application Leaks with Black Box Differential Testing.       [43] S TORM , D. Zombies and Angry Birds attack: mobile phone mal-
+     In Proceedings of the ACM conference on Computer and Com-                 ware. Computerworld (November 2010).
+     munications Security (2008).                                         [44] T IURYN , J. Type inference problems: A survey. In Proceedings
+[25] K ASPERSKEY L AB. First SMS Trojan detected for smartphones               of the Mathematical Foundations of Computer Science (1990).
+     running Android. http://www.kaspersky.com/news?id=                   [45] VALLEE -R AI , R., G AGNON , E., H ENDREN , L., L AM , P., P OM -
+     207576158, August 2010.                                                   INVILLE , P., AND S UNDARESAN , V. Optimizing java bytecode
+[26] K IRDA , E., K RUEGEL , C., BANKS , G., V IGNA , G., AND K EM -           using the soot framework: Is it feasible? In International Confer-
+     MERER , R. A. Behavior-based Spyware Detection. In Proceed-               ence on Compiler Construction, LNCS 1781 (2000), pp. 18–34.
+     ings of the 15th USENIX Security Symposium (Aug. 2006).              [46] WARE , M. S., AND F OX , C. J. Securing Java Code: Heuristics
+[27] K RALEVICH , N. Best Practices for Handling Android User                  and an Evaluation of Static Analysis Tools. In Proceedings of the
+     Data. http://android-developers.blogspot.com/2010/                        Workshop on Static Analysis (SAW) (2008).
+     08/best-practices-for-handling-android.html, 2010.                   [47] Y IN , H., S ONG , D., E GELE , M., K RUEGEL , C., AND K IRDA ,
+[28] L IVSHITS , V. B., AND L AM , M. S. Finding Security Vulnera-             E. Panorama: Capturing System-wide Information Flow for Mal-
+     bilities in Java Applications with Static Analysis. In Proceedings        ware Detection and Analysis. In Proceedings of the ACM confer-
+     of the 14th USENIX Security Symposium (2005).                             ence on Computer and Communications Security (2007).
+[29] L OOKOUT. Update and Clarification of Analysis of Mobile Ap-
+     plications at Blackhat 2010. http://blog.mylookout.com/
+     2010/07/mobile-application-analysis-blackhat/,
+                                                                          Notes
+     July 2010.                                                               1 The undx and dex2jar tools attempt to decompile .dex files, but
+[30] M C DANIEL , P., AND E NCK , W. Not So Great Expectations:           were non-functional at the time of this writing.
+     Why Application Markets Haven’t Failed Security. IEEE Secu-              2 Note that it is sufficient to find any type-exposing instruction for
+     rity & Privacy Magazine 8, 5 (September/October 2010), 76–78.        a register assignment. Any code that could result in different types for
+[31] M IECZNIKOWSKI , J., AND H ENDREN , L. Decompiling java us-          the same register would be illegal. If this were to occur, the primitive
+     ing staged encapsulation. In Proceedings of the Eighth Working       type would be dependent on the path taken at run time, a clear violation
+     Conference on Reverse Engineering (2001).                            of Java’s type system.
+                                                                              3 Fortunately, these dangerous applications are now nonfunc-
+[32] M IECZNIKOWSKI , J., AND H ENDREN , L. J. Decompiling java
+                                                                          tional, as the imnet.us NS entry is NS1.SUSPENDED-FOR.
+     bytecode: Problems, traps and pitfalls. In Proceedings of the 11th
+                                                                          SPAM-AND-ABUSE.COM.
+     International Conference on Compiler Construction (2002).
+

@@ -1,0 +1,1139 @@
+                  Comparing Alternatives to DalvikVM Bytecode Format
+                       with LLVM’s Intermediate Representation
+
+                                          Yannick Verschueren
+                              Vrije Universiteit Brussel (Rolnr.: 0501172)
+
+                                           Jennifer B. Sartor
+                                        Vrije Universiteit Brussel
+
+          This paper describes the insights and knowledge acquired during the preparation of my
+       Bachelorproef. The experiment consists of accelerating code that runs on mobile devices to
+       gain efficiency and reduce battery usage. The main goal of this project is to port an existing
+       framework to work with Dalvik bytecode and more specifically with Android applications,
+       which are written in Java. The framework finds code that could be accelerated using spe-
+       cialized hardware.
+       We first tried to work with the Android’s Dalvik bytecode, as this was readily available by
+       decompiling standard Android applications. Several decompilers exist, but they all have
+       the same common problem: the bytecode they output is not in SSA form. The existing
+       framework only accepts code that is in SSA form to extract code sequences. This paper
+       will thus show the investigation towards a more useful representation and compare it to the
+       LLVM representation. This comparison will be used in the second part of the project in
+       which the code of the framework will be adapted. This adaptation of the framework will
+       be used to accelerate Android applications, something that is not possible in the current
+       implementation of the framework.
+
+
+             I.    INTRODUCTION                        hardware. When studying the existing frame-
+                                                       work it became clear that the Intermediate Rep-
+    Mobile phones and tablets are becoming a           resentation used has several conditions before
+viable alternative to portable computers be-           common code sequences can be identified. The
+cause of the increasing capacity and computa-          most important conditions are a register based
+tion power of these devices. To keep mobile ap-        representation and a SSA form. An IR is used
+plications as efficient as possible, it is necessary   so that code optimizers can be written indepen-
+to optimize applications and more specifically         dently of a programming language. Although
+their source code as much as possible. Several         this definition opposes our need for another
+techniques exist to optimize code for efficiency       IR, there still exist several different IRs with
+and memory usage, however most of these tech-          each their different characteristics and origina-
+niques require no alteration of the underlying         tion languages. For example, the LLVM IR can-
+hardware. Other projects have used specialized         not be created from Android application. The
+hardware to execute specialized instructions in        search of an IR that satisfies the forementioned
+order to achieve efficiency gain                       conditions lead us to the discovery of Jimple and
+This thus arises the question whether it is pos-       its SSA variant Shimple. Jimple is part of the
+sible to adapt mobile applications in a way that       Soot framework, a Java optimization framework.
+they would benefit from specialized computa-           This framework allows us to decompile Android
+tional units that have custom instruction sets.        applications into a suitable IR in a Static Single
+Such optimizations exist [14] for applications         Assignment form and construct related control-
+written in the C programming language and use          flow diagrams.
+a modified compiler to identify common code se-        One could argue that analyzing Java bytecode
+quences in a certain application domain. These         directly, after converting it to a SSA form is a
+sequences are then transformed to a custom in-         viable idea, since this format is not only used by
+struction that could be implemented and exe-           all Java compilers but also by other compilers for
+cuted in a new Specialized functional unit in          languages such as Python, Scheme, Prolog and
+,                                                                                                   2
+
+
+Smalltalk which can be compiled to Java byte-         In the example we can see that the variable
+code [1]. However, the main reason the byte-      ”x” from the non-SSA form is split into three
+code is not used for optimization is that it is a different variables in the SSA form. This means
+stack-based IR and is thus not suitable as the    that none of the variants of the variable in the
+optimization process requires a three register in-SSA form will ever contain a different value than
+structions.                                       the one they had been defined with. It is clear
+This paper will introduce Jimple, the reason why  that the first two statements in the SSA example
+we should use it over Dalvik bytecode and com-    will create new variables, however it is not clear
+pare the representation to the IR of LLVM. The    what the returned value of the function is. As
+framework was developed in LLVM, which is a       shown in the example this problem is solved by
+compiler and the reason it uses the IR. Android   introducing the φ-function. The φ-function , also
+applications are compiled for the Dalvik Virtual  referred to as merge operators or choice opera-
+Machine, down to bytecode, which does not meet    tors, is a mechanism that allows a split variable
+the conditions specified above.This comparison    to be merged into a single variable.[10] When we
+will lead to the second part of the project, wherelook at the φ-function more closely we can see
+we will use our study to adapt parts of the exist-that our previous definition of merging all argu-
+ing framework. The remainder of this paper will   ments can be further refined, as a simple merge
+be organized as follows: Section V will explain   would not give any particular gain in precision.
+the Dalvik bytecode and why we do not use it      If we define the operation as a choice operator,
+in our project. Section VI gives a more detailed  a more interesting aspect of the operator sur-
+explanation of the Jimple representation and the  faces. As we can see the operator only takes two
+Soot framework. Section II explains why it is im- arguments in the example. This is because it
+portant that the IR is in SSA form. Section VII   only has to choose from either the if branch or
+will explain in more detail the Shimple variant   the else branch. In general a φ-function has as
+of Jimple. Section III gives some more insight    many arguments as it has preceding control flow
+in the LLVM IR so that it can be compared to      statements. Each argument will be the value of
+Shimple in section VIII.                          the variable defined in its corresponding control
+                                                  flow branch. This increases precision of the vari-
+                                                  able, to be assigned, as it is now clearer why a
+    II. STATIC SINGLE ASSIGNMENT
+                                                  particular value would be chosen.
+                                                  Another example can explain the ”Static” part
+    Static Single Assignment form is a property of the Static Single Assignment form.
+of certain Intermediate Representations (IR).
+The form guarantees that every variable has ex-
+actly one definition. When a new value needs          Non-SSA                |      SSA
+to be assigned to the variable, a new variable is    x = 1                   | x1 = 1
+created with a similar name and is used instead label1:                      |label1:
+                                                     if (x = 5) goto print| x2 = φ(x1, x3)
+of the first variable. An example illustrates the
+                                                     print x                 | if(x2 = 5) goto print
+advantage of this characteristic of the SSA form:    x = random()            | print x2
+                                                       goto label1            | x3 = random()
+                                                                              | goto label1
+      Non-SSA               SSA                      print:                   |print:
+                                                       print x                | print x2
+   if(boolean)           if(boolean)
+       x = 1                 x1 = 1                     We can see similar statements in this exam-
+   else                  else                        ple as in the previous example, however there is
+       x = 2                 x2 = 2                  a small but important difference. The variables
+                         x= φ(x1,x2)                 ”x2” and ”x3” are defined inside a loop and will
+   return x              return x                    thus be assigned to several times during the ex-
+                                                     ecution of the loop. One should note that the
+,                                                                                                      3
+
+
+print statements in the SSA form look identical          When the exit points of two different nodes
+but will never print an identical value. The sin-    point to a single entry point of another node,
+gle assignment property is violated in this exam-    we call this node a join node. In most cases
+ple, during the dynamic execution. This is where     φ-functions will be placed at the beginning of
+the static keyword comes into play. If we look at    these join nodes, as we can see in the example
+the code example in a static way, it is clear that   above. The example introduces us to the LLVM
+the ”x2” variable is only defined once. The single   IR which will be discussed later in this paper.
+assignment condition can thus be held if a vari-     The φ-function has, as we mentioned before, as
+able is used in the scope of the same assignment.    much arguments as it has preceding control flow
+If an assignment is in a loop it will be executed    operators. This is equivalent to the amount of
+multiple (dynamic) times, hence the word Static      pointers in the control flow graph that point to
+in Static Single Assignment.                         the join node of the φ-function. The function
+                                                     will, at runtime, be evaluated to the value of
+                                                     the argument corresponding to the control flow
+               A.    φ-functions                     of the program. This shows our second defini-
+                                                     tion of the φ-function, a choice operator. The
+    We will now take a closer look at the φ-         example shows us that the arguments not only
+functions introduced in the previous examples.       consist of the names of the variables from the
+We already showed that our original definition       different control flow branches, but also have a
+of φ-functions (as a merge operator) was not         second variable that indicates for each argument
+sufficient when we want to explain the actual        its corresponding branch. The value of this vari-
+effects of the operator. To better explain the       able is a choice made by the designers of the
+concept, we will introduce the notion of control     intermediate representation. In case of LLVM
+flow graphs.                                         (shown in the example) the designers chose to
+A control flow diagram consists of several nodes     use the label from the corresponding branch as
+called ”basic blocks”. These blocks, consisting      an identifier for the argument. This method is
+of several instructions or statements, should con-   used to prevent confusion, since a notation with-
+tain only one control flow instruction as the very   out these identifiers would be incomplete. If we
+last instruction. This instruction will create an    define the syntax of the φ-function as φ(r1,r2,...)
+exit point for that node. When a program is          it would not be clear whether the function would
+being executed normal program flow will enter        evaluate to r1 or r2 at runtime. The study of
+a node in its entry point, the first statement of    the φ-functions will help us understand how they
+the block, and exit the basic block via the fore-    work and how it will affect the code when they
+mentioned exit point. The edges in the graph         are removed by the framework. It will also en-
+represent the control flow branches between ba-      able us to make comparison between φ-functions
+sic blocks.[11]                                      in LLVM and φ-functions in Shimple, specifically
+                                                     their syntax and their place in the code.
+
+
+                                                                       III.   LLVM
+
+                                                         Before thoroughly inspecting the Jimple and
+                                                     Shimple representations, we turn our focus to-
+                                                     wards the LLVM compilation framework. LLVM
+                                                     is a collection of low-level coding tools, such as
+                                                     compilers, assemblers, linkers, debuggers, etc.
+                                                     The name of the project that bundles these tools
+                                                     can be confusing, as it has no virtual machine.
+          (Image taken from llvm.org)                We will focus in this paper on its compiler com-
+,                                                                                                       4
+
+
+ponent and the compiler’s internal representa-         %tmp = mul i16 %tmp_1_cast, %tmp_cast
+tion. Compiler designers generally use a three         %tmp_2_cast1 = zext i16 %tmp to i24
+part design when implementing compilers. The           %tmp_2_cast = zext i16 %tmp to i32
+three components are a front end and back end          %area_read = call i32 @f2(i32* %area)
+                                                       %tmp_4
+with an optimizer between the two main com-
+                                                       = add nsw i32 %tmp_2_cast, %area_read
+ponents. The front end converts code, which is         call void @f3(i32* %area, i32 %tmp_4)
+inputted by the programmer, into an abstract           %tmp_5
+syntax tree after checking for errors. This Ab-        = mul i24 %tmp_2_cast1, %brightness_cast
+stract Syntax Tree (AST) is then used by the           %tmp_5_cast = zext i24 %tmp_5 to i32
+optimizer to execute various code optimizations.       %total_read = call i32 @f2(i32* %total)
+It is here that an internal representation (IR) is     %tmp_6
+                                                       = add nsw i32 %tmp_5_cast, %total_read
+created, as it can be useful for some optimization
+                                                       call void @f3(i32* %total, i32 %tmp_6)
+operations. In our project, it sufficed to stop the    ret void
+compiler here and the framework is implemented
+using this IR . The back end eventually trans-         f1 = _ssdm_op_Read.ap_auto.i8P
+forms the code into native machine code.[19]           f2 = _ssdm_op_Read.ap_auto.i32P
+                                                       f3 = _ssdm_op_Write.ap_auto.i32P
+
+           A.   LLVM in the project                    converted polynomials
+
+    We will explain briefly the framework men-         tmp_4   = area_read + cp_read*dpt_read
+                                                       tmp_6   = cp_read*dpt_read*ip_read + total_read
+tioned in the introduction, as it clarifies our need
+to investigate LLVM and its internal representa-
+tion. The framework [14] modifies the LLVM                 The conversion of code sequences to polyno-
+compiler and its IR code generation component,         mials has four steps. The first step is a read
+to identify valid data flow graph sub graphs (Sec-     and write slicing. We check that a read instruc-
+tion II). These subgraphs will be used in the cre-     tion can be moved before and a write instruction
+ation of the Taylor expansion diagrams. The            after the arithmetic instructions. If there are
+image below gives an example of LLVM code              dependencies, maybe only a part of the compu-
+transformed into polynomials, used by the TED.         tation can be extracted. Step two is the rewrit-
+The instructions in italic are binary operators        ing the casted variables propagating them where
+and are important in the creation of polynomi-         they are used, castings are not important for the
+als. All of the instructions in the code will be       similarity identification in the LLVM case, be-
+explained below. LLVM has a specialized ana-           cause instructions are typed, see section III, and
+lyzing tool, called llvm-prof, that generates an       a floating point instruction is different from an
+execution profile. This execution profile is a re-     integer one. The third step is the identification
+port, in readable format, that helps to identify       of the output variables.The last step is the ac-
+the hot loops of a program. Hot loops are regions      tual creation of a polynomial with the operations
+of a program, or sequences of code statements,         that yield to each output.
+that are executed more often than other regions.
+This profile is used in the framework to focus on       B.     LLVM’s Intermediate Representation
+parts of the code that are executed more, and
+thus contribute more to the execution time.
+                                                          Now that we have our motive to study
+                                                       LLVM, we will dive deeper into the internal
+%ip_read = call i8 @f1(i8* %ip) nounwind
+                                                       representation.     LLVM code representation
+%brightness_cast = zext i8 %ip_read to i24
+%dpt_read = call i8 @f1(i8* %dpt) nounwind             resembles an abstract low-level RISC-like
+%tmp_cast = zext i8 %dpt_read to i16                   instruction set. However, it has several higher-
+%cp_read = call i8 @f1(i8* %cp) nounwind               level characteristics to ensure sufficient code
+%tmp_1_cast = zext i8 %cp_read to i16                  analysis and optimization. The most important
+,                                                                                                    5
+
+
+higher-level information source is the strong        and is only possible because of the typing of
+typing system.                                       variables. The grammar for the IR is too large
+The typing system can be divided into three          to describe in this paper, so we will analyze the
+categories. The first category is the smallest as    IR by dividing the instructions into different
+it only contains the void type. Void represents      categories. We will use the example of LLVM
+no value and has only limited use. The second        IR above to give an example of the instruction
+category consists of function types. Function        categories
+types are the type of value returned by a func-
+tion call. The type can be either a void type,          First category : Terminator instructions
+or a first class type. The first class type is the
+last and biggest type category. This collection          Terminator instructions are instructions that
+can also be divided into several subcategories       close a basic block. They change the control
+of types. This time four categories can be           flow of a program and, therefore, create an
+distinguished: single value types, label types,      edge when represented in a control flow graph.
+metadata types and aggregate types.                  These instructions do not create any other value
+Single value types are native types that are valid   than void as only the secondary (control flow)
+in any registers. They consist of the standard       effect is essential. The instructions consist of
+types, such as integers, floats, pointers and        simple return, branch and switch statements,
+vectors, and a special type, called x86 mmx,         and more specialized functions such as invoke
+that is only available on x86 machines. Label        and indirect-branch. An indirect branch is used
+types simply represent labels and require no         to jump to a basic block that is specified by
+further explanation. Metadata was introduced         a memory location, rather than a label in the
+to ease optimization as it can be used to store      case of a normal branch function. The invoke
+information in the IR itself[20]. Aggregate types    instruction is used together with unwind to
+are the types of data structures that contain        implement exceptional control flow based on
+multiple elements of the same type. The two          unwinding the execution stack. An easy way to
+data structures available in LLVM are array          understand the mechanism is to see the invoke
+and structures.                                      function as a high-level language try statement
+The second higher-level feature is the usage         with a second parameter that indicates the basic
+of unlimited virtual registers in a static single    block that handles the exception, much like the
+assignment form. The advantages of using SSA         catch statement. The unwind instruction is then
+earlier also apply to the IR of LLVM.                simply the equivalent of the throw statement.
+As was the case in Jimple, LLVM has designed         In the example given earlier, there is only one
+multiple variants of the IR. The first form          terminator instruction: the final ret void.
+is the textual form that is used to display
+code to the user and by external IR code                Second category : Binary instructions
+optimizers and analyzers. Two other forms
+exist to be either used by internal modules or           Binary instructions take, as the name sug-
+to be stored on disk in a bitcode format. The        gests, two operators and produce a single result.
+last form mainly exists to save storage space.[19]   This represents the three-register form of the
+                                                     IR. These operators are the most important part
+   LLVM uses only 31 opcodes to create its           of the IR as they do most of the computations
+entire instruction set. This small amount of         in a program. These are the computations is
+opcodes is the result of clever reuse of opcodes     which we are most interested in this project.
+for different purposes. To start, there are no       The return value of these functions is always
+unary instructions, they are implemented by          the same as the type of their arguments. All
+using other operations (eg. not is implemented       binary instructions can be divided into two
+by using a binary xor relational function).          groups. The first group accepts only integers
+Overloading of operators is the second method        (signed or unsigned), while the second group
+,                                                                                                     6
+
+
+only accepts floating point numbers or doubles.      SSA form for these memory locations. To store
+The base functions are: addition, subtraction,       an element in memory, a pointer to a region of
+multiplication, division and the remainder           allocated memory should exist. This pointer is
+functions. Each function has a version in both       created by using either the malloc or alloca func-
+groups but have the same semantics. The              tion. The difference between malloc and alloca
+division and remainder function can be further       is the location of the allocated memory. Mem-
+split into a signed and unsigned version, as         ory can be deallocated by using the free opera-
+division with integers can sometimes lead to         tor. All local variables are implicitly allocated,
+unexpected results. As mentioned earlier the         but require no special operator to be referenced.
+binary instructions in the example are in italics.   The pointers returned by the allocation func-
+For instance: %tmp = mul i16 %tmp 1 cast,            tions can be used by the load and store oper-
+%tmp cast.                                           ations. The load operation is used to read from
+                                                     memory and the store operation writes a value
+   Third category : bitwise binary instructions      to a given memory location. For example
+                                                     %ptr = alloca i32
+    Bitwise binary operations use the same se-       store i32 3, i32* %ptr
+mantics as normal binary operators. These            %val = load i32* %ptr
+instructions are also important to us in this
+                                                        will define a variable val with value 3. The
+project, despite the fact that they do not occur
+                                                     getelementptr operator retrieves the memory
+as frequently as the binary instructions. They
+                                                     address of a sub element of any given data
+take two arguments of the same type and cal-
+                                                     structure. Example: (getelementptr Obj %X,
+culate some result of the same type. The main
+                                                     i32 %i, ubyte 5) is the equivalent of X[i].a
+difference is the efficiency with which the oper-
+                                                     where a is the third field in the object class.
+ators calculate their result. This comes however
+                                                     Other operations include : fence, cmpxchg and
+with a price of reduced functionality. The in-
+                                                     atomicrmw are barely or never used in our
+structions can be divided into two groups. The
+                                                     project and will thus not be discussed.
+first group is used to calculate some arithmetic
+operation and has operators shl (shift left) and
+                                                        Fifth category : casting instructions
+lshr (shift right). The instructions in the second
+group are more frequently used as logical oper-
+                                                    Although casting operations are not impor-
+ators but can also be used to calculate certain
+                                                 tant for similarity identification in the frame-
+expressions. This group consists of and, or and
+                                                 work, because binary instruction are divided into
+xor. Examples of bitwise binary instructions:
+                                                 integer and float operations. Nevertheless, it is
+     • %res = shl i32 4, %var (Shifts the number important to recognize them to be able to cor-
+       4 ”var” amount of times)                  rectly remove them. These instructions are still
+                                                 in three-argument form as they take a type as
+     • %res = and i32 25, 30 (Returns 24)        a third argument. All instruction take a single
+                                                 operand and a type and return a value equal to
+    Fourth category : memory instructions        the given type. We will not show all the casting
+                                                 instructions as they are similar in functionality.
+    The LLVM compiler was originally created We will give some examples instead.
+for C-like programming language so special care
+had to be taken to allow manual memory man-          • %tmp = mul i16 %tmp 1 cast, %tmp cast
+agement. LLVM uses only two operators to ac-            %tmp 2 cast1 = zext i16 %tmp to i24
+cess and write to memory: load and store. Be-           (snippet from the example given in part
+cause a store operation can write to multiple           A)
+memory locations through the use of pointers,
+memory locations are not in SSA form. It would       • %X = trunc i32 257 to i8 (Truncation,
+be too difficult to create a proper and compact         yields 1)
+,                                                                                                   7
+
+
+     • %X = fptoui double 123.4 to i32 (floating techniques exist such as enumerating a sub-
+       point to unsigned integer, yields 123)       graph of a Data Flow Graph[12], Potential
+                                                    Custom Instruction pattern identification and
+     • ...                                          timeshaping[13] and other techniques using
+                                                    an acyclic Data Flow Graph. However, these
+    Sixth category : other instructions
+                                                    techniques do not provide the best result, as
+                                                    they do not always find common sequences
+    The IR supports several instructions that do
+                                                    in a way that a custom instruction can be
+not fall under any of the above categories, but
+                                                    created that represent the same functionality
+can be very important. Two comparison op-
+                                                    in different forms. Using Taylor Expansion
+erators exist in this category: icmp and fcmp.
+                                                    Diagrams has been proven to be more effective
+These operators are used to compare two in-
+                                                    for finding custom instructions that can be used
+tegers and two floating point numbers, respec-
+                                                    across applications in a certain domain.[14]
+tively, and return a boolean value indicating
+whether they are equal or not. The select can be
+used as a low level ternary shorthand if function.      Taylor Expansion Diagrams [15] are compact,
+It takes a condition (a bit) and two values of the canonical representations of data flow computa-
+same type. If the condition is true, it will return tions. The computations can be represented by
+the first value, otherwise the second value will polynomials with multiple variables, closely re-
+be the returned value of the operator.              lated to the decomposition into Taylor series, on
+The call operator is used for function calls and which the Diagrams are based. Taylor Expan-
+requires several arguments, such as return type, sion Diagrams were introduced because of the
+argument list, optional calling convention and limitations of earlier diagrams, such as decision
+others. The last function we will discuss is the and Binary Moment Diagrams (BMD). In these
+φ-function. We already explained the reason of diagrams word-level computations, or those used
+existence for this function and its semantics. All in all general programming language, such as ”X
+value arguments of the function should have the + Y”, need to be decomposed into bit-level com-
+same type that is given as a first field in the putations before they can be represented by a
+function. Example: %x = phi i32 [%x 1, %La- graph. This composition can cause the number
+bel1],[%x 2, %Label2],[%x 3, %Label3].              of variables in the diagrams to expand exponen-
+    [21]                                            tially. This causes an increase in the memory re-
+                                                   quirement and operation time. Another method
+ IV.   TAYLOR EXPANSION DIAGRAM
+                                                   is thus used to prevent this behavior and treat
+                                                   the high level computations as algebraic func-
+                                                   tions rather than expanding them in bit-level
+    We introduced the notion of a Static Single
+                                                   components. This higher-level representation of
+Assignment form because this is a require-
+                                                   mathematical operations is what makes the TED
+ment of the framework we will be using in
+                                                   more useful for code matching. With the DAG
+the project. The goal of this project is to
+                                                   representation of a different sequence code for
+adapt the source code so that it accepts the
+                                                   the same functionality, unlikely to produce the
+Intermediate Representation we are studying in
+                                                   same graph for the different sequences, whereas
+this paper. One of the purposes of the program
+                                                   a TED will.
+is to identify common sequences of instructions
+throughout one or more applications.        We
+make the distinction between sequences that
+are common in one application and that are
+common in a certain domain. When searching
+for common sequences it is necessary to use
+pattern-matching techniques that are both
+fast and complete. Several pattern matching
+,                                                                                                        8
+
+
+                                                          The nodes in the graph correspond to the suc-
+                                                      cessive derivation of the function with respect
+                                                      to the original variable (in case of the example:
+                                                      ”x”). Each node thus consists of a single variable
+                                                      and has as many children as there are successive
+                                                      derivations. The first child, also called a con-
+                                                      stant Taylor expansion, has a dotted edge. The
+                                                      first derivation is connected via a single line, the
+                                                      second derivation via a double line, etc.
+                                                      When we have created a TED, the next step is to
+                (Image used from [15])                reduce the size of the graph to reach the canon-
+                                                      ical representation we desire. This is done by
+    The figure above shows how the new method         a set of rules called, normalization. The gen-
+can be used to represent the bit level variables      eral idea is to remove redundant nodes and to
+into a higher level representation. The left side     combine graphs of which there exist an isomor-
+of the figure depicts the bit-level decomposition     phism. A node is redundant if all of its non-
+of the function ”A*B” with respect to the bits        dashed edges (zero edges) are connected to a ter-
+of variable A and B. The right side shows the         minal node zero. This means we can remove the
+abstraction of these bits into a higher level         node from the graph, redirect the incoming edges
+symbolic representation. One can use a Taylor         to the outgoing edges of the node without any
+series expansion of the function to achieve this      secondary effects on the complete function. In a
+type of symbolic abstraction. If we rewrite the       special case where all outgoing edges of a node
+moment decomposition                                  point to the zero terminal node the evaluated
+f = fx¯ + x(fx − fx¯ ) as f = f (x = 0) + x ∂(f
+                                             ∂x
+                                                )
+                                                      value of the function in that node will be equal
+We can see that the right equation resembles a        to zero. A terminal node is a node that contains
+Taylor series expansion. We can thus represent        only a single constant value and has not outgo-
+a BMD with a Taylor series expansion by               ing edges.
+allowing the variable x to take integer values        Isomorphic graphs are detected by calculating a
+and thus discard the bit-level expansion.             bijection between the vertex (or node) sets of
+                                                      two graphs. If this bijection is such that any
+  The Taylor series expansion of function f(x),       two vertices x and y of G1 are adjacent in G1 if
+where x0 = 0, can be represented as:                  and only if (u) and (v) are adjacent in G2, with
+            ∞                                         f being the bijection function,G1 being the first
+                  1
+  f (x) =            (x − x0 )k f k (x0 )             graph and G2 being the second graph, we can
+                  k!                                  talk about an isomorphism. This means that
+            k=0
+                                   1                  two subgraphs of a TED are isomorphic if the
+              = f (0) + xf (0) + x2 f (0) + ...
+                                   2                  vertex sets and edge sets can be mapped on-to-
+    where f’(x) is the first derivative of f(x) and   one. They will thus represent the same function
+f”(x) is the second derivative. When applying         because of the definition and construction of the
+this decomposition recursively to higher order        graphs. After the application of the rules spec-
+functions and storing the results in an acyclic de-   ified above on a TED from the original mathe-
+composition diagram, we get the Taylor Expan-         matical expression, we end up with a normalize
+sion diagram. The graph consists of several node      canonical Taylor Expansion Graph we can use to
+sfollowing the general decomposition scheme.          create custom expression or instruction for com-
+                                                      mon code sequences.
+,                                                                                                       9
+
+
+  A.   Using TED for instruction clustering                            V.   DALVIK
+
+                                                         Dalvik is Android’s mobile alternative to the
+                                                     Java Virtual Machine. It uses a limited but
+                                                     similar implementation of the standard Java li-
+                                                     braries. This means that Android applications
+                                                     are written in standard Java, but are compiled
+    To identify code sequences with similar func-    to Android bytecode. This bytecode is very dif-
+tionalities using the normalized TEDs we have        ferent from the standard Java bytecode because
+to be able to create polynomials from a series       of the various constraints the Android platform.
+of instructions. We do this by creating a Data       These constraints can go from limited proces-
+Flow Graph from the Intermediate Representa-         sor speed and memory, to low storage space and
+tion of the source code we want to analyze. This     slow data transfer speeds. Because of this it is
+is where the Static Single Assignment form con-      important that Android bytecode is both effi-
+dition comes into play. To create a correct data     cient and small in size. Virtual machines often
+flow graph for static program analysis the ana-      favor a stack-based architecture over register-
+lyzed IR should be in SSA form[16].                  based architectures for reasons of code simplic-
+When choosing a sequence of instructions for         ity and code density. This means that exe-
+conversion to a TED, several constraints are in-     cutables for register-architectures are generally
+troduced. Each list of chosen successive instruc-    larger than executables for stack-based architec-
+tions should be a maximal convex subgraph of         ture [3]. However, the simplicity and density
+the original data flow graph of a given basic        come at a performance cost. It has been shown
+block. We call these graphs subDFGs. This            that a register architecture requires an average
+list of instructions should thus not contain any     of 47% fewer instruction executions than their
+control flow instructions, such as branch, jump,     stack based variants. However, register code
+goto, etc. The subDFGs should also not contain       is about 25% larger than corresponding stack
+any memory operation, such as load and store,        based code. The performance gain from using a
+as the custom instructions created from these se-    register based architecture, taking into account
+quences can only include operations executable       every advantage and disadvantage, is on average
+in a functional unit. These units cannot execute     a 32.3% lower execution time for standard appli-
+memory operations as they are not connected to       cations [4].
+the memory bus. They are only connected to           Given this performance gain from using a
+the processor’s registers. The exploration of the    register-based architecture, it seems advanta-
+DFG is done using a binary search algorithm [14]     geous to use it for devices with limited processing
+which we will not describe in this paper.            power. This is why Android chose to transform
+The second step is to transform the previously       stack based Java bytecode to a register based
+found subDFGs into a polynomial expression.          format. The increased code size is countered by
+With the polynomials we can create a TED using       Android by compressing all Java class files into
+a Taylor Expansion series, as mentioned above.       a single file in the ”.dex” format. This is done
+After reduction and normalization of the Dia-        by using the ”dx” tool after all Java source code
+gram, the result is a unique canonical represen-     files are compiled with the standard Java (javac)
+tation of the polynomial. Because of the unique-     compiler. This Dex file will be loaded and exe-
+ness of this representation, one can easily verify   cuted by the Dalvik Virtual Machine. The Dex
+if two polynomials have the same functionality       format has been optimized for both memory us-
+by inspecting their TED representation. In this      age and code size. This optimization is mainly
+way similarity can be detected even if the data      done by using a shared, type-specific constant
+flow graphs are not identical. This is where other   pool. This pool stores all literal constants used
+pattern matching techniques fail as they do not      by all Java classes it embodies. This includes not
+construct a TED.                                     only string constants, but also field, variable, in-
+,                                                                                                      10
+
+
+                                                       such as: inexplicit expressions, arbitrarily large
+                                                       expressions and the fact that simple transfor-
+                                                       mations can become complicated. When imple-
+                                                       menting the Jimple transformation one of the
+                                                       goals the designers wanted to reach the ability
+                                                       to produce correct Jimple code for any verifiable
+                                                       bytecode.
+                                                          ”Even for bytecode that does not come di-
+                                                       rectly from a Java compiler” [5]
+                                                           This is especially useful in our project as we
+                                                       want to create Jimple code directly from the An-
+                                                       droid bytecode. The intermediate representa-
+                                                       tion has some essential characteristics that de-
+                                                       fine it. The first characteristic is the stackless
+                                                       nature of the code. By now it is clear that us-
+                                                       ing a register based representation is important
+                                                       for both performance and compatibility with the
+terface, class and method names. In the code           sequence-identifying framework we will be us-
+itself these constants will be replaced by the ap-     ing. The second characteristic is the restric-
+propriate index in the constant pool rather than       tions of expressions. Expressions are restricted
+storing them throughout the code. This method          to a small number of operands and they must
+allows for a great reduction of memory usage and       be either constants or local variables. These lo-
+code size, because of the high chance of duplica-      cal variables must have explicitly declared types.
+tion elimination [2]. The figure below gives a         The typing of local variables was implemented
+graphical representation of the pool sharing in        to allow higher order optimization such as type
+Android                                                based code analysis. Since Jimple is mainly used
+    The Dalvik bytecode will not be used in this       for code optimization, one last requirement for
+project as it is not in SSA form. A first idea was     the representation is that the code is compact.
+to transform Dalvik bytecode into an SSA form,         This means that the produced code should have
+but this process would be too difficult and would      the lowest amount of statements as possible. We
+fall out of the scope of this project. The necessity   will now show the steps in the creation of Jimple
+for an SSA form is explained in Section II. Nev-       code from Java bytecode. We will then show the
+ertheless, it is important to understand how An-       transformation of Android files to Jimple, as it
+droid compiles and compresses Java source code         it different in some aspects.
+into their Dex format as it will be used to create
+the Jimple intermediate representation.
+
+
+                 VI.    JIMPLE
+                                                         A.   Creating Jimple from Java bytecode
+
+    Jimple stands for Java sIMPLE [8] and of-
+fers a great alternative representation of Dalvik         Producing Jimple is a five step process start-
+bytecode, as there exists an SSA version of this       ing with Java byte code, ending up with cor-
+representation. Jimple is the internal represen-       rect, stackless, typed and compact Jimple code,
+tation used in Soot, developed by the Sable Re-        thereby satisfying all earlier given conditions.
+search Group, a Java code optimizer. Jimple            We summarize the process here, because it will
+was created because optimizing Java stack-based        give us a better insight on how Jimple operates
+bytecode introduces unnecessary complications          internally and the representation.
+,                                                                                                           11
+
+
+     1.   Step one : Producing typeless Jimple         after typing of the Jimple statements. When
+                                                       the compaction is done after typing of the state-
+    The first step in the process is producing         ments, a decrease in code size is visible. How-
+typeless incompact Jimple statements from the          ever, when small code size is not a primary objec-
+Java bytecode. This is done by transforming            tive, the compaction should remain the second
+the operand stack to a series of Jimple variables      step in the transformation as it gains a boost in
+without a type and by successively changing each       execution speed[5]. As is in the first step, we
+reference to the stack by explicit variable refer-     could now stop the process, as we have created
+ences. An important concept here is that equal         correct Jimple statements.
+Java byte code statements do not necessarily
+transform into the same Jimple statement. This
+                                                             3.   Step three : Splitting local variables
+is a direct result of using a stack to pass around
+arguments to functions. For example: given the
+                                                           The third step is a preparation step towards
+iload 0 instruction; when transforming the in-
+                                                       the typing of all the variables and methods,
+struction for the first item, the value of the vari-
+                                                       which is step four. We can not type the state-
+able 0 is assigned to the variable representing the
+                                                       ments created by the second step of the process,
+first element of the stack. However, when the in-
+                                                       because a variable can be used for different types
+struction is transformed more than once, succes-
+                                                       of values. This is caused by reusing untyped vari-
+sive transformation should not reassign the first
+                                                       ables in the first step of the process. The Java
+element of the stack. This means that the trans-
+                                                       VM allows such behaviour of both local variables
+formation has to keep track of the height of the
+                                                       and stack pointers, provided that no variables
+stack. Calculation of the height of the stack is
+                                                       have conflicting types. The preparation is done
+then done by traversing the byte code and using
+                                                       by splitting all local variables that are used for
+a set of rules to correctly increase or decrease the
+                                                       multiple types of values. This is done by sim-
+stack height. This set of rules is too extensive to
+                                                       ple renaming of the variable and corresponding
+give here as it has an entry for every single byte
+                                                       arguments of function calls. This closely resem-
+code instruction. An interesting note to make
+                                                       bles the renaming step in the creation of an SSA
+is that this first step in the process is enough to
+                                                       form, which we have explained earlier.
+create correct Jimple statements. This represen-
+tation could be used for optimization and code
+analysis, albeit not very efficiently.                                4.   Step four : Typing
+
+                                                           The third step enabled us to do the actual
+             2.   Step two: Compacting                 typing of the compact Jimple statements. Typ-
+                                                       ing local variables is done by inspecting the in-
+   The first step creates code that is not com-        structions that use or manipulate the variables.
+pact enough for efficient operation and analysis       However since the Java Virtual Machine specifies
+purposes. The second step is thus compacting           that every variable has to be defined or declared
+the produced code. Compacting is done by us-           before it can be used in any other statement [22],
+ing copy-constant propagation and simple dead-         Jimple designers chose to use only definitions for
+code elimination. The algorithm used during the        inferring types of variables. This is trivial for
+transformation uses data-flow analysis to assure       primitive types, such as doubles, float, string,
+correct code production. Propagation and dead          etc. Local variables that are assigned to an in-
+code elimination is executed as long as the code       stantiation of (user-defined) classes, prove to be
+does not change, providing the maximal level of        more difficult. The algorithm used to derive the
+possible compaction without changing the func-         correct type will not be given here, although the
+tionality of the code. Several experiments have        main idea is to find a common superclass of two
+been conducted in which the location of the sec-       different classes, and typing all variables to this
+ond (compaction) step of the process was moved         superclass. Both methods specified above work
+,                                                                                                    12
+
+
+in most general cases and only fail under cer-
+tain conditions. Null pointers prove difficult as
+they are converted to an object type. This can
+produce type errors instead of the expected null
+pointer exception. The second problem comes           Soot was extended with a module called Dexpler,
+from interfaces. Interfaces can introduce type        a Dalvik to Jimple converter tool. The dexpler
+conflicts in the algorithm for finding a common       tool uses an existing Dalvik disassembler called
+superclass.                                           Dedexer [6] to create a Jasmin [7] like ASCII de-
+    The choice of using only definitions for type     scription of the Dalvik instructions, which will
+inference is the main source of the problems          be used in the actual process of creating Jimple
+specified. A new algorithm was created by E.          statements.
+Gagnon that is proven to correctly find the types         The process of creating Jimple statements
+of 100% of the tested methods. The algorithm          from Dalvik bytecode is done through several
+uses a program transformation to type methods         steps and is very similar to the process of cre-
+that cannot be type inferred by the traditional       ating them directly from Java code, which we
+methods[18]. A new version of Jimple exists in        have described in this paper. The first step of
+which this new algorithm is used, and does not        the process is the mapping of Dalvik instruc-
+have the problems specified above.                    tions to Jimple statements. The Dalvik opcode
+                                                      list consists of 276 entries [23], These contain,
+                                                      however, odex instructions and several instruc-
+         5.    Step five : Packing local variables    tions that are generally never used in Android
+                                                      applications. Odex instructions are never cre-
+   The last step in the process is a second com-      ated by the Dalvik compiler, they are generated
+paction step. By splitting local variables in step    inside the Dalvik Virtual Machine to optimize
+three of the process, some unpacking has oc-          the bytecode. Still, the number of (used) Dalvik
+curred. Compact code means that both the              opcodes is much greater than the available Jim-
+number of statements and the number of vari-          ple statements. One of the reasons the mapping
+ables should remain as low as possible. We can        is viable is because of the absence of typed con-
+see this step as the reverse process of creating an   stants and registers in the Dalvik bytecode. Be-
+SSA form, as the goal of this step is to reuse as     cause of a lack of types, several opcodes exist
+many variables with the same type as possible.        for the same type of operation, each with a dif-
+When the last step of the process is completed,       ferent type (eg.: add-int,add-long,add-float,add-
+typed and compact Jimple code will have been          double). The opcodes can be combined into one
+created.[5]                                           Jimple statement, as Jimple uses typed variables
+                                                      and arguments. Using this combination method,
+                                                      we can divide the instructions into five large
+    B.        Transforming Dex files to Jimple        groups: the move instructions, branch instruc-
+                                                      tions, method invoke instructions, logic instruc-
+   We use the Soot framework to transform An-         tions and arithmetic instructions. Each group
+droids Dex files to sequences of Jimple state-        will consist of several Dalvik instructions and
+ments. These instructions then eventually get         fewer corresponding Jimple statements. The sec-
+transformed into Shimple statements which we          ond step is more tricky as it involves deducing
+will use later in the project. The conversion         the type of arguments and variables using the
+from Dex to Jimple is not trivial and requires        Soot fast typing component. In most cases this
+several different steps. The figure below shows       will cause no problem because the type can sim-
+an overview of the steps.                             ply be read from the opcode as we illustrated
+   Most developers do not publish the source          above. However some instructions do not pro-
+code of their applications, written in Java, so       vide enough information to deduce the correct
+one must analyze the compiled bytecode instead.       type and will cause an error in the fast typing
+,                                                                                                      13
+
+
+process.An example of an instruction is ”const          1. In a join node of a control flow graph,
+vAA, #+BBBBBBBB”. This instruction moves                   which has two or more incoming control
+a given literal value into the specified register,         flow edges, a φ-function should be intro-
+but there is no way to deduce the type of this             duced as the first statement of the basic
+value. Another possible problem is the null ini-           block. The function should have as many
+tialization:                                               arguments as there are incoming branches.
+
+                                                        2. The insertion of φ-functions should be lim-
+int x = 0;        |00: const/4 v0,#int 0                   ited, so that the number of inserted func-
+Object obj = null;|01: const/4 v1,#int 0                   tions is minimized.
+                  |
+(Java)            |(Dalvik)                              The φ-functions introduce a new assignment,
+                                                     so it possible that an introduction of the func-
+    As we can see in the Dalvik code there is no     tion may require another operator to be inserted
+visible way to distinguish a null pointer from the   in a node further in the control flow graph. Us-
+integer zero value. Dexpler handles this prob-       ing these conditions, it is however not assured
+lem by leaving the type open until it is used        that the number of introduced φ-functions is the
+in further instructions of which the type of the     minimal amount necessary for correct function-
+operands is known. The algorithm, described by       ality of the program. The first condition can
+R. Milner [9] is used to extract the type of vari-   cause introduction of ineffectual, so called dead,
+ables by using a depth-first search in the con-      φ-functions. The reason that Shimple does not
+trol flow graph created internally by the Soot       handle these exceptions, is because the dead φ-
+framework.[8]. A third and last step is an opti-     functions can sometimes be used for program
+mization step, that removes some unnecessary or      equivalence or other analysis purposes. Shimple
+redundant instructions from the generated code.      is also very rarely used for actual program assem-
+                                                     bly and will be often transformed back into Java
+                                                     bytecode when deploying the actual program.
+               VII.   SHIMPLE                        Transforming SSA form back to normal (non
+                                                     SSA-form) will then remove these unwanted φ-
+   Shimple is the SSA variant of the Jimple rep-     functions. Using the two conditions, the exact
+resentation we discussed earlier. Creating the       locations, for inserting the φ-functions, can be
+Shimple statements is done by transforming Jim-      found by using a dominance frontier.
+ple statements into an SSA form.                         The second step towards creating the SSA
+                                                     form is the renaming of the variables. As we saw
+                                                     earlier, one of the properties of SSA is the unique
+      A.   Creating Shimple statements               name for every variable that is defined or as-
+                                                     signed. Renaming the variables is done by using
+   Transforming Jimple to Shimple is done with       a top-down tree traversal beginning at the first
+algorithms that are closely related to general       node of the dominator tree, constructed during
+SSA transforming algorithms.        The general      the introduction of the φ-functions. An array,
+mechanism of generating SSA code is the intro-       that contains a single integer for every variable in
+duction of φ-functions and the renaming of vari-     the code, is used. The integer is initialized with
+ables. The insertion of φ-functions is non-trivial   zero for every variable and is increased when-
+and will be further examined. The algorithm          ever the variable is reassigned. This increment
+used by Shimple was formulated by Cytron et al.      of numbers is then used to create unique suf-
+and constructs a minimal SSA form [11]. The          fixes for the new variable names. Another array,
+location of the inserted φ-functions is the first    containing a stack of integers, keeps track of the
+problem that is solved by the algorithm. The         scope of the definition or assignment of a vari-
+minimal SSA form has two conditions that must        able. This stack is used to rename the new vari-
+hold:                                                able correctly using the other suffix array. These
+,                                                                                                      14
+
+
+stacks are used because the algorithm works in        the last definition or assignment. This problem
+depth-first manner. This means assignments in         only exists because of the Soot developers choice
+one branch of the dominator tree could kill the       of control flow graph. The developers had no in-
+definition of a variable renamed in a earlier vis-    tention of creating an SSA form of their repre-
+ited branch.                                          sentation and thus did not take into account the
+As Jimple is created from Java code, we have to       problem mentioned above. Several efforts were
+take exceptions into account. Exceptions have         made to create a new control flow representation,
+the ability to control the flow of a program in an    however the resulting tree does not provide any
+unexpected way if we do not introduce the cor-        benefit over using the φ-function trimming[17].
+rect φ-functions. As Shimple uses Soot’s internal     This can affect us in this project, as a φ-function
+control flow graphs to create φ-functions, the re-    with too many arguments would require us to do
+sponsibility of correctly representing exceptional    the trimming ourselves.
+control flow lays entirely in the hands of Soot de-
+sign. One of Soots control flow graph implemen-
+tation, called CompleteBlockGraph, can be used         B.   Shimples Intermediate Representation
+for correct handling of the exceptional control
+flow, as it uses the most strict condition for ex-        The Intermediate Representation generated
+ceptions. The implementation assumes that any         from the Shimple module is very similar to the
+statement inside a try block can throw an ex-         Jimple representation. This is because it uses
+ception. The problem with this representation         the latter to create its statements. When de-
+is possible size of a try block. Java program-        scribing the representation it thus suffices to an-
+mers tend to keep try block as small as possible,     alyze Jimple’s IR. Soot uses two different ver-
+but a code generator does not follow this gen-        sions of the representation, external and inter-
+eral coding rule. Java has a limit on the size of a   nal. The external representation is the regular
+method, namely 65535 bytes[24]). When using           text file which represents source code in Jimple
+the CompleteBlockGraph every statement in a           form. This version is only used to display the
+try block should have its own argument in the         result of the transformation, and to store the
+φ-function of the corresponding catch block. An-      representation for other compilers or code opti-
+other issue introduces itself when the try block      mization platforms. Using text files internally
+is manipulated, the dominance frontier uses a         is, however, not very efficient, as manipulating
+bottom-up technique so this is possible. Each         ASCII text files to perform optimizations is often
+introduction or removal of a statement in the         inconvenient. Jimple thus also provides an inter-
+try block would mean a change in the amount           nal representation in the form of an API written
+of variables in the φ-function of the catch block.    in Java. We will not describe this API as it is of
+Lastly, removal of the φ-function when convert-       no use to us in the context of this project. We
+ing back into non-SSA form would introduce as         will only be using the external representation.
+many assignments as there are arguments in the            Jimple has only fifteen statements on which
+function. As we mentioned before, Shimple is          the whole grammar is based. We give an ex-
+                                                      cerpt of the complete grammar the includes
+not often used outside of code analysis, so trans-
+                                                      these statements.
+formation into normal form is not an infrequent
+operation. The solution used by Shimple’s de-         stmt = breakpoint_stmt | assign_stmt |
+signers is to remove repeating arguments in the       enter_monitor_stmt |
+φ-function. Not all statements in a try block         goto_stmt | if_stmt | invoke_stmt |
+define or assign a variable, but are still taken      lookup_switch_stmt |
+into account. This causes a repetition of argu-       nop_stmt | ret_stmt |
+ments between statements that do not alter the        return_stmt | return_void_stmt |
+                                                      table_switch_stmt |
+variable. The repeating arguments are simply
+                                                      throw_stmt;
+removed and their control flow is added to the
+dominating argument, the argument pointing to         breakpoint_stmt = "breakpoint";
+,                                                                                                   15
+
+
+assign_stmt = variable "=" rvalue;            "to" label "using" label;
+identity_stmt = local ":=" identity_value;
+enter_monitor_stmt = "entermonitor" immediate;method_signature = identifier
+exit_monitor_stmt = "exitmonitor" immediate;                        "(" type_list "):" type;
+goto_stmt = "goto" label;                     field_signature = identifier ":" type;
+if_stmt = "if" condition "then" label;
+invoke_stmt = invoke_expr;                        The grammar teaches us that every variable
+lookup_switch_stmt =                          is typed,  with the available types being:
+"lookupswitch(" immediate ")                      1. double 2. float
+{" cases " default: goto " label "}"              3. integer 4. long
+nop_stmt = "nop";                                 5. string 6. null
+ret_stmt = "ret" local;
+return_stmt = "return" immediate;                 Every method in the representation and its
+return_void_stmt = "return" ;                 arguments   are typed with one of the above spec-
+table_switch_stmt =                           ified types. Labels are presented as identifiers,
+"tableswitch(" immediate ")                   this means that labels can not be used as values
+{" cases " default: goto " label "}"          for variables and passed around as arguments
+throw_stmt = "throw" immediate;               for functions. This is a feature that is often im-
+                                                     plemented in lower-level languages such as x86-
+    The limited number of statements are enough
+                                                     assembly [25]. We do not give the remaining of
+to cover the more than 200 available statements
+                                                     the grammar for the Jimple representation as it
+in Java. The table switch and lookup switch
+                                                     would not contribute to a better understanding
+instruction correspond to the JVM eponymous
+                                                     of the IR. It will be used however when com-
+statements. These statements implement the
+                                                     paring Shimple and Jimple’s representation to
+Java switch case in two different ways. Table
+                                                     LLVM’s IR which is in section VIII.
+switch uses a jump table to find the target ad-
+dress in an O(1) operation. The lookup switch
+uses labels to identify the correct address and             C.   Examples of Shimple code
+is thus a O(log(n)) operation as label should al-
+ways be sorted and a binary search algorithm            We will now give some examples of gener-
+is used. The assign statement for the Shimple        ated Shimple and Jimple code that illustrate all
+representation is slightly different as it has to    characteristics and properties of both Jimple and
+assure the single statement property of the SSA      Shimple we have discussed.
+form. When assigning an already existing vari-       Java source code was extracted from the 0xbench
+able, a generated suffix should be appended to       benchmark suite.
+the variable if necessary. Lastly, the Shimple
+                                                     final static int SEED = 113;
+representation also contains the earlier discussed
+φ-functions. These functions do not exists in        public double integrate(int Num_samples){
+Jimple and are thus not present in the grammar.
+    The next excerpt illustrates the typed nature     Random R = new Random(SEED);
+of the representation
+                                                      int under_curve = 0;
+label = identifier;                                   for(int count=0;count<Num_samples;count++){
+local = identifier;                                      double x= R.nextDouble();
+constant = double_constant |                             double y= R.nextDouble();
+float_constant |int_constant|                              if ( x*x + y*y <= 1.0)
+long_constant |string_constant|                                under_curve ++;
+null_constant;                                           }
+type = int_type | long_type | float_type|             return ((double)under_curve/Num_samples)*4;
+double_type | ref_type |                             }
+stmt_address_type | void_type;
+exception_range =                                       The code snippet above is used in of the
+".catch" ref_type "from" label                       benchmark functions from the suite [26]. The
+,                                                                                                   16
+
+
+code comes from the SciMark section featuring        be cast to a different type by using a tradi-
+the integration function.We will use the suite for   tional higher-level method. The variable name
+this project as it contains a lot of mathematical    is preceded by the desired type between brack-
+operation. This will ease the creation of poly-      ets. When looking at the assignment operators,
+nomials. We first give the corresponding Jimple      we see a subtle but important difference between
+code as this is the first representation that is     normal assignment (=) and identity (:=). The
+generated by the Soot framework.                     difference between the two statements becomes
+                                                     clear by further inspection the grammar.
+ public double integrate(int)
+    {
+         int $i0, $i1, $i2;
+         jnt.scimark2.Random $r0;
+         double $d0, $d1, $d2;
+         byte $b3;                                   assign_stmt = variable "=" rvalue;
+         $i0 := @parameter0: int;                    identity_stmt = local ":=" identity_value;
+         $r0 = new jnt.scimark2.Random;              identity_value = caught_exception_ref |
+         specialinvoke $r0.<f1>(113);                                 parameter_ref | this_ref;
+         $i2 = 0;                                    variable = array_ref | instance_field_ref |
+         $i1 = 0;                                                     static_field_ref | local;
+      label1:
+         if $i1 >= $i0 goto label3;
+         $d0 = virtualinvoke $r0.<f2>();
+         $d1 = virtualinvoke $r0.<.f2)>();
+         $d2 = $d0 * $d0;
+                                                     An assignment can take any variable or refer-
+         $d0 = $d1 * $d1;
+         $d2 = $d2 + $d0;                            ence, to an array or an object, and a rvalue,
+         $b3 = $d2 cmpg 1.0;                         much like in any other programming language.
+         if $b3 > 0 goto label2;                     The identity can however only bind a local vari-
+         $i2 = $i2 + 1;                              able to an identity value: an exception, parame-
+      label2:                                        ter or this pointer. An interesting phenomenon
+         $i1 = $i1 + 1;                              is the introduction of a byte typed variable to
+         goto label1;
+                                                     represent a boolean value, instead of reusing an
+      label3:
+         $d2 = (double) $i2;                         existing integer variable.
+         $d1 = (double) $i0;                             We now look at the Shimple representation
+         $d2 = $d2 / $d1;
+                                                     for the given Java function above. As Shimple
+         $d2 = $d2 * 4.0;
+         return $d2;                                 is created from the Jimple statements, it will be
+    }                                                very similar to the code given above. The first
+Functions names are long and                         thing to notice is the sizable increase in code
+not relevant, they are abbreviated.                  length. This is due to the introduction of new
+                                                     variables and φ-functions. When looking at the
+    Jimple code can be seen as a hybrid be-          first variable declaring line, five new variables
+tween high-level Java source code and a lower        can be identified. All the new variables consist
+level byte-code representation. We still have a      of a base variable name with a unique suffix ap-
+notion of function definition, without the spe-      pended. This is because Shimple is in SSA form.
+cial .method keyword, although lower-level lan-      Second we identify the φ-functions and their cor-
+guage concepts are clearly present, such as la-      responding control-flow branch indication. In
+bel and goto statements. All variables used in       the Shimple representation, this indicator con-
+the method are declared in the beginning of the      sists of a digit indicating the last statement of
+method definition. All variables are typed with      a basic block. The φ-functions choose the cor-
+either built-in primitive types or user-defined      rect variable by using the correct digit,prefixed
+types (Random in the example). Variables can         by ”#”.
+,                                                 17
+
+
+    We have unfortunately no proper way of gen-
+erating a control flow graph of the Shimple code
+with Soot. We can however use the CFG of the
+Jimple code to illustrate the φ-function and their
+indicators. Only the basic block corresponding
+to label 1 and label 2 contain a φ-function. The
+number of arguments for the function is equal to
+the number of incoming arrows of the blocks, as
+we can see on the the figure (two in this case).
+
+
+VIII.   COMPARING SHIMPLE TO LLVM
+
+   After having explored Shimple, Jimple and
+LLVM’s IR in detail, we will compare Shimple
+and LLVM. This comparison will be used in the
+second part of the project. This list of differences
+and similarities will be used to change the code
+of the framework we will adapt. This overview
+will often refer to different sections of the pa-
+per. The list will only feature items that are not
+immediately visible from the study of the rep-
+resentations above, such as using a dollar sign
+instead of a percent sign before name variables,
+type names being different (i32 vs integer), end-
+ing statements with a semicolon, etc.
+
+
+                A.    Similarities
+
+SSA Both representations are in a Static Sin-
+    gle Assignment from. This form and the
+    reason why it is important for these rep-
+    resentations is studied in section II.
+
+3-register instructions A three-register nota-
+      tion means that most instructions, with
+      some exceptions, take two arguments and
+      produce a single result. This is as opposed
+      to a stack based representation, in which
+      instructions only have one operand and
+      produce one single result.
+
+Phi functions The need for φ-function is a di-
+     rect result of being in an SSA form. The
+     function are used in the control flow and
+     are a key element of the SSA form. The
+     semantics and working of the functions are
+     explained in section II.
+,                                                                                               18
+
+
+Virtual registers Both IRs use virtual regis-         a variable by inserting the type in brackets
+     ters. This means that the amount of vari-        before the name of the variable.
+     ables used in the code is not limited to the
+     physical amount of registers in the proces- Function calls Function calls differ not only in
+     sor.                                             syntax, but also use different keywords to
+                                                      perform the function call. The syntax dif-
+Conversion of bitwise operations A part of            fers in the fact that LLVM requires a re-
+     the conversion of code sequences to poly-        turn type before the call statement, while
+     nomials is the conversion of logical and         Jimple has no such requirement and uses
+     bitwise operators to arithmetic opera-           the return type of the definition of the
+     tions. However since both IRs represent          function. The keyword used by both rep-
+     boolean values as a value of either zero         resentations is different as invoke and call
+     or one, it is trivial to transform these op-     are not the same in LLVM. Shimple only
+     erations. For example: A and B can be            uses invoke for function calls (this can be
+     converted to A * B. The creation of poly-        seen in the grammar in section VII) and
+     nomials is explained in section IV.              throw for exceptions. LLVM on the other
+                                                      hand uses the call keyword for function
+Typing Both representations use strong typing         calling, and invoke to throw exceptions (it
+     with a direct result of a reduced amount         has no throw statement).
+     of instructions. By using typed variables,
+     instructions can be overloaded and thus Binary operators Binary operators use a dif-
+     reused for several types. LLVM distin-           ferent notation between LLVM and Jim-
+     guishes between decimal numbers and in-          ple. LLVM uses a prefix notation that is
+     tegers, while Jimple uses the same opera-        comparable to lower level languages such
+     tors for every type.                             as assembly. Jimple uses a more tradi-
+                                                      tional infix notation. This notation is pos-
+                                                      sible due the fact that binary operators
+                B. Differences                        can be used for every type of variable in
+                                                      Jimple.
+Phi functions Although both representations
+     use φ-functions, there is a discrete but Memory access Because LLVM’s compiler is
+     nevertheless important difference in the         mainly used for compilation of C pro-
+     usage of the function between Jimple and         grams, it has special memory access oper-
+     LLVM. The variable, representing a basic         ators, such as load and store. Jimple was
+     block, that indicates which value will be        created for representing Java code, which
+     chosen is different. In the case of LLVM         has no manual memory management, and
+     the label that starts the basic block is         thus has no explicit memory access oper-
+     used, while Shimple chose to use a spe-          ators available for the programmer. All
+     cial digit. In the textual representation of     memory access functions are handled by
+     Shimple a digit is placed before the last        the JavaVM.
+     statement of a basic block. This number
+     is the used in the φ-function as the indi-
+     cator                                                   IX. CONCLUSION
+
+Casting Because of the typing of variables,            Our aim in this paper has been to find out
+     both IRs had to introduce a way of cast-      how to represent DalvikVM bytecode in a way
+     ing variable to a different type. LLVM        it could be used to identify code sequences and
+     uses a special instruction to perform dif-    create polynomials. A highly specialized frame-
+     ferent kinds of type casting. We discussed    work designed to work with LLVM’s Internal
+     this in section III. Jimple, however, casts   Representation was already created to perform
+,                                                                                                    19
+
+
+the identification and creation steps. Our first
+task was to study the Dalvik bytecode, to un-
+derstand how we could use the framework with
+Android applications and what had to change.
+In this study we found out that one of the con-
+ditions for the input was not met by the Dalvik
+bytecode. A Static Single assignment form of
+the representation of the input code is required
+to create correct data-flow graphs. These graphs
+                                                    work that are already implemented, but are writ-
+are used by a part of the framework to identify
+                                                    ten to work with LLVM. The orange elements
+usable code sequences and to create polynomi-
+                                                    represent the Dalvik/Shimple equivalent that
+als. Dalvik bytecode is not in SSA form and
+                                                    needs to be implemented. The comparison we
+is for that reason of no use in our project. The
+                                                    made in this paper will be used to adapt and
+search for a better representation began, and led
+                                                    reuse code of the current implementation. The
+to a Java optimization framework, called Soot.
+                                                    conversion of the different modules of the frame-
+They had created an internal representation of
+                                                    work should not be hard as our study has shown
+their own and had developed an SSA form of this
+                                                    that there are a lot of similarities between the
+representation. Fortunately they implemented a
+                                                    two IRs. The similarity of the two IRs and the
+Dalvik translator module, to create their IR di-
+                                                    broad knowledge we now possess of the two rep-
+rectly from Android code files. Finding this IR
+                                                    resentations will help us greatly in the identi-
+meant we had to compare it to the LLVM IR as it
+                                                    fication of the pieces of code that will need to
+was the representation of choice for the existing
+                                                    change and what their functionality is. Analyz-
+framework. We explored both representations
+                                                    ing the Taylor Expansion Diagrams gave us an
+and their characteristics, to be able to compare
+                                                    idea of what the output of the framework should
+them. Both representations work in a similar
+                                                    be.
+manner in the general sense, and for the most
+                                                    This project will look towards the future of mo-
+part only differentiate in syntax and small de-
+                                                    bile technology by making mobile applications as
+tails. The main features we need in the project
+                                                    efficient as possible. The creation of specialized
+are mostly similar, such as being in SSA and us-
+                                                    hardware that can be used for a range of applica-
+ing a register based architecture.
+                                                    tions in a certain domain allows for an increase of
+                                                    performance, while reducing energy usage. Our
+                                                    project will estimate how much Android appli-
+         X.    CONTINUATION OF
+                                                    cations would benefit from this specialized hard-
+              BACHELORPROEF
+                                                    ware and will provide the tools to create the com-
+                                                    plex instructions used in this hardware.
+   This study of internal representations will be
+used in the second part of the project. Studying
+both IRs not only gave us deeper insights in the
+larger domain of code optimization, but enables
+us to understand the choices made by designers
+of internal representations. These choices are
+what led us to the discovery of a new IR that we
+can use in this project.
+   In the second part of the project, we will use
+our study to port the existing framework to work
+with Java-esque applications.
+   The image above shows the steps that should
+be taken in the second part of the project. Blue
+elements of the image are modules of the frame-
+,                                                                                                      20
+
+
+
+
+ [1] Robert Tolksdorf, Programming languages                by Convex Subgraph Enumeration 2008
+     for the Java Virtual Machine JVM and              [13] Nagaraju Pothineni, Anshul Kumar, Kolin Paul
+     JavaScript.      http://www.is-research.de/            Application Specific Datapath Extension with
+     info/vmlanguages 2006.                                 Distributed I/O Functional Units 2007
+ [2] David Ehringer, The Dalvik Virtual Machine ar-    [14] Cecilia Gonzalez-Alvarez, Jennifer B. Sar-
+     chitecture 2010                                        tor, Carlos Alvarez, Daniel Jimenez-Gonzalez,
+ [3] Jones      Derek,      Register    vs.    stack        Lieven Eeckhout Accelerating an Application
+     based      VMs.       http://shape-of-code.            Domain with Specialized Functional Units 2013
+     coding-guidelines.com/2009/09/17/                 [15] Maciej Ciesielski, Priyank Kalla, Serkan Askar
+     register-vs-stack-based-vms 2009.                      Taylor Expansion Diagrams: A Canonical Rep-
+ [4] Security Engineering Research Group, Analysis          resentation for Verification of Data Flow De-
+     of Dalvik Virtual Machine and Class Path Li-           signs 2006
+     brary 2009                                        [16] Ron Cytron, Jeanne Ferrante, Barry K.
+ [5] Raja Valle,Laurie J. Hendren, Jimple: Simpli-          Rosen,Mark N. Wegman, F. Kenneth Zadeckt
+     fying Java Bytecode for Analysis and Transfor-         An Efficient Method of Computing Static Single
+     mations                                                Assignment Form 1998
+ [6] Dedexer documentation         http://dedexer.     [17] Navindra Umanee Shimple: An investigation of
+     sourceforge.net 2011                                   Static Single Assignment 2006
+ [7] Jasmine     documentation      http://jasmin.     [18] Etienne M. Gagnon, Laurie J. Hendren, Guil-
+     sourceforge.net/ 2005                                  laume Marceau Efficient Inference of Static
+ [8] Alexandre Bartel,Jacques Klein,Yves Le Traon           Types for Java Bytecode 2000
+     Dexpler: Converting Android Dalvik Bytecode to    [19] Chris Lattner The Architecture of Open Source
+     Jimple for Static Analysis with Soot 2012              Applications : LLVM 2014
+ [9] Robin Milner, A Theory of Type Poly-              [20] http://blog.llvm.org/2010/04/
+     morphism       in     Programming       https:         extensible-metadata-in-llvm-ir.html
+     //courses.engr.illinois.edu/cs421/                [21] http://llvm.org/docs/LangRef.html
+     sp2013/project/milner-polymorphism.pdf            [22] http://docs.oracle.com/javase/specs/
+     1978                                                   jvms/se7/html/index.html
+[10] Allen Leung, Lal George Static Single Assign-     [23] https://developer.android.com/reference/dalvik/bytecode/O
+     ment Form for Machine Code 1999                   [24] http://docs.oracle.com/javase/specs/
+[11] Ron Cytron, Jeanne Ferrante, Barry K.                  jvms/se7/html/jvms-4.html#jvms-4.7.3
+     Rosen,Mark N. Wegman Efficiently Computing        [25] http://www.aldeid.com/wiki/
+     Static Single Assignment Form and the Control          X86-assembly/Instructions/lea
+     Dependence Graph 1991                             [26] https://code.google.com/p/0xbench/
+[12] Kubilay Atasu, Oskar Mencer, Wayne Luk, Can
+     Ozturan Fast Custom Instruction Identification
+
