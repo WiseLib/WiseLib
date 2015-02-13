@@ -13,8 +13,14 @@
 
 
   <div layout="row">
-    <md-text-float label="First Name" ng-model="userForm.firstName"></md-text-float>
-    <md-text-float label="Last Name" ng-model="userForm.lastName"></md-text-float>
+    <md-input-container>
+    <label>First Name</label>
+    <input type="text" ng-model="userForm.firstName">
+  </md-input-container>
+    <md-input-container>
+    <label>Last Name</label>
+    <input type="text" ng-model="userForm.lastName">
+  </md-input-container>
       <!--<label class="control-label" style="color:red" ng-show="userForm.firstName.$dirty && userForm.firstName.$invalid || userForm.lastName.$dirty && userForm.lastName.$invalid">
         First name and last name are required.
       </label>-->
@@ -33,14 +39,20 @@
           Your name will be added to the database.
         </label>
     </div>
-    <md-text-float label="Email" ng-model="userForm.email" type="email" required></md-text-float>
+    <md-input-container>
+    <label>Email</label>
+    <input type="email" ng-model="userForm.email" required>
+    </md-input-container>
         <!--
         <span style="color:red" ng-show="userForm.email.$dirty && userForm.email.$invalid" class="control-label">
           <span ng-show="userForm.email.$error.required">Email is required.</span>
           <span ng-show="userForm.email.$error.email">Invalid email address.</span>
         </span>
       -->
-    <md-text-float label="Password" ng-model="userForm.password" type="password" required></md-text-float>
+    <md-input-container>
+    <label>Password</label>
+    <input type="password" ng-model="userForm.password" required>
+    </md-input-container>
   <!--
   <div class="form-group">
     <label for="exampleInputFile">File input</label>
