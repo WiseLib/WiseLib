@@ -1,0 +1,13 @@
+<md-content layout="column">
+	<form role="form" name="loginUserForm" ng-submit="login()">
+		<md-input-container>
+			<label>Email</label>
+			<input ng-model="loginUserForm.email" type="email">
+		</md-input-container>
+		<md-input-container>
+			<label>Password</label>
+			<input ng-model="loginUserForm.password" type="password">
+		</md-input-container>
+		<md-button type="submit" class="md-raised md-primary">Login</md-button>
+	</form>
+</md-content>

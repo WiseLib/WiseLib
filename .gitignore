@@ -6,3 +6,5 @@ bower_components
 .DS_Store
 .travis/deploy_key
 config.json
+/lib/secret.js
+/.sublime-gulp.cache
