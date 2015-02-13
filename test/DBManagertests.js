@@ -7,7 +7,7 @@ var fs = require('fs');
 var config = require('../lib/config.js');
 
 /**
- * This checks all methods defined in the dbmanager. Since every post method has an opposite, the database should remain clean
+ * This checks all methods defined in the dbmanager. Since every post method has an opposite delete, the database should remain clean
  * @test
  */
 describe('DbManager tests',function(){

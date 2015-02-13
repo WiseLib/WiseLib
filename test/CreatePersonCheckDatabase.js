@@ -51,7 +51,7 @@ describe('Create person test',function(){
 		it('should create a person without error',function(done){
 			try{
 				
-				server['/persons']['post'](request,response);
+				server['/persons.json']['post'](request,response);
 				done();
 			}
 			catch(x)
