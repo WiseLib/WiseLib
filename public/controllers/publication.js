@@ -6,7 +6,7 @@ module.controller('uploadPublicationController', ['$http', 'fetcher', 'Page', fu
     this.authors = [];
     this.disciplines = [];
     this.fetcher = fetcher;
-    
+
     this.add = function (array, element) {
         if (array.indexOf(element) === -1) {
             array.push(element);
@@ -14,7 +14,7 @@ module.controller('uploadPublicationController', ['$http', 'fetcher', 'Page', fu
         }
         console.log('called add with ' + JSON.stringify(element) + ' and ' + JSON.stringify(array));
     };
-    
+
     this.remove = function (array, element) {
         var i = this.authors.indexOf(element);
         if (i > -1) {

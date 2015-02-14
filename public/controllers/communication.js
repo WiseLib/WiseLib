@@ -47,7 +47,7 @@ module.factory('fetcher', ['$http', function ($http) {
     };
     var fetchPersons = function (params) {
         if(params !== undefined){
-        return fetchForClass('Person', params).persons;}
+            return fetchForClass('Person', params).persons;}
     };
     var fetchProceedings = function (params) {
         //for now, return dummy data
@@ -57,11 +57,11 @@ module.factory('fetcher', ['$http', function ($http) {
                 name: 'first proceeding',
                 rank: 12.3
             },
-            {
-                id: 2,
-                name: 'second proceeding',
-                rank: 11.2
-            }];
+                                  {
+                                      id: 2,
+                                      name: 'second proceeding',
+                                      rank: 11.2
+                                  }];
             classesParams.Proceeding = params;
         }
         return classes.Proceeding;

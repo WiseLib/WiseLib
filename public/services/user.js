@@ -1,19 +1,19 @@
 var user = angular.module('user', []);
 
 user.factory('AuthenticationService', function() {
-	var auth = {
-		isAuthenticated: false
-	}
-	return auth;
+    var auth = {
+        isAuthenticated: false
+    }
+    return auth;
 });
 user.factory('UserService', function($http) {
-	return {
-		logIn: function(email, password) {
-			return $http.post('/users/login.json', {email: email, password: password});
-		},
-		logOut: function() {
-		}
-	}
+    return {
+        logIn: function(email, password) {
+            return $http.post('/users/login.json', {email: email, password: password});
+        },
+        logOut: function() {
+        }
+    }
 });
 
 user.factory('TokenInterceptor', function ($q, $window, $location, AuthenticationService) {

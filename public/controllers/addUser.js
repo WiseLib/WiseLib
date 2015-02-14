@@ -23,22 +23,22 @@ addUser.controller('manageUserController', function ($scope, $http, Page) {
         $scope.persons = []; //Reset found persons list
         if (!$scope.userForm.firstName || !$scope.userForm.lastName || $scope.userForm.firstName.length < 3 || $scope.userForm.lastName.length < 3) {return; } //Don't search if first or last name is too short
         $http.get('/persons.json' + '?firstName=' + $scope.userForm.firstName + '&lastName=' + $scope.userForm.lastName)
-          .then(function (response) {
+        .then(function (response) {
             console.log('received ' + JSON.stringify(response.data.persons));
             $scope.persons = response.data.persons;
         });
     };
 
-  /**
+    /**
    * Sends a request to the server to register a user using form input
    * @return {None}
    */
     $scope.createUser = function () {
         $http.post('user.json', $scope.userForm)
-          .success(function(data) {
+        .success(function(data) {
             $scope.successMessage = 'User succesfully added';
         })
-          .error(function (data) {
+        .error(function (data) {
             $scope.errorMessage = 'Error: ' + data;
         });
     };
