@@ -5,12 +5,14 @@ var options = {
 };
 
 
-for (var i = 0; i < pdflist.length; i++) {
+//for (var i = 0; i < pdflist.length; i++) {
+for (var i = 0; i < 1; i++) {
 	var path =  pdflist[i];
 	pdf.analysePdf(path,options,function(result){
-		console.log('\n' + "Pdf: " + result[2]);
+		console.log('\n' + "Pdf: " + result[3]);
 		console.log("Title: " + result[0]);
 		console.log('\n' + "Authors:" + result[1]);
+		console.log('\n' + "References:" + result[2])
 	});
 };
 
