@@ -52,7 +52,6 @@
                 <div ng-message="minlength">The password needs to be at least 8 characters long.</div>
             </div>
         </md-input-container>
-        <md-button type="submit" class="md-raised md-primary" ng-disabled="form.firstName.$invalid || form.lastName.$invalid ||
-                                                                           form.email.$invalid || form.password.$invalid">Register</md-button>
+        <md-button type="submit" class="md-raised md-primary" ng-disabled="form.$invalid">Register</md-button>
     </form>
 </md-content>

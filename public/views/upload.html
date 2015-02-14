@@ -102,6 +102,6 @@
     <label>Number</label>
     <input type="number" ng-model="publication.number">
 </md-input-container>
-<md-button class="btn btn-primary" ng-click="publication.post()">Send</md-button>
+<md-button class="btn btn-primary" ng-disabled="postPublicationForm.$invalid" ng-click="publication.post()">Send</md-button>
 </form>
 </div>
