@@ -27,14 +27,14 @@
     <personmin person="chosenAuthor"></personmin>
     <md-button ng-click="publication.remove(publication.authors, chosenAuthor)">Remove</md-button>
 </div>
-</div>
-</div>
 <div class="form-group">
+
     <label for="Discipline" class="col-xs-1 control-label">Discipline</label>
     <div class="col-xs-10">
-        <select ng-model="selectedDiscipline" 
-        ng-options="discipline.name for discipline in publication.fetcher.fetchDisciplines({})">
-    </select>
+        <!--Werkt pas vanaf versie 0.8-->
+        <md-select ng-model="selectedDiscipline" placeholder="Discipline">
+            <md-option ng-value="discipline" ng-repeat="discipline in publication.fetcher.fetchDisciplines({})">{{ discipline.name }}</md-option>
+        </md-select>
     <md-button class="btn btn-primary" ng-click="publication.add(publication.disciplines, selectedDiscipline)">
         Add
     </md-button>

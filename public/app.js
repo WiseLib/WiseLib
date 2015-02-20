@@ -34,11 +34,6 @@ app.controller('navController', function($scope, $window, $mdSidenav, Page, Auth
     $scope.ToggleMenu = function() {
         $mdSidenav('left').toggle();
     };
-    $scope.ToggleMenuIfAuthed = function() {
-        if(AuthenticationService.isAuthenticated) {
-            $mdSidenav('left').toggle();
-        }
-    };
 
     $scope.logout = function() {
         AuthenticationService.isAuthenticated = false;
@@ -53,4 +48,11 @@ app.controller('mainController', function ($scope, $http, Page) {
     .success(function (data, status, headers, config) {
         $scope.response = data.feedback;
     });
+});
+
+app.controller('ToastCtrl', function($scope, $mdToast, text) {
+  $scope.content = text;
+  $scope.closeToast = function() {
+    $mdToast.hide();
+  };
 });

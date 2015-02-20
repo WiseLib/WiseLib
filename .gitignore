@@ -2,6 +2,7 @@ build/
 node_modules
 bower_components
 .idea/
+img/**/*
 *.log
 .DS_Store
 .travis/deploy_key

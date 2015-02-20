@@ -1,14 +1,4 @@
 <md-content layout="column">
-<!--
-    <div class="alert alert-danger alert-dismissible" role="alert" ng-show="errorMessage.length > 0">
-        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        {{ errorMessage }}
-    </div>
-    <div class="alert alert-success alert-dismissible" role="alert" ng-show="successMessage.length > 0">
-        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        {{ successMessage }}
-    </div>
--->
     <form role="form" name="form" ng-submit="createUser()" layout="column">
         <div layout="row">
             <md-input-container>
@@ -29,12 +19,19 @@
         <div class="form-group">
             <label for="personId" class="col-xs-1 control-label">Person in database {{ personId }}</label>
             <md-radio-group ng-model="userForm.personId">
-                <md-radio-button  ng-repeat="person in persons" ng-checked="radioChecked" ng-value="person.id" aria-label="{{ person.firstName + ' ' + person.lastName }}">{{ person.firstName + ' ' + person.lastName }}
+                <md-radio-button  ng-repeat="person in persons" ng-value="person.id" aria-label="{{ person.firstName + ' ' + person.lastName }}">{{ person.firstName + ' ' + person.lastName }}
                 </md-radio-button>
             </md-radio-group>
             <label class="control-label" ng-show="persons.length == 0">
                 Your name will be added to the database.
             </label>
+        </div>
+        <div ng-hide="userForm.personId">
+            <label>Profile image</label><br />
+            <img ng-src="{{userForm.profileImageSrc || '/assets/dummy.jpg'}}" class="profile-image" ng-model="userForm.profileImageSrc" name="profileImage" alt="profile image" />
+            <md-input-container>
+                <input type="file" accept="image/*" onchange="angular.element(this).scope().fileNameChanged(this)" />
+            </md-input-container>
         </div>
         <md-input-container>
             <label>Email</label>
