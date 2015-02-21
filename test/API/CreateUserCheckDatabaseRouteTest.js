@@ -41,6 +41,31 @@ var configuration = require('../lib/config.js');
 		removeUser(c,request.personId);
 	})
 
+ 	describe('Attempt connection',function(){//create connection to look up the newly created person in the database
+ 		it('should connect',function(done){
+
+ 			var config = configuration.database;
+ 			c.connect({
+ 				host: config.host,
+ 				user: config.user,
+ 				password: config.password,
+ 				db: config.db
+ 			});
+
+ 			c.on('connect', function() {
+				//console.log('Client connected');
+				done();
+			})
+ 			.on('error', function(err) {
+ 				var err = Error('Client error: ' + err);
+ 				done(err);
+ 			})
+ 			.on('close', function(hadError) {
+				//console.log('Client closed');
+			});
+ 		})
+ 	})
+
  	var response =  new User.fakeresponse();
 	var request2 = new User.fakerequest("mail@mail.com","password",false);//person does not already exist
 	var request = new User.fakerequest("mail@mail.com","password","4");//person exists with id '4'
@@ -51,6 +76,8 @@ var configuration = require('../lib/config.js');
 			response.done = done;
 
 			try{
+				
+				
 				
 				server['/user.json']['post'](request,response);
 			}
