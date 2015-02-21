@@ -1,7 +1,8 @@
 'use strict';
 var module = angular.module('publication', ['communication']);
 
-module.controller('uploadPublicationController', ['$http', 'fetcher', function ($http, fetcher) {
+module.controller('uploadPublicationController', ['$http', 'fetcher', 'Page', function ($http, fetcher, Page) {
+    Page.setTitle('Upload publication');
     this.authors = [];
     this.disciplines = [];
     this.fetcher = fetcher;

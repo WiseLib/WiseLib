@@ -1,4 +1,4 @@
-var app = angular.module('client', ['ngRoute', 'addUser', 'publication']);
+var app = angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'publication']);
 /**
  * Configure the Routes
  */
@@ -14,9 +14,25 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
     .otherwise({redirectTo: '/'});
 }]);
 
-app.controller('mainController', function ($scope, $http) {
+app.factory('Page', function(){
+    var title = '';
+    return {
+        title: function() {return title; },
+        setTitle: function(newTitle) {title = newTitle; }
+    };
+});
+
+app.controller('navController', function($scope, $mdSidenav, Page) {
     'use strict';
-    $http.get('/api/test')
+    $scope.Page = Page;
+    $scope.ToggleMenu = function() {
+        $mdSidenav('left').toggle();
+    };
+});
+app.controller('mainController', function ($scope, $http, Page) {
+        'use strict';
+        Page.setTitle('Start');
+        $http.get('/api/test')
         .success(function (data) {
             console.log('got data: ' + data);
             $scope.response = data;

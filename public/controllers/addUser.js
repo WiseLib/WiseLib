@@ -1,7 +1,8 @@
 var addUser = angular.module('addUser', []);
 
-addUser.controller('manageUserController', function ($scope, $http) {
+addUser.controller('manageUserController', function ($scope, $http, Page) {
     'use strict';
+    Page.setTitle('Register');
     $scope.userForm = {};
     $scope.persons = [];
     $scope.userForm.radioChecked = false;
