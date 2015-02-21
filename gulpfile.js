@@ -10,6 +10,8 @@
 
 var gulp = require('gulp');
 var g = require('gulp-load-plugins');
+var gutil = require('gulp-util');
+var uglify = require('gulp-uglify');
 var mocha = require('gulp-mocha');
 var cp = require('child_process');
 var stylish = require('jshint-stylish');
@@ -68,8 +70,8 @@ gulp.task('test', ['mocha']);
 
 gulp.task('package', function () {
     return gulp.src('lib/*.js')
-    .pipe(g.uglify())
-    .pipe(gulp.dest('./build'));
+     .pipe(uglify().on('error', gutil.log))
+     .pipe(gulp.dest('build'));
 });
 
 /**
