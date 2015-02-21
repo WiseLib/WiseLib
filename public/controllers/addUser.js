@@ -36,6 +36,7 @@ addUser.controller('manageUserController', function ($scope, $http, $window, Pag
      * @return {None}
      */
     $scope.searchPersons = function() {
+        $scope.userForm.personId = undefined;
         $scope.persons = []; //Reset found persons list
         if (!$scope.userForm.firstName || !$scope.userForm.lastName || $scope.userForm.firstName.length < 3 || $scope.userForm.lastName.length < 3) {return; } //Don't search if first or last name is too short
         $http.get('/persons.json' + '?firstName=' + $scope.userForm.firstName + '&lastName=' + $scope.userForm.lastName)
