@@ -1,29 +1,33 @@
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
-			<a class="navbar-brand logo-name" href="/">WiseLib</a>
-		</div>
-		<div id="navbar">
-			<ul class="nav navbar-nav">
-				<li class="active"><a href="/">Home</a></li>
-				<li><a href="/upload">Upload publication</a></li>
-				<li><a href="/register">Add User</a></li>
-			</ul>
-		</div><!--/.nav-collapse -->
-		<div id="navbar" class="navbar-collapse collapse">
-			<form class="navbar-form navbar-right" role="form">
-				<div class="form-group">
-					<input type="text" placeholder="Email" class="form-control">
-				</div>
-				<div class="form-group">
-					<input type="password" placeholder="Password" class="form-control">
-				</div>
-				<button type="submit" class="btn btn-success">Sign in</button>
-			</form>
-		</div><!--/.navbar-collapse -->
-</nav>
+<md-sidenav layout="column" style="overflow: hidden; display: flex;" class="site-sidenav md-sidenav-left md-whiteframe-z2 md-closed" md-component-id="left" md-is-locked-open="$media('gt-sm')" tabindex="-1">
+            <md-toolbar class="md-default-theme" layout="column">
+                <h1 class="md-toolbar-tools">
+                    <a class="logo-name" href="/" ng-click="ToggleMenu()"></a>
+                    WiseLib
+                </h1>
+            </md-toolbar>
+            <md-content style="overflow: auto;" class="md-default-theme">
+                <ul class="menu">
+                    <li>
+                        <md-button class="md-button md-default-theme" href="/login" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">Log in</md-button>
+                    </li>
+                    <li>
+                        <md-button class="md-button md-default-theme" href="/" ng-show="auth.isAuthenticated" ng-click="logout()">Log out</md-button>
+                    </li>
+                    <li>
+                        <md-button class="md-button md-default-theme" href="/register" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">Register</md-button>
+                    </li>
+                    <li>
+                        <md-button class="md-button md-default-theme" href="/upload" ng-disabled="!auth.isAuthenticated" ng-click="ToggleMenuIfAuthed()"><md-tooltip ng-if="!auth.isAuthenticated">You have to be logged in to do this</md-tooltip>Upload publication</md-button>
+                    </li>
+                </ul>
+            </md-content>
+        </md-sidenav>
+        <div layout="column" layout-fill tabindex="-1" role="main">
+            <md-toolbar class="md-default-theme">
+                <div class="md-toolbar-tools">
+                    <button class="menu-show-button" hide-gt-sm aria-label="Toggle Menu" ng-click="ToggleMenu()">
+                        <img width="24" height="24" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGhlaWdodD0iMzJweCIgaWQ9IkxheWVyXzEiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDMyIDMyOyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMzIgMzIiIHdpZHRoPSIzMnB4IiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48cGF0aCBkPSJNNCwxMGgyNGMxLjEwNCwwLDItMC44OTYsMi0ycy0wLjg5Ni0yLTItMkg0QzIuODk2LDYsMiw2Ljg5NiwyLDhTMi44OTYsMTAsNCwxMHogTTI4LDE0SDRjLTEuMTA0LDAtMiwwLjg5Ni0yLDIgIHMwLjg5NiwyLDIsMmgyNGMxLjEwNCwwLDItMC44OTYsMi0yUzI5LjEwNCwxNCwyOCwxNHogTTI4LDIySDRjLTEuMTA0LDAtMiwwLjg5Ni0yLDJzMC44OTYsMiwyLDJoMjRjMS4xMDQsMCwyLTAuODk2LDItMiAgUzI5LjEwNCwyMiwyOCwyMnoiLz48L3N2Zz4=" />
+                    </button>
+                    <div layout="row" flex class="fill-height">{{ Page.title() }}</div>
+                </div>
+            </md-toolbar>
