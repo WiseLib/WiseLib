@@ -9,10 +9,10 @@ var configuration = require('../lib/config.js');
 
 
 /**
- * This test checks the registerUser method, a function that register a user by entering its details in de user table in the database.
- * The test calls the function after trying to establish a connection with the database. Once the connection is created the query get executed.
- * If the query is executed correctly, the test will manually check the user table in the database for the newly added user. If the user is present,
- * it gets deleted from the database to prevent bloat. If the user is not available a assertion error gets thrown
+ * This test checks the post User and get User route,to test the API.
+ * If the query is executed correctly, the test will manually check the user table in the database for the newly added user. 
+ * If the user is present,it gets deleted from the database to prevent bloat.
+ *  If the user is not available a assertion error gets thrown
  * 
  * @test
  */
@@ -41,42 +41,16 @@ var configuration = require('../lib/config.js');
 		removeUser(c,request.personId);
 	})
 
- 	describe('Attempt connection',function(){
- 		it('should connect',function(done){
-
- 			var config = configuration.database;
- 			c.connect({
- 				host: config.host,
- 				user: config.user,
- 				password: config.password,
- 				db: config.db
- 			});
-
- 			c.on('connect', function() {
-				//console.log('Client connected');
-				done();
-			})
- 			.on('error', function(err) {
- 				var err = Error('Client error: ' + err);
- 				done(err);
- 			})
- 			.on('close', function(hadError) {
-				//console.log('Client closed');
-			});
- 		})
- 	})
  	var response =  new User.fakeresponse();
 	var request2 = new User.fakerequest("mail@mail.com","password",false);//person does not already exist
 	var request = new User.fakerequest("mail@mail.com","password","4");//person exists with id '4'
 
 	describe('Create user', function(){
-		it('should create user without error', function(done){//function done makes mocha wait for test completion
+		it('should create user without error', function(done){
 
 			response.done = done;
 
 			try{
-				
-				
 				
 				server['/user.json']['post'](request,response);
 			}
