@@ -1,6 +1,6 @@
 var addUser = angular.module('addUser', []);
 
-addUser.controller('manageUserController', function ($scope, $http, Page) {
+addUser.controller('manageUserController', function ($scope, $http, $window, Page, $mdToast, $animate, AuthenticationService) {
     'use strict';
     Page.setTitle('Register');
     $scope.userForm = {};
@@ -14,6 +14,11 @@ addUser.controller('manageUserController', function ($scope, $http, Page) {
     $scope.$watch('userForm.firstName', function () {$scope.searchPersons(); });
     $scope.$watch('userForm.lastName', function () {$scope.searchPersons(); });
 
+    /**
+    * Load image to show preview of profile image to upload and use
+    * @param {object} element element which caused the change
+    * @return {None}
+    */
     $scope.fileNameChanged = function(element) {
         console.log('filename changed');
         var reader = new FileReader();
@@ -47,10 +52,27 @@ addUser.controller('manageUserController', function ($scope, $http, Page) {
     $scope.createUser = function () {
         $http.post('user.json', $scope.userForm)
         .success(function(data) {
-            $scope.successMessage = 'User succesfully added';
+            //TODO: add next 2 lines to login when successfully registered
+            //AuthenticationService.isAuthenticated = true;
+            //$window.sessionStorage.token = data.token;
+            $mdToast.show({
+                controller: 'ToastCtrl',
+                templateUrl: '../views/feedback-toast.html',
+                hideDelay: 6000,
+                position: 'top right',
+                locals: {text: 'Succesfully registered',
+                         error: false}
+            });
         })
         .error(function (data) {
-            $scope.errorMessage = 'Error: ' + data;
+            $mdToast.show({
+                controller: 'ToastCtrl',
+                templateUrl: '../views/feedback-toast.html',
+                hideDelay: 6000,
+                position: 'top right',
+                locals: {text: 'Error: ' + data,
+                         error: true}
+            });
         });
     };
 

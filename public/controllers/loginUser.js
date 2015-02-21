@@ -5,6 +5,10 @@ loginUser.controller('loginUserController', ['$scope', '$location', '$window', '
                                                  Page.setTitle('Log in');
                                                  $scope.loginUserForm = {};
 
+                                                 /**
+                                                 * Send login request using form and save received token or show error.
+                                                 * @return {}
+                                                 */
                                                  $scope.login = function() {
                                                      if ($scope.loginUserForm.email !== '' && $scope.loginUserForm.password !== '') {
                                                          console.log('email and password provided, trying to log in...');
@@ -21,7 +25,8 @@ loginUser.controller('loginUserController', ['$scope', '$location', '$window', '
                                                                  templateUrl: '../views/feedback-toast.html',
                                                                  hideDelay: 6000,
                                                                  position: 'top right',
-                                                                 locals: {text: status + ' : ' + data}
+                                                                 locals: {text: status + ' : ' + data,
+                                                                         error: true}
                                                              });
                                                          });
                                                      } else {

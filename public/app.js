@@ -50,8 +50,10 @@ app.controller('mainController', function ($scope, $http, Page) {
     });
 });
 
-app.controller('ToastCtrl', function($scope, $mdToast, text) {
+app.controller('ToastCtrl', function($scope, $mdToast, text, error) {
   $scope.content = text;
+  $scope.textColor = error ? 'FF0000' : '00FF00';
+    $scope.buttonClass = error ? 'md-warn' : 'md-success';
   $scope.closeToast = function() {
     $mdToast.hide();
   };
