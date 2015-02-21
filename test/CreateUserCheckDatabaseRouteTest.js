@@ -1,5 +1,5 @@
 var should = require('should');
-var User = require('../lib/user_test.js');
+var User = require('./user_test.js');
 var server = require('../lib/routes.js');//Every method is still in routes
 var dbscheme = require('../lib/db.js');
 var Client = require('mariasql');

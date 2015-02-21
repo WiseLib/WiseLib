@@ -1,5 +1,5 @@
 var should = require('should');
-var Person = require('../lib/person_test.js');
+var Person = require('./person_test.js');
 var dbscheme = require('../lib/db.js');
 var Client = require('mariasql');
 var server = require('../lib/routes.js')
