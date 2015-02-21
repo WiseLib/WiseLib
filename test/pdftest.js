@@ -4,15 +4,26 @@ var options = {
   type: 'text'  // extract the actual text in the pdf file
 };
 
+var LOG = false;
 
-//for (var i = 0; i < pdflist.length; i++) {
-for (var i = 0; i < 1; i++) {
-	var path =  pdflist[i];
-	pdf.analysePdf(path,options,function(result){
-		console.log('\n' + "Pdf: " + result[3]);
-		console.log("Title: " + result[0]);
-		console.log('\n' + "Authors:" + result[1]);
-		console.log('\n' + "References:" + result[2])
-	});
-};
+describe ('PDF analyse test',function(){
+	it("should perform a correct analysis",function(){
+		for (var i = 0; i < pdflist.length; i++) {
+			var path =  pdflist[i];
+			pdf.analysePdf(path,function(result){
 
+				if(LOG){
+					console.log('\n' + "Pdf: " + result[3]);
+					console.log("Title: " + result[0]);
+					console.log('\n' + "Authors: " + result[1]);
+					console.log('\n' + "Number of pages: " + result[2]);}
+
+				result.should.be.an.array;
+				result[0];should.not.be.empty;
+				result[1];should.not.be.empty;
+				result[2].should.be.a.number;
+				});
+		};
+	})
+
+})

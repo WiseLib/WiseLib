@@ -99,7 +99,7 @@ describe('DbManager tests',function(){
 	});
 
 	describe('getProceeding',function(){
-	var result;
+		var result;
 		describe('Retrieve all Poceedings',function(){
 			describe('Call method',function(){
 				it('should execute without error',function(done){
@@ -117,11 +117,44 @@ describe('DbManager tests',function(){
 	});
 
 	describe('putProceeding',function(){
-
+		//TODO
 	});
 
 	describe('postProceeding/deleteProceeding',function(){
+		var response = 7;
+		var proceeding = {name:'TestProceeding' , rank: '0',disciplines:[{id:'1'}]};
 
+		describe('postProceeding method test',function(){
+
+			describe('Call method',function(){
+				it('should execute withour error',function(done){
+					//dbmanager.postProceeding(proceeding, function(res) {response = res; done();});//repsonse holds id 
+					done(new Error("Not executed"));
+				})
+				it('query should have succeeded',function(){
+					response.should.be.a.number;
+				})
+			})
+			describe('Check database for newly added disicpline',function(){
+				var result;
+				it('query should search the new discipline',function(done){
+					dbmanager.getProceeding({id: response.toString()},function(res){result= res;done();}) 
+				});
+				it('database should hold the new discipline',function(){throw new Error("remove this error if deleteProceeding is implemented")
+					result[0].should.have.property('id',response.toString());
+					result[0].should.have.property('name','TestProceeding');
+					result[0].should.have.property('rank','0');
+				})
+			})
+		});
+		describe('deleteProceeding method test',function(){
+			it('should now delete the previously added discipline',function(done){
+				dbmanager.deleteProceeding({id:response.toString()},function(res){response = res; done();})
+			})
+			it('should have deleted without error',function(){
+				//response.affectedRows.should.be.equal(1);
+			})
+		});
 	});
 
 });
