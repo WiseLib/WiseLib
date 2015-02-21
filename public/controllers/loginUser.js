@@ -17,6 +17,14 @@ loginUser.controller('loginUserController', ['$scope', '$location', '$window', '
                                                              AuthenticationService.isAuthenticated = true;
                                                              $window.sessionStorage.token = data.token;
                                                              $location.path("/restricted");
+                                                             $mdToast.show({
+                                                                 controller: 'ToastCtrl',
+                                                                 templateUrl: '../views/feedback-toast.html',
+                                                                 hideDelay: 6000,
+                                                                 position: 'top right',
+                                                                 locals: {text: 'Logged in successfully',
+                                                                         error: false}
+                                                             });
                                                          }).error(function(status, data) {
                                                              console.log(status);
                                                              console.log(data);

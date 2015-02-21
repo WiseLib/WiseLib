@@ -53,9 +53,9 @@ addUser.controller('manageUserController', function ($scope, $http, $window, Pag
     $scope.createUser = function () {
         $http.post('user.json', $scope.userForm)
         .success(function(data) {
-            //TODO: add next 2 lines to login when successfully registered
-            //AuthenticationService.isAuthenticated = true;
-            //$window.sessionStorage.token = data.token;
+            AuthenticationService.isAuthenticated = true;
+            $window.sessionStorage.token = data.token;
+            $location.path("/restricted");
             $mdToast.show({
                 controller: 'ToastCtrl',
                 templateUrl: '../views/feedback-toast.html',
