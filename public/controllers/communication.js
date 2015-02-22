@@ -62,7 +62,7 @@ module.factory('fetcher', ['$http', function ($http) {
                 name: 'second proceeding',
                 rank: 11.2
             }];
-            classesParams.Proceeding = params;
+            classesParams.Proceeding = JSON.stringify(params);
         }
         return classes.Proceeding;
         //return fetchForClass('Proceeding', params);
