@@ -1,4 +1,4 @@
-var addUser = angular.module('addUser', []);
+var addUser = angular.module('addUser');
 
 addUser.controller('manageUserController', function ($scope, $http, $window, Page, $mdToast, $animate, AuthenticationService) {
     'use strict';

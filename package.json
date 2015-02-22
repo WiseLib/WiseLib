@@ -46,7 +46,12 @@
     "gulp-mocha": "^0.4.1",
     "jshint-stylish": "^0.1.5",
     "mocha": "^1.10.0",
-    "should": "^4.3.0"
+    "should": "^4.3.0",
+    "karma-chai": "~0.1.0",
+    "karma": "~0.12.31",
+    "karma-mocha": "~0.1.10",
+    "karma-chrome-launcher": "~0.1.7",
+    "karma-htmlfile-reporter": "~0.1.2"
   },
   "keywords": []
 }
