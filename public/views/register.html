@@ -1,54 +1,59 @@
 <md-content layout="column">
-    <form role="form" name="form" ng-submit="createUser()" layout="column">
-        <div layout="row">
-            <md-input-container>
-                <label>First Name</label>
-                <input type="text" name="firstName" ng-model="userForm.firstName" required>
-                <div ng-messages="form.firstName.$error">
-                    <div ng-message="required">This field is required.</div>
-                </div>
-            </md-input-container>
-            <md-input-container>
-                <label>Last Name</label>
-                <input type="text" name="lastName" ng-model="userForm.lastName" required>
-                <div ng-messages="form.lastName.$error">
-                    <div ng-message="required">This field is required.</div>
-                </div>
-            </md-input-container>
-        </div>
-        <div class="form-group">
-            <label for="personId" class="col-xs-1 control-label">Person in database {{ personId }}</label>
-            <md-radio-group ng-model="userForm.personId" ng-if="persons.length > 0">
-                <md-radio-button  ng-repeat="person in persons" ng-value="person.id" aria-label="{{ person.firstName + ' ' + person.lastName }}">{{ person.firstName + ' ' + person.lastName }}
-                </md-radio-button>
-            </md-radio-group>
-            <label class="control-label" ng-show="persons.length == 0">
-                Your name will be added to the database.
-            </label>
-        </div>
-        <div ng-hide="userForm.personId">
-            <label>Profile image</label><br />
-            <img ng-src="{{userForm.profileImageSrc || '/assets/dummy.jpg'}}" class="profile-image" ng-model="userForm.profileImageSrc" name="profileImage" alt="profile image" />
-            <md-input-container>
-                <input type="file" accept="image/*" onchange="angular.element(this).scope().fileNameChanged(this)" />
-            </md-input-container>
-        </div>
-        <md-input-container>
-            <label>Email</label>
-            <input type="email" name="email" ng-model="userForm.email" required>
-            <div ng-messages="form.email.$error">
-                <div ng-message="required">This field is required.</div>
-                <div ng-message="email">Please enter a valid email address.</div>
-            </div>
-        </md-input-container>
-        <md-input-container>
-            <label>Password</label>
-            <input type="password" ng-minlength="8" name="password" ng-model="userForm.password" required>
-            <div ng-messages="form.password.$error">
-                <div ng-message="required">This field is required.</div>
-                <div ng-message="minlength">The password needs to be at least 8 characters long.</div>
-            </div>
-        </md-input-container>
-        <md-button type="submit" class="md-raised md-primary" ng-disabled="form.$invalid">Register</md-button>
-    </form>
+ <div class="alert alert-danger alert-dismissible" role="alert" ng-show="errorMessage.length > 0">
+  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  {{ errorMessage }}
+</div>
+<div class="alert alert-success alert-dismissible" role="alert" ng-show="successMessage.length > 0">
+  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  {{ successMessage }}
+</div>
+
+<form role="form" name="userForm" ng-submit="createUser()" layout="column">
+
+
+
+  <div layout="row">
+    <md-text-float label="First Name" ng-model="userForm.firstName"></md-text-float>
+    <md-text-float label="Last Name" ng-model="userForm.lastName"></md-text-float>
+      <!--<label class="control-label" style="color:red" ng-show="userForm.firstName.$dirty && userForm.firstName.$invalid || userForm.lastName.$dirty && userForm.lastName.$invalid">
+        First name and last name are required.
+      </label>-->
+    </div>
+
+
+
+
+    <div class="form-group">
+      <label for="personId" class="col-xs-1 control-label">Person in database {{ personId }}</label>
+        <md-radio-group ng-model="userForm.personId">
+          <md-radio-button  ng-repeat="person in persons" ng-checked="radioChecked" ng-value="person.id" aria-label="{{ person.firstName + ' ' + person.lastName }}">{{ person.firstName + ' ' + person.lastName }}
+        </md-radio-button>
+        </md-radio-group>
+        <label class="control-label" ng-show="persons.length == 0">
+          Your name will be added to the database.
+        </label>
+    </div>
+    <md-text-float label="Email" ng-model="userForm.email" type="email" required></md-text-float>
+        <!--
+        <span style="color:red" ng-show="userForm.email.$dirty && userForm.email.$invalid" class="control-label">
+          <span ng-show="userForm.email.$error.required">Email is required.</span>
+          <span ng-show="userForm.email.$error.email">Invalid email address.</span>
+        </span>
+      -->
+    <md-text-float label="Password" ng-model="userForm.password" type="password" required></md-text-float>
+  <!--
+  <div class="form-group">
+    <label for="exampleInputFile">File input</label>
+    <input type="file" id="exampleInputFile">
+    <p class="help-block">Example block-level help text here.</p>
+  </div>
+  <div class="checkbox">
+    <label>
+      <input type="checkbox"> Check me out
+    </label>
+  </div>
+-->
+<md-button type="submit" class="md-raised md-primary" ng-disabled="userForm.firstName.$invalid || userForm.lastName.$invalid ||  
+userForm.email.$invalid || userForm.password.$invalid">Register</md-button>
+</form>
 </md-content>

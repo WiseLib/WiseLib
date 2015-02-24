@@ -1,5 +1,4 @@
-var app = angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'publication', 'loginUser', 'user']);
-angular.module('addUser', []);
+var app = angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'publication']);
 /**
  * Configure the Routes
  */
@@ -12,13 +11,8 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
     .when('/', {templateUrl: 'views/start.html', controller: 'mainController'})
     .when('/register', {templateUrl: 'views/register.html', controller: 'manageUserController'})
     .when('/upload', {templateUrl: 'views/upload.html', controller: 'uploadPublicationController as publication'})
-    .when('/login', {templateUrl: 'views/loginUser.html', controller: 'loginUserController'})
     .otherwise({redirectTo: '/'});
 }]);
-
-app.config(function ($httpProvider) {
-    $httpProvider.interceptors.push('TokenInterceptor');
-});
 
 app.factory('Page', function(){
     var title = '';
@@ -28,34 +22,22 @@ app.factory('Page', function(){
     };
 });
 
-app.controller('navController', function($scope, $window, $mdSidenav, Page, AuthenticationService) {
+app.controller('navController', function($scope, $mdSidenav, Page) {
     'use strict';
     $scope.Page = Page;
-    $scope.auth = AuthenticationService;
     $scope.ToggleMenu = function() {
         $mdSidenav('left').toggle();
     };
-
-    $scope.logout = function() {
-        AuthenticationService.isAuthenticated = false;
-        delete $window.sessionStorage.token;
-    }
 });
 app.controller('mainController', function ($scope, $http, Page) {
-    'use strict';
-    Page.setTitle('Start');
-    $scope.response = '';
-    $http({url: '/restricted.json', method: 'GET'})
-    .success(function (data, status, headers, config) {
-        $scope.response = data.feedback;
-    });
-});
-
-app.controller('ToastCtrl', function($scope, $mdToast, text, error) {
-  $scope.content = text;
-  $scope.textColor = error ? 'FF0000' : '00FF00';
-    $scope.buttonClass = error ? 'md-warn' : 'md-success';
-  $scope.closeToast = function() {
-    $mdToast.hide();
-  };
+        'use strict';
+        Page.setTitle('Start');
+        $http.get('/api/test')
+        .success(function (data) {
+            console.log('got data: ' + data);
+            $scope.response = data;
+        })
+        .error(function (data) {
+            console.log('Error: ' + data);
+        });
 });
