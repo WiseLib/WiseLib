@@ -1,4 +1,4 @@
-var app = angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'publication', 'loginUser', 'user']);
+var app = angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'publication', 'loginUser', 'ngResource', 'user', 'person']);
 /**
  * Configure the Routes
  */

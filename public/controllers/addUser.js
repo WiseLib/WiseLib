@@ -1,6 +1,6 @@
 var addUser = angular.module('addUser', []);
 
-addUser.controller('manageUserController', function ($scope, $http, $window, Page, $mdToast, $animate, AuthenticationService) {
+addUser.controller('manageUserController', function ($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
     'use strict';
     Page.setTitle('Register');
     $scope.userForm = {};
@@ -27,9 +27,9 @@ addUser.controller('manageUserController', function ($scope, $http, $window, Pag
             $scope.$apply(function() {
                 $scope.userForm.profileImageSrc = e.target.result;
             });
-        }
+        };
         reader.readAsDataURL(element.files[0]);
-    }
+    };
 
     /**
      * Sends a request (if necessary) to the server to search for a person
@@ -39,11 +39,9 @@ addUser.controller('manageUserController', function ($scope, $http, $window, Pag
         $scope.userForm.personId = undefined;
         $scope.persons = []; //Reset found persons list
         if (!$scope.userForm.firstName || !$scope.userForm.lastName || $scope.userForm.firstName.length < 3 || $scope.userForm.lastName.length < 3) {return; } //Don't search if first or last name is too short
-        $http.get('/persons.json' + '?firstName=' + $scope.userForm.firstName + '&lastName=' + $scope.userForm.lastName)
-        .then(function (response) {
-            console.log('received ' + JSON.stringify(response.data.persons));
-            $scope.persons = response.data.persons;
-        });
+        Person.query({firstName: $scope.userForm.firstName, lastName: $scope.userForm.lastName}, function(data) {
+            $scope.persons = data.persons;
+        }, function(error) {console.log('error! ' + error); });
     };
 
     /**
@@ -51,11 +49,13 @@ addUser.controller('manageUserController', function ($scope, $http, $window, Pag
    * @return {None}
    */
     $scope.createUser = function () {
-        $http.post('user.json', $scope.userForm)
-        .success(function(data) {
+        console.log(User);
+        var newUser = new User($scope.userForm);
+        newUser.$save(function(u, data) {
+            console.log('logged in!');
             AuthenticationService.isAuthenticated = true;
             $window.sessionStorage.token = data.token;
-            $location.path("/restricted");
+            $location.path('/restricted');
             $mdToast.show({
                 controller: 'ToastCtrl',
                 templateUrl: '../views/feedback-toast.html',
@@ -64,8 +64,7 @@ addUser.controller('manageUserController', function ($scope, $http, $window, Pag
                 locals: {text: 'Succesfully registered',
                          error: false}
             });
-        })
-        .error(function (data) {
+        }, function(data) {
             $mdToast.show({
                 controller: 'ToastCtrl',
                 templateUrl: '../views/feedback-toast.html',
