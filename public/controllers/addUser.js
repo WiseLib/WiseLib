@@ -51,7 +51,7 @@ addUser.controller('manageUserController', function ($scope, $http, $window, $lo
     $scope.createUser = function () {
         console.log(User);
         var newUser = new User($scope.userForm);
-        newUser.$save(function(u, data) {
+        newUser.$save(function(data) { //Success
             console.log('logged in!');
             AuthenticationService.isAuthenticated = true;
             $window.sessionStorage.token = data.token;
@@ -64,7 +64,7 @@ addUser.controller('manageUserController', function ($scope, $http, $window, $lo
                 locals: {text: 'Succesfully registered',
                          error: false}
             });
-        }, function(data) {
+        }, function(data) { //Error
             $mdToast.show({
                 controller: 'ToastCtrl',
                 templateUrl: '../views/feedback-toast.html',
