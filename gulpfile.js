@@ -9,42 +9,31 @@
 'use strict';
 
 var gulp = require('gulp');
-var g = require('gulp-load-plugins');
-var gutil = require('gulp-util');
-var uglify = require('gulp-uglify');
-var mocha = require('gulp-mocha');
+var g = require('gulp-load-plugins')();
 var cp = require('child_process');
 var stylish = require('jshint-stylish');
+
+var jsfiles = ['./wiselib.js', './bin/*.js', './lib/**/*.js', './test/**/*.js', './public/**/*.js'];
 
 /**
  * Development
  */
 
-gulp.task('jshint', function () {
-
-    // Load jshint module
-    var jshint = g.jshint;
-
-    // Minify and copy all JavaScript (except vendor scripts)
-    return gulp.src(['./lib/**/*.js', './test/**/*.js'])
-    .pipe(jshint())
-    .pipe(jshint.reporter(stylish));
-});
-
-// Rerun the task when a file changes
 gulp.task('watch', function () {
-    gulp.watch(['./lib/**/*.js', './test/**/*.js'], ['jshint']);
+    return gulp.src(jsfiles)
+      .pipe(g.watch(jsfiles))
+      .pipe(g.jshint())
+      .pipe(g.jshint.reporter(stylish));
 });
 
-gulp.task('run', function () {
-    var express = require('express');
-    var wiselib = require('./wiselib');
-    var app = express();
-    wiselib(app);
-    app.listen(8080);
+gulp.task('server', function () {
+  g.nodemon({
+    script: 'bin/wiselib.js',
+    env: {'NODE_ENV': 'development'}
+  });
 });
 
-gulp.task('start', ['run']);
+gulp.task('start', ['server']);
 
 /**
  * Testing
@@ -53,7 +42,7 @@ gulp.task('start', ['run']);
 // Copy all static images
 gulp.task('mocha', function () {
     return gulp.src('./test/*.js')
-    .pipe(mocha({
+    .pipe(g.mocha({
         globals: ['chai'],
         timeout: 6000,
         ignoreLeaks: false,
@@ -70,7 +59,7 @@ gulp.task('test', ['mocha']);
 
 gulp.task('package', function () {
     return gulp.src('lib/*.js')
-     .pipe(uglify().on('error', gutil.log))
+     .pipe(g.uglify().on('error', g.util.log))
      .pipe(gulp.dest('build'));
 });
 
