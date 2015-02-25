@@ -20,7 +20,6 @@
       "url": "https://github.com/WiseLib/WiseLib/blob/master/LICENSE"
     }
   ],
-  "main": "WiseLib",
   "bin": {
     "WiseLib": "bin/wiselib.js"
   },

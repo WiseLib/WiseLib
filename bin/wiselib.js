@@ -9,7 +9,7 @@
  */
 var express = require('express');
 
-var server = require('../wiselib');
+var server = require('../index');
 
 // TODO: extend with command-line arguments (like --port)
 
