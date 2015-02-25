@@ -22,13 +22,13 @@ var stylish = require('jshint-stylish');
 
 gulp.task('jshint', function () {
 
-  // Load jshint module
+    // Load jshint module
     var jshint = g.jshint;
 
-  // Minify and copy all JavaScript (except vendor scripts)
+    // Minify and copy all JavaScript (except vendor scripts)
     return gulp.src(['./lib/**/*.js', './test/**/*.js'])
-      .pipe(jshint())
-      .pipe(jshint.reporter(stylish));
+    .pipe(jshint())
+    .pipe(jshint.reporter(stylish));
 });
 
 // Rerun the task when a file changes
