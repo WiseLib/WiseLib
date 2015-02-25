@@ -50,13 +50,15 @@
     "gulp-uglify": "^1.1.0",
     "gulp-util": "^3.0.3",
     "jshint-stylish": "^0.1.5",
+    "mocha": "^1.21.5",
     "karma-chai": "~0.1.0",
     "karma": "~0.12.31",
     "karma-mocha": "~0.1.10",
     "karma-chrome-launcher": "~0.1.7",
-    "karma-htmlfile-reporter": "~0.1.2"
-    "mocha": "^1.21.5",
-    "should": "^4.6.5"
+    "karma-htmlfile-reporter": "~0.1.2",
+    "should": "^4.6.5",
+    "busboy": "~0.2.9",
+    "multer": "~0.1.8"
   },
   "keywords": []
 }
