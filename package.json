@@ -28,6 +28,14 @@
     "node": ">= 0.10.26",
     "npm": ">=1.4.3"
   },
+  "config": {
+    "port": 8080,
+    "database": {
+      "host": "localhost",
+      "port": "3306",
+      "db": "wiselib"
+    }
+  },
   "scripts": {
     "start": "node bin/wiselib.js",
     "test": "gulp test"
