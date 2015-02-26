@@ -1,5 +1,5 @@
 'use strict';
-var module = angular.module('communication', []);
+module = angular.module('communication', []);
 module.factory('fetcher', ['$http', function ($http) {
 
     var fetchForPath = function (path, params) {

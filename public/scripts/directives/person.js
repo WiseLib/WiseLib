@@ -1,5 +1,5 @@
 'use strict';
-var module = angular.module('person');
+module = angular.module('person');
 
 module.directive('personmin', function () {
     var directive = {};

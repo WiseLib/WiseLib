@@ -1,5 +1,5 @@
 'use strict';
-var module = angular.module('proceeding', []);
+module = angular.module('proceeding', []);
 
 module.directive('proceedingmin', function () {
     var directive = {};

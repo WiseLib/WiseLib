@@ -1,9 +1,9 @@
+'use strict';
 var app = angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'publication', 'loginUser', 'ngResource', 'user', 'person']);
 /**
  * Configure the Routes
  */
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
-    'use strict';
     // use the HTML5 History API & set HTM5 mode true
     $locationProvider.html5Mode(true);
     $routeProvider
@@ -28,7 +28,6 @@ app.factory('Page', function(){
 });
 
 app.controller('navController', function($scope, $window, $mdSidenav, Page, AuthenticationService) {
-    'use strict';
     $scope.Page = Page;
     $scope.auth = AuthenticationService;
     $scope.ToggleMenu = function() {
@@ -38,10 +37,9 @@ app.controller('navController', function($scope, $window, $mdSidenav, Page, Auth
     $scope.logout = function() {
         AuthenticationService.isAuthenticated = false;
         delete $window.sessionStorage.token;
-    }
+    };
 });
 app.controller('mainController', function ($scope, $http, Page) {
-    'use strict';
     Page.setTitle('Start');
     $scope.response = '';
     $http({url: '/restricted.json', method: 'GET'})
@@ -51,10 +49,10 @@ app.controller('mainController', function ($scope, $http, Page) {
 });
 
 app.controller('ToastCtrl', function($scope, $mdToast, text, error) {
-  $scope.content = text;
-  $scope.textColor = error ? 'FF0000' : '00FF00';
+    $scope.content = text;
+    $scope.textColor = error ? 'FF0000' : '00FF00';
     $scope.buttonClass = error ? 'md-warn' : 'md-success';
-  $scope.closeToast = function() {
-    $mdToast.hide();
-  };
+    $scope.closeToast = function() {
+        $mdToast.hide();
+    };
 });
