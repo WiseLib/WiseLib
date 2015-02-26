@@ -1,7 +1,7 @@
 'use strict';
-var module = angular.module('publication', ['communication', 'proceeding', 'ngMaterial']);
+module = angular.module('publication', ['communication', 'proceeding', 'ngMaterial']);
 
-module.controller('uploadPublicationController', ['$http', 'fetcher', 'Page', function ($http, fetcher, Page, Person) {
+module.controller('uploadPublicationController', ['$http', 'fetcher', 'Page', function ($http, fetcher, Page) {
     Page.setTitle('Upload publication');
     this.authors = [];
     this.disciplines = [];
@@ -35,7 +35,7 @@ module.controller('uploadPublicationController', ['$http', 'fetcher', 'Page', fu
             discArray[i] = {id: this.disciplines[i].id};
         }
         var authArray = new Array(this.authors.length);
-        for (var i = 0; i < this.authors.length; i++) {
+        for (i = 0; i < this.authors.length; i++) {
             authArray[i] = {id: this.authors[i].id};
         }
         toPost.disciplines = discArray;
