@@ -1,6 +1,5 @@
 var should = require('should');
 var DBManager = require('../lib/dbmanager.js');
-var dbscheme = require('../lib/db.js');
 var Client = require('mariasql');
 var fs = require('fs');
 var config = require('../config.json');

@@ -1,7 +1,6 @@
 var should = require('should');
 var journal = require('./journal_test.js');
 var server = require('../lib/routes.js');
-var dbscheme = require('../lib/db.js');
 var Client = require('mariasql');
 var fs = require('fs');
 var config = require('../lib/config.js');
