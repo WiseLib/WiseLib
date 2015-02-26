@@ -2,8 +2,12 @@ build/
 node_modules
 bower_components
 .idea/
+img/**/*
 *.log
 .DS_Store
 .travis/deploy_key
 config.json
 .project
+/lib/secret.js
+/.sublime-gulp.cache
+/uploads

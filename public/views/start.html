@@ -1,6 +1,6 @@
 <div class="jumbotron">
-  <div class="container">
-    <h1>Welcome to WiseLib</h1>
+	<div class="container">
+		<h1>Welcome to WiseLib</h1>
     <h2>A browsable research database</h2>
     <p>
       WiseLib lets you share your papers and search through papers shared by others colleagues.
@@ -8,5 +8,6 @@
     <p>
       Use one of the links in the header to get started!
     </p>
-  </div>
+	</div>
+    <b ng-if="auth.isAuthenticated">{{response}}</b>
 </div>

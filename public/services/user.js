@@ -1,5 +1,8 @@
 var user = angular.module('user', []);
 
+user.factory('User', function($resource) {
+    return $resource('/user.json');
+});
 user.factory('AuthenticationService', function() {
     var auth = {
         isAuthenticated: false

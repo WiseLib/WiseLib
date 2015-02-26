@@ -1,9 +1,17 @@
 <md-content layout="column">
 <form id="upload-publication" role="form" class="form-horizontal" name="postPublicationForm">
-    <md-text-float label="Title" ng-model="publication.title"></md-text-float>
-    <md-text-float label="Year" id="year" type="number"ng-model="publication.year"></md-text-float>
-    <md-text-float label="Number of pages" id="nb-pages" type="number" min="1" ng-model="publication.numberOfPages"></md-text-float>
-    <md-text-float label="URL" id="url" type="url" ng-model="publication.url"></md-text-float>
+    <md-input-container>
+    <label>Title</label>
+    <input type="text" ng-model="publication.title"></md-input-container>
+    <md-input-container>
+    <label>Year</label>
+    <input id="year" type="number" ng-model="publication.year"></md-input-container>
+    <md-input-container>
+    <label>Number of pages</label>
+    <input id="nb-pages" type="number" min="1" ng-model="publication.numberOfPages"></md-input-container>
+    <md-input-container>
+    <label>URL</label>
+    <input id="url" type="url" ng-model="publication.url"></md-input-container>
     <div layout layout-sm="column">
     <label>Co Authors</label>
     <md-text-float id="firstname" type="text" class="form-control" ng-model="possibleAuthor.firstName" label="First name"></md-text-float>
@@ -17,19 +25,19 @@
 </ul>
 <div ng-repeat="chosenAuthor in publication.authors">
     <personmin person="chosenAuthor"></personmin>
-    <button ng-click="publication.remove(publication.authors, chosenAuthor)">Remove</button>
-</div>
-</div>
+    <md-button ng-click="publication.remove(publication.authors, chosenAuthor)">Remove</md-button>
 </div>
 <div class="form-group">
+
     <label for="Discipline" class="col-xs-1 control-label">Discipline</label>
     <div class="col-xs-10">
-        <select ng-model="selectedDiscipline" 
-        ng-options="discipline.name for discipline in publication.fetcher.fetchDisciplines({})">
-    </select>
-    <button class="btn btn-primary" ng-click="publication.add(publication.disciplines, selectedDiscipline)">
+        <!--Werkt pas vanaf versie 0.8-->
+        <md-select ng-model="selectedDiscipline" placeholder="Discipline">
+            <md-option ng-value="discipline" ng-repeat="discipline in publication.fetcher.fetchDisciplines({})">{{ discipline.name }}</md-option>
+        </md-select>
+    <md-button class="btn btn-primary" ng-click="publication.add(publication.disciplines, selectedDiscipline)">
         Add
-    </button>
+    </md-button>
     <ul>
         <li ng-repeat="discipline in publication.disciplines">
             {{discipline.name}}
@@ -37,15 +45,12 @@
     </ul>
 </div>
 </div>
-<div class="form-group">
-    <label for="proceeding-choice" class="col-xs-1 control-label">Publication type</label>
-    <div class="col-xs-10">
-        <label for="proceeding-choice">Proceeding</label>
-        <input id="proceeding-choice" type="radio" ng-model="publication.type" value="Proceeding">
-        <label for="journal">Journal</label>
-        <input id="journal" type="radio" ng-model="publication.type" value="Journal">
-    </div>
-</div>
+
+<md-radio-group ng-model="publication.type">
+<label>Publication type</label>
+    <md-radio-button value="Journal">Journal</md-radio-button>
+    <md-radio-button value="Proceeding">Proceeding</md-radio-button>
+</md-radio-group>
 <div class="form-group" ng-show="publication.type == 'Proceeding'">
     <label for="proceeding" class="control-label col-xs-1">Select a Proceeding</label>
     <div class="col-xs-10">
@@ -72,12 +77,11 @@
         <input id="publisher" type="text" class="form-control" ng-model="publication.publisher">
     </div>
 </div>
-<div class="form-group" ng-show="publication.type == 'Proceeding'">
-    <label for="city" class="col-xs-1 control-label">City</label>
-    <div class="col-xs-10">
-        <input id="city" type="text" class="form-control" ng-model="publication.city">
-    </div>
 </div>
+<md-input-group ng-show="publication.type == 'Proceeding'">
+<label>City</label>
+<input type="text" ng-model="publication.city">
+</md-input-group>
 <div ng-show="publication.type == 'Journal'">
     <label for="journal">Select a Journal</label>
     <input id="journal" type="text" ng-model="journal.name">
@@ -90,18 +94,14 @@
 </ul>
 <proceedingmin proceeding="publication.journal"></proceedingmin>
 </div>
-<div class="form-group" ng-show="publication.type == 'Journal'">
-    <label for="volume" class="col-xs-1 control-label">Volume</label>
-    <div class="col-xs-10">
-        <input id="volume" type="number" class="form-control" ng-model="publication.volume">
-    </div>
-</div>
-<div class="form-group" ng-show="publication.type == 'Journal'">
-    <label for="number" class="col-xs-1 control-label">Number</label>
-    <div class="col-xs-10">
-        <input id="number" type="number" class="form-control" ng-model="publication.number">
-    </div>
-</div>
-<button class="btn btn-primary" ng-click="publication.post()">Send</button>
+<md-input-container ng-show="publication.type == 'Journal'">
+    <label>Volume</label>
+    <input type="number" ng-model="publication.volume">
+</md-input-container>
+<md-input-container ng-show="publication.type == 'Journal'">
+    <label>Number</label>
+    <input type="number" ng-model="publication.number">
+</md-input-container>
+<md-button class="btn btn-primary" ng-disabled="postPublicationForm.$invalid" ng-click="publication.post()">Send</md-button>
 </form>
 </div>

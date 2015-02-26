@@ -1,0 +1,36 @@
+{
+  apps : [
+    {
+      name      : "WiseLib",
+      script    : "gulp run",
+      logfile   : true,
+      env: {
+        COMMON_VARIABLE: "true"
+      },
+      env_production : {
+        NODE_ENV: "production"
+      }
+    }
+  ],
+  deploy : {
+    prod: {
+      user : "se2_1415",
+      host : "wilma.vub.ac.be",
+      ref  : "origin/master",
+      repo : "git@github.com:WiseLib/WiseLib.git",
+      path : "$HOME/app/prod",
+      "post-deploy" : "npm prune; npm install && `npm config get -g prefix`/bin/pm2 startOrRestart ecosystem.json --env production"
+    },
+    dev : {
+      user : "se2_1415",
+      host : "wilma.vub.ac.be",
+      ref  : "origin/master",
+      repo : "git@github.com:WiseLib/WiseLib.git",
+      path : "$HOME/app/dev",
+      "post-deploy" : "npm prune; npm install && `npm config get -g prefix`/bin/pm2 startOrRestart ecosystem.json --env production",
+      env  : {
+        NODE_ENV: "dev"
+      }
+    }
+  }
+}

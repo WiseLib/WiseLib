@@ -20,7 +20,6 @@
       "url": "https://github.com/WiseLib/WiseLib/blob/master/LICENSE"
     }
   ],
-  "main": "WiseLib",
   "bin": {
     "WiseLib": "bin/wiselib.js"
   },
@@ -28,37 +27,44 @@
     "node": ">= 0.10.26",
     "npm": ">=1.4.3"
   },
+  "config": {
+    "port": 8080,
+    "database": {
+      "host": "localhost",
+      "port": "3306",
+      "db": "wiselib"
+    }
+  },
   "scripts": {
     "start": "node bin/wiselib.js",
     "test": "gulp test"
   },
   "dependencies": {
     "body-parser": "^1.12.0",
-    "express": "^4.10.4",
-    "express-jwt": "^0.5.1",
-    "lodash": "^2.4.1",
+    "express": "^4.12.0",
+    "express-jwt": "^1.0.0",
+    "jsonwebtoken": "^3.2.2",
+    "lodash": "^3.3.1",
     "mariasql": "^0.1.21",
     "method-override": "^2.3.1",
-    "sql": "^0.42.0"
+    "minimist": "^1.1.0",
+    "sql": "^0.47.0"
   },
   "devDependencies": {
-    "gulp": "^3.8.10",
+    "gulp": "^3.8.11",
+    "gulp-load-plugins": "^0.8.0",
+    "gulp-changed": "^1.1.1",
+    "gulp-watch": "^4.1.1",
+    "gulp-beautify": "^1.1.2",
     "gulp-jsdoc": "^0.1.4",
-    "gulp-jshint": "^1.3.4",
-    "gulp-load-plugins": "^0.7.1",
-    "gulp-mocha": "^0.4.1",
+    "gulp-jshint": "^1.9.2",
+    "gulp-mocha": "^2.0.0",
+    "gulp-nodemon": "^1.0.5",
     "gulp-uglify": "^1.1.0",
-    "gulp-util": "^3.0.3",
-    "jshint-stylish": "^0.1.5",
-    "mocha": "^1.21.5",
-    "karma-chai": "~0.1.0",
-    "karma": "~0.12.31",
-    "karma-mocha": "~0.1.10",
-    "karma-chrome-launcher": "~0.1.7",
-    "karma-htmlfile-reporter": "~0.1.2",
-    "should": "^4.6.5",
-    "busboy": "~0.2.9",
-    "multer": "~0.1.8"
+    "gulp-util": "^3.0.4",
+    "jshint-stylish": "^1.0.1",
+    "mocha": "^2.1.0",
+    "should": "^5.0.1"
   },
   "keywords": []
 }

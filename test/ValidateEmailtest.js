@@ -1,5 +1,5 @@
 var should = require('should');
-var routes = require('../lib/routes.js');
+var routes = require('../lib/validator.js');
 
 /**
  * This test checks the validateEmail function. The function is tested by atempting to validate a number of correct and a number of incorrect e-mailadresses.
