@@ -48,7 +48,7 @@
     "mariasql": "^0.1.21",
     "method-override": "^2.3.1",
     "minimist": "^1.1.0",
-    "sql": "^0.46.0"
+    "sql": "^0.47.0"
   },
   "devDependencies": {
     "gulp": "^3.8.11",
