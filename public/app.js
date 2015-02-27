@@ -42,11 +42,6 @@ app.controller('navController', function($scope, $window, $mdSidenav, Page, Auth
 });
 app.controller('mainController', function ($scope, $http, Page) {
     Page.setTitle('Start');
-    $scope.response = '';
-    $http({url: '/restricted.json', method: 'GET'})
-    .success(function (data, status, headers, config) {
-        $scope.response = data.feedback;
-    });
 });
 
 app.controller('ToastCtrl', function($scope, $mdToast, text, error) {
