@@ -9,7 +9,11 @@ myPublications.controller('myPublicationsController', function($scope, $window, 
 	Publication.query({id: userId}, function(data) {
 		console.log('got data!');
 		console.log(data);
-		$scope.publications = data.publications;
+		if(data.publications.length > 0) {
+			$scope.publications = data.publications;
+		} else {
+			$scope.error = 'No publications found';
+		}
 	}, function(error) {
 		console.warn('error:' + error);
 		$scope.error = error.statusText;

@@ -48,6 +48,7 @@
     "mariasql": "^0.1.21",
     "method-override": "^2.3.1",
     "minimist": "^1.1.0",
+    "multer": "^0.1.8",
     "sql": "^0.47.0"
   },
   "devDependencies": {
