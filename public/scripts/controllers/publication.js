@@ -9,7 +9,7 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
 
     $scope.chooseJournal = function(jour){
         $scope.journal = jour;
-    }
+    };
 
     $scope.add = function (array, element) {
         if (array.indexOf(element) === -1) {
@@ -29,33 +29,28 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
     };
 
     $scope.upload = function(files){
-
         var fd = new FormData();
-        fd.append("file", files[0]);
+        fd.append('file', files[0]);
 
         $http.post('uploadfile', fd, {
-        withCredentials: true,
-        headers: {'Content-Type': undefined },
-        transformRequest: angular.identity
+            withCredentials: true,
+            headers: {'Content-Type': undefined },
+            transformRequest: angular.identity
         }).
         success(function(data, status, headers, config) {
-        $scope.localfile = true;
+            $scope.localfile = true;
+            $scope.title = data.title;
+            $scope.numberOfPages=data.numberofpages;
+            $scope.url = data.path;
 
-        $scope.title = data.title;
-        $scope.numberOfPages=data.numberofpages;
-        $scope.url = data.path;
+            var index;
+            for (index = 0; index < data.authors.length; ++index) {
+                $scope.add($scope.authors,data.authors[index]);
+            }
 
-        var index;
-        for (index = 0; index < data.authors.length; ++index) {
-            $scope.add($scope.authors,data.authors[index]);
-        }   
-
-
-        }).
-        error(function(data, status, headers, config) {
+        }).error(function(data, status, headers, config) {
         });
-
-    }
+    };
 
     $scope.post = function () {
         var toPost = {};
@@ -68,7 +63,7 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
             discArray[i] = {id: $scope.disciplines[i].id};
         }
         var authArray = new Array($scope.authors.length);
-        for (var i = 0; i < $scope.authors.length; i++) {
+        for (i = 0; i < $scope.authors.length; i++) {
             authArray[i] = {id: $scope.authors[i].id};
         }
         toPost.disciplines = discArray;
