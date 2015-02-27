@@ -2,9 +2,11 @@
 var module = angular.module('publication', ['communication', 'proceeding', 'ngMaterial']);
 
 module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', 'Page', function ($scope,$http, fetcher, Page, Person) {
+
     Page.setTitle('Upload publication');
     $scope.authors = [];
     $scope.disciplines = [];
+    $scope.references = [];
     $scope.fetcher = fetcher;
 
     $scope.chooseJournal = function(jour){
@@ -14,18 +16,16 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
     $scope.add = function (array, element) {
         if (array.indexOf(element) === -1) {
             array.push(element);
-            console.log('added ' + element.name + ' to ' + JSON.stringify(array));
+            console.log('added ' + element + ' to ' + JSON.stringify(array));
         }
-        console.log('called add with ' + JSON.stringify(element) + ' and ' + JSON.stringify(array));
     };
 
     $scope.remove = function (array, element) {
-        var i = $scope.authors.indexOf(element);
+        var i = array.indexOf(element);
         if (i > -1) {
-            $scope.authors.splice(i, 1);
+            array.splice(i, 1);
             console.log('removed ' + JSON.stringify(element) + ' from ' + JSON.stringify(array));
         }
-        console.log('called remove with ' + JSON.stringify(element) + ' and ' + JSON.stringify(array));
     };
 
     $scope.upload = function(files){
