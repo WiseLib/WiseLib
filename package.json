@@ -65,7 +65,8 @@
     "gulp-util": "^3.0.4",
     "jshint-stylish": "^1.0.1",
     "mocha": "^2.1.0",
-    "should": "^5.0.1"
+    "should": "^5.0.1",
+    "pdf-extract": "~1.0.8"
   },
   "keywords": []
 }
