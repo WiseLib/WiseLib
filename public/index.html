@@ -16,7 +16,7 @@
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular-messages.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular-resource.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.4/hammer.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.7.1/angular-material.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.8.1/angular-material.min.js"></script>
         <script src="app.js"></script>
         <script src="scripts/controllers/addUser.js"></script>
         <script src="scripts/controllers/publication.js"></script>
@@ -27,7 +27,7 @@
         <script src="scripts/directives/proceeding.js"></script>
         <script src="scripts/directives/person.js"></script>
         <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.7.1/angular-material.min.css">
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.8.1/angular-material.min.css">
         <link rel="stylesheet" href="styles/general.css">
         <link rel="stylesheet" href="styles/header.css">
         <base href="/">
@@ -41,7 +41,7 @@
                     WiseLib
                 </h1>
             </md-toolbar>
-            <md-content style="overflow: auto;" class="md-default-theme">
+            <md-content style="overflow: visible;" class="md-default-theme">
                 <ul class="menu">
                     <li>
                         <md-button class="md-button md-default-theme" href="/login" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">Log in</md-button>
@@ -53,7 +53,7 @@
                         <md-button class="md-button md-default-theme" href="/register" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">Register</md-button>
                     </li>
                     <li>
-                        <md-button class="md-button md-default-theme" href="/upload" ng-disabled="!auth.isAuthenticated" disabled="{{!auth.isAuthenticated}}" ng-click="ToggleMenuIfAuthed()">
+                        <md-button class="md-button md-default-theme" href="/upload" ng-disabled="!auth.isAuthenticated" ng-click="ToggleMenuIfAuthed()">
                             <md-tooltip ng-if="!auth.isAuthenticated">You have to be logged in to do this</md-tooltip>
                             Upload publication
                         </md-button>

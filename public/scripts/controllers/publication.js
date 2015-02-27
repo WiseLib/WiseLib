@@ -1,5 +1,5 @@
 'use strict';
-module = angular.module('publication', ['communication', 'proceeding', 'ngMaterial']);
+var module = angular.module('publication', ['communication', 'proceeding', 'ngMaterial']);
 
 module.controller('uploadPublicationController', ['$http', 'fetcher', 'Page', function ($http, fetcher, Page) {
     Page.setTitle('Upload publication');
