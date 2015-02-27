@@ -1,4 +1,5 @@
-<md-content>
+<md-content layout="row" layout-align="center">
+	<md-progress-circular md-mode="indeterminate" ng-if="!publications"></md-progress-circular>
 	<md-list class="publications-list">
 		<md-item ng-repeat="publication in publications">
 			<md-item-content>
