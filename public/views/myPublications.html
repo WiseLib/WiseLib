@@ -1,0 +1,14 @@
+<md-content>
+	<md-list class="publications-list">
+		<md-item ng-repeat="publication in publications">
+			<md-item-content>
+				<div class="md-tile-content">
+					<h3><a href="{{publication.url}}">{{publication.title}}</a></h3>
+					<h4>{{publication.numberOfPages}} pages. Published in {{publication.year}}</h4>
+					<p>{{publication.abstract}}</p>
+				</div>
+			</md-item-content>
+			<md-divider md-inset ng-if="!$last"></md-divider>
+		</md-item>
+	</md-list>
+</md-content>

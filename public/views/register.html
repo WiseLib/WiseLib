@@ -19,7 +19,7 @@
         <div class="form-group">
             <label for="personId" class="col-xs-1 control-label">Person in database {{ personId }}</label>
             <md-radio-group ng-model="userForm.personId" ng-if="persons.length > 0">
-                <md-radio-button  ng-repeat="person in persons" ng-value="person.id" aria-label="{{ person.firstName + ' ' + person.lastName }}">{{ person.firstName + ' ' + person.lastName }}
+                <md-radio-button  ng-repeat="person in persons" ng-value="person.id" aria-label="{{ person.firstName + ' ' + person.lastName }}"><personmin person="person" />
                 </md-radio-button>
             </md-radio-group>
             <label class="control-label" ng-show="persons.length == 0">

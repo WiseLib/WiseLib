@@ -1,6 +1,6 @@
 var addUser = angular.module('addUser', []);
 
-addUser.controller('manageUserController', function ($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
+addUser.controller('manageUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
     'use strict';
     Page.setTitle('Register');
     $scope.userForm = {};
