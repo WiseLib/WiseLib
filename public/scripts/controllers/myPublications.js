@@ -2,6 +2,7 @@
 var myPublications = angular.module('myPublications', []);
 myPublications.controller('myPublicationsController', function($scope, $window, Page, Publication) {
 	Page.setTitle('My publications');
+	$scope.error = null;
 
 	var token = $window.sessionStorage.token;
 	var userId = parseInt(atob(token.split('.')[1]), 10);
@@ -11,6 +12,7 @@ myPublications.controller('myPublicationsController', function($scope, $window, 
 		$scope.publications = data.publications;
 	}, function(error) {
 		console.warn('error:' + error);
+		$scope.error = error.statusText;
 	});
 
 	// $scope.publications = [{title: 'Test', publishedInYear: 2014, nrOfPages: 23},
