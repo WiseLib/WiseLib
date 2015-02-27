@@ -1,5 +1,5 @@
 'use strict';
-var app = angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'publication', 'loginUser', 'ngResource', 'user', 'person']);
+var app = angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'publication', 'loginUser', 'ngResource', 'user', 'person', 'myPublications']);
 /**
  * Configure the Routes
  */
@@ -10,8 +10,9 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
     // Home
     .when('/', {templateUrl: 'views/start.html', controller: 'mainController'})
     .when('/register', {templateUrl: 'views/register.html', controller: 'manageUserController'})
-    .when('/upload', {templateUrl: 'views/upload.html', controller: 'uploadPublicationController as publication'})
+    .when('/upload', {templateUrl: 'views/upload.html', controller: 'uploadPublicationController'})
     .when('/login', {templateUrl: 'views/loginUser.html', controller: 'loginUserController'})
+    .when('/mypublications', {templateUrl: 'views/myPublications.html', controller: 'myPublicationsController'})
     .otherwise({redirectTo: '/'});
 }]);
 
@@ -41,11 +42,6 @@ app.controller('navController', function($scope, $window, $mdSidenav, Page, Auth
 });
 app.controller('mainController', function ($scope, $http, Page) {
     Page.setTitle('Start');
-    $scope.response = '';
-    $http({url: '/restricted.json', method: 'GET'})
-    .success(function (data, status, headers, config) {
-        $scope.response = data.feedback;
-    });
 });
 
 app.controller('ToastCtrl', function($scope, $mdToast, text, error) {

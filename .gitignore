@@ -9,3 +9,4 @@ img/**/*
 config.json
 /lib/secret.js
 /.sublime-gulp.cache
+/uploads

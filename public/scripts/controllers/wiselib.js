@@ -1,5 +1,4 @@
-'use strict';
-module = angular.module('wiselib', []);
+var module = angular.module("wiselib", []);
 
 module.factory('fetcher', ['$http', function($http) {
 
@@ -24,17 +23,17 @@ module.factory('fetcher', ['$http', function($http) {
      * for each core class object :
      * contains an array of previously fetched objects
      */
-     var classes = {};
+    var classes = {};
     /**
      * for each core class object :
      * contains the params of previous fetch operation
      */
-     var classesParams = {};
+    var classesParams = {};
     /**
      * fetch JSON for a core class object according to params
      * Only fetch when params are different than previous request
      */
-     var fetchForClass = function(className, params) {
+    var fetchForClass = function(className, params) {
         if((typeof classes[className] === 'undefined') || !isEqual(classesParams[className], JSON.stringify(params))) {
             classes[className] = [];
             classesParams[className] = JSON.stringify(params);
@@ -45,11 +44,11 @@ module.factory('fetcher', ['$http', function($http) {
             });
         }
         return classes[className];
-    };
+    }
 
     var fetchDisciplines = function(params) {
         return fetchForClass('Discipline', params).disciplines;
-    };
+    }
     var fetchPersons = function(params) {
         //for now, return dummy data
         /*
@@ -67,28 +66,27 @@ module.factory('fetcher', ['$http', function($http) {
         classesParams['Person'] = params;}
         return classes['Person'];*/
         return fetchForClass('Person', params).persons;
-    };
+    }
     var fetchProceedings = function(params) {
         //for now, return dummy data
-        if(!isEqual(classesParams.Proceeding, params)) {
-            classes.Proceeding = [ {
-                id: 1,
-                name: 'first proceeding',
-                rank: 12.3
-            },
-            {
-                id: 2,
-                name: 'second proceeding',
-                rank: 11.2
-            }];
-            classesParams.Proceeding = params;
-        }
-        return classes.Proceeding;
+        if(!isEqual(classesParams['Proceeding'], params)) {
+        classes['Proceeding'] = [ {
+            id: 1,
+            name: 'first proceeding',
+            rank: 12.3
+        },
+        {
+            id: 2,
+            name: 'second proceeding',
+            rank: 11.2
+        }];
+        classesParams['Proceeding'] = params;}
+        return classes['Proceeding'];
         //return fetchForClass('Proceeding', params);
-    };
+    }
     var fetchJournals = function(params) {
         return fetchForClass('Journal', params).journals;
-    };
+    }
 
     return {
         fetchDisciplines : fetchDisciplines,
@@ -97,14 +95,14 @@ module.factory('fetcher', ['$http', function($http) {
         fetchJournals : fetchJournals
     };
 }]);
-module.controller('uploadPublicationController', ['fetcher', function(fetcher) {
+module.controller("uploadPublicationController", ["fetcher", function(fetcher) {
     this.authors = [];
     this.disciplines = [];
-    this.test = function () {alert('test');};
+    this.test = function () {alert('test')};
     this.fetcher = fetcher;
     
     this.add = function(array, element) {
-        if(array.indexOf(element) === -1) {
+        if(array.indexOf(element) == -1) {
             array.push(element);
             console.log('added ' + JSON.stringify(element) + ' to ' + JSON.stringify(array));
         }
@@ -131,7 +129,7 @@ module.controller('uploadPublicationController', ['fetcher', function(fetcher) {
             discArray[i] = {id: this.disciplines[i].id};
         }
         var authArray = new Array(this.authors.length);
-        for(i = 0; i < this.authors.length; i++) {
+        for(var i = 0; i < this.authors.length; i++) {
             authArray[i] = {id: this.authors[i].id};
         }
         toPost.disciplines = discArray;
@@ -158,7 +156,7 @@ module.directive('personmin', function() {
         person: '=person'
     };
 
-    directive.templateUrl = './views/person-min.html';
+    directive.templateUrl = "./views/person-min.html";
     return directive;
 });
 module.directive('proceedingmin', function() {
@@ -168,6 +166,6 @@ module.directive('proceedingmin', function() {
         proceeding: '=proceeding'
     };
 
-    directive.templateUrl = './views/proceeding-min.html';
+    directive.templateUrl = "./views/proceeding-min.html";
     return directive;
 });

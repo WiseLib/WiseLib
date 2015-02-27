@@ -38,7 +38,6 @@ user.factory('TokenInterceptor', function ($q, $window, $location, Authenticatio
         /* Set Authentication.isAuthenticated to true if 200 received */
         response: function (response) {
             if (response !== null && response.status === 200 && $window.sessionStorage.token && !AuthenticationService.isAuthenticated) {
-                console.log('Congrats, you\'re auth\'ed');
                 AuthenticationService.isAuthenticated = true;
             }
             return response || $q.when(response);
