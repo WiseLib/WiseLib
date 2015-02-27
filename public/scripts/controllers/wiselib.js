@@ -1,6 +1,6 @@
 var module = angular.module("wiselib", []);
 
-module.factory("fetcher", ['$http', function($http) {
+module.factory('fetcher', ['$http', function($http) {
 
     var isEqual = function(obj1, obj2) {
         return obj1 === obj2;
@@ -9,7 +9,7 @@ module.factory("fetcher", ['$http', function($http) {
     var fetchForPath = function(path, params) {
         var query = '';
         for(var variable in params) {
-            if(query == '') {
+            if(query === '') {
                 query += '?';
             }
             else {
