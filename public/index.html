@@ -22,6 +22,7 @@
         <script src="scripts/controllers/publication.js"></script>
         <script src="scripts/controllers/communication.js"></script>
         <script src="scripts/controllers/loginUser.js"></script>
+        <script src="scripts/controllers/myPublications.js"></script>
         <script src="scripts/services/user.js"></script>
         <script src="scripts/services/person.js"></script>
         <script src="scripts/directives/proceeding.js"></script>
@@ -51,6 +52,9 @@
                     </li>
                     <li>
                         <md-button class="md-button md-default-theme" href="/register" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">Register</md-button>
+                    </li>
+                    <li>
+                        <md-button class="md-button md-default-theme" href="/mypublications" ng-show="auth.isAuthenticated" ng-click="ToggleMenu()">My publications</md-button>
                     </li>
                     <li>
                         <md-button class="md-button md-default-theme" href="/upload" ng-disabled="!auth.isAuthenticated" ng-click="ToggleMenuIfAuthed()">
