@@ -22,8 +22,10 @@
         <script src="scripts/controllers/publication.js"></script>
         <script src="scripts/controllers/communication.js"></script>
         <script src="scripts/controllers/loginUser.js"></script>
+        <script src="scripts/controllers/myPublications.js"></script>
         <script src="scripts/services/user.js"></script>
         <script src="scripts/services/person.js"></script>
+        <script src="scripts/services/publication.js"></script>
         <script src="scripts/directives/proceeding.js"></script>
         <script src="scripts/directives/person.js"></script>
         <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
@@ -41,7 +43,7 @@
                     WiseLib
                 </h1>
             </md-toolbar>
-            <md-content style="overflow: auto;" class="md-default-theme">
+            <md-content style="overflow: visible;" class="md-default-theme">
                 <ul class="menu">
                     <li>
                         <md-button class="md-button md-default-theme" href="/login" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">Log in</md-button>
@@ -53,7 +55,10 @@
                         <md-button class="md-button md-default-theme" href="/register" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">Register</md-button>
                     </li>
                     <li>
-                        <md-button class="md-button md-default-theme" href="/upload" ng-disabled="!auth.isAuthenticated" disabled="{{!auth.isAuthenticated}}" ng-click="ToggleMenuIfAuthed()">
+                        <md-button class="md-button md-default-theme" href="/mypublications" ng-show="auth.isAuthenticated" ng-click="ToggleMenu()">My publications</md-button>
+                    </li>
+                    <li>
+                        <md-button class="md-button md-default-theme" href="/upload" ng-disabled="!auth.isAuthenticated" ng-click="ToggleMenuIfAuthed()">
                             <md-tooltip ng-if="!auth.isAuthenticated">You have to be logged in to do this</md-tooltip>
                             Upload publication
                         </md-button>

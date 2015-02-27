@@ -1,5 +1,11 @@
 .profile-image {
-    max-height: 100px;
-    max-width: 100px;
+    max-height: 20px;
+    max-width: 20px;
+    margin-right: 4px;
+}
+
+.publications-list a{
+	color: #000;
+	text-decoration: none;
 }
 
