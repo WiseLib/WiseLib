@@ -125,6 +125,18 @@
 <label>Number</label>
 <input type="number" ng-model="number">
 </md-input-container>
+
+<div layout layout-sm="column">
+        <label>References</label>
+        <md-text-float id="reference" type="text" class="form-control" ng-model="possiblereference" label="Reference"></md-text-float>
+    </div>
+
+    <md-button class="btn btn-primary" ng-click="add(references, possiblereference)">Add</md-button><br><br>
+<div ng-repeat="reference in references">
+        {{reference}}
+        <md-button ng-click="remove(references, reference)">Remove</md-button>
+    </div>
+
 <md-button class="btn btn-primary" ng-disabled="postPublicationForm.$invalid" ng-click="post()">Send</md-button>
 </form>
 </div>
