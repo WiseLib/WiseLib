@@ -10,7 +10,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
     // Home
     .when('/', {templateUrl: 'views/start.html', controller: 'mainController'})
     .when('/register', {templateUrl: 'views/register.html', controller: 'manageUserController'})
-    .when('/upload', {templateUrl: 'views/upload.html', controller: 'uploadPublicationController as publication'})
+    .when('/upload', {templateUrl: 'views/upload.html', controller: 'uploadPublicationController'})
     .when('/login', {templateUrl: 'views/loginUser.html', controller: 'loginUserController'})
     .otherwise({redirectTo: '/'});
 }]);
