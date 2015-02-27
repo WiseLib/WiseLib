@@ -34,9 +34,9 @@ module.factory('fetcher', ['$http', function ($http) {
             classes[className] = [];
             classesParams[className] = JSON.stringify(params);
             var path = '/' + className.toLowerCase() + 's.json';
-            return fetchForPath(path, params).then(function (response) {
-                classes[className] = response.data;
-                return classes[className];
+            fetchForPath(path, params).success(function (data, status, headers, config) {
+                classes[className] = data;
+                return data;
             });
         }
         return classes[className];
@@ -49,26 +49,35 @@ module.factory('fetcher', ['$http', function ($http) {
         if(params !== undefined){
             return fetchForClass('Person', params).persons;}
         };
-        var fetchProceedings = function (params) {
+
+var dummydata = [ {//outside of fetchProceeding to prevent infinite digest error
+            id: 1,
+            name: 'first proceeding',
+            rank: 12.3
+        },
+        {
+            id: 2,
+            name: 'second proceeding',
+            rank: 11.2
+        }];
+
+var fetchProceedings = function (params) {
         //for now, return dummy data
+
         if (classesParams.Proceeding !== JSON.stringify(params)) {
-            classes.Proceeding = [ {
-                id: 1,
-                name: 'first proceeding',
-                rank: 12.3
-            },
-            {
-              id: 2,
-              name: 'second proceeding',
-              rank: 11.2
-          }];
-          classesParams.Proceeding = params;
-      }
-      return classes.Proceeding;
+          classes.Proceeding = dummydata;
+        //classesParams.Proceeding = params;
+    }
+    return classes.Proceeding;
         //return fetchForClass('Proceeding', params);
-    };
+};
+
     var fetchJournals = function (params) {
-        return fetchForClass('Journal', params).journals;
+        if(params){
+            params= {name:params.name};
+            var journals = fetchForClass('Journal', params);
+        return journals.journals;
+        }
     };
 
     return {
