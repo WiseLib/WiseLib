@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication', ['communication', 'proceeding', 'ngMaterial']);
 
-module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', 'Page', function ($scope,$http, fetcher, Page, Person) {
+module.controller('uploadPublicationController', function ($scope,$http, fetcher, Page,$mdToast, Person) {
 
     Page.setTitle('Upload publication');
     $scope.authors = [];
@@ -17,7 +17,6 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
     $scope.add = function (array, element) {
         if (array.indexOf(element) === -1) {
             array.push(element);
-            console.log('added ' + element + ' to ' + JSON.stringify(array));
         }
     };
 
@@ -25,9 +24,17 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
         var i = array.indexOf(element);
         if (i > -1) {
             array.splice(i, 1);
-            console.log('removed ' + JSON.stringify(element) + ' from ' + JSON.stringify(array));
         }
     };
+
+    $scope.showSimpleToast = function(text) {
+    $mdToast.show(
+      $mdToast.simple()
+        .content(text)
+        .position('top right')
+        .hideDelay(3000)
+    );
+  };
 
     $scope.uploadpdf = function(files){
 
@@ -40,6 +47,7 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
         transformRequest: angular.identity
         }).
         success(function(data, status, headers, config) {
+
         $scope.localfile = true;
 
         $scope.title = data.title;
@@ -55,6 +63,7 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
 
         }).
         error(function(data, status, headers, config) {
+        $scope.showSimpleToast("Not a pdf");
         });
 
     }
@@ -74,6 +83,8 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
         
 
         var index;
+        $scope.JSONreferences=[];
+        $scope.references=[];
         for (index = 0; index < data.length; ++index) {
             var reference = data[index];
             $scope.add($scope.JSONreferences,reference);
@@ -85,6 +96,7 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
 
         }).
         error(function(data, status, headers, config) {
+            $scope.showSimpleToast("Not a bibtex");
         });
 
     }
@@ -105,7 +117,7 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
         }
         toPost.disciplines = discArray;
         toPost.authors = authArray;
-        toPOst.references = JSONreferences;
+        toPost.references = $scope.JSONreferences;
         toPost.type = $scope.type;
         if ($scope.type === 'Journal') {
             toPost.journalId = $scope.journal.id;
@@ -121,4 +133,4 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
         console.log('POST : ' + JSON.stringify(toPost));
         //$http.post('users/1/publications.json', toPost);
     };
-}]);
+});
