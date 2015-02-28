@@ -13,48 +13,61 @@
     <label ng-hide="localfile" >URL</label>
     <input ng-hide="localfile" id="url"  ng-model="url"></md-input-container>
     
-    <label>Or upload a file</label>
-    <p>
-        <input type="file" name="file" onchange="angular.element(this).scope().upload(this.files)"/>
-    </p>
     <div layout layout-sm="column">
         <label>Co Authors</label>
         <md-text-float id="firstname" type="text" class="form-control" ng-model="possibleAuthor.firstName" label="First name"></md-text-float>
         <md-text-float id="lastname" type="text" class="form-control" ng-model="possibleAuthor.lastName" label="Last name"></md-text-float>
     </div>
 
-    <label>Selected authors</label>
     <ul>
         <li ng-repeat="person in fetcher.fetchPersons(possibleAuthor)">
             <personmin person="person" ng-click="add(authors, person)"></personmin>
         </li>
     </ul>
+
+    <label ng-show="authors.length > 0">Selected authors</label>
+    
     <div ng-repeat="chosenAuthor in authors">
         <personmin person="chosenAuthor"></personmin>
         <md-button ng-click="remove(authors, chosenAuthor)">Remove</md-button>
     </div>
     <p>
-        <div class="form-group">
+        <label>Fill in all fields above, or upload a pdf file</label>
 
-            <label for="Discipline" class="col-xs-1 control-label">Add disciplines</label>
-            <div class="col-xs-10">
-                <!--Werkt pas vanaf versie 0.8-->
-                <md-select ng-model="selectedDiscipline" placeholder="Discipline">
-                <md-option ng-value="discipline" ng-repeat="discipline in fetcher.fetchDisciplines({})">{{ discipline.name }}</md-option>
-            </md-select>
-            <md-button class="btn btn-primary" ng-click="add(disciplines, selectedDiscipline)">Add</md-button><br><br>
-            <label>Selected disciplines:</label>
-            <md-list>
-            <md-item ng-repeat="disc in disciplines">
-            <md-item-content>
-            <p>{{disc.name}}</p>
-        </md-item-content>
-    </md-item>
+           <!-- <input type="file" name="file" onchange="angular.element(this).scope().uploadpdf(this.files)"/> -->
+
+           <div class="fileinputs">
+            <input type="file" class="file" name="file" onchange="angular.element(this).scope().uploadpdf(this.files)"/>
+            <div class="fakefile">
+                <md-button class="md-fab md-primary" aria-label="Upload">
+                <md-icon md-svg-src='/assets/upload.svg'></md-icon>
+                
+            </md-button>
+        </div>
+    </div>
+
+</p>
+
+<div class="form-group">
+
+    <label for="Discipline" class="col-xs-1 control-label">Add disciplines</label>
+    <div class="col-xs-10">
+        <!--Werkt pas vanaf versie 0.8-->
+        <md-select ng-model="selectedDiscipline" placeholder="Discipline">
+        <md-option ng-value="discipline" ng-repeat="discipline in fetcher.fetchDisciplines({})">{{ discipline.name }}</md-option>
+    </md-select>
+    <md-button class="btn btn-primary" ng-click="add(disciplines, selectedDiscipline)">Add</md-button><br><br>
+    <label ng-show="disciplines.length > 0">Selected disciplines:</label>
+    <md-list>
+    <md-item ng-repeat="disc in disciplines">
+    <md-item-content>
+    <p>{{disc.name}}</p>
+</md-item-content>
+</md-item>
 </md-list>
 
 </div>
 </div>
-</p>
 
 <md-radio-group ng-model="type">
 <label>Publication type</label>
@@ -104,9 +117,9 @@
     <ul>
         <li ng-click="chooseJournal(possibleJournal);showAdded = !showAdded" ng-repeat="possibleJournal in fetcher.fetchJournals(searchjournal)">
             <proceedingmin proceeding="possibleJournal"></proceedingmin>
-        <div ng-show="showAdded">Selected</div>
-    </li>
-</ul>
+            <div ng-show="showAdded">Selected</div>
+        </li>
+    </ul>
 
     <!--<md-autocomplete
         md-selected-item="journal"
@@ -127,15 +140,21 @@
 </md-input-container>
 
 <div layout layout-sm="column">
-        <label>References</label>
-        <md-text-float id="reference" type="text" class="form-control" ng-model="possiblereference" label="Reference"></md-text-float>
-    </div>
+    <label>References</label>
+    <md-text-float id="reference" type="text" class="form-control" ng-model="possiblereference" label="Reference"></md-text-float>
+    <md-button class="btn btn-primary" ng-click="add(references, possiblereference)">Add</md-button>
+</div>
 
-    <md-button class="btn btn-primary" ng-click="add(references, possiblereference)">Add</md-button><br><br>
+<br><br>
 <div ng-repeat="reference in references">
-        {{reference}}
-        <md-button ng-click="remove(references, reference)">Remove</md-button>
-    </div>
+    {{reference}}
+    <md-button ng-click="remove(references, reference)">Remove</md-button>
+</div>
+
+<label>Or upload a bibtex file</label>
+<p>
+    <input type="file" name="file" onchange="angular.element(this).scope().uploadbibtex(this.files)"/>
+</p>
 
 <md-button class="btn btn-primary" ng-disabled="postPublicationForm.$invalid" ng-click="post()">Send</md-button>
 </form>

@@ -7,6 +7,7 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
     $scope.authors = [];
     $scope.disciplines = [];
     $scope.references = [];
+    $scope.JSONreferences = [];
     $scope.fetcher = fetcher;
 
     $scope.chooseJournal = function(jour){
@@ -28,7 +29,7 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
         }
     };
 
-    $scope.upload = function(files){
+    $scope.uploadpdf = function(files){
 
         var fd = new FormData();
         fd.append("file", files[0]);
@@ -45,9 +46,40 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
         $scope.numberOfPages=data.numberofpages;
         $scope.url = data.path;
 
+        $scope.authors = [];
         var index;
         for (index = 0; index < data.authors.length; ++index) {
             $scope.add($scope.authors,data.authors[index]);
+        }   
+
+
+        }).
+        error(function(data, status, headers, config) {
+        });
+
+    }
+
+    $scope.uploadbibtex = function(files){
+
+        var fd = new FormData();
+        fd.append("file", files[0]);
+
+        $http.post('uploadfile', fd, {
+        withCredentials: true,
+        headers: {'Content-Type': undefined },
+        transformRequest: angular.identity
+        }).
+        success(function(data, status, headers, config) {
+
+        
+
+        var index;
+        for (index = 0; index < data.length; ++index) {
+            var reference = data[index];
+            $scope.add($scope.JSONreferences,reference);
+
+            var title = reference.entryTags.title;
+            $scope.add($scope.references,title);
         }   
 
 
@@ -73,6 +105,7 @@ module.controller('uploadPublicationController', ['$scope','$http', 'fetcher', '
         }
         toPost.disciplines = discArray;
         toPost.authors = authArray;
+        toPOst.references = JSONreferences;
         toPost.type = $scope.type;
         if ($scope.type === 'Journal') {
             toPost.journalId = $scope.journal.id;

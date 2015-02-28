@@ -1,0 +1,23 @@
+div.fileinputs {
+	position: relative;
+}
+
+div.fakefile {
+	position: absolute;
+	top: -20px;
+	left: 0px;
+	z-index: 1;
+}
+
+div.fakefile section .md-button {
+	size:50%;
+}
+
+input.file {
+	position: relative;
+	text-align: right;
+	-moz-opacity:0 ;
+	filter:alpha(opacity: 0);
+	opacity: 0;
+	z-index: 2;
+}
