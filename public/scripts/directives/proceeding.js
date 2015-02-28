@@ -1,7 +1,8 @@
 'use strict';
-var module = angular.module('proceeding', []);
 
-module.directive('proceedingmin', function () {
+angular.module('proceeding', [])
+
+.directive('proceedingmin', function () {
     var directive = {};
     directive.restrict = 'E';
     directive.scope = {

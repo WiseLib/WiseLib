@@ -1,7 +1,8 @@
 'use strict';
-var module = angular.module('person');
 
-module.directive('personmin', function () {
+angular.module('person')
+
+.directive('personmin', function () {
     var directive = {};
     directive.restrict = 'E';
     directive.scope = {

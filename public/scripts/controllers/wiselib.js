@@ -1,7 +1,8 @@
 'use strict';
-module = angular.module("wiselib", []);
 
-module.factory('fetcher', ['$http', function($http) {
+angular.module("wiselib", [])
+
+.factory('fetcher', ['$http', function($http) {
 
     var isEqual = function(obj1, obj2) {
         return obj1 === obj2;
@@ -150,8 +151,9 @@ module.controller("uploadPublicationController", ['fetcher', function(fetcher) {
         }
         console.log('POST : ' + JSON.stringify(toPost));
     };
-}]);
-module.directive('personmin', function() {
+}])
+
+.directive('personmin', function() {
     var directive = {};
     directive.restrict = 'E';
     directive.scope = {
@@ -160,8 +162,9 @@ module.directive('personmin', function() {
 
     directive.templateUrl = './views/person-min.html';
     return directive;
-});
-module.directive('proceedingmin', function() {
+})
+
+.directive('proceedingmin', function() {
     var directive = {};
     directive.restrict = 'E';
     directive.scope = {

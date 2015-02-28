@@ -1,17 +1,19 @@
 'use strict';
-var user = angular.module('user', []);
 
-user.factory('User', function($resource) {
+angular.module('user', [])
+
+.factory('User', function($resource) {
     return $resource('/user.json');
-});
+})
 
-user.factory('AuthenticationService', function() {
+.factory('AuthenticationService', function() {
     var auth = {
         isAuthenticated: false
     };
     return auth;
-});
-user.factory('UserService', function($http) {
+})
+
+.factory('UserService', function($http) {
     return {
         logIn: function(email, password) {
             return $http.post('/users/login.json', {email: email, password: password});
@@ -19,9 +21,9 @@ user.factory('UserService', function($http) {
         logOut: function() {
         }
     };
-});
+})
 
-user.factory('TokenInterceptor', function ($q, $window, $location, AuthenticationService) {
+.factory('TokenInterceptor', function ($q, $window, $location, AuthenticationService) {
     return {
         request: function (config) {
             config.headers = config.headers || {};

@@ -1,0 +1,9 @@
+{
+  "extends": "../.jshintrc-base",
+  "browser": true,
+  "globals": {
+    "console": true,
+    "angular": true
+  },
+  "strict": true 
+}

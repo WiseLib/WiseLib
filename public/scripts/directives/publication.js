@@ -1,7 +1,8 @@
 'use strict';
-module = angular.module('publication');
 
-module.directive('publicationmin', function () {
+angular.module('publication')
+
+.directive('publicationmin', function () {
     var directive = {};
     directive.restrict = 'E';
     directive.scope = {

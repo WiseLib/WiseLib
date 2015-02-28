@@ -1,6 +1,8 @@
 'use strict';
-module = angular.module('communication', []);
-module.factory('fetcher', ['$http', function ($http) {
+
+angular.module('communication', [])
+
+.factory('fetcher', ['$http', function ($http) {
 
     var fetchForPath = function (path, params) {
         var query = '';
@@ -50,7 +52,7 @@ module.factory('fetcher', ['$http', function ($http) {
             return fetchForClass('Person', params).persons;}
         };
 
-var dummydata = [ {//outside of fetchProceeding to prevent infinite digest error
+    var dummydata = [ {//outside of fetchProceeding to prevent infinite digest error
             id: 1,
             name: 'first proceeding',
             rank: 12.3
@@ -61,16 +63,16 @@ var dummydata = [ {//outside of fetchProceeding to prevent infinite digest error
             rank: 11.2
         }];
 
-var fetchProceedings = function (params) {
+    var fetchProceedings = function (params) {
         //for now, return dummy data
 
         if (classesParams.Proceeding !== JSON.stringify(params)) {
-          classes.Proceeding = dummydata;
-        //classesParams.Proceeding = params;
-    }
-    return classes.Proceeding;
+            classes.Proceeding = dummydata;
+            //classesParams.Proceeding = params;
+        }
+        return classes.Proceeding;
         //return fetchForClass('Proceeding', params);
-};
+    };
 
     var fetchJournals = function (params) {
         if(params){

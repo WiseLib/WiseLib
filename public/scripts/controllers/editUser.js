@@ -1,10 +1,9 @@
 'use strict';
 
-angular.module('addUser', [])
+angular.module('editUser', [])
 
-.controller('manageUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
-    'use strict';
-    Page.setTitle('Register');
+.controller('updateUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
+    Page.setTitle('Update profile');
     $scope.userForm = {};
     $scope.persons = [];
     $scope.userForm.profileImageSrc = '';
