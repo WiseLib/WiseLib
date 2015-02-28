@@ -17,6 +17,10 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'addPublication', 
         templateUrl: 'views/register.html', 
         controller: 'registerUserController'
     })
+    .when('/update', {
+        templateUrl: 'views/update.html', 
+        controller: 'updateUserController'
+    })
     .when('/upload', {
         templateUrl: 'views/upload.html', 
         controller: 'uploadPublicationController'
