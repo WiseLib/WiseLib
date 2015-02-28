@@ -15,37 +15,38 @@
     
     <div layout layout-sm="column">
         <label>Co Authors</label>
-        <md-text-float id="firstname" type="text" class="form-control" ng-model="possibleAuthor.firstName" label="First name"></md-text-float>
-        <md-text-float id="lastname" type="text" class="form-control" ng-model="possibleAuthor.lastName" label="Last name"></md-text-float>
-    </div>
+        <md-input-container>
+        <label>firstname</label>
+        <input id="firstname" type="text" class="form-control" ng-model="possibleAuthor.firstName" label="First name"></input>
+    </md-input-container>
+    <md-input-container>
+    <label>lastname</label>
+    <input id="lastname" type="text" class="form-control" ng-model="possibleAuthor.lastName" label="Last name"></input>
+</md-input-container>
+</div>
+<ul> 
+    <li ng-repeat="person in fetcher.fetchPersons(possibleAuthor)">
 
-    <ul>
-        <li ng-repeat="person in fetcher.fetchPersons(possibleAuthor)">
-            <personmin person="person" ng-click="add(authors, person)"></personmin>
-        </li>
-    </ul>
+        <personmin person="person" ng-click="add(authors, person)"></personmin>
 
-    <label ng-show="authors.length > 0">Selected authors</label>
-    
-    <div ng-repeat="chosenAuthor in authors">
-        <personmin person="chosenAuthor"></personmin>
-        <md-button ng-click="remove(authors, chosenAuthor)">Remove</md-button>
-    </div>
-    <p>
-        <label>Fill in all fields above, or upload a pdf file</label>
+    </li>
+</ul>
 
-           <!-- <input type="file" name="file" onchange="angular.element(this).scope().uploadpdf(this.files)"/> -->
+<label ng-show="authors.length > 0">Selected authors</label>
 
-           <div class="fileinputs">
-            <input type="file" class="file" name="file" onchange="angular.element(this).scope().uploadpdf(this.files)"/>
-            <div class="fakefile">
-                <md-button class="md-fab md-primary" aria-label="Upload">
-                <md-icon md-svg-src='/assets/upload.svg'></md-icon>
-                
-            </md-button>
-        </div>
-    </div>
-
+<div ng-repeat="chosenAuthor in authors">
+    <personmin person="chosenAuthor"></personmin>
+    <md-button ng-click="remove(authors, chosenAuthor)">Remove</md-button>
+</div>
+<p class="uploadfield">
+    <span class="label">Fill in all fields above, or upload a pdf file</span>
+    <div class="fakeupload">
+        <md-button class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadpdf').click();">
+        <md-icon md-svg-src='/assets/upload.svg'></md-icon>
+        <md-tooltip >Upload a pdf</md-tooltip>
+    </md-button>
+</div>
+<input ng-hide="true" id="uploadpdf" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadpdf(this.files)"/>
 </p>
 
 <div class="form-group">
@@ -75,7 +76,7 @@
 <md-radio-button value="Proceeding">Proceeding</md-radio-button>
 </md-radio-group>
 <div class="form-group" ng-show="type == 'Proceeding'">
-    <label for="proceeding" class="control-label col-xs-1">Select a Proceeding</label>
+    <label class="control-label col-xs-1">Select a Proceeding</label>
     <div class="col-xs-10">
         <!--<input id="proceeding" type="text" ng-model="proceeding.name">
         <select ng-model="proceeding" ng-options="possibleProceeding as possibleProceeding.name for possibleProceeding in fetcher.fetchProceedings(proceeding)">
@@ -90,25 +91,23 @@
 </div>
 </div>
 <div class="form-group" ng-show="type == 'Proceeding'">
-    <label for="editors" class="col-xs-1 control-label">Editors</label>
-    <div class="col-xs-10">
-        <input id="editors" type="text" class="form-control" ng-model="editors">
-    </div>
+
+    <md-input-container >
+    <label>Editors</label>
+    <input id="city" type="text" ng-model="editors">
+</md-input-container>
+
+<md-input-container >
+    <label>Publisher</label>
+    <input id="city" type="text" ng-model="publisher">
+</md-input-container>
+
 </div>
-<div class="form-group" ng-show="type == 'Proceeding'">
-    <label for="publisher" class="col-xs-1 control-label">Publisher</label>
-    <div class="col-xs-10">
-        <input id="publisher" type="text" class="form-control" ng-model="publisher">
-    </div>
-</div>
-</div>
-<md-input-group ng-show="type == 'Proceeding'">
-<md-input-container>
+<md-input-container ng-show="type == 'Proceeding'">
 <label>City</label>
 <input id="city" type="text" ng-model="city">
 </md-input-container>
 
-</md-input-group>
 
 <div ng-show="type == 'Journal'">
     <label for="searchjournal">Search a Journal</label>
@@ -140,9 +139,11 @@
 </md-input-container>
 
 <div layout layout-sm="column">
+    <md-input-container>
     <label>References</label>
-    <md-text-float id="reference" type="text" class="form-control" ng-model="possiblereference" label="Reference"></md-text-float>
-    <md-button class="btn btn-primary" ng-click="add(references, possiblereference)">Add</md-button>
+    <input id="reference" type="text" class="form-control" ng-model="possiblereference" label="Reference"></input>
+</md-input-container>
+<md-button class="btn btn-primary" ng-click="add(references, possiblereference)">Add</md-button>
 </div>
 
 <br><br>
@@ -151,11 +152,18 @@
     <md-button ng-click="remove(references, reference)">Remove</md-button>
 </div>
 
-<label>Or upload a bibtex file</label>
-<p>
-    <input type="file" name="file" onchange="angular.element(this).scope().uploadbibtex(this.files)"/>
+<p class="uploadfield">
+    <span class="label">Add references, or upload a bibtex file</span>
+    <div class="fakeupload">
+        <md-button class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadbib').click();">
+        <md-icon md-svg-src='/assets/upload.svg'></md-icon>
+        <md-tooltip >Upload a bibtex file</md-tooltip>
+    </md-button>
+</div>
+<input ng-hide="true" id="uploadbib" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadbibtex(this.files)"/>
 </p>
 
-<md-button class="btn btn-primary" ng-disabled="postPublicationForm.$invalid" ng-click="post()">Send</md-button>
+<md-button class="btn btn-primary" ng-disabled="postPublicationForm.$invalid" ng-click="post()">
+<md-tooltip >Upload your publication</md-tooltip>Send</md-button>
 </form>
 </div>

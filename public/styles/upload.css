@@ -1,23 +1,24 @@
-div.fileinputs {
+div.fakeupload {
 	position: relative;
-}
-
-div.fakefile {
-	position: absolute;
-	top: -20px;
-	left: 0px;
+	top: -35px;
+	left: 10px;
 	z-index: 1;
 }
 
-div.fakefile section .md-button {
-	size:50%;
-}
 
 input.file {
-	position: relative;
-	text-align: right;
+	position: absolute;
+	text-align: left;
 	-moz-opacity:0 ;
 	filter:alpha(opacity: 0);
-	opacity: 0;
+	opacity: 0.5;
 	z-index: 2;
+}
+
+span.label{
+	float:left;
+}
+
+p.uploadfield{
+	padding-top: 20px;
 }

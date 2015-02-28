@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
+var module = angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
+module.controller('uploadPublicationController', function ($scope,$http, fetcher, Page,$mdToast, Person) {
 
-.controller('uploadPublicationController', ['$scope','$http', 'fetcher', 'Page', function ($scope,$http, fetcher, Page, Person) {
     Page.setTitle('Upload publication');
     $scope.authors = [];
     $scope.disciplines = [];
@@ -17,7 +17,6 @@ angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
     $scope.add = function (array, element) {
         if (array.indexOf(element) === -1) {
             array.push(element);
-            console.log('added ' + element + ' to ' + JSON.stringify(array));
         }
     };
 
@@ -25,10 +24,18 @@ angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
         var i = array.indexOf(element);
         if (i > -1) {
             array.splice(i, 1);
-            console.log('removed ' + JSON.stringify(element) + ' from ' + JSON.stringify(array));
         }
     };
 
+
+    $scope.showSimpleToast = function(text) {
+    $mdToast.show(
+      $mdToast.simple()
+        .content(text)
+        .position('top right')
+        .hideDelay(3000)
+    );
+  };
 
     $scope.uploadpdf = function(files){
 
@@ -59,7 +66,10 @@ angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
                 $scope.add($scope.authors,data.authors[index]);
             }
 
-        }).error(function(data, status, headers, config) {
+
+        }).
+        error(function(data, status, headers, config) {
+        $scope.showSimpleToast("Not a pdf");
         });
     };
 
@@ -78,6 +88,8 @@ angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
         
 
         var index;
+        $scope.JSONreferences=[];
+        $scope.references=[];
         for (index = 0; index < data.length; ++index) {
             var reference = data[index];
             $scope.add($scope.JSONreferences,reference);
@@ -89,6 +101,7 @@ angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
 
         }).
         error(function(data, status, headers, config) {
+            $scope.showSimpleToast("Not a bibtex");
         });
 
     }
@@ -109,7 +122,7 @@ angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
         }
         toPost.disciplines = discArray;
         toPost.authors = authArray;
-        toPOst.references = JSONreferences;
+        toPost.references = $scope.JSONreferences;
         toPost.type = $scope.type;
         if ($scope.type === 'Journal') {
             toPost.journalId = $scope.journal.id;
@@ -125,4 +138,5 @@ angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
         console.log('POST : ' + JSON.stringify(toPost));
         //$http.post('users/1/publications.json', toPost);
     };
-}]);
+
+});
