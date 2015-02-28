@@ -1,5 +1,5 @@
 {
     "extends": ".jshintrc-base",  
     "esnext": true,
-    "node": true,
+    "node": true
 }
