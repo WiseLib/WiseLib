@@ -15,14 +15,14 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'addPublication', 
         controller: 'mainController'})
     .when('/register', {
         templateUrl: 'views/register.html', 
-        controller: 'manageUserController'
+        controller: 'registerUserController'
     })
     .when('/upload', {
-        templateUrl: 'views/upload.html',
+        templateUrl: 'views/upload.html', 
         controller: 'uploadPublicationController'
     })
     .when('/login', {
-        templateUrl: 'views/loginUser.html',
+        templateUrl: 'views/loginUser.html', 
         controller: 'loginUserController'
     })
     .when('/mypublications', {
