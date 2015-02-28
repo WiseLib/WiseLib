@@ -22,7 +22,7 @@ var jsfiles = _.union(bin, lib, test, pub);
 
 // quick syntax check
 gulp.task('jsvalidate', function () {
-    return gulp.src(test, lib, pub)
+    return gulp.src(_.union(test, lib, pub))
     .pipe(g.debug())
     .pipe(g.jsvalidate());
 });
