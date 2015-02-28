@@ -2,8 +2,8 @@
 
 angular.module('loginUser', ['ngMessages'])
 
-.controller('loginUserController', ['$scope', '$location', '$window', 'UserService', 'AuthenticationService', 'Page', '$mdToast', '$animate',
-   function($scope, $location, $window, UserService, AuthenticationService, Page, $mdToast, $animate) {
+.controller('loginUserController', ['$scope', '$location', '$window', 'UserService', 'AuthenticationService', 'Page', '$mdToast',
+   function($scope, $location, $window, UserService, AuthenticationService, Page, $mdToast) {
     Page.setTitle('Log in');
     $scope.loginUserForm = {};
 
@@ -28,7 +28,6 @@ angular.module('loginUser', ['ngMessages'])
                         error: false}
                 });
             }).error(function(data, status) {
-                console.log('Error logging in: ' + status + ': ' + JSON.stringify(data));
                 $mdToast.show({
                     controller: 'ToastCtrl',
                     templateUrl: '../views/feedback-toast.html',
