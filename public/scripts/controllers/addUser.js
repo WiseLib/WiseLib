@@ -72,7 +72,7 @@ angular.module('addUser', [])
                 templateUrl: '../views/feedback-toast.html',
                 hideDelay: 6000,
                 position: 'top right',
-                locals: {text: 'Error: ' + data,
+                locals: {text: 'Error: ' + data.error,
                          error: true}
             });
         });

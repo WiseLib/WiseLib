@@ -27,15 +27,14 @@ angular.module('loginUser', ['ngMessages'])
                     locals: {text: 'Logged in successfully',
                         error: false}
                 });
-            }).error(function(status, data) {
-                console.log(status);
-                console.log(data);
+            }).error(function(data, status) {
+                console.log('Error logging in: ' + status + ': ' + JSON.stringify(data));
                 $mdToast.show({
                     controller: 'ToastCtrl',
                     templateUrl: '../views/feedback-toast.html',
                     hideDelay: 6000,
                     position: 'top right',
-                    locals: {text: status + ' : ' + data,
+                    locals: {text: 'Error: ' + data.error,
                         error: true}
                 });
             });
