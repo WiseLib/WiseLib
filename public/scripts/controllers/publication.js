@@ -1,6 +1,6 @@
 'use strict';
+var module = angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial']);
 
-var module = angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
 module.controller('uploadPublicationController', function ($scope,$http, fetcher, Page,$mdToast, Person) {
 
     Page.setTitle('Upload publication');
@@ -12,7 +12,7 @@ module.controller('uploadPublicationController', function ($scope,$http, fetcher
 
     $scope.chooseJournal = function(jour){
         $scope.journal = jour;
-    };
+    }
 
     $scope.add = function (array, element) {
         if (array.indexOf(element) === -1) {
@@ -27,7 +27,6 @@ module.controller('uploadPublicationController', function ($scope,$http, fetcher
         }
     };
 
-
     $scope.showSimpleToast = function(text) {
     $mdToast.show(
       $mdToast.simple()
@@ -40,12 +39,12 @@ module.controller('uploadPublicationController', function ($scope,$http, fetcher
     $scope.uploadpdf = function(files){
 
         var fd = new FormData();
-        fd.append('file', files[0]);
+        fd.append("file", files[0]);
 
         $http.post('uploadfile', fd, {
-            withCredentials: true,
-            headers: {'Content-Type': undefined },
-            transformRequest: angular.identity
+        withCredentials: true,
+        headers: {'Content-Type': undefined },
+        transformRequest: angular.identity
         }).
         success(function(data, status, headers, config) {
 
@@ -61,17 +60,13 @@ module.controller('uploadPublicationController', function ($scope,$http, fetcher
             $scope.add($scope.authors,data.authors[index]);
         }   
 
-            var index;
-            for (index = 0; index < data.authors.length; ++index) {
-                $scope.add($scope.authors,data.authors[index]);
-            }
-
 
         }).
         error(function(data, status, headers, config) {
         $scope.showSimpleToast("Not a pdf");
         });
-    };
+
+    }
 
     $scope.uploadbibtex = function(files){
 
@@ -117,7 +112,7 @@ module.controller('uploadPublicationController', function ($scope,$http, fetcher
             discArray[i] = {id: $scope.disciplines[i].id};
         }
         var authArray = new Array($scope.authors.length);
-        for (i = 0; i < $scope.authors.length; i++) {
+        for (var i = 0; i < $scope.authors.length; i++) {
             authArray[i] = {id: $scope.authors[i].id};
         }
         toPost.disciplines = discArray;
@@ -138,5 +133,4 @@ module.controller('uploadPublicationController', function ($scope,$http, fetcher
         console.log('POST : ' + JSON.stringify(toPost));
         //$http.post('users/1/publications.json', toPost);
     };
-
 });
