@@ -1,5 +1,5 @@
 'use strict';
-var app = angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'publication', 'loginUser', 'ngResource', 'user', 'person', 'myPublications']);
+var app = angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'addPublication', 'publication', 'loginUser', 'ngResource', 'user', 'person', 'myPublications']);
 /**
  * Configure the Routes
  */
