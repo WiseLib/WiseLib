@@ -1,8 +1,5 @@
-div.fakeupload {
-	position: relative;
-	top: -35px;
-	left: 10px;
-	z-index: 1;
+div.fakeupload button{
+	margin-left: 10px;
 }
 
 
@@ -15,10 +12,10 @@ input.file {
 	z-index: 2;
 }
 
-span.label{
-	float:left;
+p.uploadfield{
+	float: left;
 }
 
-p.uploadfield{
-	padding-top: 20px;
+.reserve-tooltip-space {
+	margin-bottom: 35px;
 }

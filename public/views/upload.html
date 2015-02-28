@@ -163,7 +163,8 @@
 <input ng-hide="true" id="uploadbib" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadbibtex(this.files)"/>
 </p>
 
-<md-button class="btn btn-primary" ng-disabled="postPublicationForm.$invalid" ng-click="post()">
-<md-tooltip >Upload your publication</md-tooltip>Send</md-button>
+<md-button class="btn btn-primary reserve-tooltip-space" ng-disabled="postPublicationForm.$invalid" ng-click="post()">
+<!-- md-direction doesn't work in this version of angular-material. Temporary fix in the css file -->
+<md-tooltip md-direction="top">Upload your publication</md-tooltip>Send</md-button>
 </form>
 </div>
