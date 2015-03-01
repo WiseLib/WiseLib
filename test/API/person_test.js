@@ -1,22 +1,8 @@
-
-function Person(firstName,lastName,birthDate,disciplines,affiliationId,publications){
-	this.firstName = firstName
-	this.lastName = lastName
-	this.birthDate = birthDate
-	this.disciplines = disciplines
-	this.affiliationId = affiliationId
-	this.publications = publications
-	
-	this.create = function(){
-		console.log("Person created")
-	};
-	this.remove = function(){
-		console.log("Person deleted")
-	};
-};
-
-exports.Person = Person;
-
+/**
+ * This method belongs to the SearchPersonRoute test. It fakes the response which is edited by the methods, called by the test, in dbmanager.
+ * It also incorporates the done function that is necessary for the mocha framework.
+ * @return {object} response - A faked response
+ */
 function fakeresponse(){
 	
 	var done = function(){};
@@ -33,6 +19,13 @@ function fakeresponse(){
 	this.getresponse= function(){return response;};
 };
 
+/**
+ * This method belongs to the SearchPersonRoute test. It fakes the request which will be used by the dbmanager to execute its methods
+ * and to create a correct response.
+ * @param  {string} firstname - the firstname of the person to be searched
+ * @param  {string} lastname -  
+ * @return {object} request - a faked request
+ */
 function fakerequest(firstname,lastname){
 
 	this.firstname=firstname;

@@ -1,10 +1,6 @@
 var should = require('should');
 var journal = require('./journal_test.js');
-var server = require('../lib/routes.js');
-var Client = require('mariasql');
-var fs = require('fs');
-var config = require('../lib/config.js');
-var c = new Client();
+var server = require('../../lib/routesFunctions.js');
 
 /**
  * This test checks the getJournals method, a function that return a list, in JSON format, of all journals present in the database.
@@ -22,7 +18,7 @@ describe ('Retrieve list of journals from server database',function(){
 				response.done=done;
 				var request = new journal.fakerequest({});
 				try{
-					server['/journals.json']['get'](request,response);
+					server.getJournals(request,response);
 				}
 				catch(x)
 				{
@@ -48,7 +44,7 @@ describe ('Retrieve list of journals from server database',function(){
 				response.done=done;
 				var request = new journal.fakerequest({id: '7'});
 				try{
-					server['/journals/:id.json']['get'](request,response);
+					server.getJournalById(request,response);
 				}
 				catch(x)
 				{

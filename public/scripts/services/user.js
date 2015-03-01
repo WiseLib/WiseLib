@@ -4,6 +4,7 @@ angular.module('user', [])
 
 .factory('User', function($resource) {
     return $resource('/user.json');
+})
 
 .factory('AuthenticationService', function() {
     var auth = {

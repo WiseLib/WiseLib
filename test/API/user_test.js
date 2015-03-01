@@ -1,5 +1,5 @@
 /**
- * This method belongs to the CreateUserCheckDatabse test file. It fakes the response which is edited by the methods, called by the test, in dbmanager.
+ * This method belongs to the CreateUserCheckDatabse test. It fakes the response which is edited by the methods, called by the test, in dbmanager.
  * It also incorporates the done function that is necessary for the mocha framework.
  * @return {object} response - A faked response
  */
@@ -20,7 +20,7 @@ function fakeresponse(){
 };
 
 /**
- * This method belongs to the CreateUserCheckDatabse test file. It fakes the request which will be used by the dbmanager to execute its methods
+ * This method belongs to the CreateUserCheckDatabse test. It fakes the request which will be used by the dbmanager to execute its methods
  * and to create a correct response.
  * @param  {string} mail - the emailadress to add
  * @param  {string} password 

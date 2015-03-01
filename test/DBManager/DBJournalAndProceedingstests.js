@@ -1,6 +1,7 @@
 var should = require('should');
-var DBManager = require('../lib/dbmanager.js');
-var config = require('../config.json');
+var DBManager = require('../../lib/dbmanager.js');
+var config = require('../../config.json');
+var linker = require('../../lib/linker.js')
 /**
  * This checks the Journal and Proceeding related methods defined in the dbmanager. Since every post method has an opposite delete, the database should remain clean
  * @test
@@ -15,7 +16,7 @@ describe('DbManager tests',function(){
 		describe('Retrieve all Journals',function(){
 			describe('Call method',function(){
 				it('should execute without error',function(done){
-					dbmanager.getJournal({},function(res){result= res;done();})
+					dbmanager.get({},linker.journalRepr,function(res){result= res;done();})
 				})
 			})
 			describe('Analyse result',function(){
@@ -31,7 +32,7 @@ describe('DbManager tests',function(){
 			var ID = '24';
 			describe('Call method',function(){
 				it('should execute without error',function(done){
-					dbmanager.getJournal({id: ID},function(res){result= res;done();})
+					dbmanager.get({id: ID},linker.journalRepr,function(res){result= res;done();})
 				})
 			})
 			describe('Analyse result',function(){
@@ -69,17 +70,17 @@ describe('DbManager tests',function(){
 
 			describe('Call method',function(){
 				it('should execute withour error',function(done){
-					//dbmanager.postJournal(journal, function(res) {response = res; done();});//repsonse holds id 
+					//dbmanager.post(journal,linker.journalRepr ,function(res) {response = res; done();});//repsonse holds id 
 					done(new Error("Not executed"));
 				})
 				it('query should have succeeded',function(){
 					response.should.be.a.number;
 				})
 			})
-			describe('Check database for newly added disicpline',function(){
+			describe('Check database for newly added journal',function(){
 				var result;
-				it('query should search the new discipline',function(done){
-					dbmanager.getJournal({id: response.toString()},function(res){result= res;done();}) 
+				it('query should search the new journal',function(done){
+					dbmanager.get({id: response.toString()},linker.journalRepr,function(res){result= res;done();}) 
 				});
 				it('database should hold the new discipline',function(){throw new Error("remove this error if deleteJournal is implemented")
 					result[0].should.have.property('id',response.toString());
@@ -89,8 +90,8 @@ describe('DbManager tests',function(){
 			})
 		});
 		describe('deleteJournal method test',function(){
-			it('should now delete the previously added discipline',function(done){
-				dbmanager.deleteJournal({id:response.toString()},function(res){response = res; done();})
+			it('should now delete the previously added journal',function(done){
+				dbmanager.delete({id:response.toString()},linker.journalRepr,function(res){response = res; done();})
 			})
 			it('should have deleted without error',function(){
 				//response.affectedRows.should.be.equal(1);
@@ -103,7 +104,7 @@ describe('DbManager tests',function(){
 		describe('Retrieve all Poceedings',function(){
 			describe('Call method',function(){
 				it('should execute without error',function(done){
-					dbmanager.getProceeding({},function(res){result= res;done();})
+					dbmanager.get({},linker.proceedingRepr,function(res){result= res;done();})
 				})
 			})
 			describe('Analyse result',function(){
@@ -128,19 +129,19 @@ describe('DbManager tests',function(){
 
 			describe('Call method',function(){
 				it('should execute withour error',function(done){
-					//dbmanager.postProceeding(proceeding, function(res) {response = res; done();});//repsonse holds id 
+					//dbmanager.post(proceeding,linker.proceedingRepr ,function(res) {response = res; done();});//repsonse holds id 
 					done(new Error("Not executed"));
 				})
 				it('query should have succeeded',function(){
 					response.should.be.a.number;
 				})
 			})
-			describe('Check database for newly added disicpline',function(){
+			describe('Check database for newly added proceeding',function(){
 				var result;
-				it('query should search the new discipline',function(done){
-					dbmanager.getProceeding({id: response.toString()},function(res){result= res;done();}) 
+				it('query should search the new proceeding',function(done){
+					dbmanager.get({id: response.toString()},linker.proceedingRepr,function(res){result= res;done();}) 
 				});
-				it('database should hold the new discipline',function(){throw new Error("remove this error if deleteProceeding is implemented")
+				it('database should hold the new proceeding',function(){throw new Error("remove this error if deleteProceeding is implemented")
 					result[0].should.have.property('id',response.toString());
 					result[0].should.have.property('name','TestProceeding');
 					result[0].should.have.property('rank','0');
@@ -148,8 +149,8 @@ describe('DbManager tests',function(){
 			})
 		});
 		describe('deleteProceeding method test',function(){
-			it('should now delete the previously added discipline',function(done){
-				dbmanager.deleteProceeding({id:response.toString()},function(res){response = res; done();})
+			it('should now delete the previously added proceeding',function(done){
+				dbmanager.delete({id:response.toString()},linker.proceedingRepr,function(res){response = res; done();})
 			})
 			it('should have deleted without error',function(){
 				//response.affectedRows.should.be.equal(1);

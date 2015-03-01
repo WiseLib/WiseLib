@@ -1,6 +1,6 @@
 var should = require('should');
-var DBManager = require('../lib/dbmanager.js');
-var config = require('../config.json');
+var DBManager = require('../../lib/dbmanager.js');
+var config = require('../../config.json');
 
 /**
  * This checks the executeQuery methods defined in the dbmanager.

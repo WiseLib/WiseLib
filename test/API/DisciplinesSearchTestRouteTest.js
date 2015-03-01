@@ -1,12 +1,12 @@
 var should = require('should');
 var discipline = require('./discipline_test.js');
-var server = require('../lib/routes.js');
+var server = require('../../lib/routesFunctions.js');
 var Client = require('mariasql');
 
 /**
- * This test checks the getDisiciplines method, a function which returns a list, in JSON format, of a disciplines defined in the database.
+ * This test checks the getDisiciplines route, a function which returns a list, in JSON format, of a disciplines defined in the database.
  * The the test calls the function, if the function succeeds the answer get compared to the known number of disciplines present in the database.
- * If the returned answer is equal to the known number the test succeeds, if not, an assertion error is thrown.
+ * If the returned answer is equal to the known number, the test succeeds, if not, an assertion error is thrown.
  * 
  * @test
  */
@@ -20,7 +20,7 @@ describe ('Retrieve list of disciplines from server database',function(){
 				var request = new discipline.fakerequest({});
 				try{
 
-					server['/disciplines.json']['get'](request,response);
+					server.getDisciplines(request,response);
 				}
 				catch(x)
 				{
@@ -47,7 +47,7 @@ describe ('Retrieve list of disciplines from server database',function(){
 				var request = new discipline.fakerequest({id: '1'});
 				try{
 
-					server['/disciplines.json']['get'](request,response);
+					server.getDisciplines(request,response);
 				}
 				catch(x)
 				{
