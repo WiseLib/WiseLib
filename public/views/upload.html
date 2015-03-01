@@ -78,16 +78,20 @@
 <div class="form-group" ng-show="type == 'Proceeding'">
     <label class="control-label col-xs-1">Select a Proceeding</label>
     <div class="col-xs-10">
-        <!--<input id="proceeding" type="text" ng-model="proceeding.name">
-        <select ng-model="proceeding" ng-options="possibleProceeding as possibleProceeding.name for possibleProceeding in fetcher.fetchProceedings(proceeding)">
-        </select>-->
-        <md-autocomplete
+        <input id="proceeding" type="text" ng-model="searchproceeding.name">
+         <ul>
+        <li ng-click="chooseProceeding(possibleProceeding);showProcAdded = !showProcAdded" ng-repeat="possibleProceeding in fetcher.fetchProceedings(searchproceeding)">
+            <proceedingmin proceeding="possibleProceeding"></proceedingmin>
+            <div ng-show="showProcAdded">Selected</div>
+        </li>
+        </ul>
+        <!--<md-autocomplete
         md-selected-item="proceeding"
         md-items="possibleProceeding in fetcher.fetchProceedings(searchProc)"
-        md-search-text="searchProc"
+        md-search-text="searchProc.name"
         md-item-text="possibleProceeding.name"
         placeholder="Choose a proceeding"> <span md-highlight-text="searchProc">{{possibleProceeding.name}}</span>
-    </md-autocomplete> 
+    </md-autocomplete> -->
 </div>
 </div>
 <div class="form-group" ng-show="type == 'Proceeding'">
@@ -114,9 +118,9 @@
 
     <input id="searchjournal" type="text" ng-model="searchjournal.name">
     <ul>
-        <li ng-click="chooseJournal(possibleJournal);showAdded = !showAdded" ng-repeat="possibleJournal in fetcher.fetchJournals(searchjournal)">
+        <li ng-click="chooseJournal(possibleJournal);showJourAdded = !showJourAdded" ng-repeat="possibleJournal in fetcher.fetchJournals(searchjournal)">
             <proceedingmin proceeding="possibleJournal"></proceedingmin>
-            <div ng-show="showAdded">Selected</div>
+            <div ng-show="showJourAdded">Selected</div>
         </li>
     </ul>
 

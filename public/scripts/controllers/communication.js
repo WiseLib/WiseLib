@@ -52,26 +52,15 @@ angular.module('communication', [])
             return fetchForClass('Person', params).persons;}
         };
 
-    var dummydata = [ {//outside of fetchProceeding to prevent infinite digest error
-            id: 1,
-            name: 'first proceeding',
-            rank: 12.3
-        },
-        {
-            id: 2,
-            name: 'second proceeding',
-            rank: 11.2
-        }];
-
     var fetchProceedings = function (params) {
         //for now, return dummy data
-
+        if(params){
         if (classesParams.Proceeding !== JSON.stringify(params)) {
-            classes.Proceeding = dummydata;
-            //classesParams.Proceeding = params;
+            classesParams.Proceeding = params;
         }
-        return classes.Proceeding;
-        //return fetchForClass('Proceeding', params);
+        var proceeding=  fetchForClass('Proceeding', params);
+        return proceeding.proceedings;
+    }
     };
 
     var fetchJournals = function (params) {
