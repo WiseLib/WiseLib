@@ -7,8 +7,8 @@ angular.module('myPublications', [])
     $scope.error = null;
 
     var token = $window.sessionStorage.token;
-    var userId = parseInt(atob(token.split('.')[1]), 10);
-    Publication.query({id: userId}, function(data) {
+    var user = JSON.parse(atob(token.split('.')[1]));
+    Publication.query({id: user.id}, function(data) {
         console.log('got data!');
         console.log(data);
         if(data.publications.length > 0) {
