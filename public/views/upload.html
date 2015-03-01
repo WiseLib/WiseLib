@@ -54,98 +54,76 @@
 <input ng-hide="true" id="uploadpdf" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadpdf(this.files)"/>
 </p>
 
-<div class="form-group">
-
-    <label for="Discipline" class="col-xs-1 control-label">Add disciplines</label>
-    <div class="col-xs-10">
-        <!--Werkt pas vanaf versie 0.8-->
+    <div class="form-block">
+        <h4>Add disciplines</h4>
         <md-select ng-model="selectedDiscipline" placeholder="Discipline">
-        <md-option ng-value="discipline" ng-repeat="discipline in fetcher.fetchDisciplines({})">{{ discipline.name }}</md-option>
-    </md-select>
-    <md-button class="btn btn-primary" ng-click="add(disciplines, selectedDiscipline)">Add</md-button><br><br>
-    <label ng-show="disciplines.length > 0">Selected disciplines:</label>
-    <md-list>
-    <md-item ng-repeat="disc in disciplines">
-    <md-item-content>
-    <p>{{disc.name}}</p>
-</md-item-content>
-</md-item>
-</md-list>
-
-</div>
-</div>
-
-<md-radio-group ng-model="type">
-<label>Publication type</label>
-<md-radio-button value="Journal">Journal</md-radio-button>
-<md-radio-button value="Proceeding">Proceeding</md-radio-button>
-</md-radio-group>
-<div class="form-group" ng-show="type == 'Proceeding'">
-    <label class="control-label col-xs-1">Select a Proceeding</label>
-    <div class="col-xs-10">
-        <input id="proceeding" type="text" ng-model="searchproceeding.name">
-         <ul>
-        <li ng-click="chooseProceeding(possibleProceeding);showProcAdded = !showProcAdded" ng-repeat="possibleProceeding in fetcher.fetchProceedings(searchproceeding)">
-            <proceedingmin proceeding="possibleProceeding"></proceedingmin>
-            <div ng-show="showProcAdded">Selected</div>
-        </li>
+            <md-option ng-value="discipline" ng-repeat="discipline in fetcher.fetchDisciplines({})">{{ discipline.name }}</md-option>
+        </md-select>
+        <md-button class="btn btn-primary" ng-click="add(disciplines, selectedDiscipline)">Add</md-button>
+        <h4 ng-show="disciplines.length > 0">Selected Disciplines</h4>
+        <ul class="choices chosen">
+            <li ng-repeat="disc in disciplines">
+                <p ng-click="remove(disciplines, disc)">{{disc.name}}</p>
+            </li>
         </ul>
-        <!--<md-autocomplete
-        md-selected-item="proceeding"
-        md-items="possibleProceeding in fetcher.fetchProceedings(searchProc)"
-        md-search-text="searchProc.name"
-        md-item-text="possibleProceeding.name"
-        placeholder="Choose a proceeding"> <span md-highlight-text="searchProc">{{possibleProceeding.name}}</span>
-    </md-autocomplete> -->
-</div>
-</div>
-<div class="form-group" ng-show="type == 'Proceeding'">
-
-    <md-input-container >
-    <label>Editors</label>
-    <input id="city" type="text" ng-model="editors">
-</md-input-container>
-
-<md-input-container >
-    <label>Publisher</label>
-    <input id="city" type="text" ng-model="publisher">
-</md-input-container>
-
-</div>
-<md-input-container ng-show="type == 'Proceeding'">
-<label>City</label>
-<input id="city" type="text" ng-model="city">
-</md-input-container>
-
-
-<div ng-show="type == 'Journal'">
-    <label for="searchjournal">Search a Journal</label>
-
-    <input id="searchjournal" type="text" ng-model="searchjournal.name">
-    <ul>
-        <li ng-click="chooseJournal(possibleJournal);showJourAdded = !showJourAdded" ng-repeat="possibleJournal in fetcher.fetchJournals(searchjournal)">
-            <proceedingmin proceeding="possibleJournal"></proceedingmin>
-            <div ng-show="showJourAdded">Selected</div>
-        </li>
-    </ul>
-
-    <!--<md-autocomplete
-        md-selected-item="journal"
-        md-items="possibleJournal in fetcher.fetchJournals(searchjournal)"
-        md-search-text="searchjournal.name"
-        md-item-text="possibleJournal.name"
-        placeholder="Choose a Journal"> <span md-highlight-text="searchjournal">{{possibleJournal.name}}</span>
-    </md-autocomplete> -->
-
-</div>
-<md-input-container ng-show="type == 'Journal'">
-<label>Volume</label>
-<input type="number" ng-model="volume">
-</md-input-container>
-<md-input-container ng-show="type == 'Journal'">
-<label>Number</label>
-<input type="number" ng-model="number">
-</md-input-container>
+    </div>
+    <div class="form-block">
+        <h4>Publication type</h4>
+        <md-radio-group ng-model="type">
+            <md-radio-button value="Journal">Journal</md-radio-button>
+            <md-radio-button value="Proceeding">Proceeding</md-radio-button>
+        </md-radio-group>
+        <div ng-show="type == 'Proceeding'">
+            <md-input-container>
+                <label>Search a Proceeding</label>
+                <input id="proceeding" type="text" ng-model="searchproceeding.name">
+            </md-input-container>
+            <ul class="choices">
+                <li ng-click="chooseProceeding(possibleProceeding)" ng-repeat="possibleProceeding in fetcher.fetchProceedings(searchproceeding)">
+                    <proceedingmin proceeding="possibleProceeding"></proceedingmin>
+                </li>
+            </ul>
+            <div ng-show="proceeding !== undefined">
+                <h4>Selected Proceeding</h4>
+                <proceedingmin proceeding="proceeding"></proceedingmin>
+            </div>
+            <md-input-container >
+                <label>Editors</label>
+                <input id="city" type="text" ng-model="editors">
+            </md-input-container>
+            <md-input-container >
+                <label>Publisher</label>
+                <input id="publisher" type="text" ng-model="publisher">
+            </md-input-container>
+            <md-input-container>
+                <label>City</label>
+                <input id="city" type="text" ng-model="city">
+            </md-input-container>
+        </div>
+        <div ng-show="type == 'Journal'">
+            <md-input-container>
+                <label for="searchjournal">Search a Journal</label>
+                <input id="searchjournal" type="text" ng-model="searchjournal.name">
+            </md-input-container>
+            <ul class="choices">
+                <li ng-click="chooseJournal(possibleJournal)" ng-repeat="possibleJournal in fetcher.fetchJournals(searchjournal)">
+                    <proceedingmin proceeding="possibleJournal"></proceedingmin>
+                </li>
+            </ul>
+            <div ng-show="journal !== undefined">
+                <h4>Selected Journal</h4>
+                <proceedingmin proceeding="journal"></proceedingmin>
+            </div>
+            <md-input-container>
+                <label>Volume</label>
+                <input type="number" ng-model="volume">
+            </md-input-container>
+            <md-input-container>
+                <label>Number</label>
+                <input type="number" ng-model="number">
+            </md-input-container>
+        </div>
+    </div>
 
 <div layout layout-sm="column">
     <md-input-container>
