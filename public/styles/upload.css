@@ -19,3 +19,30 @@ p.uploadfield{
 .reserve-tooltip-space {
 	margin-bottom: 35px;
 }
+
+.form-block {
+	margin: 1em;
+	padding: 1em;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #BDBDBD;
+}
+
+.form-block h4 {
+	width: 100%;
+}
+
+.choices {
+	width: 100%;
+	list-style-type: none;
+	padding-left: 0px;
+	margin-left: 0px;
+}
+
+.choices li:hover {
+	background-color: #E8F5E9;
+}
+
+.chosen li:hover {
+	background-color: #FFEBEE;
+}
