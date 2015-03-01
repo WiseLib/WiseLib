@@ -2,18 +2,14 @@
 
 angular.module('editUser', [])
 
-.controller('updateUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
+.controller('updateUserController', function($scope, $window, $location, Page, $mdToast, AuthenticationService, User, Person) {
     Page.setTitle('Update profile');
     $scope.userForm = {};
-    $scope.persons = [];
-    $scope.userForm.profileImageSrc = '';
+    $scope.personForm = {};
 
     //feedback after clicking the submit button
     $scope.successMessage = '';
     $scope.errorMessage = '';
-
-    $scope.$watch('userForm.firstName', function () {$scope.searchPersons(); });
-    $scope.$watch('userForm.lastName', function () {$scope.searchPersons(); });
 
     /**
     * Load image to show preview of profile image to upload and use
@@ -33,39 +29,22 @@ angular.module('editUser', [])
     };
 
     /**
-     * Sends a request (if necessary) to the server to search for a person
-     * @return {None}
-     */
-    $scope.searchPersons = function() {
-        $scope.userForm.personId = undefined;
-        $scope.persons = []; //Reset found persons list
-        if (!$scope.userForm.firstName || !$scope.userForm.lastName || $scope.userForm.firstName.length < 3 || $scope.userForm.lastName.length < 3) {return; } //Don't search if first or last name is too short
-        Person.query({firstName: $scope.userForm.firstName, lastName: $scope.userForm.lastName}, function(data) {
-            $scope.persons = data.persons;
-        }, function(error) {console.log('error! ' + error); });
-    };
-
-    /**
    * Sends a request to the server to register a user using form input
    * @return {None}
    */
-    $scope.createUser = function () {
-        console.log(User);
-        var newUser = new User($scope.userForm);
-        newUser.$save(function(data) { //Success
-            console.log('logged in!');
-            AuthenticationService.isAuthenticated = true;
-            $window.sessionStorage.token = data.token;
-            $location.path('/restricted');
+    $scope.update = function (form, service) {
+        service.put(form,
+        function(data) { //Success
             $mdToast.show({
                 controller: 'ToastCtrl',
                 templateUrl: '../views/feedback-toast.html',
                 hideDelay: 6000,
                 position: 'top right',
-                locals: {text: 'Succesfully registered',
+                locals: {text: 'Saved Changes',
                          error: false}
             });
-        }, function(data) { //Error
+        }, 
+        function(data) { //Error
             $mdToast.show({
                 controller: 'ToastCtrl',
                 templateUrl: '../views/feedback-toast.html',
@@ -75,6 +54,19 @@ angular.module('editUser', [])
                          error: true}
             });
         });
+    };
+
+    $scope.updateUser = function() {
+        var token = $window.sessionStorage.token;
+        var user = JSON.parse(atob(token.split('.')[1]));
+        $scope.userForm.id = user.id;
+        $scope.update($scope.userForm, User);
+    };
+    $scope.updatePerson = function() {
+        var token = $window.sessionStorage.token;
+        var user = JSON.parse(atob(token.split('.')[1]));
+        $scope.personForm.id = user.personId.id;
+        $scope.update($scope.personForm, Person);
     };
 
 });

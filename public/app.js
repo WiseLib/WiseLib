@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'addPublication', 'publication', 'loginUser', 'ngResource', 'user', 'person', 'myPublications'])
+angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'addPublication', 'publication', 'loginUser', 'editUser', 'ngResource', 'user', 'person', 'myPublications'])
 
 /**
  * Configure the Routes
@@ -18,7 +18,7 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'addUser', 'addPublication', 
         controller: 'registerUserController'
     })
     .when('/update', {
-        templateUrl: 'views/update.html', 
+        templateUrl: 'views/updateUser.html', 
         controller: 'updateUserController'
     })
     .when('/upload', {
