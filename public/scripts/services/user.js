@@ -1,25 +1,28 @@
-var user = angular.module('user', []);
+'use strict';
 
-user.factory('User', function($resource) {
+angular.module('user', [])
+
+.factory('User', function($resource) {
     return $resource('/user.json');
-});
-user.factory('AuthenticationService', function() {
+
+.factory('AuthenticationService', function() {
     var auth = {
         isAuthenticated: false
-    }
+    };
     return auth;
-});
-user.factory('UserService', function($http) {
+})
+
+.factory('UserService', function($http) {
     return {
         logIn: function(email, password) {
             return $http.post('/users/login.json', {email: email, password: password});
         },
         logOut: function() {
         }
-    }
-});
+    };
+})
 
-user.factory('TokenInterceptor', function ($q, $window, $location, AuthenticationService) {
+.factory('TokenInterceptor', function ($q, $window, $location, AuthenticationService) {
     return {
         request: function (config) {
             config.headers = config.headers || {};
@@ -35,8 +38,7 @@ user.factory('TokenInterceptor', function ($q, $window, $location, Authenticatio
 
         /* Set Authentication.isAuthenticated to true if 200 received */
         response: function (response) {
-            if (response != null && response.status == 200 && $window.sessionStorage.token && !AuthenticationService.isAuthenticated) {
-                console.log('Congrats, you\'re auth\'ed');
+            if (response !== null && response.status === 200 && $window.sessionStorage.token && !AuthenticationService.isAuthenticated) {
                 AuthenticationService.isAuthenticated = true;
             }
             return response || $q.when(response);
@@ -44,10 +46,10 @@ user.factory('TokenInterceptor', function ($q, $window, $location, Authenticatio
 
         /* Revoke client authentication if 401 is received */
         responseError: function(rejection) {
-            if (rejection != null && rejection.status === 401 && ($window.sessionStorage.token || AuthenticationService.isAuthenticated)) {
+            if (rejection !== null && rejection.status === 401 && ($window.sessionStorage.token || AuthenticationService.isAuthenticated)) {
                 delete $window.sessionStorage.token;
                 AuthenticationService.isAuthenticated = false;
-                $location.path("/login");
+                $location.path('/login');
             }
 
             return $q.reject(rejection);

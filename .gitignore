@@ -11,3 +11,7 @@ config.json
 /lib/secret.js
 /.sublime-gulp.cache
 /uploads
+/.travis/deploy_key
+/config.json
+/uploads
+/.sublime-gulp.cache

@@ -1,6 +1,8 @@
-var addUser = angular.module('addUser', []);
+'use strict';
 
-addUser.controller('manageUserController', function ($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
+angular.module('addUser', [])
+
+.controller('manageUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
     'use strict';
     Page.setTitle('Register');
     $scope.userForm = {};
@@ -70,7 +72,7 @@ addUser.controller('manageUserController', function ($scope, $http, $window, $lo
                 templateUrl: '../views/feedback-toast.html',
                 hideDelay: 6000,
                 position: 'top right',
-                locals: {text: 'Error: ' + data,
+                locals: {text: 'Error: ' + data.error,
                          error: true}
             });
         });

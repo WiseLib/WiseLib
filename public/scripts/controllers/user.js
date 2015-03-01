@@ -1,8 +1,9 @@
 'use strict';
-var module = angular.module('publication', ['communication', 'ngMaterial']);
 
-module.controller('uploadPublicationController', ['$http', 'fetcher', 'Page', function ($http, fetcher, Page) {
-    Page.setTitle('Upload publication');
+angular.module('user', ['communication', 'proceeding', 'ngMaterial'])
+
+.controller('uploadUserController', ['$http', 'fetcher', 'Page', function ($http, fetcher, Page) {
+    Page.setTitle('Upload user');
     this.authors = [];
     this.disciplines = [];
     this.fetcher = fetcher;
@@ -35,7 +36,7 @@ module.controller('uploadPublicationController', ['$http', 'fetcher', 'Page', fu
             discArray[i] = {id: this.disciplines[i].id};
         }
         var authArray = new Array(this.authors.length);
-        for (var i = 0; i < this.authors.length; i++) {
+        for (i = 0; i < this.authors.length; i++) {
             authArray[i] = {id: this.authors[i].id};
         }
         toPost.disciplines = discArray;
@@ -53,26 +54,6 @@ module.controller('uploadPublicationController', ['$http', 'fetcher', 'Page', fu
             toPost.city = this.city;
         }
         console.log('POST : ' + JSON.stringify(toPost));
-        $http.post('users/1/publications.json', toPost);
+        $http.post('users/1/users.json', toPost);
     };
 }]);
-module.directive('personmin', function () {
-    var directive = {};
-    directive.restrict = 'E';
-    directive.scope = {
-        person: '=person'
-    };
-
-    directive.templateUrl = './views/person-min.html';
-    return directive;
-});
-module.directive('proceedingmin', function () {
-    var directive = {};
-    directive.restrict = 'E';
-    directive.scope = {
-        proceeding: '=proceeding'
-    };
-
-    directive.templateUrl = './views/proceeding-min.html';
-    return directive;
-});
