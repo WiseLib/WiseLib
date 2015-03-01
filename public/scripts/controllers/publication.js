@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial']);
 
-module.controller('uploadPublicationController', function ($scope,$http, fetcher, Page,$mdToast, Person) {
+module.controller('uploadPublicationController', function ($scope,$http, fetcher, Page,$mdToast,  $window ,Person) {
 
     Page.setTitle('Upload publication');
     $scope.authors = [];
@@ -130,7 +130,10 @@ module.controller('uploadPublicationController', function ($scope,$http, fetcher
             toPost.publisher = $scope.publisher;
             toPost.city = $scope.city;
         }
-        console.log('POST : ' + JSON.stringify(toPost));
-        //$http.post('users/1/publications.json', toPost);
+
+        var token = $window.sessionStorage.token;
+        var userId = parseInt(atob(token.split('.')[1]), 10);
+        console.log('POST to('+userId +'): ' + JSON.stringify(toPost));
+        //$http.post('users/'+userId+'/publications.json', toPost);
     };
 });
