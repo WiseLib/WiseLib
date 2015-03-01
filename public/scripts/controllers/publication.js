@@ -1,57 +1,109 @@
 'use strict';
+var module = angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial']);
 
-angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
+module.controller('uploadPublicationController', function ($scope,$window,$http, fetcher, Page,$mdToast,Person) {
 
-.controller('uploadPublicationController', ['$scope','$http', 'fetcher', 'Page', function ($scope,$http, fetcher, Page, Person) {
     Page.setTitle('Upload publication');
     $scope.authors = [];
     $scope.disciplines = [];
+    $scope.references = [];
+    $scope.JSONreferences = [];
     $scope.fetcher = fetcher;
 
     $scope.chooseJournal = function(jour){
         $scope.journal = jour;
-    };
+    }
+
+    $scope.chooseProceeding = function(proc){
+        $scope.proceeding = proc;
+    }
 
     $scope.add = function (array, element) {
         if (array.indexOf(element) === -1) {
             array.push(element);
-            console.log('added ' + element.name + ' to ' + JSON.stringify(array));
         }
-        console.log('called add with ' + JSON.stringify(element) + ' and ' + JSON.stringify(array));
     };
 
     $scope.remove = function (array, element) {
-        var i = $scope.authors.indexOf(element);
+        var i = array.indexOf(element);
         if (i > -1) {
-            $scope.authors.splice(i, 1);
-            console.log('removed ' + JSON.stringify(element) + ' from ' + JSON.stringify(array));
+            array.splice(i, 1);
         }
-        console.log('called remove with ' + JSON.stringify(element) + ' and ' + JSON.stringify(array));
     };
 
-    $scope.upload = function(files){
+    $scope.showSimpleToast = function(text) {
+    $mdToast.show(
+      $mdToast.simple()
+        .content(text)
+        .position('top right')
+        .hideDelay(3000)
+    );
+  };
+
+    $scope.uploadpdf = function(files){
+
         var fd = new FormData();
-        fd.append('file', files[0]);
+        fd.append("file", files[0]);
 
         $http.post('uploadfile', fd, {
-            withCredentials: true,
-            headers: {'Content-Type': undefined },
-            transformRequest: angular.identity
+        withCredentials: true,
+        headers: {'Content-Type': undefined },
+        transformRequest: angular.identity
         }).
         success(function(data, status, headers, config) {
-            $scope.localfile = true;
-            $scope.title = data.title;
-            $scope.numberOfPages=data.numberofpages;
-            $scope.url = data.path;
 
-            var index;
-            for (index = 0; index < data.authors.length; ++index) {
-                $scope.add($scope.authors,data.authors[index]);
-            }
+        $scope.localfile = true;
 
-        }).error(function(data, status, headers, config) {
+        $scope.title = data.title;
+        $scope.numberOfPages=data.numberofpages;
+        $scope.url = data.path;
+
+        $scope.authors = [];
+        var index;
+        for (index = 0; index < data.authors.length; ++index) {
+            $scope.add($scope.authors,data.authors[index]);
+        }   
+
+
+        }).
+        error(function(data, status, headers, config) {
+        $scope.showSimpleToast("Not a pdf");
         });
-    };
+
+    }
+
+    $scope.uploadbibtex = function(files){
+
+        var fd = new FormData();
+        fd.append("file", files[0]);
+
+        $http.post('uploadfile', fd, {
+        withCredentials: true,
+        headers: {'Content-Type': undefined },
+        transformRequest: angular.identity
+        }).
+        success(function(data, status, headers, config) {
+
+        
+
+        var index;
+        $scope.JSONreferences=[];
+        $scope.references=[];
+        for (index = 0; index < data.length; ++index) {
+            var reference = data[index];
+            $scope.add($scope.JSONreferences,reference);
+
+            var title = reference.entryTags.title;
+            $scope.add($scope.references,title);
+        }   
+
+
+        }).
+        error(function(data, status, headers, config) {
+            $scope.showSimpleToast("Not a bibtex");
+        });
+
+    }
 
     $scope.post = function () {
         var toPost = {};
@@ -59,16 +111,18 @@ angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
         toPost.numberOfPages = $scope.numberOfPages;
         toPost.year = $scope.year;
         toPost.url = $scope.url;
+        toPost.abstract = $scope.abstract;
         var discArray = new Array($scope.disciplines.length);
         for (var i = 0; i < $scope.disciplines.length; i++) {
             discArray[i] = {id: $scope.disciplines[i].id};
         }
         var authArray = new Array($scope.authors.length);
-        for (i = 0; i < $scope.authors.length; i++) {
+        for (var i = 0; i < $scope.authors.length; i++) {
             authArray[i] = {id: $scope.authors[i].id};
         }
         toPost.disciplines = discArray;
         toPost.authors = authArray;
+        toPost.references = $scope.JSONreferences;
         toPost.type = $scope.type;
         if ($scope.type === 'Journal') {
             toPost.journalId = $scope.journal.id;
@@ -81,7 +135,11 @@ angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial'])
             toPost.publisher = $scope.publisher;
             toPost.city = $scope.city;
         }
-        console.log('POST : ' + JSON.stringify(toPost));
-        //$http.post('users/1/publications.json', toPost);
+
+        var token = $window.sessionStorage.token;
+        var userId = parseInt(atob(token.split('.')[1]), 10);
+        toPost.uploader = userId;
+        //console.log('POST to('+userId +'): ' + JSON.stringify(toPost));
+        $http.post('users/'+userId+'/publications.json', toPost);
     };
-}]);
+});

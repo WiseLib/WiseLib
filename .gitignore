@@ -9,3 +9,4 @@ img/**/*
 /config.json
 /uploads
 /.sublime-gulp.cache
+lib/config.json
