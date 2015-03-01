@@ -1,9 +1,0 @@
-{
-  "database": {
-    "type": "mariasql",
-    "host": "wilma.vub.ac.be",
-    "user": "se2_1415",
-    "password": "Bacci98Goft",
-    "db": "se2_1415"
-  }
-}
