@@ -18,16 +18,20 @@
             <label ng-hide="localfile" >URL</label>
             <input ng-hide="localfile" id="url"  ng-model="url">
         </md-input-container>
+        <md-input-container>
+            <label>Abstract</label>
+            <textarea ng-model="abstract" columns="1" md-maxlength="500"></textarea>
+        </md-input-container>
     </div>
     
     <div layout layout-sm="column" class="form-block" layout-wrap>
         <h4>Co Authors</h4>
         <md-input-container>
-            <label>firstname</label>
+            <label>First Name</label>
             <input id="firstname" type="text" class="form-control" ng-model="possibleAuthor.firstName" label="First name">
         </md-input-container>
         <md-input-container>
-            <label>lastname</label>
+            <label>Last Name</label>
             <input id="lastname" type="text" class="form-control" ng-model="possibleAuthor.lastName" label="Last name">
         </md-input-container>
         <ul class="choices"> 
@@ -55,7 +59,7 @@
 </p>
 
     <div class="form-block">
-        <h4>Add disciplines</h4>
+        <h4>Add Disciplines</h4>
         <md-select ng-model="selectedDiscipline" placeholder="Discipline">
             <md-option ng-value="discipline" ng-repeat="discipline in fetcher.fetchDisciplines({})">{{ discipline.name }}</md-option>
         </md-select>
@@ -125,19 +129,20 @@
         </div>
     </div>
 
-<div layout layout-sm="column">
-    <md-input-container>
-    <label>References</label>
-    <input id="reference" type="text" class="form-control" ng-model="possiblereference" label="Reference"></input>
-</md-input-container>
-<md-button class="btn btn-primary" ng-click="add(references, possiblereference)">Add</md-button>
-</div>
-
-<br><br>
-<div ng-repeat="reference in references">
-    {{reference}}
-    <md-button ng-click="remove(references, reference)">Remove</md-button>
-</div>
+    <div layout layout-sm="column" layout-wrap class="form-block">
+        <h4>Add References</h4>
+        <md-input-container>
+            <label>References</label>
+            <input id="reference" type="text" class="form-control" ng-model="possiblereference" label="Reference">
+        </md-input-container>
+        <md-button class="btn btn-primary" ng-click="add(references, possiblereference)">Add</md-button>
+        <h4 ng-show="references.length > 0">Selected References</h4>
+        <ul class="choices chosen">
+            <li ng-repeat="reference in references">
+                <p ng-click="remove(references, reference)">{{reference}}</p>
+            </li>
+        </ul>
+    </div>
 
 <p class="uploadfield">
     <span class="label">Add references, or upload a bibtex file</span>
@@ -150,8 +155,10 @@
 <input ng-hide="true" id="uploadbib" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadbibtex(this.files)"/>
 </p>
 
-<md-button class="btn btn-primary reserve-tooltip-space" ng-disabled="postPublicationForm.$invalid" ng-click="post()">
-<!-- md-direction doesn't work in this version of angular-material. Temporary fix in the css file -->
-<md-tooltip md-direction="top">Upload your publication</md-tooltip>Send</md-button>
+    <md-button class="md-raised md-primary reserve-tooltip-space" ng-disabled="postPublicationForm.$invalid" ng-click="post()">
+    <!-- md-direction doesn't work in this version of angular-material. Temporary fix in the css file -->
+        <md-tooltip md-direction="top">Upload your publication</md-tooltip>
+        Send
+    </md-button>
 </form>
-</div>
+</md-content>

@@ -111,6 +111,7 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
         toPost.numberOfPages = $scope.numberOfPages;
         toPost.year = $scope.year;
         toPost.url = $scope.url;
+        toPost.abstract = $scope.abstract;
         var discArray = new Array($scope.disciplines.length);
         for (var i = 0; i < $scope.disciplines.length; i++) {
             discArray[i] = {id: $scope.disciplines[i].id};
@@ -137,7 +138,8 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
 
         var token = $window.sessionStorage.token;
         var userId = parseInt(atob(token.split('.')[1]), 10);
-        console.log('POST to('+userId +'): ' + JSON.stringify(toPost));
-        //$http.post('users/'+userId+'/publications.json', toPost);
+        toPost.uploader = userId;
+        //console.log('POST to('+userId +'): ' + JSON.stringify(toPost));
+        $http.post('users/'+userId+'/publications.json', toPost);
     };
 });
