@@ -4,6 +4,7 @@ angular.module('person', [])
 
 .factory('Person', function($resource) {
 	return $resource('/persons.json', {}, {
-		query: { method: 'GET', isArray: false }
+		query: { method: 'GET', isArray: false },
+		put: {method: 'PUT'}
 	});
 });

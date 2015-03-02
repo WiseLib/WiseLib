@@ -1,0 +1,30 @@
+<md-content layout="column">
+	<form name="userForm" ng-submit="updateUser()" layout="column">
+		<div class="form-block">
+			<h4>User Settings</h4>
+			<md-input-container>
+				<label>Email</label>
+				<input type="email" name="email" ng-model="userForm.email">
+			</md-input-container>
+			<md-input-container>
+				<label>Password</label>
+				<input type="password" name="password" ng-minlength="8" ng-model="userForm.password">
+			</md-input-container>
+		</div>
+		<md-button type="submit" class="md-raised md-primary" ng-disabled="userForm.$invalid">Save Changes</md-button>
+	</form>
+	<form ng-submit="updatePerson()" layout="column" name="personForm">
+		<div class="form-block">
+			<h4>Personal Settings</h4>
+			<md-input-container>
+				<label>First Name</label>
+				<input type="text" name="firstName" ng-model="personForm.firstName">
+			</md-input-container>
+			<md-input-container>
+				<label>Last Name</label>
+				<input type="text" name="lastName" ng-model="personForm.lastName">
+			</md-input-container>
+		</div>
+		<md-button type="submit" class="md-raised md-primary" ng-disabled="personForm.$invalid">Save Changes</md-button>
+	</form>
+</md-content>

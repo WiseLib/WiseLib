@@ -3,7 +3,9 @@
 angular.module('user', [])
 
 .factory('User', function($resource) {
-    return $resource('/user.json');
+    return $resource('/user.json', {}, {
+        put: {method: 'PUT'}
+    });
 })
 
 .factory('AuthenticationService', function() {

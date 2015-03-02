@@ -2,8 +2,7 @@
 
 angular.module('addUser', [])
 
-.controller('manageUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
-    'use strict';
+.controller('registerUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
     Page.setTitle('Register');
     $scope.userForm = {};
     $scope.persons = [];
