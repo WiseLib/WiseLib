@@ -49,7 +49,7 @@ angular.module('editUser', [])
         console.log(JSON.stringify($scope.userEditForm));
         var token = $window.sessionStorage.token;
         var user = JSON.parse(atob(token.split('.')[1]));
-        $scope.userEditForm.id = user.id;
+        $scope.userEditForm.id = user;
         $scope.update(filterEmpty($scope.userEditForm), User);
     };
     $scope.updatePerson = function() {
