@@ -1,7 +1,10 @@
 'use strict';
 var module = angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial']);
 
-module.controller('uploadPublicationController', function ($scope,$window,$http, fetcher, Page,$mdToast,Person) {
+module.controller('uploadPublicationController', function ($scope,$window,$http, fetcher, Page,$mdToast,Person,$location) {
+
+    var token = $window.sessionStorage.token;
+    var user = JSON.parse(atob(token.split('.')[1]));
 
     Page.setTitle('Upload publication');
     $scope.authors = [];
@@ -58,7 +61,7 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
         $scope.numberOfPages=data.numberofpages;
         $scope.url = data.path;
 
-        $scope.authors = [];
+        $scope.authors = [user.personId];
         var index;
         for (index = 0; index < data.authors.length; ++index) {
             $scope.add($scope.authors,data.authors[index]);
@@ -136,10 +139,15 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
             toPost.city = $scope.city;
         }
 
-        var token = $window.sessionStorage.token;
-        var userId = parseInt(atob(token.split('.')[1]), 10);
-        toPost.uploader = userId;
-        //console.log('POST to('+userId +'): ' + JSON.stringify(toPost));
-        $http.post('users/'+userId+'/publications.json', toPost);
+        
+        toPost.uploader = user.id;
+        //console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
+        $http.post('users/'+user.id+'/publications.json', toPost)
+        .success(function(data, status, headers, config) {
+            $location.path('/mypublications') 
+        })
+        .error(function(data, status, headers, config) {
+            $scope.showSimpleToast("Something went wrong:" + status);
+        });
     };
 });
