@@ -84,7 +84,7 @@ describe('getDisciplines method test',function(){
 	//post/deleteDiscipline
 	describe ('Post and Delete discipline test',function(){
 		var response = 7;
-		var parentDiscipline = {name: 'TestDiscipline' , parentId: '1'};//discipline with parent
+		var parentDiscipline = {name: 'TestDiscipline' , parent: '1'};//discipline with parent
 		var discipline = {name:'TestDiscipline' , parentId : 'NULL' }; //discipline without parent
 
 		describe('postDiscipline method test',function(){

@@ -1,7 +1,9 @@
 var should = require('should');
 var User = require('./user_test.js');
-var server = require('../../lib/routes.js');//Every method is still in routes
+var server = require('../../lib/routesFunctions.js');//Every method is still in routes
 var Client = require('mariasql');
+var c = new Client();
+var configuration = require('../../config.json')
 
 /**
  * This test checks the post User route,to test the API.
@@ -12,28 +14,28 @@ var Client = require('mariasql');
  * @test
  */
 
- function removeUser(client,id){ //temporary remove user function TODO use the one from route?
+ function removeUser(id){ //temporary remove user function TODO use the one from route?
 
  	var query = 'DELETE FROM user where person_id=' + id.toString() + ';';
 
- 	client.query(query);
- 	client.on('result', function (res) {
+ 	c.query(query);
+ 	c.on('result', function (res) {
  		res.on('error', function (err) {
  			throw Error(err);
  		})
  	});
 
- 	client.end();
+ 	c.end();
  };
 
  describe('Create user test', function(){
 
- 	after(function(){
+ 	after('Delete user',function(){
 		// runs after all tests in this block
 		//user.remove();//Remove test person from database for next tests.
 		//TODO Delete user is not yet implemented
 
-		removeUser(c,request.personId);
+		removeUser(request.personId);
 	})
 
  	describe('Attempt connection',function(){//create connection to look up the newly created person in the database
@@ -48,16 +50,12 @@ var Client = require('mariasql');
  			});
 
  			c.on('connect', function() {
-				//console.log('Client connected');
-				done();
-			})
+ 				done();
+ 			})
  			.on('error', function(err) {
  				var err = Error('Client error: ' + err);
  				done(err);
  			})
- 			.on('close', function(hadError) {
-				//console.log('Client closed');
-			});
  		})
  	})
 
@@ -83,18 +81,18 @@ var Client = require('mariasql');
 	})
 
 	describe('Test database',function(){
-		it('database should contain new user',function(done){
+		it('should contain new user',function(done){
 
-			var query = "SELECT * from user where email_address like" + request.email;
-
-			client.query(query);
-			client.on('result', function (res) {
+			var query = "SELECT * FROM user WHERE email_address LIKE '" + request.email + "';";
+			c.query(query)
+			.on('result', function (res) {
 
 				res.on('row',function(row){
 
 					row.should.have.property('email_address', "mail@mail.com");
 					row.should.have.property('password',"password");
-					if(request.personId) {row.should.have.property('person_id',request.personId.toString());};
+					if(request.personId) {row.should.have.property('person_id',request.personId.toString());}
+					else{request.personId = row.person_id};
 
 				})
 
@@ -102,17 +100,18 @@ var Client = require('mariasql');
 					throw Error(err);
 				})
 
-				client.on('end',function(info){
+				res.on('end',function(info){
 
-					var result = info.numRows;
-					if (result < 1){console.log('No results from query ' + query.toString());}
-					if (result > 1){console.log('To many results from query ' + query.toString());}
+				var result = info.numRows;
+				if (result < 1){console.log('No results from query ' + query.toString());}
+				if (result > 1){console.log('To many results from query ' + query.toString());}
 						result.should.be.equal(1);//query should return 1 unique result
 						done();
 					})
-			});
-			client.end();
-		})
+			})
+
+			.on('end',function(){})
+		});
 	})
 });
 
