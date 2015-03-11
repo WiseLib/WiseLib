@@ -2,7 +2,7 @@
 
 angular.module('myPublications', [])
 
-.controller('myPublicationsController', function($scope, $window, Page, Publication) {
+.controller('myPublicationsController', function($scope, $window, Page, Publication, $mdDialog) {
     Page.setTitle('My publications');
     $scope.error = null;
 
@@ -21,6 +21,21 @@ angular.module('myPublications', [])
         $scope.error = error.statusText;
     });
 
+    $scope.deletePublication = function(ev, pub) {
+           var confirm = $mdDialog.confirm()
+      .title('Do you really want to remove this publication?')
+      .content('You can\'t undo this')
+      .ariaLabel('Remove publication dialog')
+      .ok('Remove')
+      .cancel('Cancel')
+      .targetEvent(ev);
+    $mdDialog.show(confirm).then(function() {
+      console.log('Clicked ok!');
+    }, function() {
+      console.log('Clicked cancel!');
+    });
+    };
+
     // $scope.publications = [{title: 'Test', publishedInYear: 2014, nrOfPages: 23},
-    // 					   {title: 'Andere test', publishedInYear: 2015, nrOfPages: 17}];
+    //                      {title: 'Andere test', publishedInYear: 2015, nrOfPages: 17}];
 });
