@@ -2,7 +2,7 @@
   apps : [
     {
       name      : "WiseLib",
-      script    : "gulp run",
+      script    : "bin/wiselib.js",
       logfile   : true,
       env: {
         COMMON_VARIABLE: "true"
