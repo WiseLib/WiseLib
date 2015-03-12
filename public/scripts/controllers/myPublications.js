@@ -12,6 +12,9 @@ angular.module('myPublications', [])
         console.log('got data!');
         console.log(data);
         if(data.publications.length > 0) {
+            for (var i = data.publications.length - 1; i >= 0; i--) {
+                data.publications[i].link = '/users/' + user.id + '/publications/' + data.publications[i].id;
+            }
             $scope.publications = data.publications;
         } else {
             $scope.error = 'No publications found';
@@ -22,5 +25,5 @@ angular.module('myPublications', [])
     });
 
     // $scope.publications = [{title: 'Test', publishedInYear: 2014, nrOfPages: 23},
-    // 					   {title: 'Andere test', publishedInYear: 2015, nrOfPages: 17}];
+    //                      {title: 'Andere test', publishedInYear: 2015, nrOfPages: 17}];
 });
