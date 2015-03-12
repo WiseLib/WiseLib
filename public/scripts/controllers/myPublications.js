@@ -1,10 +1,10 @@
 'use strict';
-
 angular.module('myPublications', [])
 
-.controller('myPublicationsController', function($scope, $window, Page, Publication, $mdDialog) {
+.controller('myPublicationsController', function($scope, $window, Page, Publication, $mdDialog, $mdToast) {
     Page.setTitle('My publications');
     $scope.error = null;
+    $scope.publications = [];
 
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
@@ -21,16 +21,40 @@ angular.module('myPublications', [])
         $scope.error = error.statusText;
     });
 
-    $scope.deletePublication = function(ev, pub) {
+    $scope.deletePublication = function(pub) {
            var confirm = $mdDialog.confirm()
       .title('Do you really want to remove this publication?')
-      .content('You can\'t undo this')
+      .content('You can\'t undo this.')
       .ariaLabel('Remove publication dialog')
       .ok('Remove')
-      .cancel('Cancel')
-      .targetEvent(ev);
+      .cancel('Cancel');
     $mdDialog.show(confirm).then(function() {
-      console.log('Clicked ok!');
+      Publication.delete({userId: user.id, pubId: pub.id}, function() {
+        for (var i = $scope.publications.length - 1; i >= 0; i--) {
+          if($scope.publications[i].id === pub.id) {
+            $scope.publications.splice(i,1);
+            break;
+          }
+        }
+        $mdToast.show({
+                    controller: 'ToastCtrl',
+                    templateUrl: '../views/feedback-toast.html',
+                    hideDelay: 6000,
+                    position: 'top right',
+                    locals: {text: 'Publication succesfully removed',
+                        error: false}
+                });
+        
+      }, function(data) {
+        $mdToast.show({
+                    controller: 'ToastCtrl',
+                    templateUrl: '../views/feedback-toast.html',
+                    hideDelay: 6000,
+                    position: 'top right',
+                    locals: {text: 'Error removing publication: ' + data.error,
+                        error: true}
+                });
+      });
     }, function() {
       console.log('Clicked cancel!');
     });
