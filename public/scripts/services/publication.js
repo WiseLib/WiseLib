@@ -3,7 +3,7 @@
 angular.module('publication', [])
 
 .factory('Publication', function($resource) {
-	return $resource('/users/:id/publications.json', {}, {
-		query: { method: 'GET', isArray: false }
+	return $resource('/users/:userId/publications/:pubId.json', {}, {
+		query: { method: 'GET', isArray: false, url: 'users/:id/publications.json' }
 	});
 });
