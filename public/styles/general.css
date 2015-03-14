@@ -4,9 +4,21 @@
     margin-right: 4px;
 }
 
-.publications-list a{
+.publication-title a{
 	color: #000;
 	text-decoration: none;
 }
 
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
 
+td {
+	padding: 12px 6px;
+	text-align: left;
+}
+
+tr:nth-child(even) td {
+	background-color: #f6f6f6;
+}
