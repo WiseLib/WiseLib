@@ -27,7 +27,7 @@ angular.module('loginUser', ['ngMessages'])
                     locals: {text: 'Logged in successfully',
                         error: false}
                 });
-            }).error(function(data, status) {
+            }).error(function(data) {
                 $mdToast.show({
                     controller: 'ToastCtrl',
                     templateUrl: '../views/feedback-toast.html',
