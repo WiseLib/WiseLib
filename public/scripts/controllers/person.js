@@ -6,12 +6,13 @@ module.controller('personController', function ($scope,$window, $routeParams, Pa
 	Person.query({id: $routeParams.id}, function(data) {
 		$scope.person = data.persons[0];
 		Publication.query({authors: [$scope.person.id]}, function(data) {
-			console.log(data);
 			$scope.publications = data;
 		}, function(data) {
+			$scope.error = data.error;
 			console.log('got error: ' + JSON.stringify(data.error));
 		});
 	}, function(data) {
+		$scope.error = data.error;
 		console.log('error: ' + JSON.stringify(data.error));
 	});
 
