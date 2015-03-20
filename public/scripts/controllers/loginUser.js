@@ -27,7 +27,7 @@ angular.module('user', ['ngMessages'])
                     locals: {text: 'Logged in successfully',
                         error: false}
                 });
-            }).error(function(data, status) {
+            }).error(function(data) {
                 $mdToast.show({
                     controller: 'ToastCtrl',
                     templateUrl: '../views/feedback-toast.html',
@@ -38,7 +38,14 @@ angular.module('user', ['ngMessages'])
                 });
             });
         } else {
-            // email and/or password not filled in: ignore
+            $mdToast.show({
+                    controller: 'ToastCtrl',
+                    templateUrl: '../views/feedback-toast.html',
+                    hideDelay: 6000,
+                    position: 'top right',
+                    locals: {text: 'Error: email and/or password not provided',
+                        error: true}
+                });
         }
     };
 }]);
