@@ -19,10 +19,10 @@ angular.module('user')
                 templateUrl: '../views/feedback-toast.html',
                 hideDelay: 6000,
                 position: 'top right',
-                locals: {text: 'Saved Changes',
+                locals: {text: 'Saved changes',
                          error: false}
             });
-        }, 
+        },
         function(data) { //Error
             $mdToast.show({
                 controller: 'ToastCtrl',
