@@ -1,1 +1,1 @@
-<img ng-src="{{person.picture || '/assets/dummy.jpg'}}" class="profile-image" />{{person.firstName + " " + person.lastName}}
+<a ng-href="{{'/persons/' + person.id}}"><img ng-src="{{person.picture || '/assets/dummy.jpg'}}" class="profile-image" />{{person.firstName + " " + person.lastName}}</a>
