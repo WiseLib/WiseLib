@@ -36,7 +36,7 @@ angular.module('communication', [])
             classes[className] = [];
             classesParams[className] = JSON.stringify(params);
             var path = '/' + className.toLowerCase() + 's.json';
-            fetchForPath(path, params).success(function (data, status, headers, config) {
+            fetchForPath(path, params).success(function (data) {
                 classes[className] = data;
                 return data;
             });

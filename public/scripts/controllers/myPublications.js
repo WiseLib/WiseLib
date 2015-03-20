@@ -1,18 +1,17 @@
 'use strict';
-angular.module('myPublications', [])
+angular.module('publication')
 
-.controller('myPublicationsController', function($scope, $window, Page, Publication, $mdDialog, $mdToast) {
+.controller('myPublicationsController', function($scope, $window, Page, Publication, $mdDialog, $mdToast, Person) {
     Page.setTitle('My publications');
     $scope.error = null;
     $scope.publications = [];
 
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
-    Publication.query({id: user.id}, function(data) {
-        console.log('got data!');
-        console.log(data);
-        if(data.publications.length > 0) {
-            $scope.publications = data.publications;
+    console.log(user);
+    Person.publications({id: user.personId.id}, function(data) {
+        if(data.length > 0) {
+            $scope.publications = data;
         } else {
             $scope.error = 'No publications found';
         }
@@ -29,7 +28,7 @@ angular.module('myPublications', [])
       .ok('Remove')
       .cancel('Cancel');
     $mdDialog.show(confirm).then(function() {
-      Publication.delete({userId: user.id, pubId: pub.id}, function() {
+      Publication.delete({id: pub.id}, function() {
         for (var i = $scope.publications.length - 1; i >= 0; i--) {
           if($scope.publications[i].id === pub.id) {
             $scope.publications.splice(i,1);
@@ -44,7 +43,7 @@ angular.module('myPublications', [])
                     locals: {text: 'Publication succesfully removed',
                         error: false}
                 });
-        
+
       }, function(data) {
         $mdToast.show({
                     controller: 'ToastCtrl',
@@ -61,5 +60,5 @@ angular.module('myPublications', [])
     };
 
     // $scope.publications = [{title: 'Test', publishedInYear: 2014, nrOfPages: 23},
-    //                      {title: 'Andere test', publishedInYear: 2015, nrOfPages: 17}];
+    // 					   {title: 'Andere test', publishedInYear: 2015, nrOfPages: 17}];
 });

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('loginUser', ['ngMessages'])
+angular.module('user', ['ngMessages'])
 
 .controller('loginUserController', ['$scope', '$location', '$window', 'UserService', 'AuthenticationService', 'Page', '$mdToast',
    function($scope, $location, $window, UserService, AuthenticationService, Page, $mdToast) {
@@ -27,7 +27,7 @@ angular.module('loginUser', ['ngMessages'])
                     locals: {text: 'Logged in successfully',
                         error: false}
                 });
-            }).error(function(data, status) {
+            }).error(function(data) {
                 $mdToast.show({
                     controller: 'ToastCtrl',
                     templateUrl: '../views/feedback-toast.html',
@@ -38,7 +38,14 @@ angular.module('loginUser', ['ngMessages'])
                 });
             });
         } else {
-            // email and/or password not filled in: ignore
+            $mdToast.show({
+                    controller: 'ToastCtrl',
+                    templateUrl: '../views/feedback-toast.html',
+                    hideDelay: 6000,
+                    position: 'top right',
+                    locals: {text: 'Error: email and/or password not provided',
+                        error: true}
+                });
         }
     };
 }]);
