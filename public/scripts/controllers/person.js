@@ -1,5 +1,5 @@
 'use strict';
-var module = angular.module('personCtrlr', ['communication', 'proceeding', 'ngMaterial']);
+var module = angular.module('person', ['communication', 'proceeding', 'ngMaterial']);
 
 module.controller('personController', function ($scope,$window, $routeParams, Page, Person, Publication) {
 	Page.setTitle('Person');

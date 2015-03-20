@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('myPublications', [])
+angular.module('publication')
 
 .controller('myPublicationsController', function($scope, $window, Page, Publication) {
     Page.setTitle('My publications');

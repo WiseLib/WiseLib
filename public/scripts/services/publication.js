@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('publication', [])
+angular.module('publication')
 
 .factory('Publication', function($resource) {
 	return $resource('publications.json', {}, {

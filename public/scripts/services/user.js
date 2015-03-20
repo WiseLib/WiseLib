@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('user', [])
+angular.module('user')
 
 .factory('User', function($resource) {
     return $resource('/user.json', {}, {

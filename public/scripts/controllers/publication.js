@@ -1,7 +1,7 @@
 'use strict';
-var module = angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial']);
+var module = angular.module('publication', ['communication', 'proceeding', 'ngMaterial']);
 
-module.controller('uploadPublicationController', function ($scope,$window,$http, fetcher, Page,$mdToast,Person) {
+module.controller('uploadPublicationController', function ($scope, $window, $http, fetcher, Page, $mdToast) {
 
     Page.setTitle('Upload publication');
     $scope.authors = [];
@@ -12,11 +12,11 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
 
     $scope.chooseJournal = function(jour){
         $scope.journal = jour;
-    }
+    };
 
     $scope.chooseProceeding = function(proc){
         $scope.proceeding = proc;
-    }
+    };
 
     $scope.add = function (array, element) {
         if (array.indexOf(element) === -1) {
@@ -43,14 +43,14 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
     $scope.uploadpdf = function(files){
 
         var fd = new FormData();
-        fd.append("file", files[0]);
+        fd.append('file', files[0]);
 
         $http.post('uploadfile', fd, {
         withCredentials: true,
         headers: {'Content-Type': undefined },
         transformRequest: angular.identity
         }).
-        success(function(data, status, headers, config) {
+        success(function(data) {
 
         $scope.localfile = true;
 
@@ -62,29 +62,29 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
         var index;
         for (index = 0; index < data.authors.length; ++index) {
             $scope.add($scope.authors,data.authors[index]);
-        }   
+        }
 
 
         }).
-        error(function(data, status, headers, config) {
-        $scope.showSimpleToast("Not a pdf");
+        error(function(data) {
+        $scope.showSimpleToast('Not a pdf');
         });
 
-    }
+    };
 
     $scope.uploadbibtex = function(files){
 
         var fd = new FormData();
-        fd.append("file", files[0]);
+        fd.append('file', files[0]);
 
         $http.post('uploadfile', fd, {
         withCredentials: true,
         headers: {'Content-Type': undefined },
         transformRequest: angular.identity
         }).
-        success(function(data, status, headers, config) {
+        success(function(data) {
 
-        
+
 
         var index;
         $scope.JSONreferences=[];
@@ -95,15 +95,15 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
 
             var title = reference.entryTags.title;
             $scope.add($scope.references,title);
-        }   
+        }
 
 
         }).
         error(function(data, status, headers, config) {
-            $scope.showSimpleToast("Not a bibtex");
+            $scope.showSimpleToast('Not a bibtex');
         });
 
-    }
+    };
 
     $scope.post = function () {
         var toPost = {};
