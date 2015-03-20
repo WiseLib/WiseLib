@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('editUser', [])
+angular.module('user')
 
 .controller('updateUserController', function($scope, $window, $location, Page, $mdToast, AuthenticationService, User, Person) {
     Page.setTitle('Update profile');

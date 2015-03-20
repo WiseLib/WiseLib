@@ -1,19 +1,19 @@
 'use strict';
 
-angular.module('myPublications', [])
+angular.module('publication')
 
-.controller('myPublicationsController', function($scope, $window, Page, Publication) {
+.controller('myPublicationsController', function($scope, $window, Page, Publication, Person) {
     Page.setTitle('My publications');
     $scope.error = null;
 
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
-    Publication.query({id: user.id}, function(data) {
+    Person.publications({id: user.personId.id}, function(data) {
         console.log('got data!');
         console.log(data);
         if(data.publications.length > 0) {
             for (var i = data.publications.length - 1; i >= 0; i--) {
-                data.publications[i].link = '/users/' + user.id + '/publications/' + data.publications[i].id;
+                data.publications[i].link = '/publications/' + data.publications[i].id;
             }
             $scope.publications = data.publications;
         } else {

@@ -1,7 +1,7 @@
 'use strict';
-var module = angular.module('addPublication', ['communication', 'proceeding', 'ngMaterial']);
+var module = angular.module('publication', ['communication', 'proceeding', 'ngMaterial']);
 
-module.controller('uploadPublicationController', function ($scope,$window,$http, fetcher, Page,$mdToast,Person) {
+module.controller('uploadPublicationController', function ($scope, $window, $http, fetcher, Page, $mdToast) {
 
     Page.setTitle('Upload publication');
     $scope.authors = [];
