@@ -8,7 +8,6 @@ angular.module('publication')
 
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
-    console.log(user);
     Person.publications({id: user.personId.id}, function(data) {
         if(data.length > 0) {
             $scope.publications = data;
@@ -60,5 +59,5 @@ angular.module('publication')
     };
 
     // $scope.publications = [{title: 'Test', publishedInYear: 2014, nrOfPages: 23},
-    // 					   {title: 'Andere test', publishedInYear: 2015, nrOfPages: 17}];
+    //                      {title: 'Andere test', publishedInYear: 2015, nrOfPages: 17}];
 });

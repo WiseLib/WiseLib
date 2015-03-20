@@ -1,0 +1,28 @@
+<md-content layout-align="center">
+	<md-progress-circular md-mode="indeterminate" ng-if="!publication"></md-progress-circular>
+	<publicationmin ng-if="publication" publication="publication"></publicationmin>
+	<md-divider></md-divider>
+	<table>
+		<tbody>
+			<tr>
+				<td>Uploaded by</td>
+				<td>User number {{publication.uploaderId}}</td>
+			</tr>
+			<tr>
+				<td rowspan="{{publication.authors.length}}">Authors</td>
+				<td><personmin person="publication.authors[0]"></personmin></td>
+			</tr>
+			<tr ng-repeat="author in publication.authors" ng-if="$index > 0">
+				<td><personmin person="author"></personmin></td>
+			</tr>
+			<tr>
+				<td>Number of pages</td>
+				<td>{{publication.numberOfPages}}</td>
+			</tr>
+			<tr>
+				<td>Year of publishing</td>
+				<td>{{publication.year}}</td>
+			</tr>
+		</tbody>
+	</table>
+</md-content>

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('client', ['ngMaterial', 'ngRoute', 'person', 'publication', 'user', 'ngResource'])
+angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 'user', 'person'])
 
 /**
  * Configure the Routes
@@ -32,6 +32,10 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'person', 'publication', 'use
     .when('/mypublications', {
         templateUrl: 'views/myPublications.html',
         controller: 'myPublicationsController'
+    })
+    .when('/publications/:id', {
+        templateUrl: 'views/publication.html',
+        controller: 'publicationController'
     })
     .when('/persons/:id', {
         templateUrl: 'views/person.html',
