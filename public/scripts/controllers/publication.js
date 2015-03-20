@@ -10,9 +10,8 @@ module.controller('publicationController', function($scope, $window, $routeParam
 		console.log(pub);
 		$scope.publication = pub;
 		for (var i = pub.authors.length - 1; i >= 0; i--) {
-			Person.query(pub.authors[i], function(data) {
-				console.log('Received persons: ' + JSON.stringify(data));
-				$scope.authors.push(data.persons[0]);
+			Person.get(pub.authors[i], function(person) {
+				$scope.authors.push(person);
 			}, function(data) {
 				console.log('error: ' + JSON.stringify(data));
 			});
