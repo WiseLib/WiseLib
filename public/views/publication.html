@@ -6,13 +6,13 @@
 		<tbody>
 			<tr>
 				<td>Uploaded by</td>
-				<td>Some person</td>
+				<td>User number {{publication.uploaderId}}</td>
 			</tr>
 			<tr>
-				<td rowspan="{{authors.length}}">Authors</td>
-				<td><personmin person="authors[0]"></personmin></td>
+				<td rowspan="{{publication.authors.length}}">Authors</td>
+				<td><personmin person="publication.authors[0]"></personmin></td>
 			</tr>
-			<tr ng-repeat="author in authors" ng-if="$index > 0">
+			<tr ng-repeat="author in publication.authors" ng-if="$index > 0">
 				<td><personmin person="author"></personmin></td>
 			</tr>
 			<tr>

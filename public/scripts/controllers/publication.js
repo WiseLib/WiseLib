@@ -9,13 +9,6 @@ module.controller('publicationController', function($scope, $window, $routeParam
     Publication.get({id: $routeParams.id}, function(pub) {
 		console.log(pub);
 		$scope.publication = pub;
-		for (var i = pub.authors.length - 1; i >= 0; i--) {
-			Person.get(pub.authors[i], function(person) {
-				$scope.authors.push(person);
-			}, function(data) {
-				console.log('error: ' + JSON.stringify(data));
-			});
-		}
     }, function(data) {
 		console.log('Error getting publication: ' + JSON.stringify(data));
     });
