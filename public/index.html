@@ -23,6 +23,7 @@
         <script src="scripts/controllers/publication.js"></script>
         <script src="scripts/controllers/communication.js"></script>
         <script src="scripts/controllers/loginUser.js"></script>
+        <script src="scripts/controllers/searchPublication.js"></script>
         <script src="scripts/controllers/myPublications.js"></script>
         <script src="scripts/services/user.js"></script>
         <script src="scripts/services/person.js"></script>
@@ -35,11 +36,12 @@
         <link rel="stylesheet" href="styles/general.css">
         <link rel="stylesheet" href="styles/header.css">
         <link rel="stylesheet" href="styles/upload.css">
+        <link rel="stylesheet" href="styles/search.css">
         <base href="/">
     </head>
     <body layout="row" ng-controller="navController">
         <!--<div ng-include='"views/header.html"'></div>-->
-        <md-sidenav layout="column" style="overflow: hidden; display: flex;" class="site-sidenav md-sidenav-left md-whiteframe-z2 md-closed" md-component-id="left" md-is-locked-open="$media('gt-sm')" tabindex="-1">
+        <md-sidenav layout="column" style="overflow: hidden; display: flex;" class="site-sidenav md-sidenav-left md-whiteframe-z2 md-closed" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')" tabindex="-1">
             <md-toolbar class="md-default-theme" layout="column">
                 <h1 class="md-toolbar-tools">
                     <a class="logo-name" href="/" ng-click="ToggleMenu()"></a>
@@ -57,7 +59,12 @@
                     <li>
                         <md-button class="md-button md-default-theme" href="/register" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">Register</md-button>
                   </li>
+                  <li>
                         <md-button class="md-button md-default-theme" href="/update" ng-show="auth.isAuthenticated" ng-click="ToggleMenu()">Update profile</md-button>
+                    </li>
+                    <li>
+                        <md-button class="md-button md-default-theme" href="/search" ng-click="ToggleMenu()">Search a publication</md-button>
+                    </li>
                     <li>
                         <md-button class="md-button md-default-theme" href="/mypublications" ng-show="auth.isAuthenticated" ng-click="ToggleMenu()">My publications</md-button>
                     </li>

@@ -1,0 +1,19 @@
+.search-field{
+	margin-bottom: 50px;
+}
+
+.result-block {
+	padding: 1em;
+	margin-bottom: 1em;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #BDBDBD;
+}
+
+.result-block h4 {
+	width: 100%;
+}
+
+div.results ul{
+	list-style-type: circle;
+}
