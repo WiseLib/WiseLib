@@ -8,7 +8,8 @@ angular.module('publication')
 
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
-    Publication.query({uploader: user.id}, function(data) {
+    console.log(user);
+    Publication.query({id: user.personId.id}, function(data) {
         if(data.length > 0) {
             $scope.publications = data;
         } else {
