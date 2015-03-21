@@ -16,3 +16,4 @@ config.json
 /uploads
 /.sublime-gulp.cache
 lib/config.json
+/test/pdfs/output

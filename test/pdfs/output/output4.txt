@@ -1,1834 +1,0 @@
-                                                                                                                         A
-Accelerating an Application Domain with Specialized Functional
-Units
-             ´
-Cecilia Gonzalez-  ´
-                  Alvarez  , Ghent University & UPC
-Jennifer B. Sartor, Ghent University
-        ´
-Carlos Alvarez , UPC
-           ´
-Daniel Jimenez-Gonz    ´ , UPC
-                       alez
-Lieven Eeckhout, Ghent University
-
-
-Hardware specialization has received renewed interest recently as chips are hitting power limits. Chip
-designers of traditional processor architectures have primarily focused on general-purpose computing, par-
-tially due to time-to-market pressure and simpler design processes. But new power limits require some chip
-specialization. Although hardware configured for a specific application yields large speedups for low power
-dissipation, its design is more complex and less reusable. We instead explore domain-based specialization,
-a scalable approach that balances hardware’s reusability and performance efficiency. We focus on special-
-ization using customized compute units that accelerate particular operations. In this paper, we develop
-automatic techniques to identify code sequences from different applications within a domain that can be
-targeted to a new custom instruction that will be run inside a configurable specialized functional unit (SFU).
-We demonstrate that using a canonical representation of computations finds more common code sequences
-among applications that can be mapped to the same custom instruction, leading to larger speedups while
-specializing a smaller core area than previous pattern-matching techniques. We also propose new heuristics
-to narrow the search space of domain-specific custom instructions, finding those that achieve the best per-
-formance across applications. We estimate the overall performance achieved with our automatic techniques
-using hardware models on a set of 9 media benchmarks, showing that when limiting core area devoted to
-specialization, the SFU customization with largest speedups includes both application and domain-specific
-custom instructions. We demonstrate that exploring domain-specific hardware acceleration is key to contin-
-ued computing system performance improvements.
-Categories and Subject Descriptors: Computer systems organization [Other architectures]: Special pur-
-pose systems
-General Terms: Design, Performance, Measurement, Experimentation
-Additional Key Words and Phrases: Customization, Acceleration, Specialized functional unit, Domain-
-specific, Application-specific, Canonical representation
-
-1. INTRODUCTION
-Since G. Estrin proposed the first model of a specialized computer over 50 years
-ago [Estrin 1960], computer engineers have extensively studied the implementation of
-specific compute units. Specialization can offer many benefits over traditional, general-
-purpose architectures, and now, specialization is viewed as a viable way to combat
-the end of Dennard scaling [Dennard et al. 1974], or chips hitting a power wall be-
-cause of slowed supply voltage scaling [Esmaeilzadeh et al. 2011; Hameed et al. 2010;
-Venkatesh et al. 2010]. Computing systems are moving away from general-purpose
-designs out of necessity, but more specific designs add complexity and limit flexibil-
-
-Permission to make digital or hard copies of part or all of this work for personal or classroom use is granted
-without fee provided that copies are not made or distributed for profit or commercial advantage and that
-copies show this notice on the first page or initial screen of a display along with the full citation. Copyrights
-for components of this work owned by others than ACM must be honored. Abstracting with credit is per-
-mitted. To copy otherwise, to republish, to post on servers, to redistribute to lists, or to use any component
-of this work in other works requires prior specific permission and/or a fee. Permissions may be requested
-from Publications Dept., ACM, Inc., 2 Penn Plaza, Suite 701, New York, NY 10121-0701 USA, fax +1 (212)
-869-0481, or permissions@acm.org.
- c YYYY ACM 1544-3566/YYYY/01-ARTA $15.00
-DOI:http://dx.doi.org/10.1145/0000000.0000000
-
-
-     ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,A:2                                                                                    C. Gonzalez-Alvarez et al.
-
-ity. Application-specific architectures have been proposed to improve performance and
-power efficiency for both research [Vassiliadis et al. 2004] and commercial [Gonzalez
-2000; Altera Corporation 2013] purposes. However, time-to-market is a major issue
-with these customized designs, which are more complex, costlier and have shorter life-
-times. Application-specific specialization is economically feasible only for a few very
-important applications in big-volume markets.
-   In the middle of the spectrum between general-purpose and application-specific
-processors, we have application-specific instruction-set processors (ASIP). An ASIP
-tailors its instruction-set architecture, providing a trade-off between the flexibil-
-ity of a general-purpose processor and the performance and energy-efficiency of an
-application-specific design. The instruction-set architecture of an ASIP can be config-
-urable, either in the field (in a fashion similar to an FPGA) or at design time. Optimiz-
-ing an ASIP for a given application domain may not only be more economically viable,
-it can also deliver better system performance when multiple applications run on the
-device. Although we focus on the media domain, the concept can be applied to tune
-an otherwise general purpose processor for other domains such as image and audio
-processing, medical imaging, etc.
-   In this paper, we focus on identifying potential custom instructions that extend the
-instruction-set architecture of a base architecture and accelerate a sequence of opera-
-tions in an application. We explore the design space of custom instructions that are im-
-plemented in a configurable specialized functional unit (SFU) in hardware, from those
-designed for a particular application versus those applicable to many applications
-within a domain. Previous research has used automatic tools to identify repeated pat-
-terns of instructions and propose them as extensions to the ISA. Initial developments
-established the grounds for the field using exhaustive identification of patterns [Atasu
-et al. 2008] and approximate techniques [Pozzi et al. 2006]. Other works [Arnold and
-Corporaal 2001; Clark et al. 2005] have used pattern matching-based approaches on
-the data flow of programs, represented as directed acyclic graphs (DAG), to identify
-custom instructions across a domain. However, pattern matching cannot always find
-similarities between sequences of code in order to map different functionality to the
-same custom instruction, inherently limiting specialized hardware opportunities.
-   We introduce a new technique to extract common sequences of computations from
-several applications within a domain, which become custom instructions implemented
-within a SFU, which is tightly integrated with a processor core’s data path. We use
-Taylor Expansion Diagrams (TEDs), which are canonical representations of polyno-
-mial computations [Ciesielski et al. 2006], to identify common computations. Thus
-far, TEDs have only been used in the areas of compiler optimization and design ver-
-ification, and we novelly use them to identify common sections of code that can be
-accelerated by specialized hardware. We compare the effectiveness of DAG, TED, and
-a new Hybrid DAG/TED technique at finding common code sequences to target for ac-
-celeration in hardware. Our study shows that the canonical representation is key to
-identifying sequences that are mapped to the same custom instruction across applica-
-tions. We also evaluate four new scoring heuristics that prune the huge search space
-of the potential custom instructions without a detailed evaluation, selecting those that
-maximize the speedup of our application domain.
-   We build an exploration framework to estimate the speedup of new custom instruc-
-tions, across the spectrum of application-specific and domain-specific acceleration in
-hardware. We use 9 media benchmarks, and extend the LLVM compiler framework
-to identify code sequences amenable for acceleration in the SFU. We extract sets of
-reusable custom instructions, both within and across benchmarks, which we subse-
-quently analyze and rank using our scoring heuristics. We then use the Xilinx design
-software to synthesize a hardware implementation of a potential custom instruction.
-
-      ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-, Accelerating an Application Domain with Specialized Functional Units                                                A:3
-
- Given an instruction’s hardware data path, we use estimation models to approximate
- its core area and number of cycles, and thus speedup. We show that while DAG, TED
- and Hybrid perform similarly when finding custom instructions for a particular appli-
- cation, using the TED and Hybrid techniques to identify custom instructions across a
- domain lead to much higher speedups than when using the DAG technique alone. Our
- analysis reveals that when the SFU occupies a small, realistic core area, it obtains the
- highest speedups when including both custom instructions designed across all applica-
- tions in a domain and some specific to one application. Using only application-specific
- custom instructions performs best at large, unbounded core areas. We study a few
- machine design points in detail: given a particular area, we present the characteris-
- tics of the SFU that obtains the highest speedup. Finally, we study how well custom
- instructions identified for a set of benchmarks perform for other, previously unseen
- workloads.
-    Overall, we make the following major contributions in this paper:
-
-— We propose Taylor Expansion Diagrams (TED) for identifying hardware acceleration
-  opportunities. We find that their canonical representation allows them to identify
-  more sequences across applications that are mapped to the same custom instruction,
-  thus achieving higher speedups for lower area than the traditionally used DAGs.
-— We propose and evaluate four scoring heuristics to quickly and effectively cull the
-  huge specialized functional unit design space and rank potential domain-specific cus-
-  tom instructions. The best scoring heuristic is random-scaled sharing, which takes
-  into account sharing custom instructions across applications as well as introducing
-  some controlled randomness to smooth out unaccounted factors.
-— Our exploration study reveals that while using only application-specific custom in-
-  structions result in the highest possible speedups at large or unbounded core areas,
-  it is suboptimal and ineffective at small areas. Instead, considering domain-specific
-  custom instructions along with application-specific custom instructions yields the
-  highest possible speedup at small, more realistic core areas. This underlines the im-
-  portance of identifying custom instructions that can be shared across applications.
-— We demonstrate that new applications inside a domain can substantially benefit from
-  a SFU already designed for that domain. This suggests that processors with domain-
-  specific functional units can extend their lifetime and utility by being applicable to
-  other applications.
-
- 2. PROBLEM STATEMENT
- We assume that the custom instructions execute on a specialized functional unit (SFU)
- that is tightly integrated in the data path of the general-purpose processor, as in Fig-
- ure 1. Our target architecture is a single-issue in-order processor with a configurable
- pipeline to execute custom instructions. Our hardware exploration focuses on identi-
- fying sequences of code that can be mapped to the same custom instruction, which
- runs inside one specialized execution (SE) pipeline of the SFU and takes a variable
- number of cycles (c). We assume that SE pipelines can be configured at system boot
- time. All custom instructions are implemented in the SFU, which works as a multi-
- cycle functional unit and reads and writes data from and to the register file of the core.
- When analyzing code sequences to identify custom instructions, we disallow control
- or memory operations. We do not focus on creating a new specialized processor, but
- on accelerating a general purpose processor using a small amount of its area. Bene-
- fits of such a design include a system that maintains precise interrupts, the reduction
- of instructions in the execution pipeline of the processor core, and the increment of
- operational and data-level parallelism in the SFU.
-
- ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,A:4                                                                                                            C. Gonzalez-Alvarez et al.
-
-
-                                 
-                                                                                                         "
-
-
-
-
-                                                                                       
-   
-                                                                                                       
- 
-                                                                                                       # 
-
-                                                  
- 
-                                                            
-
-
-
-
-                                                        
-                                                                                                      
-                                                                       
-
-                                                                             !
-
-
-
-
-Fig. 1. Target architecture. The specialized functional unit (SFU) is part of the execution pipeline of an
-in-order processor core.
-
-   In this paper we explore the trade-off between application-specific versus domain-
-specific hardware specialization. Given a defined set of applications, our main objective
-is to design the hardware to maximize the platform’s efficiency. We focus on maximiz-
-ing speedup, or boosting system performance and application execution time, given a
-particular core area dedicated to the SFU. Exploring the application-specific versus
-domain-specific specialization trade-off involves a number of challenges. For one, we
-need a framework to identify code sequences within and across applications that are
-amenable to hardware acceleration. Finding common code sequences across applica-
-tions is particularly challenging because of the huge search space, i.e., one needs to
-keep track of all code sequences of all applications to be able to find commonalities,
-and one needs to find the best way to represent these code sequences to maximize the
-likelihood of finding commonalities both within and across applications. Further, to be
-able to quickly explore the custom instruction design space and keep exploration time
-reasonable, we need heuristics to rank the effectiveness of potential specialized hard-
-ware without relying on detailed evaluation of each possible custom instruction. We
-have to use tools to estimate the speedup an application would achieve when using a
-particular set of custom instructions, and optimize not only for speedup across the do-
-main of applications, but also for minimizing the SFU’s area. In order to perform this
-study, we have built an accelerator exploration framework, which we describe next
-and which includes several novel contributions over prior work to identify and rank
-potential specialized functional units that accelerate computation.
-
-3. CUSTOM INSTRUCTION SELECTION AND EVALUATION
-Figure 2 shows an outline of our custom instruction selection and evaluation frame-
-work, which we detail in the following sections. We first analyze application code to
-identify potential code sequences for custom instruction design (Step 1). We then take
-steps to find commonalities among these identified code sequences, both within and
-across applications (Step 2), and then evaluate which custom instructions are most
-effective using newly proposed scoring heuristics (Step 3). Using these heuristics, we
-plug our chosen custom instructions into a low-level model that estimates both the
-speedup and the area of each (Step 4), so we can evaluate the potential of new com-
-puter designs with hardware acceleration.
-
-3.1. DFG Exploration
-Step 1 of Figure 2 shows how we identify code sequences amenable for acceleration in
-hardware. We use the compiler (label 1.1 in the figure) to transform the source code of
-the application into its intermediate representation (IR) to expose the data flow graph
-(DFG) and control flow graph (CFG) of the program. We use an IR representation close
-
-      ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,Accelerating an Application Domain with Specialized Functional Units                                                                        A:5
-
-
-                         
-                                       ))+,                       
-                                              
-                                               
-        
-
-                                                                                                         
-                                                                                                    
-                                              
-                      
-                                             
-
- 
-
-
-  
-
-                                                                                             
-
-                                                                            * $                 
-
-               ! 
-   $
-                         
-                                            
-
-                                          
-
-                                                                        * $                 
-
- 
-
-  
-                                                                                                       " # $
-                                                                                                   % 
-                   
-         
- ! 
-  
-
-                                                               % 
-                                                                                                       $
-                                                                           
-                        ---
-
-
-
-                                                ---
-
-                                                                                                                     " # $
-                         
-                                                                             % 
-                                     
- ! 
-  
-
-                                              $         
-      % 
-                   
- 
-
-        
-
-                                                                                              &
-
-                                                                                                                           &
-    
-
-                                                              
-(                             
-                                                                                                                             
-                )                                    
-                                                                                                                              &'
-                                                            % 
-                                                                                               
-                                                       %  ! !
-                                                                                                  
-
-
-            Fig. 2. Schematic overview of our custom instruction selection and evaluation framework.
-
-
-
-to the assembly language to find sequences of code that could be turned into specific
-custom instructions in hardware. Because identifying sequences of code to accelerate
-could blow up to a huge state space search, we apply certain constraints to lower the
-space exploration.
-   Static program analysis, implemented in the DFG Explorer (label 1.3), identifies a
-list of candidates that could be implemented as custom instructions. Each candidate
-must be a maximal convex subgraph [Atasu et al. 2008] of a data flow graph for a
-given basic block, that is, the biggest disconnected subgraph of a basic block that pre-
-serves the convexity constraint [Pozzi et al. 2006]. These subDFGs exclude invalid
-instructions that cannot be executed in the SFU. In this paper, we assume that the
-SFU executes neither memory nor branch instructions to keep the unit highly inte-
-grated in the processor’s pipeline. Instead, they are executed in the core’s ALU, thus
-we mark them as invalid in the exploration step. However, to support other kinds of
-acceleration hardware that target code beyond the basic block level, and include mem-
-ory instructions, we could extend this step of the framework as well as step two, which
-clusters instructions using TEDs. Therefore, our exploration framework was built to
-be general and broad enough to study a variety of acceleration designs.
-   The DFG exploration is done with a fast implementation of the algorithm presented
-by Li et al. [2009] using binary structures. The algorithm performs a binary search for
-each basic block in the application, first enumerating the invalid instructions of the
-graphs, which turn into the cutting nodes of the subtrees to be explored recursively
-in the search. The exploration result is a list of candidate code sequences, represented
-as subDFGs, that satisfy the criteria above in non-exponential asymptotic time com-
-
-ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,A:6                                                                                    C. Gonzalez-Alvarez et al.
-
-plexity (bounded by the number of invalid instructions, as they define the number of
-recursive calls).
-  In order to cut down on the number of candidates, we define a few rules to limit
-subDFG candidates. Groups of instructions are selected to preserve the consistency of
-scheduling, which means that all the inputs of the set are ready at issue time. In our
-exploration, we allow unlimited inputs and outputs to the custom instruction, because
-more complex custom instructions will potentially achieve a higher speedup. We also
-limit the exploration space by only considering executed parts of the code, using a
-previously-gathered execution profile of the application (label 1.2 in Figure 2). At the
-end of Step 1, we have a list of candidates that are then passed to the next step which
-clusters the potential code sequences to help select custom instructions.
-
-3.2. Instruction Clustering
-In Step 2 of Figure 2, we analyze the code sequences found in Step 1 in order to clus-
-ter them to propose custom instructions that apply to several different sequences of
-code. This clustering step can be performed on code sequences identified from the
-same application (targeting application-specific custom instructions), and/or sequences
-from different applications (targeting domain-specific custom instructions). Clustering
-serves several functions: to enhance reusability, to minimize implementation area in
-hardware, and to reduce the search space in the selection step.
-  In the following sections, we describe three methodologies for the clustering: DAG,
-TED and Hybrid.
-  3.2.1. Clustering with DAG isomorphism. The first technique clusters code sequences us-
-ing directed acyclic graphs (DAGs). For each pair of subDFGs obtained in Step 1, we
-perform a one-to-one isomorphism detection (label 2.1 in Figure 2). Those graphs that
-are isomorphically exact are clustered under the same label, to be potentially trans-
-formed into a single custom instruction candidate.
-  Previous works [Arnold and Corporaal 2001; Clark et al. 2005] approached the prob-
-lem by starting from small graphs, building them up to arrive at relatively large-sized
-accelerators — a bottom-up approach. In our work, we employ a top-down approach
-and start from maximal subgraphs extracted from a basic block, ideally covering as
-large code sequences as possible, and exploit as much instruction-level parallelism as
-possible.
-  Relatively larger custom instructions are more likely to yield better overall perfor-
-mance, but the identification of big patterns of functionally identical computation is
-a complex problem. Consider the three examples of subDFGs in Figure 3, identified
-in different benchmarks and their equivalent algebraic expressions. Example 1 shows
-two portions of code of the aacenc application from different basic blocks in their DAG
-representations. They differ in the number and types of instructions they contain. Sim-
-ple DAG pattern matching would not cluster these two DAGs, although their algebraic
-functions are equivalent. In Example 2, we extend the problem to a domain of appli-
-cations. We show DAGs of basic blocks from different benchmarks (mpeg2dec, aacenc,
-mpeg2enc and face detect) that perform the same computation, but with different op-
-erators. The DAGs of two of them (mpeg2dec, mpeg2enc) are isomorphically the same,
-therefore they could be clustered with DAG pattern matching. However, DAG pattern
-matching is not able to cluster all four of them. In Example 3 we show two DAGs of
-face detect and tmndec with multiple outputs. In this case, although we can have a
-partial match with DAGs for outputs 2 and 3, the full match for identical computation
-cannot be found. Summarizing, in the three motivational examples, pattern matching
-using DAGs is missing opportunities to find commonalities among code sequences.
-
-
-      ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,Accelerating an Application Domain with Specialized Functional Units                                                                                                             A:7
-
-
-                                                                    
-                                                                          
-                                                                                                            
-                     
-                             
-
-                                                                                                                       
-
-                                                                                     
-
-                                                                                                  
-
-                                                                                                                                               !                      !
-                                                                                          #                   "
-                                                                                                         
-                      
- 
-                                     
- 
- 
-                               
- 
- 
-                              
-                      
-
-                                                                                                                                                                  
-                                                          
-
-  
-                               
-  
-
-                                                 
-                                                                                                         
-                                                         (                         (                               
-          
-                                                         
- ! "#                           
-                                         
-        
- ! "#
-                                                                                         ! "#                                                        
-    "   
-                                               "
-                           "
-           
-                                      
-
-                                                                                       
-     
- '  
- ! "#                               
-                       
-                                         
-    # "  "
-                                      
-                                                                                     
-    #   "
-                                                                                                                                        
-                                                                           
-                                    
-
-
-                                    !                                           !                                                     ! 
- ) # '                                                                                                                       
-                                                  
-
-                                                                
- '*+!
-                                                                                                      !!
-                                                                                                                              
-                                                                                                                              
-                                                                           
-
-                                      $%&                                                               
-
- 
- 
- 
-                                                                                                                                                       $%&
-                                                                                                            $%&
-
-
-Fig. 3. Three examples of the usage of TEDs for instruction clustering. From top to bottom: DAGs, Algebraic
-expressions, TED construction process and final normalized TEDs.
-
-
-  3.2.2. Clustering with TED isomorphism. Because of the limitations of using DAG pattern
-matching, we introduce a second clustering technique based on a canonical represen-
-tation of portions of the application’s code. We gather insights from works on Taylor
-Expansion Diagrams (TED) [Ciesielski et al. 2006], commonly used for circuit verifi-
-cation. We use these TEDs for another purpose: to find common parts of the code that
-cannot be found with a simple pattern matching technique using DAGs. We match code
-from applications using TEDs at compile time (at an intermediate code level), and thus
-the shape of a TED does not influence the final implementation of a custom instruction
-at the circuit-level.
-  In order to understand how the TED technique works for cases such as the one de-
-picted in the examples of Figure 3, we first describe the basics of the representation.
-Taylor series expansion defines the representation of a multivariate algebraic expres-
-sion f (x, y, . . .) as:
-
-                                                                                  1
-                      f (x, y, . . .) = f (0, y, z, . . .) + xf (0, y, z, . . .) + x2 f (0, y, z, . . .) + . . .
-                                                                                  2
-
-where the origin is set in x = 0 and with f (x = 0) and f (x = 0) as the successive
-derivatives of f (x = 0). This decomposition, applied recursively to algebraic functions,
-is stored into a directed acyclic graph, the Taylor Expansion Diagram (label 2.2 in
-Figure 2). Each node of the graph represents an input variable, and three different
-types of edges can be linked to a node: constant Taylor expansion is represented with
-a dashed edge, the expansion on the first derivative is a plain lined edge, and the
-expansion on the second derivative is a double-lined edge. On the bottom left of Figure
-Figure 3 we can find a key of that representation. Following a set of rules, we obtain
-
-ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,A:8                                                                                    C. Gonzalez-Alvarez et al.
-
-a normalized and canonical representation of the TED from the starting algebraic
-expression.
-  In our concrete case, we start with the computations expressed as subDFGs or DAGs
-from Step 1 in Figure 3. Then, in order to build a TED, we execute the following steps:
-(1) Convert the subDFG into an algebraic expression. Note that boolean logic can be
-    expressed as an algebraic expression as well: for example, the logical ‘or’ operation
-    can be represented as x ∨ y = x + y − xy [Ciesielski et al. 2006].
-(2) Decide the order in which the variables will be expanded, as it affects the size and
-    shape final canonical representation. We followed the recommendations of Gomez-
-    Prado et al. [2004] to keep optimized TEDs.
-(3) Recursively calculate the values of the Taylor expansion for the constant, first and
-    second derivative for every term in the algebraic expression.
-(4) Apply reduction and normalization rules to arrive at and ensure canonicity as ex-
-    plained by Ciesielski et al. [2006].
-   We explain the TED construction with the examples in Figure 3. In Example 1, the
-first step converts the DAGs into the algebraic expressions A and B written under the
-graphs. Note the expansion of the ‘or’ operation into its counterpart algebraic expres-
-sion. In the second step, we decide the ordering of the variables, which is important
-to arrive at a canonical representation. In this case, the order is x, y. In the third step
-we construct the TED, which will be unique for both A and B, as their Taylor series
-expansions yield the same values. Step i in the TED construction builds a partial TED
-performing the Taylor series expansion first on variable x. Then, step ii expands on
-variable y. The resulting TED, after applying normalization and reduction, leads to
-the reduced version in the bottom of the example. For Example 2, the four algebraic
-expressions are expanded in the same way, as shown in steps i to v. In Example 3,
-with multiple output DAGs, we will have an algebraic expression for each one of the
-outputs. Each expression is transformed into the corresponding TED, with as many
-steps as input variables. At the end, the generated TEDs, separately, are reduced and
-normalized, but also merged into a single normalized TED.
-   Finally, as TEDs are also directed acyclic graphs, we perform a one-to-one isomor-
-phism detection with the normalized TED — like the ones at the bottom of Figure 3 —
-as we do with the DAG representation (label 2.3 in Figure 2).
-   3.2.3. Hybrid TED-DAG clustering. The final clustering technique is a hybrid TED-DAG
-technique. Not all computations in their directed acyclic graphs can be converted to
-a polynomial expression, and only polynomials with a finite Taylor expansion can be
-modeled as TEDs. This excludes modular arithmetic, relational operations, and expo-
-nentiation of constants as a base, whereas a DAG can represent all types of computa-
-tions as they are expressed in the DFG. Due to these restrictions, we propose a hybrid
-technique that uses the TED representation when it can be created, and otherwise uses
-the DAG representation of subDFGs to cluster computation (label 2.4 in Figure 2). Us-
-ing this hybrid approach, we should be able to cluster more code sequences to target
-the same hardware, identifying the most efficient custom instructions for our set of
-applications.
-
-3.3. Heuristic Selection
-After clustering code sequences, we have identified many different possible custom in-
-structions. In order to select the most promising ones for our applications, we introduce
-four novel scoring heuristics in Step 3 of Figure 2. Our scoring techniques use dynamic
-execution data from the applications in order to prioritize custom instructions, either
-focusing on application-specific or domain-specific custom instructions, that maximize
-
-      ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,Accelerating an Application Domain with Specialized Functional Units                                                A:9
-
-speedup. Our scoring techniques do not currently take hardware implementation area
-into account. They score based on the number of regular instructions covered by each
-custom instruction, the frequency of execution of the basic blocks that contain the
-subDFG that maps to that custom instruction, and (for domain-specific) the number of
-applications that can use each custom instruction.
-   3.3.1. Application-Specific Scoring. We first focus on a scoring heuristic that prioritizes
-custom instructions targeted at just one application (label 3.1 in Figure 2). Our heuris-
-tic ranks custom instructions based on the potential speedup they can offer, using the
-following terms: K is a custom instruction for which n code sequences are found in
-an application, i.e., n code sequences can be accelerated using custom instruction K.
-ninsti is the number of regular instructions and f reqi is the frequency of execution of
-the code sequence amenable to the custom instruction. The latter is gathered through
-profiling (label 1.2 in Figure 2).
-   Our application-specific scoring heuristic for custom instruction K is then defined
-as:
-                                                        n
-                                      scoringK =             ninsti × f reqi ,
-                                                       i=1
-
-and essentially weights all code sequences with their instruction counts and execution
-frequencies to have a measure of the speedup of the application as a whole.
-  3.3.2. Domain-Specific Scoring. To identify custom instructions that are most efficient
-across a domain of applications, we must use different heuristics that take into account
-the reusability of the hardware (label 3.2 in Figure 2). We still take into account a
-custom instruction’s execution frequency, however with a slight change. Because we
-are considering different applications, we must normalize the execution frequencies
-to the application’s total dynamic instruction count. For any given application, the
-normalization is done by scaling the frequency of execution to the percentage of the
-application’s total number of instructions executed.
-  We first define the following variables:
-— K is a custom instruction with n code sequences found across all applications (1 ≤
-  n).
-— ninst is the number of regular instructions of a given code sequence amenable to the
-  given custom instruction.
-— nf req is the normalized frequency of execution of the given code sequence.
-— napp is the number of applications that can use the custom instruction.
-— Each of these napp applications can use the custom instruction at m different points
-                                            napp
-  in the code (1 ≤ m ≤ n), and thus (n = i=1 mi ).
-  We now detail four new scoring heuristics that each prioritize custom instructions
-differently, and we compare them later in the experimental results section.
-  Scoring #1: Normalized application-specific.
-                                                        n
-                                      scoringK =             ninsti × nf reqi
-                                                      i=1
-
-   This first scoring is similar to the application-specific scoring, though it uses normal-
-ized frequency values. It maximizes the ranking of frequently used custom instructions
-targeting high numbers of instructions. A custom instruction’s sharing across applica-
-tions is not taking into account with this scoring heuristic.
-
-ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,A:10                                                                                 C. Gonzalez-Alvarez et al.
-
-  Scoring #2: Scaled by sharing.
-                                                     n
-                              scoringK = (               ninsti × nf reqi ) × napp
-                                                 i=1
-
-  Our second scoring technique does take into consideration a custom instruction’s
-ability to be reused or shared across applications. The napp factor prioritizes custom
-instructions that have a high sharing factor, when the scoring has to discriminate
-among custom instructions with similar numbers of normalized dynamic instructions.
-Application-specific custom instructions that are very frequently used are still highly
-ranked, since nf reqi    napp.
-  Scoring #3: Geometric mean of sharing.
-                                                         napp mi
-                             scoringK =         napp
-                                                             (     ninstj × nf reqj )
-                                                         i=1 j=1
-
-  Our third scoring heuristic calculates the geometric mean of the mi application-
-specific scores, where i an index that iterates over the applications involved. Since
-application-specific scores for a given custom instruction can vary by several orders of
-magnitude, we propose this scoring to smooth out the spikes in the scores due to a sin-
-gle application (when napp > 1). Custom instructions that benefit many applications
-but get a high score from only one application, are penalized. This heuristic thus intro-
-duces fairness for custom instructions targeting several applications. However, custom
-instructions used by one application are not penalized.
-  Scoring #4: Random-scaled sharing.
-                                       napp−1 mi
-                                                                                   napp
-                       scoringK =                (         ninstj × nf reqj ) ×
-                                          i=0        j=1
-                                                                                  napp − i
-
-  In the final scoring heuristic, we introduce a randomness factor controlled by the
-number of applications that the custom instruction targets. The application-specific
-                          napp
-scoring is weighted by napp−i  . The assignment of i is random, but napp still influences
-the final result, thus the higher the sharing factor, the higher the score. Note that the
-value of i assigned to a particular application is non-deterministic, so the applications
-are weighted differently for each code sequence. The reason for introducing some con-
-trolled randomness is to distribute scores in a more flexible way, since there are other
-factors that we do not consider in our current heuristics.
-3.4. Evaluation: Estimating Performance and Area
-Finally, in Step 4 from Figure 2, we evaluate the effectiveness of the custom instruc-
-tions identified by the previous three steps. Informed by the prioritization of custom
-instructions by the scoring heuristics in Step 3, we feed top custom instructions into
-a hardware description language conversion tool that creates a preliminary hardware
-implementation (label 4.1 in Figure 2). This implementation verifies that the identi-
-fied sequences of code can be implemented as hardware structures, and double-checks
-the scoring techniques. The hardware implementation, using information from the ap-
-plication profile, is fed into a model that estimates the achievable speedup and area
-occupied by each custom instruction (label 4.2 in Figure 2). Area estimates are ob-
-tained through hardware synthesis as we will explain in Section 4.1.
-   We estimate the speedup each custom instruction can achieve for each identified
-sequence of code as follows. Consider a custom instruction that would be invoked at
-
-    ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,Accelerating an Application Domain with Specialized Functional Units                                            A:11
-
-n different locations in the code of a particular application, that covers ninst normal
-instructions, and is executed nf req times at a particular location. Further assume that
-hardware synthesis estimates the custom instruction to take hw cycles to execute. Con-
-sider also a cost of Cin cycles to move input data from the register file to the SFU before
-the custom instruction starts and a Cout cost to move outputs back to the register file
-at the end of the accelerated execution. Both costs depend on the number of input and
-output parameters of a particular custom instruction and the available register ports
-in the baseline processor. We first estimate the execution time in cycles of all uses of the
-                                                    n
-custom instruction (on the SFU) as: Tw/ ci = i=1 nf reqi × (hw cycles + Cini + Couti ),
-or the number of times the custom instruction is invoked multiplied by its execution
-time in cycles. Then, we estimate the number of cycles that the same sequences of
-code would take on the uncustomized processor (without using the custom instruc-
-                    n
-tion): Tw/o ci = i=1 ninsti × nf reqi × CP I, with CP I as the cycles per instruction of
-the application on the target processor.
-   We define T as the total application execution time in cycles on the target processor
-(without using the custom instruction). We then can find the difference between the
-number of cycles our candidate sequences take on the uncustomized processor versus
-using custom instructions, and subtract this from T to approximate the accelerated
-performance. Formally, the estimated total application time when using custom in-
-structions is T − (Tw/o ci − Tw/ ci ). We then divide that estimated time by T to calculate
-the SFU’s achievable speedup. This is a conservative estimate since we do not take
-into account the potential instruction-level parallelism between regular and custom
-instruction execution, which would result in higher speedups.
-   With this evaluation step, we are able to compare the potential performance im-
-provements that a set of custom instructions, whether including just application-
-specific custom instructions, domain-specific, or both, can provide to an application
-or set of applications.
-
-4. EXPERIMENTAL SETUP
-We briefly detail the implementation details of our specialized functional unit de-
-sign exploration framework, including the software and hardware tools used, and our
-benchmarks.
-
-4.1. Framework
-We use the LLVM compiler infrastructure [Lattner and Adve 2004] as the front-end
-to our custom instruction design exploration framework. We modify the LLVM code
-generation module to find maximum valid subDFGs for DFG exploration (Step 1 in
-our framework). We perform graph isomorphism detection using the NetworkX li-
-brary [Hagberg et al. 2008], and construct the TED representations using the variable
-algebra analysis part of Sage [Stein et al. 2013]. We obtain an execution profile for
-each of our applications using the LLVM binary interpreter. The profile indicates the
-frequency of execution for each basic block, and is used in Steps 2 to 4 of our frame-
-work.
-   We assume that the target architecture has spare core area tightly-coupled to the
-processor core to implement the configurable SFU, as shown in Figure 1. We consider a
-single-core single-thread OpenSPARC T1 as the baseline architecture, which has been
-adapted previously for research on embedded applications [SRISC 2012; Gonzalez-       ´
- ´
-Alvarez  et al. 2011]. The register file that both the ALU and the SFU access consists of
-32 64-bit registers with three read, two write and one transport ports. The instruction
-encoding allows moving two input operands to the SFU with no additional cost. Any
-extra inputs are sent in groups of three, with a cost of one cycle per transfer, before the
-
-ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,A:12                                                                                 C. Gonzalez-Alvarez et al.
-
-               Table I. Description of the evaluated application benchmarks and their input files.
-          Benchmark       Description                                     Input
-          aacenc          AAC audio compression format encoder            33.9 MB WAV
-          cjpeg           JPEG image format compressor                    1.2 MB PPM (Mediabench)
-          djpeg           JPEG image format decoder                       12.8 kB JPEG (Mediabench)
-          face            Face detection on bitmap files                  734.5 kB bitmap
-          tmndec          H263 video format decoder (TMN impl.)           114 kB H263 (Mediabench)
-          tmnenc          H263 video format encoder (TMN impl.)           5.5 MB YUV (Mediabench)
-          mpeg2dec        MPEG2 video format decoder                      34.9 kB (Mediabench)
-          mpeg2enc        MPEG2 video format encoder                      506.9 kB (Mediabench)
-          opt flow        Optical flow for motion estimation              884 kB images
-
-
-custom instruction execution starts. When the instruction ends, outputs are packed
-together in groups of two and moved back to the register file, with a cost of one cycle
-per transfer.
-   To evaluate the selected custom instructions, we first translate their functionality to
-C code. For a given application, custom instructions that are functionally equivalent
-are translated to one common piece of code. Across applications, for a given set of sec-
-tions of code identified as functionally equivalent, we provide an implementation of the
-custom instruction execution path for each application involved. Later, we choose the
-best among them for the performance model. We use the Vivado HLS suite to perform
-C to HDL conversion on those C code segments. For feasibility reasons, our automatic
-toolchain uses the default optimizations of Vivado HLS [Xilinx 2012]. Any further im-
-provements to the hardware implementation with specifically-set optimizations would
-result in better overall speedups. The Xilinx ISE tool performs the synthesis of the
-design, using the Virtex 5 FPGA as a target, which estimates the new hardware’s area
-(per custom instruction) as a number of look-up tables (LUTs) and slices. We report
-area estimates relative to the OpenSPARC T1 core area, which is also mapped onto a
-Xilinx Virtex 5 FPGA for apples-to-apples comparison. Although this work currently
-targets an ASIP for which the instruction-set architecture is configured at boot time,
-we use an FPGA model to keep open the option of exploring ASIPs with run-time pro-
-grammable ISAs in the future. We also use the Xilinx ISE reports to estimate the num-
-ber of cycles per custom instruction, which we use to estimate performance speedup
-through acceleration as previously explained.
-
-4.2. Benchmarks
-Table I shows the list of benchmarks that we use for our experiments, with their de-
-scriptions and input files. All of the applications belong to the media domain. The opti-
-cal flow kernel and the face detection benchmark are part of the OpenCV library [Brad-
-ski 2000]. The AAC (audio compression) encoder is based on a program provided by
-Renesas Technology and Hitachi Ltd. The rest of the applications and their input files
-belong to the Mediabench benchmark suite [Fritts et al. 2009].
-
-5. ESTIMATED PERFORMANCE RESULTS
-In this section we present the experimental results obtained using the custom in-
-struction design exploration framework presented in Section 3. We first compare the
-speedup that we can achieve using the DAG, TED, and Hybrid clustering techniques
-described in Section 3.2, showing in Section 5.1 that TED and Hybrid techniques by
-far out-perform DAG for identifying custom instructions across a domain. We then
-
-    ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,Accelerating an Application Domain with Specialized Functional Units                                             A:13
-
-    Table II. Number of code sequences and custom instructions found in each application with DAG, TED
-    and Hybrid methods, and the percentage of dynamic instructions covered by them. These results use
-    the random-scaled sharing heuristic, and are for unlimited core area.
-                            Num. code sequences          Num. custom instr.            % dynamic instr.
-        % Benchmark
-                           DAG TED Hybrid               DAG TED Hybrid               DAG TED      Hybrid
-       aacenc                81       73          72       29      32          27     10.5      6.1        4.9
-       cjpeg                126      138        140        53      41          41      3.5     10.8       10.9
-       djpeg                115      119        119        52      43          43      2.0     16.9       16.9
-       face                 165      211        211        45      66          66      0.9      9.3        9.4
-       tmnenc                89      116        121        29      37          38      0.5      0.9        0.8
-       tmndec                51       68          70       31      43          45      2.8      6.6        6.6
-       mpeg2dec              75       83          86       44      40          43     24.1     16.6       21.2
-       mpeg2enc             106      164        172        51      68          72      2.1      9.0        9.7
-       optflow                 1       7           7        1        6          6      0.0     27.2       27.2
-
-
-show differences between our four new scoring heuristics (from Section 3.3) across
-benchmarks, demonstrating in Section 5.2 that on average the random-scaled sharing
-heuristic works best for our applications. In contrast to Sections 5.1 and 5.2, focus-
-ing only on domain-specific custom instructions, we then evaluate the differences in
-speedup that can be achieved using only domain-specific, only application-specific, or
-a mix of both kinds of custom instructions in Section 5.3. With the whole core area
-at our disposal, application-specific custom instructions achieve the highest speedup;
-however, at lower core areas, domain-specific custom instructions perform well, but al-
-ways benefit from the addition of application-specific custom instructions. Using both
-kinds of custom instructions, we achieve the highest speedups. In Section 5.4, we per-
-form a detailed analysis of the custom instructions included at particular percentages
-of core area for application-specific, domain-specific, and mixed configurations. We re-
-veal insights about the number of small, medium, and large custom instructions, the
-average number of inputs and outputs, and the number of applications each config-
-uration can target. Finally, in Section 5.5, we evaluate a more realistic setting using
-cross-validation, evaluating how a set of custom instructions identified as useful for a
-group of applications perform for another, previously unseen, application.
-
-5.1. DAG vs TED vs Hybrid
-We first evaluate the effectiveness of using a directed-acyclic graph to guide pattern
-matching between code sequences (DAG), versus using a canonical approach to clus-
-ter code sequences (TED). We compare their effectiveness considering all applications
-from the domain. Table II compares the three techniques for each benchmark in the
-number of code sequences they identified, number of custom instructions selected, and
-percent of total dynamic instructions that can be converted to custom instructions.
-These numbers were gathered using the random-scaled sharing heuristic to rank can-
-didates, and devoting an unlimited core area to the SFU. We select a custom instruction
-if it can accelerate two or more code sequences from different benchmarks. For all but
-one benchmark (aacenc), the TED and Hybrid techniques find a larger number of code
-sequences than DAG. For all but two benchmarks (cjpeg and djpeg), TED and Hybrid
-also select about the same or a larger number of custom instructions. Even with cjpeg
-and djpeg, we see TED and Hybrid cover significantly more dynamic instructions than
-DAG, which is also the case for all other benchmarks except aacenc and mpeg2dec. Be-
-cause the selection heuristic discards instructions that might cover more execution
-time, TED and Hybrid perform slightly worse for aacenc and mpeg2dec.
-
-ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,A:14                                                                                                                                     C. Gonzalez-Alvarez et al.
-
-
-           1.30
-                      Only domain-specific: aacenc                    1.30
-                                                                                      Only domain-specific: cjpeg                        1.30
-                                                                                                                                                      Only domain-specific: djpeg
-                                               Hybrid                                                         Hybrid                                                          Hybrid
-           1.25                                TED                    1.25                                    TED                        1.25                                 TED
-                                               DAG                                                            DAG                                                             DAG
-           1.20                                                       1.20                                                               1.20
- Speedup
-
-
-
-
-                                                            Speedup
-
-
-
-
-                                                                                                                               Speedup
-           1.15                                                       1.15                                                               1.15
-
-           1.10                                                       1.10                                                               1.10
-
-           1.05                                                       1.05                                                               1.05
-
-           1.00                                                       1.00                                                               1.00
-                  0   2      4      6    8 10 12      14                     0        1       2     3      4     5         6                    0     2    4     6    8     10      12     14
-                                 Percentage of Area                                           Percentage of Area                                            Percentage of Area
-
-
-           1.30
-                          Only domain-specific: face                  1.30
-                                                                                 Only domain-specific: mpeg2dec                          1.30
-                                                                                                                                                    Only domain-specific: mpeg2enc
-                                                  Hybrid                                                                                                                     Hybrid
-           1.25                                   TED                 1.25                                                               1.25                                TED
-                                                  DAG                                                                                                                        DAG
-           1.20                                                       1.20                                                               1.20
- Speedup
-
-
-
-
-                                                            Speedup
-
-
-
-
-                                                                                                                               Speedup
-           1.15                                                       1.15                                                               1.15
-
-           1.10                                                       1.10                                                               1.10
-
-                                                                                                                     Hybrid
-           1.05                                                       1.05                                                               1.05
-                                                                                                                     TED
-                                                                                                                     DAG
-           1.00                                                       1.00                                                               1.00
-                  0   20         40 60 80 100 120 140                        0            5        10        15       20                        0     20   40    60     80 100           120
-                                  Percentage of Area                                          Percentage of Area                                            Percentage of Area
-
-
-           1.30
-                      Only domain-specific: optflow                   1.30
-                                                                                  Only domain-specific: tmnenc                           1.30
-                                                                                                                                                     Only domain-specific: tmndec
-                                               Hybrid                                                     Hybrid                                                             Hybrid
-           1.25                                TED                    1.25                                TED                            1.25                                TED
-                                               DAG                                                        DAG                                                                DAG
-           1.20                                                       1.20                                                               1.20
- Speedup
-
-
-
-
-                                                            Speedup
-
-
-
-
-                                                                                                                               Speedup
-
-
-           1.15                                                       1.15                                                               1.15
-
-           1.10                                                       1.10                                                               1.10
-
-           1.05                                                       1.05                                                               1.05
-
-           1.00                                                       1.00                                                               1.00
-               0.0         0.5        1.0      1.5    2.0                    0    2       4     6 8 10 12 14 16                                 0     2    4       6    8     10    12     14
-                                 Percentage of Area                                           Percentage of Area                                               Percentage of Area
-
-
-Fig. 4. Results of benchmark speedup versus custom instruction area for DAG, TED and Hybrid methods,
-with domain-specific custom instructions using random-scaled sharing scoring.
-
-
-  Figure 4 presents a graph for each benchmark with a range of core areas dedicated
-to the SFU on the x-axis, and speedup on the y-axis. Here, we only include domain-
-specific custom instructions, or those that accelerate more than one application. These
-results use the best performing scoring heuristic (random-scaled sharing), which we
-discuss in detail in the next section. Each point on the graph represents a group of
-domain-specific custom instructions that can be used by that benchmark and that fit
-inside that core area (x-axis), which together can achieve that speedup (y-axis) for a
-given benchmark. Note that each benchmark has a different x-axis scale because these
-are the area percentages used per benchmark, not for the entire SFU. In all following
-sections, we consider the entire SFU design when discussing area. The average of all
-applications (using total SFU area) is shown in Figure 5(a).
-  On average, the Hybrid technique, which uses the TED representation when it is
-able and otherwise uses DAG, is the most effective technique at finding domain-specific
-
-             ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,Accelerating an Application Domain with Specialized Functional Units                                                   A:15
-
-
-               1.45
-                           Only domain-specific: Average                    1.45
-                                                                                      Application-specific: Average
-                                                    Hybrid
-               1.40                                 TED                     1.40
-               1.35                                 DAG                     1.35
-               1.30                                                         1.30
-               1.25                                                         1.25
-     Speedup
-
-
-
-
-                                                                  Speedup
-               1.20                                                         1.20
-               1.15                                                         1.15
-               1.10                                                         1.10         DAG
-               1.05                                                         1.05
-                                                                                         TED
-                                                                                         Hybrid
-               1.00                                                         1.00
-                      0      20       40      60       80                       0       20       40      60       80
-                                  Percentage of Area                                         Percentage of Area
-                          a) Domain-specific results                               b) Application-specific results
-Fig. 5. Average over all applications for DAG, TED and Hybrid methods, using random-scaled sharing
-scoring, for domain-specific (a) and application-specific (b) custom instructions.
-
-custom instructions (see Figure 5(a)). The Hybrid technique achieves higher speedups
-at smaller areas (left hand side on the graphs in Figure 4), always increasing the
-speedup faster than the other two techniques. All but two benchmarks show the best
-speedups with TED and Hybrid techniques regardless of area, and for tmnenc, DAG
-performs best only between 6% and 12% core area. When given unbounded core area,
-only one benchmark, mpeg2dec, performs better with the DAG clustering technique
-than with Hybrid. This happens because the Hybrid technique first tries to identify
-custom instructions using TED, and when it cannot find any more, it complements with
-DAG. If part of an application’s code is represented by TEDs, and creates a less efficient
-custom instruction than a DAG design would, then the Hybrid technique would not
-be able to take advantage of the better DAG implementation. We also see that for
-most benchmarks, Hybrid and TED techniques perform very similarly. However, for
-mpeg2dec, which reveals a large opportunity with the DAG technique, Hybrid can
-achieve higher speedups than the TED technique alone because it can benefit from the
-code sequences that can only be represented in a DAG.
-   Figure 5(a) shows that on average across our benchmarks, TED and Hybrid achieve
-around 12% and 13% speedup, respectively, when using only 20% of the core area
-for domain-specific custom instructions, while DAG obtains only 4% speedup. We con-
-trast this with Figure 5(b), which shows the average area and speedup numbers across
-our benchmarks for the three clustering techniques when we only include application-
-specific custom instructions. (We further compare application-specific versus domain-
-specific designs in Section 5.3.) While TED’s canonical representation does not make
-a large difference when clustering code sequences within the same application, we see
-that it is very important to achieve higher speedups when generating domain-specific
-custom instructions. The key insight here is that individual applications are coded
-following the same style, so the benefit of a canonical representation is not so clear.
-However, as we move across applications we find different code styles and a canonical
-representation is key to identifying acceleration opportunities.
-
-5.2. Domain-Specific Scoring
-We next compare the four new scoring heuristics that we explain in Section 3.3. Fig-
-ure 6 presents a graph for each benchmark of the speedup that each heuristic predicts
-for a given SFU area. For these graphs, we use the Hybrid clustering technique, and
-
-ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,A:16                                                                                                                                    C. Gonzalez-Alvarez et al.
-
-
-           1.30
-                      Domain-specific only: aacenc                       1.30
-                                                                                      Domain-specific only: cjpeg                       1.30
-                                                                                                                                                     Domain-specific only: djpeg
-                                 Norm. app-specific                                             Norm. app-specific                                             Norm. app-specific
-           1.25                  Scaled by sharing                       1.25                   Scaled by sharing                       1.25                   Scaled by sharing
-                                 Geom. mean                                                     Geom. mean                                                     Geom. mean
-                                 Random-scaled                                                  Random-scaled                                                  Random-scaled
-           1.20                                                          1.20                                                           1.20
- Speedup
-
-
-
-
-                                                               Speedup
-
-
-
-
-                                                                                                                              Speedup
-           1.15                                                          1.15                                                           1.15
-
-           1.10                                                          1.10                                                           1.10
-
-           1.05                                                          1.05                                                           1.05
-
-           1.00                                                          1.00                                                           1.00
-                  0     20       40      60       80     100                    0      20       40      60       80     100                    0      20       40      60       80   100
-                             Percentage of Area                                             Percentage of Area                                             Percentage of Area
-
-
-           1.30
-                       Domain-specific only: face                        1.30
-                                                                                    Domain-specific only: mpeg2dec                      1.30
-                                                                                                                                                   Domain-specific only: mpeg2enc
-                                 Norm. app-specific                                                                                                             Norm. app-specific
-           1.25                  Scaled by sharing                       1.25                                                           1.25                    Scaled by sharing
-                                 Geom. mean                                                                                                                     Geom. mean
-                                 Random-scaled                                                                                                                  Random-scaled
-           1.20                                                          1.20                                                           1.20
- Speedup
-
-
-
-
-                                                               Speedup
-
-
-
-
-                                                                                                                              Speedup
-           1.15                                                          1.15                                                           1.15
-
-           1.10                                                          1.10                                                           1.10
-                                                                                                   Norm. app-specific
-                                                                                                   Scaled by sharing
-           1.05                                                          1.05                                                           1.05
-                                                                                                   Geom. mean
-                                                                                                   Random-scaled
-           1.00                                                          1.00                                                           1.00
-                  0     20       40      60       80     100                    0      20       40      60       80     100                    0      20       40      60       80   100
-                             Percentage of Area                                             Percentage of Area                                             Percentage of Area
-
-
-           1.30
-                      Domain-specific only: optflow                      1.30
-                                                                                     Domain-specific only: tmndec                       1.30
-                                                                                                                                                    Domain-specific only: tmnenc
-                                                                                                Norm. app-specific                                             Norm. app-specific
-           1.25                                                          1.25                   Scaled by sharing                       1.25                   Scaled by sharing
-                                                                                                Geom. mean                                                     Geom. mean
-                                                                                                Random-scaled                                                  Random-scaled
-           1.20                                                          1.20                                                           1.20
- Speedup
-
-
-
-
-                                                               Speedup
-
-
-
-
-                                                                                                                              Speedup
-
-
-           1.15                                                          1.15                                                           1.15
-
-           1.10                                                          1.10                                                           1.10
-                                    Norm. app-specific
-                                    Scaled by sharing
-           1.05                                                          1.05                                                           1.05
-                                    Geom. mean
-                                    Random-scaled
-           1.00                                                          1.00                                                           1.00
-                  0     20       40      60       80     100                    0      20       40      60       80     100                    0      20       40      60       80   100
-                             Percentage of Area                                             Percentage of Area                                             Percentage of Area
-
-
-Fig. 6. Results of benchmark speedup versus SFU area for scoring techniques, with domain-specific custom
-instructions created with the Hybrid technique.
-
-
-include only domain-specific custom instructions. Note that in these and all following
-sections, we consider the entire SFU design and its area, not only those custom in-
-structions useful per application. Thus, area always ranges between 0 and 100% of the
-core. The average across all benchmarks is presented in Figure 7 for 100% of the area
-and on the right we zoom in on smaller, more realistic areas of 0 to 20%.
-  Across all benchmarks, we see that the fourth scoring technique, or random-scaled
-sharing, performs best on average. In Figure 7, it achieves higher speedups quicker
-at lower areas, and at unlimited area, it performs the best. At 20% area, shown in
-Figure 7(b), this technique achieves similar speedups as scaled-by-sharing. There are
-some variations across benchmarks in Figure 6. For face, the geometric mean scor-
-ing takes more area to achieve similar speedups, probably because it dampens the
-importance of a domain-specific custom instruction that only performs well for one ap-
-plication. For djpeg, the geometric scoring heuristic cannot achieve the speedups the
-
-             ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,Accelerating an Application Domain with Specialized Functional Units                                                            A:17
-
-
-                 1.30
-                            Domain-specific only: Average                    1.30
-                                                                                          Domain-specific only: Average
-                                        Norm. app-specific                                            Norm. app-specific
-                 1.25                   Scaled by sharing                    1.25                     Scaled by sharing
-                                        Geom. mean                                                    Geom. mean
-                                        Random-scaled                                                 Random-scaled
-                 1.20                                                        1.20
-       Speedup
-
-
-
-
-                                                                   Speedup
-                 1.15                                                        1.15
-
-                 1.10                                                        1.10
-
-                 1.05                                                        1.05
-
-                 1.00                                                        1.00
-                        0     20       40      60       80   100                    0         5           10         15    20
-                                   Percentage of Area                                             Percentage of Area
-                        a) 100% of SPARC core area                                      b) 20% of SPARC core area
-Fig. 7. Average over all applications for scoring techniques, with domain-specific custom instructions cre-
-ated with the Hybrid technique.
-
-
-other three techniques achieve, and for tmndec, we see random-scaled sharing more
-than doubling the speedup of any other heuristic at any given area. For mpeg2dec,
-and to a lesser extent, mpeg2enc and tmnenc, the geometric mean heuristic that av-
-erages the benefit each application can receive, does rise to higher speedups at lower
-areas. Only for mpeg2dec does the geometric mean technique get larger speedups than
-the random-scaled sharing heuristic at high areas. In this particular case, the geomet-
-ric mean heuristic ranks a pair of custom instructions with low re-utilization higher
-compared to the other scoring heuristics. The other heuristics did not rank these cus-
-tom instructions as high because of previously identified, partially overlapping custom
-instructions. For aacenc, random-scaled maximizes the speedup at smaller areas. In
-particular, a custom instruction that causes a 6% speedup improvement is selected
-with that scoring three positions earlier than with scaled-by-sharing. However, for
-cjpeg, the scaled-by-sharing heuristic is the one that raises to high speedup values at
-lower areas. We find here a counter-example: scaled-by-sharing selects a custom in-
-struction that contributes 5% to the speedup improvement five positions earlier than
-random-scaled. A closer look at the groups of code sequences that are clustered into
-those custom instructions tell us that in both cases the coverage across applications
-is maximized. However, random-scaled prioritizes less aggressively, and custom in-
-structions with a medium number of applications but good overall performance will
-still rank high. Therefore, we use that scoring as our default in the other experiments
-reported in the paper.
-
-5.3. Application-Specific Versus Domain-Specific Configurations
-Up until now, we have analyzed the potential of only domain-specific custom in-
-structions. But our framework allows us to compare the performance of potential
-application-specific custom instructions as well. In this section, we compare the
-speedups that can be achieved using a part of the core area dedicated to only
-application-specific, only domain-specific, or a mixture of both kinds of custom in-
-structions. Our goal here is to understand how to best configure an SFU to opti-
-mize full-system performance across applications subject to area constraints. Or in
-other words, for a given core area, are we better off choosing application-specific only,
-domain-specific only, or both application- and domain-specific custom instructions for
-the SFU?
-
-ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,A:18                                                                                                                               C. Gonzalez-Alvarez et al.
-
-
-                      Full system configuration: aacenc                             Full system configuration: cjpeg                             Full system configuration: djpeg
-                                   Only App-specific                                     Only App-specific                                             Only App-specific
-            1.6                    App-Domain specific                    1.6            App-Domain specific                           1.6             App-Domain specific
-                                   Only Domain specific                                  Only Domain specific                                          Only Domain specific
-            1.5                                                           1.5                                                          1.5
-
-            1.4                                                           1.4                                                          1.4
-  Speedup
-
-
-
-
-                                                                Speedup
-
-
-
-
-                                                                                                                             Speedup
-            1.3                                                           1.3                                                          1.3
-
-            1.2                                                           1.2                                                          1.2
-
-            1.1                                                           1.1                                                          1.1
-
-            1.0                                                           1.0                                                          1.0
-                  0       20       40      60       80    100                   0      20       40      60       80    100                   0      20       40      60       80    100
-                               Percentage of Area                                           Percentage of Area                                           Percentage of Area
-
-                       Full system configuration: face                        Full system configuration: mpeg2dec                          Full system configuration: mpeg2enc
-                                  Only App-specific                                         Only App-specific                                            Only App-specific
-            1.6                   App-Domain specific                     1.6               App-Domain specific                        1.6               App-Domain specific
-                                  Only Domain specific                                      Only Domain specific                                         Only Domain specific
-            1.5                                                           1.5                                                          1.5
-
-            1.4                                                           1.4                                                          1.4
-  Speedup
-
-
-
-
-                                                                Speedup
-
-
-
-
-                                                                                                                             Speedup
-            1.3                                                           1.3                                                          1.3
-
-            1.2                                                           1.2                                                          1.2
-
-            1.1                                                           1.1                                                          1.1
-
-            1.0                                                           1.0                                                          1.0
-                  0       20       40      60       80    100                   0      20       40      60       80    100                   0      20       40      60       80    100
-                               Percentage of Area                                           Percentage of Area                                           Percentage of Area
-
-                Full system configuration: optflow                            Full system configuration: tmndec                            Full system configuration: tmnenc
-                             Only App-specific                                             Only App-specific                                            Only App-specific
-            1.6              App-Domain specific                          1.6              App-Domain specific                         1.6              App-Domain specific
-                             Only Domain specific                                          Only Domain specific                                         Only Domain specific
-            1.5                                                           1.5                                                          1.5
-
-            1.4                                                           1.4                                                          1.4
-  Speedup
-
-
-
-
-                                                                Speedup
-
-
-
-
-                                                                                                                             Speedup
-
-
-
-            1.3                                                           1.3                                                          1.3
-
-            1.2                                                           1.2                                                          1.2
-
-            1.1                                                           1.1                                                          1.1
-
-            1.0                                                           1.0                                                          1.0
-                  0       20       40      60       80    100                   0      20       40      60       80    100                   0      20       40      60       80    100
-                               Percentage of Area                                           Percentage of Area                                           Percentage of Area
-
-
-Fig. 8. Results of benchmark speedup versus SFU area using only application-specific, application and
-domain-specific, or only domain-specific custom instructions. Results gathered using the Hybrid technique.
-
-
-  Figure 8 presents the speedup for each benchmark across a range of areas, including
-only application-specific, only domain-specific, and both kinds of custom instructions.
-We analyze performance when the SFU takes zero to 100% of the core area. Figure 9
-shows the averages across all benchmarks, using up to 100% of the core’s area, and
-zooming in on small, more realistic areas from zero to 20%. For all of these graphs,
-we use the Hybrid clustering technique, and we use the application-specific scoring
-for application-specific custom instructions, and the random-scaled sharing scoring for
-domain-specific.
-  Our results reveal that, if given unlimited area, using only application-specific cus-
-tom instructions can achieve the maximum speedup (34% on average) for our bench-
-marks. However, a potentially surprising result is that using both application- and
-domain-specific custom instructions together approaches the performance of using
-only application-specific custom instructions (29%), and obtains higher speedups at
-
-            ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,Accelerating an Application Domain with Specialized Functional Units                                                       A:19
-
-
-                      Full system configuration: Average                         Full system configuration: Average
-                                   Only App-specific                                          Only App-specific
-                  1.6              App-Domain specific                       1.6              App-Domain specific
-                                   Only Domain specific                                       Only Domain specific
-                  1.5                                                        1.5
-
-                  1.4                                                        1.4
-        Speedup
-
-
-
-
-                                                                   Speedup
-                  1.3                                                        1.3
-
-                  1.2                                                        1.2
-
-                  1.1                                                        1.1
-
-                  1.0                                                        1.0
-                        0    20       40      60       80   100                    0     5           10         15    20
-                                  Percentage of Area                                         Percentage of Area
-                        a) 100% of SPARC core area.                                b) 20% of SPARC core area.
-Fig. 9. Average over all applications using only application-specific, application and domain-specific, or only
-domain-specific custom instructions. Results gathered using the Hybrid technique.
-
-lower areas as compared to only application-specific. While using only domain-specific
-custom instructions limits maximal speedup to around 13%, we see that this tech-
-nique is more effective than application-specific at obtaining speedups at very small
-areas. Given 20% area, application-specific achieves 8% speedup, while domain-specific
-achieves 10% and both together achieve 23%. Furthermore, for several benchmarks,
-namely aacenc, face, optflow, and mpeg2dec, using only domain-specific custom in-
-structions performs close to the best of the other two techniques.
-   The key insight here is that, while using only application-specific custom instruc-
-tions results in the highest possible speedups at large or unbounded core areas, consid-
-ering domain-specific custom instructions next to application-specific custom instruc-
-tions yields the highest possible speedup at realistic, smaller core areas. The reason
-is that the domain-specific custom instructions benefit several applications, which is
-more area-efficient compared to application-specific custom instructions which bene-
-fit a single application only, and therefore have limited contribution to overall system
-performance. A corollary of this finding is that, in order for hardware acceleration to
-deliver substantial speedups, some notion of application-specific hardware accelera-
-tion is needed (even at small areas). This requires knowing the target domain and its
-applications at SFU configuration time so that some application-specific custom in-
-structions can be included. Alternatively, one could devote a fraction of the SFU die
-area to domain-specific and application-specific custom instructions that are known to
-perform well given the applications known at design time.
-
-5.4. Custom Instruction Analysis
-In order to reveal further insights about how to build future specialized computing
-units, and which custom instructions offer the most benefit inside an application do-
-main, we present an analysis of the custom instructions identified as the most effec-
-tive at a few particular core areas. We compare the details of the SFU for designs with
-application-specific, domain-specific, and a mixture of both kinds of custom instruc-
-tions. We show custom instruction statistics for core area percentages 5, 10 and 15% in
-Table III, taking the best configurations as shown in Figure 8.
-   Table III shows three configurations: using only application-specific custom instruc-
-tions (only AS ), using only domain-specific custom instructions (only DS ), and using
-both (AS/DS, with the specific AS and DS portions in parentheses). We define three
-sizes of custom instructions, depending on the number of instruction primitives that
-
-ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,  A:20                                                                                   C. Gonzalez-Alvarez et al.
-
-Table III. Classification of custom instructions (CI) in a full-system configuration of 5%, 10% and 15% of the SPARC
-area. (AS = application-specific, DS = domain-specific. Small = 1-5 regular instructions; Medium = 6-15 instructions;
-Large = >15 instructions.)
-                               small-sized              medium-sized               large-sized
-  %area      Config                                                                                     #app     Spdup
-                           # CI     in       out    # CI    in       out       # CI     in       out
-             only AS         2      2.5      2        0     −        −           2      38       2.5      4       1.07×
-  5%         AS/DS        6(0/6)    5.3      2.2   2(0/2) 10         5        6(6/0)    26.5     8.2      9       1.22×
-             only DS         7      4.8      2        1     9        5           0      −        −        9       1.07×
-             only AS         4      2.7      1.5      0     −        −           2      38       2.5      6       1.07×
-  10%        AS/DS        8(0/8)    5.4      2.3   4(2/2) 11.25 5.25          6(6/0)    26.5     8.2      9       1.24×
-             only DS        11      4.6      1.8      3     11.33 5.33           0      −        −        9       1.10×
-             only AS        15      4.9      2.3      1     9        5           3      31.6     7        9       1.13×
-  15%        AS/DS        9(0/9)    4.7      1.8   4(2/2) 11.25 5.25          6(6/0)    26.5     8.2      9       1.24×
-             only DS        13      4.8      2        4     12       6.5         0      −        −        9       1.10×
-
-
-  each custom instruction implements. A small-sized custom instruction has 1 to 5 in-
-  structions, a medium-sized one has 6 to 15, and a large-sized one has more than 15.
-  We also present the average number of inputs and outputs for each size-class; how-
-  ever, these do not affect the size-class (i.e., small custom instructions could have a
-  large number of inputs or outputs). Finally, we show the number of applications that
-  each configuration can cover in the second-to-last column, and the speedup it achieves.
-     We can draw a few interesting conclusions from the best-performing custom instruc-
-  tion configuration statistics. First, using both application and domain-specific custom
-  instructions already achieves 22% speedup using only 5% of the SPARC core’s area.
-  At the same area, using only application-specific custom instructions targets only 4
-  applications and can get only 7% speedup, which raises to 13% when using 15% of
-  the core (while covering all 9 applications). Interestingly, application-specific custom
-  instruction configurations usually include small and large-sized custom instructions,
-  but few medium-sized ones; in comparison, domain-specific custom instruction configu-
-  rations include no large-sized custom instructions, instead prioritizing custom instruc-
-  tions with fewer than 15 base ISA instructions. Using both kinds of custom instruc-
-  tions (AS/DS), we find more domain-specific small-sized custom instructions, but more
-  application-specific ones of the large size. We also see that, though the average input
-  and output sizes are independent of the number of regular instructions per custom
-  instruction, in general, the numbers of inputs and outputs grow as we go from small
-  to medium to large-sized custom instructions. Interestingly, the mixed application and
-  domain configurations include custom instructions from each size-class, and achieve
-  the highest speedup for our applications. This suggests that the best-performing ma-
-  chine should include both application and domain-specific custom instructions.
-
-  5.5. Cross-Validation
-  In all previous experiments, we generated candidate domain-specific custom instruc-
-  tions from code sequences using the entire set of benchmarks. In this final section, we
-  evaluate a realistic setting where the machine is configured with a set of custom in-
-  structions for a particular application domain, but then an as-yet-unseen application
-  runs upon it and tries to take advantage of the flexibility of the domain-specific cus-
-  tom instructions (generally known as cross-validation). In Step 3 of our methodology,
-  shown in Figure 2, we cluster code sequences from N − 1 of our benchmarks, priori-
-  tizing using our random-scaled scoring heuristic, and then in Step 4, we evaluate the
-  effectiveness of those custom instructions on a different, the N th, application.
-     Figures 10 and 11 show our cross-validation results for each benchmark, and the
-  average across benchmarks, respectively. When given the total core area, all but two
-  benchmarks can reach the maximal speedup (obtained using domain-specific custom
-
-        ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,Accelerating an Application Domain with Specialized Functional Units                                                                                                     A:21
-
-
-            1.30
-                      Cross validation: aacenc                        1.30
-                                                                                   Cross validation: cjpeg                         1.30
-                                                                                                                                                Cross validation: djpeg
-                             Upper bound                                                 Upper bound                                                  Upper bound
-            1.25             Cross-validated result                   1.25               Cross-validated result                    1.25               Cross-validated result
-
-            1.20                                                      1.20                                                         1.20
-  Speedup
-
-
-
-
-                                                            Speedup
-
-
-
-
-                                                                                                                         Speedup
-            1.15                                                      1.15                                                         1.15
-
-            1.10                                                      1.10                                                         1.10
-
-            1.05                                                      1.05                                                         1.05
-
-            1.00                                                      1.00                                                         1.00
-                0     20       40      60       80    100                    0    20       40      60       80     100                    0    20       40      60       80     100
-                           Percentage of Area                                          Percentage of Area                                           Percentage of Area
-
-
-           1.30
-                       Cross validation: face                         1.30
-                                                                                 Cross validation: mpeg2dec                        1.30
-                                                                                                                                              Cross validation: mpeg2enc
-                             Upper bound                                                  Upper bound                                                  Upper bound
-           1.25              Cross-validated result                   1.25                Cross-validated result                   1.25                Cross-validated result
-
-           1.20                                                       1.20                                                         1.20
- Speedup
-
-
-
-
-                                                            Speedup
-
-
-
-
-                                                                                                                         Speedup
-           1.15                                                       1.15                                                         1.15
-
-           1.10                                                       1.10                                                         1.10
-
-           1.05                                                       1.05                                                         1.05
-
-           1.00                                                       1.00                                                         1.00
-                  0   20       40      60       80    100                    0    20       40      60       80     100                    0    20       40      60       80     100
-                           Percentage of Area                                          Percentage of Area                                           Percentage of Area
-
-
-           1.30
-                      Cross validation: optflow                       1.30
-                                                                                  Cross validation: tmndec                         1.30
-                                                                                                                                               Cross validation: tmnenc
-                                                                                         Upper bound                                                  Upper bound
-           1.25                                                       1.25               Cross-validated result                    1.25               Cross-validated result
-
-           1.20                                                       1.20                                                         1.20
- Speedup
-
-
-
-
-                                                            Speedup
-
-
-
-
-                                                                                                                         Speedup
-
-
-           1.15                                                       1.15                                                         1.15
-
-           1.10                                                       1.10                                                         1.10
-
-           1.05                                                       1.05                                                         1.05
-                      Upper bound
-                      Cross-validated result
-           1.00                                                       1.00                                                         1.00
-                  0   20       40      60       80    100                    0    20       40      60       80     100                    0    20       40      60       80     100
-                           Percentage of Area                                          Percentage of Area                                           Percentage of Area
-
-
-Fig. 10. Results of benchmark speedup versus SFU area for cross-validation per application using domain-
-specific custom instructions. Results gathered using the random-scaled sharing scoring and the Hybrid
-technique.
-
-
-
-instructions identified over all benchmarks, as in Section 5.3, when given unlimited
-area). Benchmarks optflow and tmnenc cannot achieve their maximum speedup us-
-ing our cross-validation approach; optflow achieves its speedup when using only one
-custom instruction; in addition, as shown in Figure 8, optflow does achieve its max-
-imum speedup when we include domain-specific custom instructions identified from
-all benchmarks, whereas tmnenc can only benefit from application-specific custom in-
-structions (achieving very limited speedup overall). The other seven benchmarks can
-take advantage of custom instructions deemed useful for the domain, and especially
-aacenc, face, mpeg2dec, tmndec and djpeg achieve high speedups at very low core area
-percentages. At only 20% of the core area (Figure 11), our applications achieve over 7%
-speedup on average, which is a significant percentage of the maximum of 10%.
-
-ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,A:22                                                                                             C. Gonzalez-Alvarez et al.
-
-
-                                               1.30
-                                                          Cross validation: Average
-                                                                  Upper bound
-                                               1.25               Cross-validated result
-
-                                               1.20
-
-
-
-
-                                     Speedup
-                                               1.15
-
-                                               1.10
-
-                                               1.05
-
-                                               1.00
-                                                      0   20       40      60       80     100
-                                                               Percentage of Area
-
-Fig. 11. Average over all applications for cross-validation results using domain-specific custom instructions.
-Results gathered using the random-scaled sharing scoring and the Hybrid technique.
-
-6. RELATED WORK
-Here, we first survey work on application-specific custom instruction design, then de-
-tail domain-specific techniques, and finally describe a few holistic system designs.
-   Application-specific acceleration. Some research identifies custom instructions for par-
-ticular applications, for performance and/or power reasons. Early works [Yu and Mitra
-2004; 2007] established the baseline of the analysis using Data Flow Graphs (DFG),
-and showed the importance of preserving graph convexity. They differentiated the
-search process into identification and selection phases. Constraints such as the num-
-ber of input and output nodes of the DFG help to prune the search space during identi-
-fication. Later work coupled the identification and selection phases [Pozzi et al. 2006],
-which resulted in relaxing the constraints and opening up the possibility of approxi-
-mate techniques that are less computationally expensive. They use heuristics to gen-
-erate instruction patterns, maximizing instruction coverage, but do not explicitly rank
-the instructions as in our scoring methodology. Others, such as Verma et al. [2007],
-assume that the core processor must be a RISC, which also relaxes constraints. This
-implies a limited number of inputs and outputs, which prunes the results, in order to
-minimize the number of registers used. In our exploration we accept any number of
-input and outputs for the custom instruction generation, to maximize acceleration.
-   Symbolic algebra helps to identify and minimize the size of custom instructions [Pey-
-mandoust and Pozzi 2003]. However, this work did not use polynomials in a canonical
-form, as we do using TEDs. In addition, we use symbolic algebra for a different pur-
-pose, namely to find code commonalities. We follow a previously proposed fast enumer-
-ation algorithm [Li et al. 2009], that we extend beyond their only application-specific
-applicability. Other authors [Arora et al. 2010] apply a predefined set of rules, in a spe-
-cific order, to obtain a DAG representation of code functionality. This work, in contrast
-to ours, does not consider TEDs nor domain-specific custom instructions.
-   In contrast with some later works [Murray et al. 2009; Atasu et al. 2012] that rely
-on integer linear programming, our final selection of custom instructions is based on
-heuristic-based search. Other works with heuristics [Cong et al. 2004], forecast the
-gain of an instruction as a function of the instruction’s frequency of execution and la-
-tency. They also use a dynamic programming algorithm to optimize for area, while our
-scoring focuses on coverage of the critical path, potential re-utilization and equality in
-the custom instruction’s sharing across applications. Heuristics of application-centered
-works [Pothineni et al. 2007; Verma et al. 2007; 2010] maximize speedup with software
-and hardware latency estimations, which we use for modeling purposes.
-
-     ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,Accelerating an Application Domain with Specialized Functional Units                                            A:23
-
-  Domain-specific acceleration. Previous works on domain-specific processors [Arnold and
-Corporaal 2001] or custom units [Clark et al. 2005] build their new instructions from
-small subDAGs extracted from the DFG. The former [Arnold and Corporaal 2001]
-limits the instruction patterns to three-node DAGs to limit of the search space. The
-latter [Clark et al. 2005] uses a pattern-matching approach on DAGs that are devel-
-oped in a bottom-up fashion using heuristics. They define guide functions that prune
-the DFG exploration space, using the criticality of the data path, latency and area
-as metrics. In contrast to these prior works, we propose and use TEDs as a gener-
-alized representation to improve custom instruction coverage across applications. In
-addition, we propose scoring heuristics specifically designed to select domain-specific
-custom instructions, with the benefit of preserving maximal subgraphs. We do not con-
-sider area in our heuristics, but we take area into account to study application-specific
-versus domain-specific specialization, which reveals the importance of domain-specific
-custom units at small areas.
-   System design. A few previous hardware acceleration design papers have been more
-holistic in nature, addressing the entire execution stack from the programming lan-
-guage to the compiler and the target platform. Almer and Bennett [2009] introduces
-support for application-specific instruction set extensions into a complete framework
-built on top of GCC. Our work also presents custom instruction generation as part
-of a framework based on the (LLVM) compiler, but targets domain-specific custom in-
-struction designs. Another work targets health care applications [Cong et al. 2011],
-but requires programmer support, while our methodology requires no user input.
-
-7. SUMMARY
-Hardware specialization is a promising paradigm to improve performance and energy-
-efficiency in the absence of Dennard scaling. However, a customized processor tailored
-at a specific application delivers high performance for that specific application only,
-and is costly to manufacture. In contrast, a customized processor targeting an entire
-application domain, while being less effective for an individual application, may deliver
-better overall system performance when different applications run on the device, and
-may be more economically viable by targeting a larger market.
-   This paper explores this trade-off between application-specific versus domain-
-specific hardware specialization, and makes a number of contributions with respect
-to accelerating an application domain by identifying custom instructions to add to
-an existing ISA. We propose the use of Taylor Expansion Diagrams (TED), canoni-
-cal representations of code sequences, previously used for circuit verification, to iden-
-tify custom instruction opportunities. We find TEDs to be substantially more effec-
-tive at identifying functionally equivalent code sequences across applications than the
-previously used Directed Acyclic Graph (DAG) representation; combining TEDs with
-DAGs is even more effective at accelerating applications. To be able to quickly compare
-and rank potential domain-specific custom instructions during exploration, we propose
-scoring heuristics that take into account the frequency of custom instruction use both
-within and across applications. We use both TEDs and our scoring heuristics in our
-custom instruction exploration framework, along with performance and area estima-
-tion. We find that while application-specific custom instructions result in the highest
-possible performance at large or unbounded core areas, including domain-specific cus-
-tom instructions yields the highest possible speedup at small, more realistic core areas.
-This finding underlines the need of domain-specific instructions for practical and flex-
-ible hardware specialization. In addition, we demonstrate that the identified custom
-instructions using our exploration framework are effective for previously unseen ap-
-plications within the same domain, making specialization more generally applicable.
-
-ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,A:24                                                                                 C. Gonzalez-Alvarez et al.
-
-ACKNOWLEDGMENTS
-We thank the anonymous referees and the associate editor for their valuable feedback and suggestions.
-This work is supported by the Ministry of Science and Technology of Spain and the European Union
-(FEDER funds) under contract TIN2012-34557, by the Generalitat de Catalunya (contract 2009-SGR-980)
-and HiPEAC3 Network of Excellence (FP7/ICT 287759). Additional support is provided by the FWO project
-G.0179.10N, the UGent-BOF project 01Z04109 and the European Research Council under the European
-Community’s Seventh Framework Programme (FP7/2007-2013) / ERC Grant agreement no. 259295. We
-would also like to thank the Xilinx University Program for its hardware and software donations.
-
-
-
-REFERENCES
-Oscar Almer and Richard Bennett. 2009. An end-to-end design flow for automated instruction set extension
-    and complex instruction selection based on GCC. In Proc. 1st International Workshop on GCC Research
-    Opportunities. GROW’09, Paphos, Cyprus.
-Altera Corporation. 2013. Altera Nios II. http://www.altera.com/devices/processor/nios2/ni2-index.html.
-    (2013). http://www.altera.com/devices/processor/nios2/ni2-index.html
-Marnix Arnold and Henk Corporaal. 2001. Designing domain-specific processors. In Proceedings of the ninth
-    international symposium on Hardware/software codesign. ACM, New York, New York, USA, 61–66.
-    DOI:http://dx.doi.org/10.1145/371636.371677
-Nidhi Arora, Kiran Chandramohan, Nagaraju Pothineni, and Anshul Kumar. 2010. Instruction Selection in
-    ASIP Synthesis Using Functional Matching. VLSI Design, International Conference on 0 (2010), 146–
-    151. DOI:http://dx.doi.org/10.1109/VLSI.Design.2010.68
-Kubilay Atasu, Wayne Luk, Oskar Mencer, C. Ozturan, and G. Dundar. 2012. FISH: Fast Instruction Syn-
-    tHesis for Custom Processors. Very Large Scale Integration (VLSI) Systems, IEEE Transactions on 20,
-    99 (2012), 1–1. http://ieeexplore.ieee.org/xpls/abs\ all.jsp?arnumber=5654626
-Kubilay Atasu, Oskar Mencer, Wayne Luk, Can Ozturan, and Gunhan Dundar. 2008. Fast custom instruc-
-    tion identification by convex subgraph enumeration. In Proceedings of the 2008 International Confer-
-    ence on Application-Specific Systems, Architectures and Processors (ASAP ’08). IEEE Computer Society,
-    Washington, DC, USA, 1–6. DOI:http://dx.doi.org/10.1109/ASAP.2008.4580145
-G. Bradski. 2000. The OpenCV Library. Dr. Dobb’s Journal of Software Tools (2000).
-Maciej Ciesielski, Priyank Kalla, and Serkan Askar. 2006. Expansion Diagrams: A Canonical Representa-
-    tion for Verification of Data Flow Designs. IEEE Trans. on Computers 55 (2006), 1188–1201.
-Nathan T. Clark, Hongtao Zhong, and Scott A. Mahlke. 2005. Automated Custom Instruction Generation
-    for Domain-Specific Processor Acceleration. IEEE Trans. Comput. 54 (2005), 2005.
-Jason Cong, Yiping Fan, Guoling Han, and Zhiru Zhang. 2004. Application-specific instruction genera-
-    tion for configurable processor architectures. In Proceedings of the 2004 ACM/SIGDA 12th interna-
-    tional symposium on Field programmable gate arrays (FPGA ’04). ACM, New York, NY, USA, 183–189.
-    DOI:http://dx.doi.org/10.1145/968280.968307
-Jason Cong, Vivek Sarkar, Glenn Reinman, and Alex Bui. 2011. Customizable Domain-
-    Specific Computing. IEEE Design & Test of Computers 28, 2 (March 2011), 6–15.
-    DOI:http://dx.doi.org/10.1109/MDT.2010.141
-R. H. Dennard, F. H. Gaensslen, H. Yu, V. L. Rideout, E. Bassous, and A. R. LeBlanc. 1974. Design of Ion-
-    Implanted MOSFET’s with Very Small Physical Dimensions. IEEE Journal of Solid-State Circuits 9
-    (Oct. 1974), 256–268. Issue 5.
-Hadi Esmaeilzadeh, Emily Blem, Renee St. Amant, Karthikeyan Sankaralingam, and Doug Burger.
-    2011. Dark silicon and the end of multicore scaling. In Proceedings of the 38th annual inter-
-    national symposium on Computer architecture (ISCA ’11). ACM, New York, NY, USA, 365–376.
-    DOI:http://dx.doi.org/10.1145/2000064.2000108
-Gerald Estrin. 1960. Organization of computer systems. In Western joint IRE-AIEE-ACM Computer Confer-
-    ence’60 (Western). ACM Press, New York, USA, 33. DOI:http://dx.doi.org/10.1145/1460361.1460365
-Jason E. Fritts, Frederick W. Steiling, Joseph A. Tucek, and Wayne Wolf. 2009. MediaBench II video: Ex-
-    pediting the next generation of video systems research. Microprocess. Microsyst. 33, 4 (June 2009),
-    301–318. DOI:http://dx.doi.org/10.1016/j.micpro.2009.02.010
-D. Gomez-Prado, Q. Ren, S. Askar, M. Ciesielski, and E. Boutillon. 2004. Variable ordering for taylor
-    expansion diagrams. In Proceedings of the High-Level Design Validation and Test Workshop, 2004.
-    Ninth IEEE International (HLDVT ’04). IEEE Computer Society, Washington, DC, USA, 55–59.
-    DOI:http://dx.doi.org/10.1109/HLDVT.2004.1431235
-
-
-    ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-,Accelerating an Application Domain with Specialized Functional Units                                            A:25
-
-R.E. Gonzalez. 2000. Xtensa: a configurable and extensible processor. IEEE Micro 20, 2 (2000), 60–70.
-     DOI:http://dx.doi.org/10.1109/40.848473
-               ´
-Cecilia Gonzalez-   ´
-                    Alvarez,             ´
-                             Mikel Fernandez,                        ´
-                                                 Daniel Jim´enez-Gonzalez, Carlos Alvarez, and Xavier Mar-
-     torell. 2011. Automatic Generation and Testing of Application Specific Hardware Accelerators on a New
-     Reconfigurable OpenSPARC Platform. In Workshop in Reconfigurable Computing, HiPEAC. Heraklion,
-     Greece, 85–94.
-Aric A. Hagberg, Daniel A. Schult, and Pieter J. Swart. 2008. Exploring network structure, dynamics, and
-     function using NetworkX. In Proceedings of the 7th Python in Science Conference (SciPy2008). Pasadena,
-     CA USA, 11–15.
-Rehan Hameed, Wajahat Qadeer, Megan Wachs, Omid Azizi, Alex Solomatnikov, Benjamin C. Lee, Stephen
-     Richardson, Christos Kozyrakis, and Mark Horowitz. 2010. Understanding sources of inefficiency in
-     general-purpose chips. In Proceedings of the 37th annual international symposium on Computer archi-
-     tecture (ISCA ’10). ACM, New York, NY, USA, 37–47. DOI:http://dx.doi.org/10.1145/1815961.1815968
-Chris Lattner and Vikram Adve. 2004. LLVM: A Compilation Framework for Lifelong Program Analysis &
-     Transformation. In Proceedings of the international symposium on Code generation and optimization
-     (CGO ’04). IEEE Computer Society, Washington, DC, USA, 75–.
-Tao Li, Zhigang Sun, Wu Jigang, and Xicheng Lu. 2009. Fast enumeration of maximal valid subgraphs
-     for custom-instruction identification. In Proceedings of the 2009 international conference on Compil-
-     ers, architecture, and synthesis for embedded systems (CASES ’09). ACM, New York, NY, USA, 29–36.
-     DOI:http://dx.doi.org/10.1145/1629395.1629402
-Alastair C. Murray, Richard V. Bennett, Bj¨orn Franke, and Nigel Topham. 2009. Code transformation and
-     instruction set extension. ACM Transactions on Embedded Computing Systems 8, 4 (July 2009), 1–31.
-     DOI:http://dx.doi.org/10.1145/1550987.1550989
-A Peymandoust and L Pozzi. 2003. Automatic instruction set extension and utilization for embedded pro-
-     cessors. Proceedings of the 14th International Conference on ASAP, Application-specific Systems (2003).
-     http://ieeexplore.ieee.org/xpls/abs\ all.jsp?arnumber=1212834
-Nagaraju Pothineni, Anshul Kumar, and Kolin Paul. 2007. Application Specific Datapath Extension with
-     Distributed I/O Functional Units. In Proceedings of the 20th International Conference on VLSI Design
-     held jointly with 6th International Conference: Embedded Systems (VLSID ’07). IEEE Computer Society,
-     Washington, DC, USA, 551–558. DOI:http://dx.doi.org/10.1109/VLSID.2007.40
-L. Pozzi, K. Atasu, and P. Ienne. 2006. Exact and approximate algorithms for the extension of embedded
-     processor instruction sets. IEEE Transactions on Computer-Aided Design of Integrated Circuits and
-     Systems 25, 7 (July 2006), 1209–1229. DOI:http://dx.doi.org/10.1109/TCAD.2005.855950
-SRISC. 2012. Simply RISC S1 Core. (2012). http://www.simplyrisc.com/
-W. A. Stein and others. 2013. Sage Mathematics Software (Version x.y.z). The Sage Development Team.
-     http://www.sagemath.org.
-S. Vassiliadis, S. Wong, G. Gaydadjiev, K. Bertels, G. Kuzmanov, and E.M. Panainte. 2004.
-     The MOLEN polymorphic processor. IEEE Trans. Comput. 53, 11 (Nov. 2004), 1363–1375.
-     DOI:http://dx.doi.org/10.1109/TC.2004.104
-Ganesh Venkatesh, Jack Sampson, Nathan Goulding, Saturnino Garcia, Vladyslav Bryksin, Jose Lugo-
-     Martinez, Steven Swanson, and Michael Bedford Taylor. 2010. Conservation cores: reducing the
-     energy of mature computations. SIGARCH Comput. Archit. News 38, 1 (March 2010), 205–218.
-     DOI:http://dx.doi.org/10.1145/1735970.1736044
-Ajay K. Verma, Philip Brisk, and Paolo Ienne. 2007. Rethinking custom ISE identification: a new
-     processor-agnostic method. In Proceedings of the 2007 international conference on Compilers, ar-
-     chitecture, and synthesis for embedded systems (CASES ’07). ACM, New York, NY, USA, 125–134.
-     DOI:http://dx.doi.org/10.1145/1289881.1289905
-Ajay K. Verma, Philip Brisk, and Paolo Ienne. 2010. Fast, nearly optimal ISE identification with I/O seri-
-     alization through maximal clique enumeration. Trans. Comp.-Aided Des. Integ. Cir. Sys. 29, 3 (March
-     2010), 341–354. DOI:http://dx.doi.org/10.1109/TCAD.2010.2041849
-Xilinx. 2012. Vivado Design Suite User Guide. http://www.xilinx.com/support/documentation/user\ guides/
-     ug369.pdf
-Pan Yu and Tulika Mitra. 2004. Scalable custom instructions identification for instruction-set ex-
-     tensible processors. In Proceedings of the 2004 international conference on Compilers, architec-
-     ture, and synthesis for embedded systems (CASES ’04). ACM, New York, NY, USA, 69–78.
-     DOI:http://dx.doi.org/10.1145/1023833.1023844
-Pan Yu and T. Mitra. 2007. Disjoint Pattern Enumeration for Custom Instructions Identification. Field Pro-
-     grammable Logic and Applications, 2007. FPL 2007. International Conference on (2007), 273 – 278.
-     DOI:http://dx.doi.org/10.1109/FPL.2007.4380659
-
-
-ACM Transactions on Architecture and Code Optimization, Vol. V, No. N, Article A, Publication date: January YYYY.
-
