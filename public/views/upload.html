@@ -1,24 +1,24 @@
 <md-content layout="column">
 
-  <div class="uploadfield">
-       <md-button class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadpdf').click();">
-       <md-icon md-svg-src='/assets/upload.svg'></md-icon>
-       <md-tooltip >Upload a pdf</md-tooltip>
-   </md-button>
-       <span class="label">Fill in all fields below, or upload a pdf file</span>
+<div class="uploadfield">
+   <md-button class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadpdf').click();">
+   <md-icon md-svg-src='/assets/upload.svg'></md-icon>
+   <md-tooltip >Upload a pdf</md-tooltip>
+</md-button>
+<span class="label">Fill in all fields below, or upload a pdf file</span>
 </div>
 
 <form id="upload-publication" role="form" class="form-horizontal" name="postPublicationForm">
-<input ng-hide="true" id="uploadpdf" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadpdf(this.files)"/>
-<div class="form-block">
-    <h4>Publication Information</h4>
+    <input ng-hide="true" id="uploadpdf" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadpdf(this.files)"/>
+    <div class="form-block">
+        <h4>Publication Information</h4>
+        <md-input-container>
+        <label>Title</label>
+        <input type="text" ng-model="title">
+    </md-input-container>
     <md-input-container>
-    <label>Title</label>
-    <input type="text" ng-model="title">
-</md-input-container>
-<md-input-container>
-<label>Year</label>
-<input id="year" type="number" ng-model="year">
+    <label>Year</label>
+    <input id="year" type="number" ng-model="year">
 </md-input-container>
 <md-input-container>
 <label>Number of pages</label>
@@ -35,7 +35,7 @@
 </div>
 
 <div layout layout-sm="column" class="form-block" layout-wrap>
-    <h4>Co Authors</h4>
+    <h4>Authors</h4>
     <md-input-container>
     <label>First Name</label>
     <input id="firstname" type="text" class="form-control" ng-model="possibleAuthor.firstName" label="First name">
@@ -49,16 +49,31 @@
         <personmin person="person" ng-click="add(authors, person)"></personmin>
     </li>
 </ul>
+
+<h4 ng-show="chooseAuthor.length > 0">Select the correct author</h4>
+<ul style="width: 50%;padding-left: 0px;margin-left: 0px;" ng-show="chooseAuthor.length > 0">
+    <li id="authorselect" ng-repeat="Authorlist in chooseAuthor">
+        <h4 style="text-decoration: underline;">{{Authorlist.firstName + " "+ Authorlist.lastName}}</h4>
+        <ul class="choices">
+            <li ng-repeat="possibleAuthor in Authorlist.authorList">
+                <p><personmin person="possibleAuthor"  ng-click="add(authors, possibleAuthor);remove(chooseAuthor,Authorlist)"></personmin></p>
+            </li>
+        </ul>
+
+    </li>
+</ul>
+
 <h4 ng-show="authors.length > 0">Selected authors</h4>
-<ul class="choices chosen">
+<ul class="choices chosen"> 
     <li ng-repeat="chosenAuthor in authors">
-        <personmin person="chosenAuthor" ng-click="remove(authors, chosenAuthor)"></personmin>
+        <p><personmin person="chosenAuthor" ng-click="remove(authors, chosenAuthor)"></personmin>{{" " + chosenAuthor.status}}</p>
+        <div id="overlay">REMOVE</div>
     </li>
 </ul>
 </div>
 
 
-
+<!--
 <div class="form-block">
     <h4>Disciplines</h4>
     <md-select ng-model="selectedDiscipline" placeholder="Discipline">
@@ -72,6 +87,7 @@
     </li>
 </ul>
 </div>
+-->
 <div class="form-block">
     <h4>Publication type</h4>
     <md-radio-group ng-model="type">
@@ -111,8 +127,8 @@
     <input id="searchjournal" type="text" ng-model="searchjournal.name">
 </md-input-container>
 <ul class="choices">
-    <li ng-click="chooseJournal(possibleJournal)" ng-repeat="possibleJournal in fetcher.fetchJournals(searchjournal)">
-        <proceedingmin proceeding="possibleJournal"></proceedingmin>
+    <li ng-click="chooseJournal(possibleJournal);searchjournal.name=''" ng-repeat="possibleJournal in fetcher.fetchJournals(searchjournal)|limitTo:5">
+        <p><proceedingmin proceeding="possibleJournal"></proceedingmin><p>
     </li>
 </ul>
 <div ng-show="journal !== undefined">
@@ -130,12 +146,12 @@
 </div>
 </div>
 
-   <div class="uploadfield">
+<div class="uploadfield">
     <span class="label">Add references, or upload a bibtex file</span>
-        <md-button class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadbib').click();">
-        <md-icon md-svg-src='/assets/upload.svg'></md-icon>
-        <md-tooltip >Upload a bibtex file</md-tooltip>
-    </md-button>
+    <md-button class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadbib').click();">
+    <md-icon md-svg-src='/assets/upload.svg'></md-icon>
+    <md-tooltip >Upload a bibtex file</md-tooltip>
+</md-button>
 </div>
 <input ng-hide="true" id="uploadbib" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadbibtex(this.files)"/>
 
@@ -149,7 +165,8 @@
 <h4 ng-show="references.length > 0">Selected References</h4>
 <ul class="choices chosen">
     <li ng-repeat="reference in references">
-        <p ng-click="remove(references, reference)">{{reference}}</p>
+        <p  style="postion:relative" ng-click="remove(references, reference)">{{reference}}</p>
+        <div id="overlay">REMOVE</div>
     </li>
 </ul>
 </div>

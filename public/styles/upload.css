@@ -3,7 +3,7 @@ input.file {
 	text-align: left;
 	-moz-opacity:0 ;
 	filter:alpha(opacity: 0);
-	opacity: 0.5;
+	opacity: 0;
 	z-index: 2;
 }
 
@@ -40,10 +40,40 @@ input.file {
 	margin-left: 0px;
 }
 
+.choices li{
+	position: relative;
+}
+
 .choices li:hover {
 	background-color: #E8F5E9;
 }
 
 .chosen li:hover {
-	background-color: #FFEBEE;
+	color: #FF0000;
+	background-color: #FF0000;
 }
+
+#overlay{
+	position: absolute;
+	top: 25%;
+	display: none;
+	/*left: 50%;*/
+	width: 100%;
+	text-align: center;
+}
+
+.chosen li:hover #overlay{
+	z-index: 100;
+	display: block;
+	color: #FFFFFF;
+}
+
+
+li#authorselect{
+	list-style-type: none;
+	border-bottom: 1px solid #000000;
+	padding-bottom: 5px;
+}
+
+li#authorselect:last-child { border-bottom: none }
+
