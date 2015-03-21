@@ -27,7 +27,15 @@ angular.module('searchPublication', [])
 		}
 	};
 
+	$scope.empty = function(arrays){
+		for (var i = 0; i < arrays.length; i++) {
+			arrays[i].length = 0;
+		};
+	}
+
 	$scope.search = function(){
+
+		$scope.empty([$scope.foundAuthor,$scope.foundJournal,$scope.foundProceeding,$scope.foundPublications]);
 
 		function handledata(data){
 
@@ -43,7 +51,7 @@ angular.module('searchPublication', [])
 				$scope.add($scope.foundProceeding,data.forProceeding[i])
 			};
 
-			if(data.forProceeding)for (var i = 0; i < data.forTitle.length; i++) {
+			if(data.forTitle)for (var i = 0; i < data.forTitle.length; i++) {
 				$scope.add($scope.foundPublications,data.forTitle[i])
 			};
 
