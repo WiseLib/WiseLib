@@ -55,7 +55,7 @@ describe('getDisciplines method test',function(){
 		})
 		describe('Analyse result',function(){
 			it('result should hold correct discipline',function(){
-					//console.log(result);
+					console.log(result);
 					result.should.be.an.Array;
 					result.forEach(function(disc){
 						disc.should.have.properties('id','name','parent');
@@ -76,7 +76,6 @@ describe('getDisciplines method test',function(){
 		})
 		describe('Check database for updated disicpline',function(){
 			it('discipline should be updated',function(done){
-				//throw new Error("NYI"); //TODO complete
 				response.should.be.equal(discipline.id);
 				done();
 			})

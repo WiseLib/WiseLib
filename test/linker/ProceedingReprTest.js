@@ -1,17 +1,6 @@
 var should = require('should');
 var linker = require('../../lib/linker.js');
-
-var compare = function(a, b) {
-	for(var i in a) {
-		if (a[i] !== b[i])
-			return false;
-	}
-	for(var i in b) {
-		if (b[i] !== a[i])
-			return false;
-	}
-	return true;
-}
+var _ = require('lodash');
 
 describe('Proceeding Representation test', function() {
 	var jsonRepresentations = [{
@@ -36,6 +25,16 @@ describe('Proceeding Representation test', function() {
 		name:'Non-existing Proceeding',
 		disciplines:[]
 	}];
+	var dbReprWithRelations = [{
+		id:1,
+		name:'Proceedings of the IEEE Computer Society Conference on Computer Vision and Pattern Recognition',
+		rank:2.954,
+		disciplines:[{id:11},{id:65}]
+	},
+	{
+		name:'Non-existing Proceeding',
+		disciplines:[]
+	}];
 
 	it('should convert the JSON representation', function() {
 		for(var repr in jsonRepresentations) {
@@ -44,13 +43,13 @@ describe('Proceeding Representation test', function() {
 			for(var rel in relations) {
 				converted[rel] = relations[rel];
 			}
-			compare(converted, dbRepresentations[repr]).should.be.true;
+			_.isEqual(converted, dbRepresentations[repr]).should.be.true;
 		}
 	});
 	it('should convert the DB representation', function() {
-		for(var repr in dbRepresentations) {
-			var converted = linker.proceedingRepr.parse(jsonRepresentations[repr]);
-			compare(converted, dbRepresentations[repr]).should.be.true;
+		for(var repr in dbReprWithRelations) {
+			var converted = linker.proceedingRepr.parse(dbReprWithRelations[repr]);
+			_.isEqual(converted, jsonRepresentations[repr]).should.be.true;
 		}
 	});
 });

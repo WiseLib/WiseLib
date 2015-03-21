@@ -1,17 +1,6 @@
 var should = require('should');
 var linker = require('../../lib/linker.js');
-
-var compare = function(a, b) {
-	for(var i in a) {
-		if (a[i] !== b[i])
-			return false;
-	}
-	for(var i in b) {
-		if (b[i] !== a[i])
-			return false;
-	}
-	return true;
-}
+var _ = require('lodash');
 
 describe('Publication Representation test', function() {
 	var jsonRepresentations = [{
@@ -40,7 +29,23 @@ describe('Publication Representation test', function() {
 		published_in_year:2015,
 		url:'www.publication.org',
 		summary_text:'a possibly long text',
-		published_by_user_id:1,
+		uploader:1,
+		authors:[1,2]
+	},
+	{
+		title:'A publication',
+		publication_type:'Proceeding',
+		authors:[]
+	}];
+	var dbReprWithRelations = [{
+		id:1,
+		title:'A publication',
+		publication_type:'Journal',
+		nr_of_pages:23,
+		published_in_year:2015,
+		url:'www.publication.org',
+		summary_text:'a possibly long text',
+		uploader:{id:1},
 		authors:[{id:1},{id:2}]
 	},
 	{
@@ -56,13 +61,13 @@ describe('Publication Representation test', function() {
 			for(var rel in relations) {
 				converted[rel] = relations[rel];
 			}
-			compare(converted, dbRepresentations[repr]).should.be.true;
+			_.isEqual(converted, dbRepresentations[repr]).should.be.true;
 		}
 	});
 	it('should convert the DB representation', function() {
-		for(var repr in dbRepresentations) {
-			var converted = linker.publicationRepr.parse(jsonRepresentations[repr]);
-			compare(converted, dbRepresentations[repr]).should.be.true;
+		for(var repr in dbReprWithRelations) {
+			var converted = linker.publicationRepr.parse(dbReprWithRelations[repr]);
+			_.isEqual(converted, jsonRepresentations[repr]).should.be.true;
 		}
 	});
 });

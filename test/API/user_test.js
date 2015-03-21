@@ -3,15 +3,15 @@
  * It also incorporates the done function that is necessary for the mocha framework.
  * @return {object} response - A faked response
  */
-function fakeresponse(){
+ function fakeresponse(){
 
-	var done = function(){};
-	this.status= this;
+ 	var done = function(){};
+ 	this.status= this;
 
-	this.id
+ 	this.id
 
-	this.json = function(id){
-		this.id = id;
+ 	this.json = function(id){
+ 		this.id = id;
 		//console.log(id);
 		this.done();
 	};
@@ -27,19 +27,16 @@ function fakeresponse(){
  * @param  {[type]} id - undefined if new person, personID if person already exists
  * @return {object} request - a faked request
  */
-function fakerequest(mail,password,id){
+ function fakerequest(mail,password,id){
 
-	this.mail=mail;
-	this.password=password;
-	this.id=id;
+ 	this.body={
+ 		email:mail,
+ 		password:password,
+ 		person:id,
+ 		profileImageSrc:null
+ 	};
 
-	this.body =this;
+ };	
 
-	this.email= this.mail;
-
-	this.personId= this.id;
-
-};	
-
-exports.fakeresponse=fakeresponse;
-exports.fakerequest =fakerequest
+ exports.fakeresponse=fakeresponse;
+ exports.fakerequest =fakerequest

@@ -1,17 +1,6 @@
 var should = require('should');
 var linker = require('../../lib/linker.js');
-
-var compare = function(a, b) {
-	for(var i in a) {
-		if (a[i] !== b[i])
-			return false;
-	}
-	for(var i in b) {
-		if (b[i] !== a[i])
-			return false;
-	}
-	return true;
-}
+var _ = require('lodash');
 
 describe('Person Representation test', function() {
 	var jsonRepresentations = [{
@@ -38,6 +27,17 @@ describe('Person Representation test', function() {
 		first_name:'Wout',
 		publications:[]
 	}];
+	var dbReprWithRelations = [{
+		id:1,
+		first_name:'Mathieu',
+		last_name:'Reymond',
+		picture:'path/to/picture',
+		publications:[{id:2},{id:3}]
+	}, 
+	{
+		first_name:'Wout',
+		publications:[]
+	}];
 
 	it('should convert the JSON representation', function() {
 		for(var repr in jsonRepresentations) {
@@ -46,13 +46,13 @@ describe('Person Representation test', function() {
 			for(var rel in relations) {
 				converted[rel] = relations[rel];
 			}
-			compare(converted, dbRepresentations[repr]).should.be.true;
+			_.isEqual(converted, dbRepresentations[repr]).should.be.true;
 		}
 	});
 	it('should convert the DB representation', function() {
-		for(var repr in dbRepresentations) {
-			var converted = linker.personRepr.parse(jsonRepresentations[repr]);
-			compare(converted, dbRepresentations[repr]).should.be.true;
+		for(var repr in dbReprWithRelations) {
+			var converted = linker.personRepr.parse(dbReprWithRelations[repr]);
+			_.isEqual(converted, jsonRepresentations[repr]).should.be.true;
 		}
 	});
 });

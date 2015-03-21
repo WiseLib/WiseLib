@@ -32,7 +32,7 @@ describe ('Retrieve list of journals from server database',function(){
 				result.should.be.an.object;
 				var resultLength = result.length;
 				resultLength.should.be.greaterThan(0);
-				resultLength.should.be.equal(1066);//Not all journals have an academic discipline?
+				resultLength.should.be.equal(1271);//Not all journals have an academic discipline?
 			})
 		})
 	})
@@ -56,7 +56,7 @@ describe ('Retrieve list of journals from server database',function(){
 			it('should hold correct journals',function(){
 				var result = response.result();
 				result.should.be.an.object;
-				result.should.have.property('id','7');
+				result.should.have.property('id',7);
 				result.should.have.property('name','Foundations and Trends in Machine Learning');
 			})
 		})

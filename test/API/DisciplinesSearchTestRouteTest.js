@@ -62,7 +62,7 @@ describe ('Retrieve list of disciplines from server database',function(){
 				var resultLength = result.length;
 				resultLength.should.be.greaterThan(0);
 				resultLength.should.be.equal(1);
-				result[0].should.have.property('id','1');
+				result[0].should.have.property('id',1);
 				result[0].should.have.property('name','Computer Science');
 			})
 		})
