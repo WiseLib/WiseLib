@@ -128,18 +128,17 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
         toPost.references = $scope.JSONreferences;
         toPost.type = $scope.type;
         if ($scope.type === 'Journal') {
-            toPost.journalId = $scope.journal.id;
+            toPost.journal = $scope.journal.id;
             toPost.volume = $scope.volume;
             toPost.number = $scope.number;
         }
         else {
-            toPost.proceedingId = $scope.proceeding.id;
+            toPost.proceeding = $scope.proceeding.id;
             toPost.editors = $scope.editors;
             toPost.publisher = $scope.publisher;
             toPost.city = $scope.city;
         }
 
-        
         toPost.uploader = user.id;
         //console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
         $http.post('users/'+user.id+'/publications.json', toPost)

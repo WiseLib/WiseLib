@@ -50,7 +50,11 @@
     "minimist": "^1.1.0",
     "multer": "^0.1.8",
     "sql": "^0.47.0",
-    "bibtex-parse-js": "0.0.19"
+    "bibtex-parse-js": "0.0.19",
+    "knex": "~0.7.6",
+    "pdf-extract": "~1.0.8",
+    "mysql": "~2.5.5",
+    "bookshelf": "~0.7.9"
   },
   "devDependencies": {
     "gulp": "^3.8.11",
@@ -67,8 +71,7 @@
     "gulp-watch": "^4.1.1",
     "jshint-stylish": "^1.0.1",
     "mocha": "^2.1.0",
-    "should": "^5.0.1",
-    "pdf-extract": "~1.0.8"
+    "should": "^5.0.1"
   },
   "keywords": []
 }
