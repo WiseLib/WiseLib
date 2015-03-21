@@ -1,6 +1,6 @@
 var should = require('should');
 var pdf = require ('../lib/pdf_analyse.js');
-var pdflist = ['../pdfs/test2.pdf','../pdfs/test3.pdf','../pdfs/test4.pdf','../pdfs/test5.pdf','../pdfs/test6.pdf','../pdfs/test7.pdf','../pdfs/test8.pdf'];
+var pdflist = ['./pdfs/test2.pdf']//,'./pdfs/test3.pdf','./pdfs/test4.pdf','./pdfs/test5.pdf','./pdfs/test6.pdf','./pdfs/test7.pdf','./pdfs/test8.pdf'];
 var options = {
 	type: 'text' 
 };
@@ -21,10 +21,10 @@ return it("should perform a correct analysis of pdf " + i,function(done){
 			console.log('\n' + "Number of pages: " + result[2]);
 		}
 
-		[result].should.be.an.Array;
-		result[0].should.not.be.empty;
-		result[1].should.not.be.empty;
-		result[2].should.be.a.Number;
+		result.should.be.an.Object;
+		result.authors.should.not.be.empty;
+		result.title.should.not.be.empty;
+		result.numberofpages.should.be.a.Number;
 		done();
 		});
 

@@ -1,7 +1,6 @@
 var should = require('should');
 var Person = require('./person_test.js');
-var server = require('../lib/routes.js');//Every method is still in server
-var dbscheme = require('../lib/db.js');
+var server = require('../../lib/routesFunctions.js');
 var Client = require('mariasql');
 
 
@@ -23,7 +22,7 @@ describe('Search person in database test',function(){
 			result.done = done;
 			
 			try{
-				server['/persons.json']['get'](request,result)
+				server.getPersons(request,result)
 			}
 			catch(x){
 				done(x);
