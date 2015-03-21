@@ -1,6 +1,6 @@
 var should = require('should');
-var DBManager = require('../lib/dbmanager.js');
-var config = require('../config.json');
+var DBManager = require('../../lib/dbmanager.js');
+var config = require('../../config.json');
 /**
  * This checks the User related methods defined in the dbmanager. Since every post method has an opposite delete, the database should remain clean
  * @test

@@ -1,11 +1,6 @@
 var should = require('should');
 var journal = require('./journal_test.js');
-var server = require('../lib/routes.js');
-var dbscheme = require('../lib/db.js');
-var Client = require('mariasql');
-var fs = require('fs');
-var config = require('../lib/config.js');
-var c = new Client();
+var server = require('../../lib/routesFunctions.js');
 
 /**
  * This test checks the getJournals method, a function that return a list, in JSON format, of all journals present in the database.
@@ -23,7 +18,7 @@ describe ('Retrieve list of journals from server database',function(){
 				response.done=done;
 				var request = new journal.fakerequest({});
 				try{
-					server['/journals.json']['get'](request,response);
+					server.getJournals(request,response);
 				}
 				catch(x)
 				{
@@ -37,7 +32,7 @@ describe ('Retrieve list of journals from server database',function(){
 				result.should.be.an.object;
 				var resultLength = result.length;
 				resultLength.should.be.greaterThan(0);
-				resultLength.should.be.equal(1066);//Not all journals have an academic discipline?
+				resultLength.should.be.equal(1271);//Not all journals have an academic discipline?
 			})
 		})
 	})
@@ -49,7 +44,7 @@ describe ('Retrieve list of journals from server database',function(){
 				response.done=done;
 				var request = new journal.fakerequest({id: '7'});
 				try{
-					server['/journals/:id.json']['get'](request,response);
+					server.getJournalById(request,response);
 				}
 				catch(x)
 				{
@@ -61,7 +56,7 @@ describe ('Retrieve list of journals from server database',function(){
 			it('should hold correct journals',function(){
 				var result = response.result();
 				result.should.be.an.object;
-				result.should.have.property('id','7');
+				result.should.have.property('id',7);
 				result.should.have.property('name','Foundations and Trends in Machine Learning');
 			})
 		})
