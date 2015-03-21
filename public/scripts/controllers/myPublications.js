@@ -8,7 +8,9 @@ angular.module('publication')
 
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
-    Person.publications({id: user.personId.id}, function(data) {
+    console.log('user: ' + JSON.stringify(user));
+    Person.publications({id: user.person}, function(data) {
+      console.log(data);
         if(data.length > 0) {
             $scope.publications = data;
         } else {
@@ -20,12 +22,12 @@ angular.module('publication')
     });
 
     $scope.deletePublication = function(pub) {
-           var confirm = $mdDialog.confirm()
-      .title('Do you really want to remove this publication?')
-      .content('You can\'t undo this.')
-      .ariaLabel('Remove publication dialog')
-      .ok('Remove')
-      .cancel('Cancel');
+      var confirm = $mdDialog.confirm()
+        .title('Do you really want to remove this publication?')
+        .content('You can\'t undo this.')
+        .ariaLabel('Remove publication dialog')
+        .ok('Remove')
+        .cancel('Cancel');
     $mdDialog.show(confirm).then(function() {
       Publication.delete({id: pub.id}, function() {
         for (var i = $scope.publications.length - 1; i >= 0; i--) {

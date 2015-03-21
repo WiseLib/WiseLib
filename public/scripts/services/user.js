@@ -3,7 +3,7 @@
 angular.module('user')
 
 .factory('User', function($resource) {
-    return $resource('/user.json', {}, {
+    return $resource('/users/:id.json', {}, {
         put: {method: 'PUT'}
     });
 })

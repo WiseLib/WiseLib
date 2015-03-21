@@ -6,6 +6,6 @@ angular.module('person')
 	return $resource('/persons/:id.json', {}, {
 		query: { method: 'GET', isArray: false , url: '/persons.json'},
 		put: {method: 'PUT'},
-		publications: {method: 'GET', isArray: true, url:'/persons/:id/publications.json'}
+		publications: {method: 'GET', isArray: false, url:'/persons/:id/publications.json'}
 	});
 });

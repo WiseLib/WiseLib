@@ -12,8 +12,9 @@ angular.module('user')
    * @return {None}
    */
     $scope.update = function (form, service) {
-        service.put(form,
-        function(data) { //Success
+        console.log('going to update with form: ' + JSON.stringify(form));
+        service.put({id: form.id}, form,
+        function() { //Success
             $mdToast.show({
                 controller: 'ToastCtrl',
                 templateUrl: '../views/feedback-toast.html',
@@ -29,7 +30,7 @@ angular.module('user')
                 templateUrl: '../views/feedback-toast.html',
                 hideDelay: 6000,
                 position: 'top right',
-                locals: {text: 'Error: ' + data,
+                locals: {text: 'Error: ' + data.error,
                          error: true}
             });
         });
@@ -41,7 +42,6 @@ angular.module('user')
                 delete obj[key];
             }
         }
-        console.log('going to return' + JSON.stringify(obj));
         return obj;
     }
 
@@ -55,7 +55,7 @@ angular.module('user')
     $scope.updatePerson = function() {
         var token = $window.sessionStorage.token;
         var user = JSON.parse(atob(token.split('.')[1]));
-        $scope.personEditForm.id = user.personId.id;
+        $scope.personEditForm.id = user.person;
         $scope.update(filterEmpty($scope.personEditForm), Person);
     };
 });
