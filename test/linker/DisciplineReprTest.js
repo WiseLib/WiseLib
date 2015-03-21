@@ -1,17 +1,6 @@
 var should = require('should');
-var linker = require('../linker.js');
-
-var compare = function(a, b) {
-	for(var i in a) {
-		if (a[i] !== b[i]):
-			return false;
-	}
-	for(var i in b) {
-		if (b[i] !== a[i]):
-			return false;
-	}
-	return true;
-}
+var linker = require('../../lib/linker.js');
+var _ = require('lodash');
 
 describe('Discipline Representation test', function() {
 	var jsonRepresentations = [{
@@ -21,7 +10,7 @@ describe('Discipline Representation test', function() {
 	{
 		id:2,
 		name:'Operating systems',
-		parent: {id:1}
+		parent: 1
 	}];
 
 	var dbRepresentations = [{
@@ -29,21 +18,34 @@ describe('Discipline Representation test', function() {
 		name:'Computer Science'
 	}, 
 	{
-		id: 1,
+		id: 2,
 		name:'Operating systems',
-		part_of_academic_discipline_id:1
+		parent:1
+	}];
+	var dbReprWithRelations = [{
+		id: 1,
+		name:'Computer Science'
+	}, 
+	{
+		id: 2,
+		name:'Operating systems',
+		parent:{id:1}
 	}];
 
 	it('should convert the JSON representation', function() {
 		for(var repr in jsonRepresentations) {
 			var converted = linker.disciplineRepr.format(jsonRepresentations[repr]);
-			compare(converted, dbRepresentations[repr]).should.be.true;
+			var relations = linker.disciplineRepr.formatRelations(jsonRepresentations[repr]);
+			for(var rel in relations) {
+				converted[rel] = relations[rel];
+			}
+			_.isEqual(converted, dbRepresentations[repr]).should.be.true;
 		}
 	});
 	it('should convert the DB representation', function() {
-		for(var repr in dbRepresentations) {
-			var converted = linker.disciplineRepr.parse(jsonRepresentations[repr]);
-			compare(converted, dbRepresentations[repr]).should.be.true;
+		for(var repr in dbReprWithRelations) {
+			var converted = linker.disciplineRepr.parse(dbReprWithRelations[repr]);
+			_.isEqual(converted, jsonRepresentations[repr]).should.be.true;
 		}
 	});
 });

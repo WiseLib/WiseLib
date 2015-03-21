@@ -1,17 +1,6 @@
 var should = require('should');
-var linker = require('../linker.js');
-
-var compare = function(a, b) {
-	for(var i in a) {
-		if (a[i] !== b[i]):
-			return false;
-	}
-	for(var i in b) {
-		if (b[i] !== a[i]):
-			return false;
-	}
-	return true;
-}
+var linker = require('../../lib/linker.js');
+var _ = require('lodash');
 
 describe('Journal Representation test', function() {
 	var jsonRepresentations = [{
@@ -36,6 +25,16 @@ describe('Journal Representation test', function() {
 		name:'Non-existing Journal',
 		disciplines:[]
 	}];
+	var dbReprWithRelations = [{
+		id:7,
+		name:'Foundations and Trends in Machine Learning',
+		rank:12.076,
+		disciplines:[{id:11},{id:13},{id:50}]
+	},
+	{
+		name:'Non-existing Journal',
+		disciplines:[]
+	}];
 
 	it('should convert the JSON representation', function() {
 		for(var repr in jsonRepresentations) {
@@ -44,13 +43,13 @@ describe('Journal Representation test', function() {
 			for(var rel in relations) {
 				converted[rel] = relations[rel];
 			}
-			compare(converted, dbRepresentations[repr]).should.be.true;
+			_.isEqual(converted, dbRepresentations[repr]).should.be.true;
 		}
 	});
 	it('should convert the DB representation', function() {
-		for(var repr in dbRepresentations) {
-			var converted = linker.journalRepr.parse(jsonRepresentations[repr]);
-			compare(converted, dbRepresentations[repr]).should.be.true;
+		for(var repr in dbReprWithRelations) {
+			var converted = linker.journalRepr.parse(dbReprWithRelations[repr]);
+			_.isEqual(converted, jsonRepresentations[repr]).should.be.true;
 		}
 	});
 });
