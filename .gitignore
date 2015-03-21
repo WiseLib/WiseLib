@@ -17,3 +17,4 @@ config.json
 /.sublime-gulp.cache
 lib/config.json
 /test/pdfs/output
+*.orig
