@@ -96,7 +96,7 @@ disciplineRepr.parentId = {
     name: 'parent'
 };*/
 disciplineRepr.model = AcademicDiscipline;
-disciplineRepr.relations = ['parent'];
+disciplineRepr.relations = ['parent', 'journals', 'proceedings'];
 
 //affiliation
 var Affiliation = bookshelf.Model.extend({
