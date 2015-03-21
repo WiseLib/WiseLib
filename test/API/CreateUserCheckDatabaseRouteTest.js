@@ -84,7 +84,7 @@ var configuration = require('../../config.json')
 	describe('Test database',function(){
 		it('should contain new user',function(done){
 
-			var query = 'SELECT * FROM user WHERE email_address LIKE '' + request.body.email + '';';
+			var query = 'SELECT * FROM user WHERE email_address LIKE ' + request.body.email + ';';
 			c.query(query)
 			.on('result', function (res) {
 
