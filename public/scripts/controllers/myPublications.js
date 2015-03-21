@@ -8,17 +8,16 @@ angular.module('publication')
 
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
+
     console.log('user: ' + JSON.stringify(user));
     Person.publications({id: user.person}, function(data) {
-      console.log(data);
-        if(data.length > 0) {
-            $scope.publications = data;
+        if(data.publications.length > 0) {
+            $scope.publications = data.publications;
         } else {
             $scope.error = 'No publications found';
         }
     }, function(error) {
-        console.warn('error:' + error);
-        $scope.error = error.statusText;
+        $scope.error = error.status + ' ' + error.statusText;
     });
 
     $scope.deletePublication = function(pub) {

@@ -11,9 +11,8 @@ angular.module('user')
    * Sends a request to the server to register a user using form input
    * @return {None}
    */
-    $scope.update = function (form, service) {
-        console.log('going to update with form: ' + JSON.stringify(form));
-        service.put({id: form.id}, form,
+    $scope.update = function (service) {
+        service.$put(
         function() { //Success
             $mdToast.show({
                 controller: 'ToastCtrl',
@@ -25,6 +24,7 @@ angular.module('user')
             });
         },
         function(data) { //Error
+            console.log(data);
             $mdToast.show({
                 controller: 'ToastCtrl',
                 templateUrl: '../views/feedback-toast.html',
@@ -50,12 +50,12 @@ angular.module('user')
         var token = $window.sessionStorage.token;
         var user = JSON.parse(atob(token.split('.')[1]));
         $scope.userEditForm.id = user.id;
-        $scope.update(filterEmpty($scope.userEditForm), User);
+        $scope.update(new User(filterEmpty($scope.userEditForm)));
     };
     $scope.updatePerson = function() {
         var token = $window.sessionStorage.token;
         var user = JSON.parse(atob(token.split('.')[1]));
         $scope.personEditForm.id = user.person;
-        $scope.update(filterEmpty($scope.personEditForm), Person);
+        $scope.update(new Person(filterEmpty($scope.personEditForm)));
     };
 });

@@ -1,16 +1,11 @@
 'use strict';
 var module = angular.module('publication', []);
 
-module.controller('uploadPublicationController', function ($scope, $window, $http, fetcher, Page, $mdToast) {
-
-
+module.controller('uploadPublicationController', function ($scope,$window,$http, fetcher, Page,$mdToast,Person) {
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
 
-
-module.controller('publicationController', function($scope, $window, $routeParams, Page, Publication, Person) {
-    Page.setTitle('Publication');
-    $scope.publication = undefined;
+    Page.setTitle('Upload publication');
     $scope.authors = [];
     $scope.chooseAuthor = [];
     $scope.newAuthors =[];
@@ -50,7 +45,6 @@ module.controller('publicationController', function($scope, $window, $routeParam
     };
 
     $scope.uploadpdf = function(files){
-
         var fd = new FormData();
         fd.append('file', files[0]);
 
@@ -60,15 +54,11 @@ module.controller('publicationController', function($scope, $window, $routeParam
             transformRequest: angular.identity
         }).
         success(function(data) {
-
             $scope.localfile = true;
-
             $scope.title = data.title;
             $scope.numberOfPages=data.numberofpages;
             $scope.url = data.path;
-
-            $scope.authors = [user.personId];
-
+            $scope.authors = [user.person];
             var index;
             for (index = 0; index < data.authors.length; ++index) {
 
@@ -87,11 +77,11 @@ module.controller('publicationController', function($scope, $window, $routeParam
                         else {
                             $scope.add($scope.chooseAuthor,foundPersons);
                         }
-                    }, function(error) {});
+                    }, function(error) {
+
+                    });
                 }(firstName,lastName));
-
             }
-
         }).
 error(function() {
     $scope.showSimpleToast('Not a pdf');
@@ -122,7 +112,6 @@ $scope.uploadbibtex = function(files){
             $scope.add($scope.references,title);
         }
 
-
     }).
     error(function() {
         $scope.showSimpleToast('Not a bibtex');
@@ -130,9 +119,7 @@ $scope.uploadbibtex = function(files){
 
 };
 
-
 $scope.post = function () {
-
     function upload(){
         console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
        /*  $http.post('users/'+user.id+'/publications.json', toPost)
@@ -143,8 +130,6 @@ $scope.post = function () {
             $scope.showSimpleToast('Something went wrong:' + status);
         });*/
 }
-
-
 
 var toPost = {};
 toPost.title = $scope.title;
@@ -166,44 +151,33 @@ else {
     toPost.city = $scope.city;
 }
 
-
 toPost.uploader = user.id;
-
 
 var authArray = new Array($scope.authors.length);
         authArray[0] = {id: $scope.authors[0].id};//Uploader
         if($scope.authors.length = 1) {upload();return;} //no other co authors
         for (var i = 1; i < $scope.authors.length; i++) {//add co authors (id) to list
-
             var author = $scope.authors[i];
-
             if(author.status){//person not in database
-
-                //var affiliation = prompt('Enter the affiliation for ' + author.firstName + ' ' + author.lastName);
+                var affiliation = prompt('Enter the affiliation for ' + author.firstName + ' ' + author.lastName);
                 var newPerson = new Person({firstName: author.firstName, lastName:author.lastName});
 
                 (function(index){
                     newPerson.$save(function (data){//create new person on server
-                       authArray[index]= {id: data.personId};
+                     authArray[index]= {id: data.personId};
 
-                       if(index = $scope.authors.length){
+                     if(index === $scope.authors.length) {
                         toPost.authors = authArray;
                         upload();//on success and last author, start the upload
                         return;}
 
-                    },function(data){//error from server
+                    },function(){//error from server
                         $scope.showSimpleToast('Could not add person: ' + author.firstName + ' ' + author.lastName + status);
                         return;
                     });
-
                 }(i));
-
             }
-
             authArray[i] = {id: author.id};
         }
-
-
     };
-});
 });

@@ -5,9 +5,16 @@ bower_components
 img/**/*
 *.log
 .DS_Store
+.travis/deploy_key
+config.json
+.project
+/lib/secret.js
+/.sublime-gulp.cache
+/uploads
 /.travis/deploy_key
 /config.json
 /uploads
 /.sublime-gulp.cache
 lib/config.json
+/test/pdfs/output
 *.orig
