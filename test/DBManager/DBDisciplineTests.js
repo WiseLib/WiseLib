@@ -29,8 +29,8 @@ describe('getDisciplines method test',function(){
 				})
 		})
 	})
-	describe('Retrieve disicpline by id',function(){
-		var ID = '1';
+	describe('Retrieve discipline by id',function(){
+		var ID = 1;
 		describe('Call method',function(){
 			it('should execute without error',function(done){
 				dbmanager.get({id: ID},linker.disciplineRepr,function(res){result= res;done();})
@@ -47,10 +47,10 @@ describe('getDisciplines method test',function(){
 		})
 	})
 	describe('Retrieve discipline group by parentID',function(){
-		var parentID = '60';
+		var parentID = 60;
 		describe('Call method',function(){
 			it('should execute without error',function(done){
-				dbmanager.get({parentId: parentID},linker.disciplineRepr,function(res){result= res;done();})
+				dbmanager.get({parent: parentID},linker.disciplineRepr,function(res){result= res;done();})
 			})
 		})
 		describe('Analyse result',function(){
@@ -68,16 +68,17 @@ describe('getDisciplines method test',function(){
 	//putDiscipline method test
 	describe('putDiscipline method test',function(){
 		var response;
-		var discipline;//TODO correcte discipline object aanmaken
+		var discipline= {id:69,name:"Artificial neural network"};
 		describe('Call method',function(){
 			it('should execute withour error',function(done){
-				done();//NYI
-				//dbmanager.put(discipline,linker.disciplineRepr ,function(res) {response = res, done()});
+				dbmanager.put(discipline,linker.disciplineRepr ,function(res) {response = res, done()});
 			})
 		})
 		describe('Check database for updated disicpline',function(){
 			it('discipline should be updated',function(done){
-				throw new Error("NYI"); //TODO complete
+				//throw new Error("NYI"); //TODO complete
+				response.should.be.equal(discipline.id);
+				done();
 			})
 		})
 	});
@@ -108,7 +109,7 @@ describe('getDisciplines method test',function(){
 					it('database should hold the new discipline',function(){
 
 						if(result){
-							result[0].should.have.property('id',response.toString());
+							result[0].should.have.property('id',response);
 							result[0].should.have.property('name','TestDiscipline');
 						}
 						else{throw new Error("No result")}
@@ -119,7 +120,7 @@ describe('getDisciplines method test',function(){
 		describe('deleteDisicipline method test',function(){
 			
 			it('should now delete the previously added discipline',function(done){
-				dbmanager.deleteDiscipline({id:response.toString()},function(res){response = res; done();})
+				dbmanager.delete({id:response},linker.disciplineRepr,function(res){response = res; done();})
 			})
 
 			if(response.affectedRows){

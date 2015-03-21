@@ -22,14 +22,14 @@ describe('DbManager tests',function(){
 			describe('Analyse result',function(){
 				it('result should hold all disciplines',function(){
 					resultLength = result.length;
-					resultLength.should.be.equal(1066);//Known amount of journals
+					resultLength.should.be.equal(1271);//Known amount of journals
 				})
 			})
 		})
 	
 
 	describe('Retrieve journal by id',function(){
-			var ID = '24';
+			var ID = 24;
 			describe('Call method',function(){
 				it('should execute without error',function(done){
 					dbmanager.get({id: ID},linker.journalRepr,function(res){result= res;done();})
@@ -45,13 +45,13 @@ describe('DbManager tests',function(){
 					resultLength.should.be.equal(1);
 					journal.should.have.property('id',ID);
 					journal.should.have.property('name','Semantic Web');
-					journal.should.have.property('rank','3.871');
+					journal.should.have.property('rank',3.871);
 
 					journal.should.have.property('disciplines');
 					var disciplines = journal.disciplines;
-					disciplines[0].should.have.property('id','7');
-					disciplines[1].should.have.property('id','16');
-					disciplines[2].should.have.property('id','48');
+					disciplines[0].should.have.property('id',7);
+					disciplines[1].should.have.property('id',16);
+					disciplines[2].should.have.property('id',48);
 				})
 			})
 		})
@@ -70,8 +70,8 @@ describe('DbManager tests',function(){
 
 			describe('Call method',function(){
 				it('should execute withour error',function(done){
-					//dbmanager.post(journal,linker.journalRepr ,function(res) {response = res; done();});//repsonse holds id 
-					done(new Error("Not executed"));
+					dbmanager.post(journal,linker.journalRepr ,function(res) {response = res; done();});//repsonse holds id 
+					//done(new Error("Not executed"));
 				})
 				it('query should have succeeded',function(){
 					response.should.be.a.number;
@@ -80,18 +80,18 @@ describe('DbManager tests',function(){
 			describe('Check database for newly added journal',function(){
 				var result;
 				it('query should search the new journal',function(done){
-					dbmanager.get({id: response.toString()},linker.journalRepr,function(res){result= res;done();}) 
+					dbmanager.get({id: response},linker.journalRepr,function(res){result= res;done();}) 
 				});
-				it('database should hold the new discipline',function(){throw new Error("remove this error if deleteJournal is implemented")
-					result[0].should.have.property('id',response.toString());
+				it('database should hold the new discipline',function(){//throw new Error("remove this error if deleteJournal is implemented")
+					result[0].should.have.property('id',response);
 					result[0].should.have.property('name','TestJournal');
-					result[0].should.have.property('rank','0');
+					result[0].should.have.property('rank',0);
 				})
 			})
 		});
 		describe('deleteJournal method test',function(){
 			it('should now delete the previously added journal',function(done){
-				dbmanager.delete({id:response.toString()},linker.journalRepr,function(res){response = res; done();})
+				dbmanager.delete({id:response},linker.journalRepr,function(res){response = res; done();})
 			})
 			it('should have deleted without error',function(){
 				//response.affectedRows.should.be.equal(1);
@@ -129,8 +129,8 @@ describe('DbManager tests',function(){
 
 			describe('Call method',function(){
 				it('should execute withour error',function(done){
-					//dbmanager.post(proceeding,linker.proceedingRepr ,function(res) {response = res; done();});//repsonse holds id 
-					done(new Error("Not executed"));
+					dbmanager.post(proceeding,linker.proceedingRepr ,function(res) {response = res; done();});//repsonse holds id 
+					//done(new Error("Not executed"));
 				})
 				it('query should have succeeded',function(){
 					response.should.be.a.number;
@@ -141,10 +141,10 @@ describe('DbManager tests',function(){
 				it('query should search the new proceeding',function(done){
 					dbmanager.get({id: response.toString()},linker.proceedingRepr,function(res){result= res;done();}) 
 				});
-				it('database should hold the new proceeding',function(){throw new Error("remove this error if deleteProceeding is implemented")
-					result[0].should.have.property('id',response.toString());
+				it('database should hold the new proceeding',function(){//throw new Error("remove this error if deleteProceeding is implemented")
+					result[0].should.have.property('id',response);
 					result[0].should.have.property('name','TestProceeding');
-					result[0].should.have.property('rank','0');
+					result[0].should.have.property('rank',0);
 				})
 			})
 		});
