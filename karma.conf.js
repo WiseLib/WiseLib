@@ -8,7 +8,7 @@ module.exports = function(config) {
     basePath: './',
 
 
-    
+
     // plugins
 
     plugins : [
@@ -52,12 +52,12 @@ module.exports = function(config) {
 
     htmlReporter: {
       outputDir: './test/units.html',
-      templatePath: null, // set if you moved jasmine_template.html 
-      focusOnFailures: true, // reports show failures on start 
-      namedFiles: false, // name files instead of creating sub-directories 
-      pageTitle: null, // page title for reports; browser info by default 
-      urlFriendlyName: false // simply replaces spaces with _ for files/dirs 
-      
+      templatePath: null, // set if you moved jasmine_template.html
+      focusOnFailures: true, // reports show failures on start
+      namedFiles: false, // name files instead of creating sub-directories
+      pageTitle: null, // page title for reports; browser info by default
+      urlFriendlyName: false // simply replaces spaces with _ for files/dirs
+
     },
 
     // web server port

@@ -1,5 +1,6 @@
+'use strict';
 var should = require('should');
-var linker = require('../../lib/linker.js');
+var linker = require('../../src/linker.js');
 var _ = require('lodash');
 
 describe('Person Representation test', function() {
@@ -22,7 +23,7 @@ describe('Person Representation test', function() {
 		last_name:'Reymond',
 		picture:'path/to/picture',
 		publications:[2,3]
-	}, 
+	},
 	{
 		first_name:'Wout',
 		publications:[]
@@ -33,7 +34,7 @@ describe('Person Representation test', function() {
 		last_name:'Reymond',
 		picture:'path/to/picture',
 		publications:[{id:2},{id:3}]
-	}, 
+	},
 	{
 		first_name:'Wout',
 		publications:[]
