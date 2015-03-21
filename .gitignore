@@ -8,13 +8,13 @@ img/**/*
 .travis/deploy_key
 config.json
 .project
-/lib/secret.js
+/src/secret.js
 /.sublime-gulp.cache
 /uploads
 /.travis/deploy_key
 /config.json
 /uploads
 /.sublime-gulp.cache
-lib/config.json
+src/config.json
 /test/pdfs/output
 *.orig

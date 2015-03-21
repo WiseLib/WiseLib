@@ -1,5 +1,6 @@
+'use strict';
 var should = require('should');
-var linker = require('../../lib/linker.js');
+var linker = require('../../src/linker.js');
 var _ = require('lodash');
 
 describe('Journal Representation test', function() {

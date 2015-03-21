@@ -1,21 +1,22 @@
+'use strict';
 /**
  * This method belongs to the JournalSearchTestRouteTest test. It fakes the response which is edited by the methods, called by the test, in dbmanager.
  * It also incorporates the done function that is necessary for the mocha framework.
  * @return {object} response - A faked response
  */
 function fakeresponse(){
-	
+
 	var Result;
-	
+
 	var done = function(){};
-	
-	this.status= function(stat){return this};
+
+	this.status= function(stat){return this;};
 
 	this.json = function(jsonanswer){
-		
+
 		if(jsonanswer.hasOwnProperty('journals'))
 		{
-		   
+
 		this.Result = jsonanswer.journals.splice(0);
 		this.done();
 		}
@@ -24,14 +25,14 @@ function fakeresponse(){
 			this.done();
 		}
 	};
-	
+
 	this.send = function(message){
 		this.Result = message;
 		this.done();
-	}
+	};
 
-	this.result = function(){return this.Result;}
-};
+	this.result = function(){return this.Result;};
+}
 
 
 /**
@@ -43,10 +44,10 @@ function fakeresponse(){
 function fakerequest(query){
 
 	this.query=query;
-	
+
 	this.params = query;
 
-};	
+}
 
 exports.fakeresponse=fakeresponse;
-exports.fakerequest =fakerequest
+exports.fakerequest =fakerequest;

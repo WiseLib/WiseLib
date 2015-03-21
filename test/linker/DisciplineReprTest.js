@@ -1,5 +1,6 @@
+'use strict';
 var should = require('should');
-var linker = require('../../lib/linker.js');
+var linker = require('../../src/linker.js');
 var _ = require('lodash');
 
 describe('Discipline Representation test', function() {
@@ -16,7 +17,7 @@ describe('Discipline Representation test', function() {
 	var dbRepresentations = [{
 		id: 1,
 		name:'Computer Science'
-	}, 
+	},
 	{
 		id: 2,
 		name:'Operating systems',
@@ -25,7 +26,7 @@ describe('Discipline Representation test', function() {
 	var dbReprWithRelations = [{
 		id: 1,
 		name:'Computer Science'
-	}, 
+	},
 	{
 		id: 2,
 		name:'Operating systems',

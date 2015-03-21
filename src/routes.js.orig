@@ -1,0 +1,304 @@
+'use strict';
+
+/*
+ * server
+ * https://github.com/WiseLib/server
+ *
+ * Copyright (c) 2014 WiseLib
+ * Licensed under the GPL-2.0 license.
+ */
+
+<<<<<<< HEAD
+ var validator = require('./validator.js');
+ var DBManager = require('./dbmanager.js');
+=======
+>>>>>>> 56af0d063f2cc1cd56825b5432877dc0d29cd863
+ var config = require('./config.js');
+ var routeFunctions = require('./routesFunctions.js');
+var ejwt = require('express-jwt');
+
+<<<<<<< HEAD
+// TODO: split this module up into multiple controllers
+
+var auth = ejwt({secret: config.secretToken});
+
+//need to add authentification options
+var getMultiple = function(req, res, repr, name) {
+    var params = req.query;
+    DBManager.get(params, repr, function(results) {
+        res.json({
+            name: results
+        });
+    });
+};
+//need to add authentification options
+var getSingle = function(req, res, repr) {
+    DBManager.get({id: req.params.id}, repr, function(results) {
+        if(results[0] === undefined) {
+            res.status(404).end();
+        }
+        else {
+            res.json(results[0]);
+        }
+    });
+};
+//need to add authentification options
+var postSingle = function(req, res, repr, then) {
+    DBManager.post(req.body, repr, function(id) {
+        res.status(200).end();
+    });
+};
+//need to add authentification options
+var putSingle = function(req, res, repr) {
+    DBManager.put(req.body, repr, function(id) {
+        res.status(200).end();
+    });
+};
+
+var getDisciplines = function(req, res) {
+    getMultiple(req, res, linker.disciplineRepr, 'disciplines');
+};
+var getDiscipline = function(req, res) {
+    getSingle(req, res, linker.disciplineRepr);
+};
+var getJournals = function(req, res) {
+    getMultiple(req, res, linker.journalRepr, 'journals');
+};
+var getJournal = function(req, res) {
+    getSingle(req, res, linker.journalRepr);
+};
+var getJournalDisciplines = function(req, res) {
+    req.query.journal = req.params.id;
+    getMultiple(req, res, linker.disciplineRepr, 'disciplines');
+};
+var getProceedings = function(req, res) {
+    getMultiple(req, res, linker.proceedingRepr, 'proceedings');
+};
+var getProceeding = function(req, res) {
+    getSingle(req, res, linker.proceedingRepr);
+};
+var getProceedingDisciplines = function(req, res) {
+    req.query.proceeding = req.params.id;
+    getMultiple(req, res, linker.disciplineRepr, 'disciplines');
+};
+var getPersons = function(req, res) {
+    getMultiple(req, res, linker.personRepr, 'persons');
+};
+var getPerson = function(req, res) {
+    getSingle(req, res, linker.personRepr);
+};
+var getPersonPublications = function(req, res) {
+    console.log('got person id: ' + req.params.id);
+    req.query.authors = [req.params.id];
+    getMultiple(req, res, linker.publicationRepr, 'publications');
+};
+var postPerson = function(req, res) {
+    postSingle(req, res, linker.personRepr);
+};
+var putPerson = function(req, res) {
+    putSingle(req, res, linker.personRepr);
+};
+var getUser = function(req, res) {
+    getSingle(req, res, linker.userRepr);
+};
+//redirect to login page ?
+var postUser = function(req, res) {
+    if(req.body.profileImageSrc) {
+        req.body.picture = imageSaver(req.body.profileImageSrc);
+    }
+    postSingle(req, res, linker.userRepr);
+};
+var putUser = function(req, res) {
+    putSingle(req, res, linker.userRepr);
+};
+var getPublications = function(req, res) {
+    getMultiple(req, res, linker.publicationRepr, 'publications');
+};
+var getPublication = function(req, res) {
+    getSingle(req, res, linker.publicationRepr);
+};
+var deletePublication = function(req, res) {
+    DBManager.delete({id: req.params.id}, linker.publicationRepr, function() {
+        res.end();
+    });
+};
+var postPublication = function(req, res) {
+    var jsonObj = req.body;
+    switch (jsonObj.type) {
+        case 'Journal':
+        DBManager.postJournalPublication(jsonObj, function(id) {
+            res.end();
+        });
+        break;
+        case 'Proceeding':
+        DBManager.postProceedingPublication(jsonObj, function(id) {
+            res.end();
+        });
+        break;
+        default:
+        throw new Error('Not a valid publication type');
+    }
+};
+var getPublicationAuthors = function(req, res) {
+    req.query.publications = [req.params.id];
+    getMultiple(req, res, linker.personRepr, 'persons');
+};
+//token ?
+/*
+var token = jwt.sign(id, config.secretToken, { expiresInMinutes: 60 });
+res.json({token: token});
+*/
+var login = function(req, res) {
+    var email = req.body.email;
+    var password = req.body.password;
+    if(email === '' || password === '') {
+        res.sendStatus(401);
+    }
+    var onSuccess = function(users) {
+        if(users.length === 1) {
+            var token = jwt.sign(users[0], config.secretToken, { expiresInMinutes: 60 });
+            res.json({token: token});
+        } else {
+            res.status(401).json({error: 'Wrong email or password'});
+        }
+
+    };
+    DBManager.get({email: email, password: password}, linker.userRepr, onSuccess);
+};
+
+module.exports = function(app) {
+
+    app.route('/disciplines.json')
+    .get(getDisciplines);
+    app.route('/disciplines/:id.json')
+    .get(getDiscipline);
+    app.route('/journals.json')
+    .get(getJournals);
+    app.route('/journals/:id.json')
+    .get(getJournal);
+    app.route('/journals/:id/disciplines.json')
+    .get(getJournalDisciplines);
+    app.route('/proceedings.json')
+    .get(getProceedings);
+    app.route('/proceedings/:id.json')
+    .get(getProceeding);
+    app.route('/proceedings/:id/disciplines.json')
+    .get(getProceedingDisciplines);
+    app.route('/persons.json')
+    .get(getPersons)
+    .post(postPerson);
+    app.route('/persons/:id.json')
+    .get(getPerson)
+    .put(putPerson);
+    app.route('/persons/:id/publications.json')
+    .get(getPersonPublications);
+    app.route('/users.json')
+    .post(postUser);
+    app.route('/users/:id.json')
+    .get(getUser)
+    .put(putUser);
+    app.route('/users/:id/library.json')
+    .get(function(req, res) {res.status(501).end();});
+    app.route('/publications.json')
+    .get(getPublications)
+    .post(auth, postPublication);
+    app.route('/publications/:id.json')
+    .get(getPublication)
+    .delete(auth, deletePublication);
+    app.route('/publications/:id/authors.json')
+    .get(getPublicationAuthors);
+    app.route('/login')
+    .post(login);
+
+    app.route('/uploadfile')
+    .post(function(req,res){
+        var WrongType = function(){
+            res.status(400).send('Not a pdf or bibtex');
+        };
+
+        var OnEnd= function(data){
+            res.json(data);
+        };
+
+        filehandler.handleFile(req,WrongType,OnEnd);
+    });
+=======
+var auth = ejwt({secret: config.secretToken});
+
+
+module.exports = function(app) {
+
+    app.route('/disciplines.json')
+    .get(routeFunctions.getDisciplines);
+
+    app.route('/disciplines/:id.json')
+    .get(routeFunctions.getDiscipline);
+
+    app.route('/journals.json')
+    .get(routeFunctions.getJournals);
+
+    app.route('/journals/:id.json')
+    .get(routeFunctions.getJournal);
+
+    app.route('/journals/:id/disciplines.json')
+    .get(routeFunctions.getJournalDisciplines);
+
+    app.route('/proceedings.json')
+    .get(routeFunctions.getProceedings);
+
+    app.route('/proceedings/:id.json')
+    .get(routeFunctions.getProceeding);
+
+    app.route('/proceedings/:id/disciplines.json')
+    .get(routeFunctions.getProceedingDisciplines);
+
+    app.route('/persons.json')
+    .get(routeFunctions.getPersons)
+    .post(routeFunctions.postPerson);
+
+    app.route('/persons/:id.json')
+    .get(routeFunctions.getPerson)
+    .put(auth, routeFunctions.putPerson);
+
+    app.route('/persons/:id/publications.json')
+    .get(routeFunctions.getPersonPublications);
+
+    app.route('/users.json')
+    .post(routeFunctions.postUser);
+
+    app.route('/users/:id.json')
+    .get(routeFunctions.getUser)
+    .put(auth, routeFunctions.putUser);
+
+    app.route('/users/:id/library.json')
+    .get(function(req, res) {res.status(501).end();});
+
+    app.route('/publications.json')
+    .get(routeFunctions.getPublications)
+    .post(auth, routeFunctions.postPublication);
+
+    app.route('/publications/:id.json')
+    .get(routeFunctions.getPublication);
+
+    app.route('/publications/:id/authors.json')
+    .get(routeFunctions.getPublicationAuthors);
+
+    app.route('/login')
+    .post(routeFunctions.login);
+
+    app.route('/logout')
+    .post(function(req, res) {res.status(501).end();});
+
+
+    app.route('/users/login.json')
+    .post(routeFunctions.postUserLogin);
+
+    app.route('/uploadfile')
+    .post(auth, routeFunctions.postUploadFile);
+>>>>>>> 56af0d063f2cc1cd56825b5432877dc0d29cd863
+
+    app.route('*')
+    .get(function(req, res) {
+        res.sendFile('index.html', {root: __dirname + '/../public/'});
+    });
+};
