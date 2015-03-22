@@ -14,88 +14,6 @@ var ejwt = require('express-jwt');
 
 var auth = ejwt({secret: config.secretToken});
 
-//need to add authentification options
-var getMultiple = function(req, res, repr, name) {
-    var params = req.query;
-    DBManager.get(params, repr, function(results) {
-        res.json({
-            name: results
-        });
-    });
-};
-//need to add authentification options
-var getSingle = function(req, res, repr) {
-    DBManager.get({id: req.params.id}, repr, function(results) {
-        if(results[0] === undefined) {
-            res.status(404).end();
-        }
-        else {
-            res.json(results[0]);
-        }
-    });
-};
-//need to add authentification options
-var postSingle = function(req, res, repr, then) {
-    DBManager.post(req.body, repr, function(id) {
-        res.status(200).end();
-    });
-};
-//need to add authentification options
-var putSingle = function(req, res, repr) {
-    DBManager.put(req.body, repr, function(id) {
-        res.status(200).end();
-    });
-};
-
-var deletePublication = function(req, res) {
-    DBManager.delete({id: req.params.id}, linker.publicationRepr, function() {
-        res.end();
-    });
-};
-var postPublication = function(req, res) {
-    var jsonObj = req.body;
-    switch (jsonObj.type) {
-        case 'Journal':
-        DBManager.postJournalPublication(jsonObj, function(id) {
-            res.end();
-        });
-        break;
-        case 'Proceeding':
-        DBManager.postProceedingPublication(jsonObj, function(id) {
-            res.end();
-        });
-        break;
-        default:
-        throw new Error('Not a valid publication type');
-    }
-};
-var getPublicationAuthors = function(req, res) {
-    req.query.publications = [req.params.id];
-    getMultiple(req, res, linker.personRepr, 'persons');
-};
-//token ?
-/*
-var token = jwt.sign(id, config.secretToken, { expiresInMinutes: 60 });
-res.json({token: token});
-*/
-var login = function(req, res) {
-    var email = req.body.email;
-    var password = req.body.password;
-    if(email === '' || password === '') {
-        res.sendStatus(401);
-    }
-    var onSuccess = function(users) {
-        if(users.length === 1) {
-            var token = jwt.sign(users[0], config.secretToken, { expiresInMinutes: 60 });
-            res.json({token: token});
-        } else {
-            res.status(401).json({error: 'Wrong email or password'});
-        }
-
-    };
-    DBManager.get({email: email, password: password}, linker.userRepr, onSuccess);
-};
-
 module.exports = function(app) {
 
     app.route('/disciplines.json')
@@ -158,6 +76,10 @@ module.exports = function(app) {
 
     app.route('/logout')
     .post(function(req, res) {res.status(501).end();});
+
+    app.route('/uploadfile')
+    .post(auth, routeFunctions.postUploadFile);
+
     app.route('*')
     .get(function(req, res) {
         res.sendFile('index.html', {root: __dirname + '/../public/'});

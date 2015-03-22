@@ -50,7 +50,6 @@ var postSingle = function(req, res, repr) {
 //need to add authentification options
 var putSingle = function(req, res, repr) {
 	DBManager.put(req.body, repr, function(id) {
-		console.log(req.body);
 		res.status(200).end();
 	});
 };
@@ -66,7 +65,6 @@ var splitInArray = function(param) {
 	for(var i in array) {
 		array[i] = {id:array[i]};
 	}
-	console.log(array);
 	return array;
 };
 
@@ -135,7 +133,7 @@ module.exports = {
 		getSingle(req, res, linker.personRepr);
 	},
 
-	getPersonPublications: function(req, res) {console.log(req.body);
+	getPersonPublications: function(req, res) {
 		req.query.authors = [{id:req.params.id}];
 		getMultiple(req, res, linker.publicationRepr, 'publications');
 	},
