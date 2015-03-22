@@ -58,7 +58,7 @@ DBManager.prototype.get = function(jsonObj, classObj, next) {
                 }
                 //belongsTo relations
                 else {
-                    add = add && (models.id === queryRelations[relation]);
+                    add = add && (models.id == queryRelations[relation]);
                 }
             }
             if (add) {
@@ -81,7 +81,7 @@ DBManager.prototype.put = function(jsonObj, classObj, next) {
 //id is required, maybe check in event 'destroying' (see bookshelf.js)
 DBManager.prototype.delete = function(jsonObj, classObj, next) {
     var toDelete = classObj.toModel(jsonObj);
-    toDelete.destroy().then(function() {
+    toDelete.destroy().then(function(model) {
         next();
     });
 };
