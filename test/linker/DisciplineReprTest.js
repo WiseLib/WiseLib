@@ -1,5 +1,6 @@
+'use strict';
 var should = require('should');
-var linker = require('../../lib/linker.js');
+var linker = require('../../src/linker.js');
 var _ = require('lodash');
 
 describe('Discipline Representation test', function() {
@@ -16,7 +17,7 @@ describe('Discipline Representation test', function() {
 	var dbRepresentations = [{
 		id: 1,
 		name:'Computer Science'
-	}, 
+	},
 	{
 		id: 2,
 		name:'Operating systems',
@@ -25,11 +26,21 @@ describe('Discipline Representation test', function() {
 	var dbReprWithRelations = [{
 		id: 1,
 		name:'Computer Science'
-	}, 
+	},
 	{
 		id: 2,
 		name:'Operating systems',
 		parent:{id:1}
+	}];
+	var search= {};
+	search[linker.searchKey] = 'Convert Word';
+	var expected = [{
+		key:'name',
+		value:'%Convert%'
+	},
+	{
+		key:'name',
+		value:'%Word%'
 	}];
 
 	it('should convert the JSON representation', function() {
@@ -47,5 +58,9 @@ describe('Discipline Representation test', function() {
 			var converted = linker.disciplineRepr.parse(dbReprWithRelations[repr]);
 			_.isEqual(converted, jsonRepresentations[repr]).should.be.true;
 		}
+	});
+	it('should convert search-string', function() {
+		var converted = linker.disciplineRepr.formatSearch(search);
+		_.isEqual(expected, converted).should.be.true;
 	});
 });

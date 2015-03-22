@@ -1,5 +1,5 @@
 /*
- * WiseLib 
+ * WiseLib
  * https://github.com/WiseLib/WiseLib
  *
  * Copyright (c) 2014 WiseLib
@@ -15,7 +15,7 @@ var cp = require('child_process');
 var stylish = require('jshint-stylish');
 
 var bin = ['./bin/*.js'];
-var lib = ['./wiselib.js', './lib/**/*.js'];
+var lib = ['./wiselib.js', './src/**/*.js'];
 var test = ['./test/**/*.js'];
 var pub = ['./public/scripts/**/*.js'];
 var jsfiles = _.union(bin, lib, test, pub);
@@ -78,7 +78,7 @@ gulp.task('jsdoc-md', function () {
     .pipe(g.rename(function(path){
         path.extname = '.md';
     }))
-    .pipe(gulp.dest('./build/jsdoc/md')); 
+    .pipe(gulp.dest('./build/jsdoc/md'));
 });
 
 // aliases

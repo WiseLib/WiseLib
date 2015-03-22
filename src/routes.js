@@ -8,28 +8,14 @@
  * Licensed under the GPL-2.0 license.
  */
 
- var validator = require('./validator.js');
- var JSONManager = require('./jsonmanager.js');
- var DBManager = require('./dbmanager.js');
- var Discipline = require('./discipline.js');
- var Journal = require('./journal.js');
  var config = require('./config.js');
- var linker = require('./linker.js');
- var imageSaver = require('./imagesaver.js');
- var filehandler = require('./filehandler.js');
-
  var routeFunctions = require('./routesFunctions.js');
-
-//For login
-var jwt = require('jsonwebtoken');
 var ejwt = require('express-jwt');
 
-var dbManager = new DBManager(config.database);
 var auth = ejwt({secret: config.secretToken});
 
 
 module.exports = function(app) {
-
 
     app.route('/disciplines.json')
     .get(routeFunctions.getDisciplines);
@@ -61,7 +47,7 @@ module.exports = function(app) {
 
     app.route('/persons/:id.json')
     .get(routeFunctions.getPerson)
-    .put(routeFunctions.putPerson);
+    .put(auth, routeFunctions.putPerson);
 
     app.route('/persons/:id/publications.json')
     .get(routeFunctions.getPersonPublications);
@@ -71,14 +57,14 @@ module.exports = function(app) {
 
     app.route('/users/:id.json')
     .get(routeFunctions.getUser)
-    .put(routeFunctions.putUser);
+    .put(auth, routeFunctions.putUser);
 
     app.route('/users/:id/library.json')
-    .get(function(req, res) {res.status(501).end()});
+    .get(function(req, res) {res.status(501).end();});
 
     app.route('/publications.json')
     .get(routeFunctions.getPublications)
-    .post(routeFunctions.postPublication);
+    .post(auth, routeFunctions.postPublication);
 
     app.route('/publications/:id.json')
     .get(routeFunctions.getPublication);
@@ -90,15 +76,14 @@ module.exports = function(app) {
     .post(routeFunctions.login);
 
     app.route('/logout')
-    .post(function(req, res) {res.status(501).end()});
+    .post(function(req, res) {res.status(501).end();});
 
 
     app.route('/users/login.json')
     .post(routeFunctions.postUserLogin);
 
-
     app.route('/uploadfile')
-    .post(routeFunctions.postUploadFile);
+    .post(auth, routeFunctions.postUploadFile);
 
     app.route('*')
     .get(function(req, res) {

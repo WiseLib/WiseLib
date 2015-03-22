@@ -1,5 +1,6 @@
+'use strict';
 var should = require('should');
-var linker = require('../../lib/linker.js');
+var linker = require('../../src/linker.js');
 var _ = require('lodash');
 
 describe('Publication Representation test', function() {
@@ -53,6 +54,16 @@ describe('Publication Representation test', function() {
 		publication_type:'Proceeding',
 		authors:[]
 	}];
+	var search= {};
+	search[linker.searchKey] = 'Convert Word';
+	var expected = [{
+		key:'title',
+		value:'%Convert%'
+	},
+	{
+		key:'title',
+		value:'%Word%'
+	}];
 
 	it('should convert the JSON representation', function() {
 		for(var repr in jsonRepresentations) {
@@ -69,5 +80,9 @@ describe('Publication Representation test', function() {
 			var converted = linker.publicationRepr.parse(dbReprWithRelations[repr]);
 			_.isEqual(converted, jsonRepresentations[repr]).should.be.true;
 		}
+	});
+	it('should convert search-string', function() {
+		var converted = linker.publicationRepr.formatSearch(search);
+		_.isEqual(expected, converted).should.be.true;
 	});
 });

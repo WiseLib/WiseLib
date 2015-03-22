@@ -1,5 +1,4 @@
 'use strict';
-var Client = require('mariasql');
 var linker = require('./linker.js');
 var _ = require('lodash');
 /**
@@ -13,11 +12,9 @@ var _ = require('lodash');
  *
  * @constructor
  */
-var DBManager = function(config) {
-};
+var DBManager = function() {};
 
 DBManager.prototype.post = function(jsonObj, classObj, next) {
-    var dbManager = this;
     var toPost = classObj.format(jsonObj);
     new classObj.model(toPost).save({}, {method: 'insert'}).then(function(model) {
         var id = {};
@@ -49,11 +46,51 @@ DBManager.prototype.getLIKE = function(jsonObj, classObj, next){//implements a g
 
 DBManager.prototype.get = function(jsonObj, classObj, next) {
     var queryParams = classObj.format(jsonObj);
-    classObj.model.where(queryParams).fetchAll({withRelated: classObj.relations}).then(function(results) {
-        var convertedResults = _.map(results.models, function(result) {
-            return classObj.parse(result.toJSON());
-        });
-        next(convertedResults);
+    var searchParams = classObj.formatSearch(jsonObj);
+    var queryRelations = classObj.formatRelations(jsonObj);
+    var queryFunction = function(db) {
+        var q = db.where(queryParams);
+        if(searchParams.length > 0) {
+            var p = searchParams[0];
+            q = q.andWhere(p.key, 'like', p.value);
+            for(var i=1; i < searchParams.length; i++) {
+                p = searchParams[i];
+                q = q.orWhere(p.key, 'like', p.value);
+            }
+        }
+    }
+    //first fetch all based on given attributes (such as title, year, id)
+    classObj.model.query(queryFunction).fetchAll({withRelated: classObj.relations}).then(function(results) {
+        //then, filter on given relations (such as authors, uploader)
+        var filtered = [];
+        //loop through all the fetched results
+        for(var result in results.models) {
+            var add = true;
+            //for each result, see if it contains the given relation
+            //loop through all given relations
+            for(var relation in queryRelations) {
+                //get tuples of current relation of current result
+                var models = results.models[result].related(relation);
+                //tuples must contain all values of current relation
+                //belongsToMany relations
+                if(queryRelations[relation].constructor === Array) {
+                    _.forEach(queryRelations[relation], function(id) {
+                        var model = models.get(id);
+                        if(model === undefined) {
+                            add = false;
+                        };
+                    });
+                }
+                //belongsTo relations
+                else {
+                    add = add && (models.id == queryRelations[relation]);
+                }
+            }
+            if (add) {
+                filtered.push(classObj.parse(results.models[result].toJSON()))
+            }
+        }
+        next(filtered);
     });
 };
 
@@ -121,4 +158,5 @@ DBManager.prototype.postProceedingPublication = function(jsonObj, next) {
 };
 
 //Exports
-module.exports = DBManager;
+var singleton = new DBManager();
+module.exports = singleton;

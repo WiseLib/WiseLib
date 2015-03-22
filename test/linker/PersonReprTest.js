@@ -1,5 +1,6 @@
+'use strict';
 var should = require('should');
-var linker = require('../../lib/linker.js');
+var linker = require('../../src/linker.js');
 var _ = require('lodash');
 
 describe('Person Representation test', function() {
@@ -22,7 +23,7 @@ describe('Person Representation test', function() {
 		last_name:'Reymond',
 		picture:'path/to/picture',
 		publications:[2,3]
-	}, 
+	},
 	{
 		first_name:'Wout',
 		publications:[]
@@ -33,10 +34,28 @@ describe('Person Representation test', function() {
 		last_name:'Reymond',
 		picture:'path/to/picture',
 		publications:[{id:2},{id:3}]
-	}, 
+	},
 	{
 		first_name:'Wout',
 		publications:[]
+	}];
+	var search= {};
+	search[linker.searchKey] = 'Convert Word';
+	var expected = [{
+		key:'first_name',
+		value:'%Convert%'
+	},
+	{
+		key:'first_name',
+		value:'%Word%'
+	},
+	{
+		key:'last_name',
+		value:'%Convert%'
+	},
+	{
+		key:'last_name',
+		value:'%Word%'
 	}];
 
 	it('should convert the JSON representation', function() {
@@ -54,5 +73,9 @@ describe('Person Representation test', function() {
 			var converted = linker.personRepr.parse(dbReprWithRelations[repr]);
 			_.isEqual(converted, jsonRepresentations[repr]).should.be.true;
 		}
+	});
+	it('should convert search-string', function() {
+		var converted = linker.personRepr.formatSearch(search);
+		_.isEqual(expected, converted).should.be.true;
 	});
 });

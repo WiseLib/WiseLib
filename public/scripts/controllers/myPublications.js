@@ -8,7 +8,9 @@ angular.module('myPublications', [])
 
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
-    Publication.query({id: user.id}, function(data) {
+
+    var pub = new Publication({id:user});
+    pub.$query(function(data) {
         console.log('got data!');
         console.log(data);
         if(data.publications.length > 0) {
@@ -17,8 +19,7 @@ angular.module('myPublications', [])
             $scope.error = 'No publications found';
         }
     }, function(error) {
-        console.warn('error:' + error);
-        $scope.error = error.statusText;
+        $scope.error = error.status + ' ' +error.statusText;
     });
 
     // $scope.publications = [{title: 'Test', publishedInYear: 2014, nrOfPages: 23},
