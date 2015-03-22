@@ -15,6 +15,7 @@ var knex = require('knex')({
 });
 
 var bookshelf = require('bookshelf')(knex);
+var searchKey = 'q';
 
 var Representation = function() {};
 Representation.prototype.relations = [];
@@ -38,6 +39,21 @@ Representation.prototype.formatRelations = function(json) {
         }
     }
     return queryParams;
+};
+Representation.prototype.formatSearch = function(json) {
+    var like = json[searchKey];
+    var search = [];
+    if(like !== undefined) {
+        like = like.split(' ');
+        like = _.map(like, function(word) {return '%' + word + '%';});
+        for(var field in this[searchKey]) {
+            var f = this[searchKey][field];
+            _.forEach(like, function(word) {
+                search.push({key: f.fieldName, value: word});
+            });
+        }
+    }
+    return search;
 };
 Representation.prototype.parse = function(toParse) {
     var json = {};
@@ -90,11 +106,8 @@ disciplineRepr.id = {
 disciplineRepr.name = {
     fieldName: 'name',
     name: 'name'
-};/*
-disciplineRepr.parentId = {
-    fieldName: 'part_of_academic_discipline_id',
-    name: 'parent'
-};*/
+};
+disciplineRepr[searchKey] = [disciplineRepr.name];
 disciplineRepr.model = AcademicDiscipline;
 disciplineRepr.relations = ['parent', 'journals', 'proceedings'];
 
@@ -133,6 +146,7 @@ personRepr.picture = {
     fieldName: 'picture',
     name: 'picture'
 };
+personRepr[searchKey] = [personRepr.firstName, personRepr.lastName];
 personRepr.model = Person;
 personRepr.relations = ['publications'];
 
@@ -156,11 +170,8 @@ userRepr.email = {
 userRepr.password = {
     fieldName: 'password',
     name: 'password'
-};/*
-userRepr.personId = {
-    fieldName: 'person_id',
-    name: 'person'
-};*/
+};
+userRepr[searchKey] = [userRepr.email];
 userRepr.model = User;
 userRepr.relations = ['person'];
 
@@ -184,6 +195,7 @@ journalRepr.rank = {
     fieldName: 'rank',
     name: 'rank'
 };
+journalRepr[searchKey] = [journalRepr.name];
 journalRepr.model = Journal;
 journalRepr.relations = ['disciplines'];
 
@@ -207,6 +219,7 @@ proceedingRepr.rank = {
     fieldName: 'rank',
     name: 'rank'
 };
+proceedingRepr[searchKey] = [proceedingRepr.name];
 proceedingRepr.model = Proceeding;
 proceedingRepr.relations = ['disciplines'];
 
@@ -248,11 +261,8 @@ publicationRepr.url = {
 publicationRepr.abstract = {
     fieldName: 'summary_text',
     name: 'abstract'
-};/*
-publicationRepr.uploader = {
-    fieldName: 'published_by_user_id',
-    name: 'uploader'
-};*/
+};
+publicationRepr[searchKey] = [publicationRepr.title];
 publicationRepr.model = Publication;
 publicationRepr.relations = ['uploader', 'authors'];
 
@@ -313,6 +323,7 @@ proceedingPublicationRepr.proceeding = {
 };
 proceedingPublicationRepr.model = ProceedingPublication;
 
+module.exports.searchKey = searchKey;
 module.exports.disciplineRepr = disciplineRepr;
 module.exports.journalRepr = journalRepr;
 module.exports.personRepr = personRepr;

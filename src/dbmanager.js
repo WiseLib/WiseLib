@@ -33,9 +33,21 @@ DBManager.prototype.post = function(jsonObj, classObj, next) {
 
 DBManager.prototype.get = function(jsonObj, classObj, next) {
     var queryParams = classObj.format(jsonObj);
+    var searchParams = classObj.formatSearch(jsonObj);
     var queryRelations = classObj.formatRelations(jsonObj);
+    var queryFunction = function(db) {
+        var q = db.where(queryParams);
+        if(searchParams.length > 0) {
+            var p = searchParams[0];
+            q = q.andWhere(p.key, 'like', p.value);
+            for(var i=1; i < searchParams.length; i++) {
+                p = searchParams[i];
+                q = q.orWhere(p.key, 'like', p.value);
+            }
+        }
+    }
     //first fetch all based on given attributes (such as title, year, id)
-    classObj.model.where(queryParams).fetchAll({withRelated: classObj.relations}).then(function(results) {
+    classObj.model.query(queryFunction).fetchAll({withRelated: classObj.relations}).then(function(results) {
         //then, filter on given relations (such as authors, uploader)
         var filtered = [];
         //loop through all the fetched results
