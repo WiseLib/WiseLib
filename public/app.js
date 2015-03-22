@@ -33,14 +33,6 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
         templateUrl: 'views/myPublications.html',
         controller: 'myPublicationsController'
     })
-    .when('/publications/:id', {
-        templateUrl: 'views/publication.html',
-        controller: 'publicationController'
-    })
-    .when('/persons/:id', {
-        templateUrl: 'views/person.html',
-        controller: 'personController'
-    })
     .otherwise({redirectTo: '/'});
 }])
 

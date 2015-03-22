@@ -1,6 +1,6 @@
 <md-content layout="row" layout-align="center">
 	<md-toolbar class="md-accent" ng-if="error">Error: {{error}}</md-toolbar>
-	<md-progress-circular md-mode="indeterminate" ng-if="!publications.length && !error"></md-progress-circular>
+	<md-progress-circular md-mode="indeterminate" ng-if="showLoading"></md-progress-circular>
 	<md-list class="publications-list">
 		<md-item ng-repeat="publication in publications">
 			<md-item-content>
