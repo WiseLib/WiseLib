@@ -218,6 +218,9 @@ var Publication = bookshelf.Model.extend({
     },
     authors: function() {
         return this.belongsToMany(Person, 'publication_written_by_person', 'publication_id', 'person_id');
+    },
+    references: function() {
+        return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
     }
 });
 var publicationRepr = new Representation();
@@ -254,7 +257,7 @@ publicationRepr.uploader = {
     name: 'uploader'
 };*/
 publicationRepr.model = Publication;
-publicationRepr.relations = ['uploader', 'authors'];
+publicationRepr.relations = ['uploader', 'authors', 'references'];
 
 //journalPublication
 var JournalPublication = bookshelf.Model.extend({
