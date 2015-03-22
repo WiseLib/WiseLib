@@ -55,6 +55,12 @@ var putSingle = function(req, res, repr) {
 	});
 };
 
+var deleteSingle = function(req, res, repr) {
+	DBManager.delete({id: req.params.id}, repr, function() {
+		res.sendStatus(200);
+	});
+};
+
 var splitInArray = function(param) {
 	var array = param.split(splitSign);
 	for(var i in array) {
@@ -168,7 +174,7 @@ module.exports = {
 		getSingle(req, res, linker.publicationRepr);
 	},
 	deletePublication: function(req, res) {
-
+		deleteSingle(req, res, linker.publicationRepr);
 	},
 
 	postPublication :function(req, res) {
