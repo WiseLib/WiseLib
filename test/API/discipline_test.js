@@ -1,3 +1,4 @@
+'use strict';
 /**
  * This method belongs to the DisciplineSearch test. It fakes the response which is edited by the methods, called by the test, in dbmanager.
  * It also incorporates the done function that is necessary for the mocha framework.
@@ -5,20 +6,20 @@
  */
 
 function fakeresponse(){
-	
+
 	var result;
 
 	var done = function(){};
-	
-	this.status= function(stat){return this};
+
+	this.status= function(stat){return this;};
 
 	this.json = function(jsonanswer){
 		result = jsonanswer.disciplines.splice(0);
 		this.done();
 	};
 
-	this.result = function(){return result;}
-};
+	this.result = function(){return result;};
+}
 
 
 /**
@@ -28,11 +29,11 @@ function fakeresponse(){
  * @return {object} request - a faked request
  */
 function fakerequest(Query){
-	
+
 	this.Query= Query;
 
-	this.query = this.Query
-};	
+	this.query = this.Query;
+}
 
 exports.fakeresponse=fakeresponse;
-exports.fakerequest =fakerequest
+exports.fakerequest =fakerequest;
