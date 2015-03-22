@@ -8,7 +8,7 @@
  * Licensed under the GPL-2.0 license.
  */
 
- var validator = require('./validator.js');
+ //var validator = require('./validator.js'); //Not used yet
  var DBManager = require('./dbmanager.js');
  var config = require('./config.js');
  var linker = require('./linker.js');
@@ -20,7 +20,7 @@
 
 // TODO: split this module up into multiple controllers
 
-
+var splitSign = '|';
 //need to add authentification options
 var getMultiple = function(req, res, repr, name) {
 	var params = req.query;
@@ -49,14 +49,30 @@ var postSingle = function(req, res, repr) {
 };
 //need to add authentification options
 var putSingle = function(req, res, repr) {
-	DBManager.put(req.body, repr, function(id) {console.log(req.body);
+	DBManager.put(req.body, repr, function(id) {
+		console.log(req.body);
 		res.status(200).end();
 	});
+};
+
+var splitInArray = function(param) {
+	var array = param.split(splitSign);
+	for(var i in array) {
+		array[i] = {id:array[i]};
+	}
+	console.log(array);
+	return array;
 };
 
 module.exports = {
 
 	getDisciplines: function(req, res) {
+		if(req.query.journals !== undefined) {
+			req.query.journals = splitInArray(req.query.journals);
+		}
+		if(req.query.proceedings !== undefined) {
+			req.query.proceedings = splitInArray(req.query.proceedings);
+		}
 		getMultiple(req, res, linker.disciplineRepr, 'disciplines');
 	},
 
@@ -65,6 +81,9 @@ module.exports = {
 	},
 
 	getJournals :function(req, res) {
+		if(req.query.disciplines !== undefined) {
+			req.query.disciplines = splitInArray(req.query.disciplines);
+		}
 		getMultiple(req, res, linker.journalRepr, 'journals');
 	},
 
@@ -73,11 +92,17 @@ module.exports = {
 	},
 
 	getJournalDisciplines: function(req, res) {
-		req.query.journal = req.params.id;
+		req.query.journals = [{id:req.params.id}];
+		if(req.query.proceedings !== undefined) {
+			req.query.proceedings = splitInArray(req.query.proceedings);
+		}
 		getMultiple(req, res, linker.disciplineRepr, 'disciplines');
 	},
 
 	getProceedings: function(req, res) {
+		if(req.query.disciplines !== undefined) {
+			req.query.disciplines = splitInArray(req.query.disciplines);
+		}
 		getMultiple(req, res, linker.proceedingRepr, 'proceedings');
 	},
 
@@ -86,11 +111,17 @@ module.exports = {
 	},
 
 	getProceedingDisciplines :function(req, res) {
-		req.query.proceeding = req.params.id;
+		req.query.proceedings = [{id:req.params.id}];
+		if(req.query.journals !== undefined) {
+			req.query.journals = splitInArray(req.query.journals);
+		}
 		getMultiple(req, res, linker.disciplineRepr, 'disciplines');
 	},
 
 	getPersons: function(req, res) {
+		if(req.query.publications !== undefined) {
+			req.query.publications = splitInArray(req.query.publications);
+		}
 		getMultiple(req, res, linker.personRepr, 'persons');
 	},
 
@@ -99,7 +130,7 @@ module.exports = {
 	},
 
 	getPersonPublications: function(req, res) {console.log(req.body);
-		req.query.authors = [req.params.id];
+		req.query.authors = [{id:req.params.id}];
 		getMultiple(req, res, linker.publicationRepr, 'publications');
 	},
 
@@ -127,6 +158,9 @@ module.exports = {
 	},
 
 	getPublications :function(req, res) {
+		if(req.query.authors !== undefined) {
+			req.query.authors = splitInArray(req.query.authors);
+		}
 		getMultiple(req, res, linker.publicationRepr, 'publications');
 	},
 
@@ -142,7 +176,7 @@ module.exports = {
 	},
 
 	getPublicationAuthors: function(req, res) {
-		req.query.publications = [req.params.id];
+		req.query.publications = [{id:req.params.id}];
 		getMultiple(req, res, linker.personRepr, 'persons');
 	},
 	login: function(req, res) {
