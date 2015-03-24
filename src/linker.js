@@ -44,13 +44,29 @@ Representation.prototype.formatSearch = function(json) {
     var like = json[searchKey];
     var search = [];
     if(like !== undefined) {
+        like = like.split('@');
+        var temp  = like.shift();
+        var parameters = like;
+        like= temp;
         like = like.split(' ');
         like = _.map(like, function(word) {return '%' + word + '%';});
-        for(var field in this[searchKey]) {
-            var f = this[searchKey][field];
+
+        var thisthis = this; //rare bug hij kent this niet in de lodash for each??
+
+        if(parameters.length > 0 ){
             _.forEach(like, function(word) {
-                search.push({key: f.fieldName, value: word});
-            });
+                _.forEach(parameters, function(param) {
+                    if(thisthis[param])search.push({key: thisthis[param].fieldName, value: word});})
+            })
+        }
+
+        else {  
+            for(var field in this[searchKey]) {
+                var f = this[searchKey][field];
+                _.forEach(like, function(word) {
+                    search.push({key: f.fieldName, value: word});
+                });
+            }
         }
     }
     return search;
@@ -78,7 +94,7 @@ Representation.prototype.toModel = function(jsonObj) {
     var queryParams = this.format(jsonObj);
     var queryRelations = this.formatRelations(jsonObj);
     var model = new this.model(queryParams);
-    console.log(JSON.stringify(queryRelations));
+    //console.log(JSON.stringify(queryRelations));
     for(var i in queryRelations) {
         model.related(i).attach(queryRelations[i]);
     }
@@ -96,7 +112,6 @@ Representation.prototype.filterRelations = function(jsonObj, query) {
     //for each given relation in filter
     for(var i in queryRelations) {
         var relData = model.related(i).relatedData;
-        console.log(relData);
         var foreignKey = relData.foreignKey;
         //belongsToMany
         //means it is in a separate table
