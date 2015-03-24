@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('addUser', [])
+angular.module('user')
 
 .controller('registerUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
     Page.setTitle('Register');

@@ -36,7 +36,7 @@ angular.module('communication', [])
             classes[className] = [];
             classesParams[className] = JSON.stringify(params);
             var path = '/' + className.toLowerCase() + 's.json';
-            fetchForPath(path, params).success(function (data, status, headers, config) {
+            fetchForPath(path, params).success(function (data) {
                 classes[className] = data;
                 return data;
             });
@@ -45,15 +45,15 @@ angular.module('communication', [])
     };
 
     var fetchDisciplines = function (params) {
+        if(params)
         return fetchForClass('Discipline', params).disciplines;
     };
     var fetchPersons = function (params) {
-        if(params !== undefined){
+        if(params && params.firstName !== '' && params.lastName !== ''){
             return fetchForClass('Person', params).persons;}
         };
 
     var fetchProceedings = function (params) {
-        //for now, return dummy data
         if(params){
         if (classesParams.Proceeding !== JSON.stringify(params)) {
             classesParams.Proceeding = params;
@@ -64,7 +64,7 @@ angular.module('communication', [])
     };
 
     var fetchJournals = function (params) {
-        if(params){
+        if(params && params.name !== ''){
             params= {name:params.name};
             var journals = fetchForClass('Journal', params);
         return journals.journals;

@@ -31,7 +31,7 @@ Representation.prototype.format = function(json) {
 Representation.prototype.formatRelations = function(json) {
     var queryParams = {};
     for(var i=0; i < this.relations.length; i++) {
-        var relation = json[this.relations[i]];
+    	var relation = json[this.relations[i]];
         if(relation !== undefined) {
             //assumes all objects are given by id (and called 'id')
             queryParams[this.relations[i]] = (relation.constructor === Array) ? _.map(relation, function(rel) {return rel.id;}) : relation;
