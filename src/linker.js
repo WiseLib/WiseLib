@@ -73,7 +73,7 @@ Representation.prototype.parse = function(toParse) {
 
     return json;
 };
-
+//only when id is given (for put, delete) because of bookshelf attach restrictions
 Representation.prototype.toModel = function(jsonObj) {
     var queryParams = this.format(jsonObj);
     var queryRelations = this.formatRelations(jsonObj);
@@ -83,6 +83,59 @@ Representation.prototype.toModel = function(jsonObj) {
         model.related(i).attach(queryRelations[i]);
     }
     return model;
+};
+
+Representation.prototype.toQuery = function(jsonObj) {
+    var queryParams = this.format(jsonObj);
+    var queryRelations = this.formatRelations(jsonObj);
+    var searchParams = this.formatSearch(jsonObj);
+    var searchRelations = [{key:'authors', value:'Math'}];
+    var model = new this.model(queryParams);
+    var queryFunction = function(db) {
+        //filter on fields
+        var q = db.where(queryParams);
+        //filter on relations
+        //for each given relation in filter
+        for(var i in queryRelations) {
+            var relData = model.related(i).relatedData;
+            var foreignKey = relData.foreignKey;
+            //belongsToMany
+            //means it is in a separate table
+            if(_.isArray(queryRelations[i])) {
+                //make a join with the table
+                foreignKey = relData.joinTableName+'.'+foreignKey;
+                var otherKey = relData.joinTableName+'.'+relData.otherKey;
+                q.innerJoin(relData.joinTableName, foreignKey, relData.targetIdAttribute);
+                _(queryRelations[i]).forEach(function(rel) {
+                    //filter on foreign keys
+                    var w = {};
+                    w[otherKey] = rel;
+                    q.andWhere(w);
+                });
+            }
+            //belongsTo
+            //means it is a field in the model table
+            else {
+                //filter on this field
+                var w = {};
+                w[foreignKey] = queryRelations[i];
+                q.andWhere(w);
+            }
+        }
+        //search on fields
+        if(searchParams.length > 0) {
+            var p = searchParams[0];
+            q = q.andWhere(p.key, 'like', p.value);
+            for(var i=1; i < searchParams.length; i++) {
+                p = searchParams[i];
+                q = q.orWhere(p.key, 'like', p.value);
+            }
+        }
+        //search on relations
+        //TODO
+        console.log(q.toString());
+    }
+    return model.query(queryFunction);
 };
 
 //discipline
