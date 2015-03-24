@@ -106,11 +106,11 @@ Representation.prototype.toQuery = function(jsonObj) {
                 foreignKey = relData.joinTableName+'.'+foreignKey;
                 var otherKey = relData.joinTableName+'.'+relData.otherKey;
                 q.innerJoin(relData.joinTableName, foreignKey, relData.targetIdAttribute);
-                _(queryRelations[i]).forEach(function(rel) {
+                _.forEach(queryRelations[i], function(rel) {
                     //filter on foreign keys
                     var w = {};
                     w[otherKey] = rel;
-                    q.andWhere(w);
+                    q = q.andWhere(w);
                 });
             }
             //belongsTo
@@ -119,7 +119,7 @@ Representation.prototype.toQuery = function(jsonObj) {
                 //filter on this field
                 var w = {};
                 w[foreignKey] = queryRelations[i];
-                q.andWhere(w);
+                q = q.andWhere(w);
             }
         }
         //search on fields
