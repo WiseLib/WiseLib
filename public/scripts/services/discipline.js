@@ -3,8 +3,8 @@
 var module = angular.module('discipline', []);
 
 module.factory('Discipline', function($resource) {
-	return $resource('/disciplines.json', {}, {
-		query: { method: 'GET', isArray: false }
+	return $resource('/disciplines/:id.json', {id: '@id'}, {
+		query: { method: 'GET', isArray: false , url: '/disciplines.json'}
 	});
 });
 

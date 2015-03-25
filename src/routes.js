@@ -16,11 +16,18 @@ var auth = ejwt({secret: config.secretToken});
 
 module.exports = function(app) {
 
+    app.route('/affiliations.json')
+    .get(routeFunctions.getAffiliations);
+
+    app.route('/affiliations/:id.json')
+    .get(routeFunctions.getAffiliation);
+
     app.route('/disciplines.json')
     .get(routeFunctions.getDisciplines);
 
     app.route('/disciplines/:id.json')
     .get(routeFunctions.getDiscipline);
+
     app.route('/journals.json')
     .get(routeFunctions.getJournals);
 

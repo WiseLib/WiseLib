@@ -1,0 +1,27 @@
+<md-content>
+	<md-toolbar class="md-accent" ng-if="error">Error: {{error}}</md-toolbar>
+	<md-progress-circular md-mode="indeterminate" ng-if="!person && !error"></md-progress-circular>
+	<h1>{{person.firstName}} {{person.lastName}}</h1>
+	<div layout="row">
+		<div><img ng-src="{{person.picture || '/assets/dummy.jpg'}}"  width="100px" alt="profile picture"></img></div>
+		<div class="indent">
+			<p>Affiliation: {{person.affiliation}}</p>
+			<p ng-if="disciplines.length > 0">Academic disciplines:</p>
+			<ul>
+				<li data-ng-repeat="d in disciplines">{{d}}</li>
+			</ul>
+		</div>
+	</div>
+	<h2>Publications written by {{person.firstName}}</h2>
+	<md-progress-circular md-mode="indeterminate" ng-if="!publications.length && !error"></md-progress-circular>
+	<md-list class="publications-list">
+		<md-item ng-repeat="publication in publications">
+			<md-item-content>
+				<div class="md-tile-content">
+					<publicationmin publication="publication"></publicationmin>
+				</div>
+			</md-item-content>
+			<md-divider md-inset ng-if="!$last"></md-divider>
+		</md-item>
+	</md-list>
+</md-content>

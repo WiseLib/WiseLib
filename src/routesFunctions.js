@@ -70,6 +70,14 @@ var splitInArray = function(param) {
 
 module.exports = {
 
+	getAffiliations: function(req, res) {
+		getMultiple(req, res, linker.affiliationRepr, 'affiliations');
+	},
+
+	getAffiliation: function(req, res) {
+		getSingle(req, res, linker.affiliationRepr);
+	},
+
 	getDisciplines: function(req, res) {
 		if(req.query.journals !== undefined) {
 			req.query.journals = splitInArray(req.query.journals);
@@ -129,7 +137,7 @@ module.exports = {
 		getMultiple(req, res, linker.personRepr, 'persons');
 	},
 
-	getPerson :function(req, res) {
+	getPerson: function(req, res) {
 		getSingle(req, res, linker.personRepr);
 	},
 

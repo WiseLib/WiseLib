@@ -106,12 +106,28 @@ var Affiliation = bookshelf.Model.extend({
         return this.belongsTo(Affiliation, 'part_of_affiliation_id');
     }
 });
+var affiliationRepr = new Representation();
+
+affiliationRepr.id = {
+    fieldName: 'id',
+    name: 'id'
+};
+
+affiliationRepr.name = {
+    fieldName: 'name',
+    name: 'name'
+};
+
+affiliationRepr.model = Affiliation;
 
 //person
 var Person = bookshelf.Model.extend({
     tableName: 'person',
     affiliation: function() {
         return this.belongsTo(Affiliation, 'part_of_affiliation_id');
+    },
+    disciplines: function() {
+        return this.belongsToMany(AcademicDiscipline, 'person_studies_academic_discipline', 'person_id', 'academic_discipline_id');
     },
     publications: function() {
         return this.belongsToMany(Publication, 'publication_written_by_person', 'person_id', 'publication_id');
@@ -135,7 +151,7 @@ personRepr.picture = {
     name: 'picture'
 };
 personRepr.model = Person;
-personRepr.relations = ['publications'];
+personRepr.relations = ['publications', 'affiliation', 'disciplines'];
 
 //user
 var User = bookshelf.Model.extend({
@@ -314,6 +330,7 @@ proceedingPublicationRepr.proceeding = {
 };
 proceedingPublicationRepr.model = ProceedingPublication;
 
+module.exports.affiliationRepr = affiliationRepr;
 module.exports.disciplineRepr = disciplineRepr;
 module.exports.journalRepr = journalRepr;
 module.exports.personRepr = personRepr;
