@@ -51,12 +51,12 @@ Representation.prototype.formatSearch = function(json) {
         like = like.split(' ');
         like = _.map(like, function(word) {return '%' + word + '%';});
 
-        var thisthis = this; //rare bug hij kent this niet in de lodash for each??
+        var formatSearch = this; //rare bug hij kent this niet in de lodash for each??
 
         if(parameters.length > 0 ){
             _.forEach(like, function(word) {
                 _.forEach(parameters, function(param) {
-                    if(thisthis[param])search.push({key: thisthis[param].fieldName, value: word});})
+                    if(formatSearch[param])search.push({key: formatSearch[param].fieldName, value: word});})
             })
         }
 
@@ -109,7 +109,6 @@ Representation.prototype.toModel = function(jsonObj) {
     var queryParams = this.format(jsonObj);
     var queryRelations = this.formatRelations(jsonObj);
     var model = new this.model(queryParams);
-    //console.log(JSON.stringify(queryRelations));
     for(var i in queryRelations) {
         model.related(i).attach(queryRelations[i]);
     }
