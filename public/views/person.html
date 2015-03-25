@@ -1,18 +1,34 @@
 <md-content>
 	<md-toolbar class="md-accent" ng-if="error">Error: {{error}}</md-toolbar>
 	<md-progress-circular md-mode="indeterminate" ng-if="!person && !error"></md-progress-circular>
-	<h1>{{person.firstName}} {{person.lastName}}</h1>
 	<div layout="row">
-		<div><img ng-src="{{person.picture || '/assets/dummy.jpg'}}"  width="100px" alt="profile picture"></img></div>
-		<div class="indent">
-			<p>Affiliation: {{person.affiliation}}</p>
+		<div><img ng-src="{{person.picture || '/assets/dummy.jpg'}}"  class="profile-image-big" alt="profile picture"></img></div>
+		<div class="page-title">{{person.firstName}} {{person.lastName}}</div>
+		</div>
+		<md-tabs md-selected="data.selectedIndex">
+			<md-tab id="tab1" aria-controls="tab1-content">
+        About
+      </md-tab>
+      <md-tab id="tab2" aria-controls="tab2-content">
+        Publications
+      </md-tab>
+      </md-tabs>
+      <ng-switch on="data.selectedIndex" class="tabpanel-container">
+        <div role="tabpanel"
+             id="tab1-content"
+             aria-labelledby="tab1"
+             ng-switch-when="0">
+            <p>Affiliation: {{person.affiliation}}</p>
 			<p ng-if="disciplines.length > 0">Academic disciplines:</p>
 			<ul>
 				<li data-ng-repeat="d in disciplines">{{d}}</li>
 			</ul>
-		</div>
-	</div>
-	<h2>Publications written by {{person.firstName}}</h2>
+        </div>
+		 <div role="tabpanel"
+             id="tab2-content"
+             aria-labelledby="tab2"
+             ng-switch-when="1">
+             <h2>Publications written by {{person.firstName}}</h2>
 	<md-progress-circular md-mode="indeterminate" ng-if="!publications.length && !error"></md-progress-circular>
 	<md-list class="publications-list">
 		<md-item ng-repeat="publication in publications">
@@ -24,4 +40,6 @@
 			<md-divider md-inset ng-if="!$last"></md-divider>
 		</md-item>
 	</md-list>
+             </div>
+        </ng-switch>
 </md-content>
