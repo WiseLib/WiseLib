@@ -6,11 +6,11 @@ angular.module('searchPublication', [])
 
 	Page.setTitle('Search a publication');
 
-	$scope.foundAuthor = []; //all publications from given author
+	//$scope.foundAuthor = []; //all publications from given author
 
-	$scope.foundJournal = [];//all publications in given journal
+	//$scope.foundJournal = [];//all publications in given journal
 
-	$scope.foundProceeding = [];//idem from proceeding
+	//$scope.foundProceeding = [];//idem from proceeding
 
 	$scope.foundPublications = [];//results from search on title
 
@@ -35,11 +35,11 @@ angular.module('searchPublication', [])
 
 	$scope.search = function(){
 
-		$scope.empty([$scope.foundAuthor,$scope.foundJournal,$scope.foundProceeding,$scope.foundPublications]);
+		$scope.empty([$scope.foundPublications]);
 
 		function handledata(data){
 
-			if(data.forAuthor) for (var i = 0; i < data.forAuthor.length; i++) {
+			/*if(data.forAuthor) for (var i = 0; i < data.forAuthor.length; i++) {
 				$scope.add($scope.foundAuthor,data.forAuthor[i])
 			};
 
@@ -49,20 +49,29 @@ angular.module('searchPublication', [])
 
 			if(data.forProceeding)for (var i = 0; i < data.forProceeding.length; i++) {
 				$scope.add($scope.foundProceeding,data.forProceeding[i])
-			};
+			};*/
 
-			if(data.forTitle)for (var i = 0; i < data.forTitle.length; i++) {
-				$scope.add($scope.foundPublications,data.forTitle[i])
+			if(data)for (var i = 0; i < data.length; i++) {
+				$scope.add($scope.foundPublications,data[i])
 			};
 
 		}
 
 		var keyword = $scope.keyword
 
-		var search = new SearchPublication({q: keyword});
+		var query=keyword;
+
+		if($scope.checkTitle) query +='@title';
+		if($scope.checkAuthor) query+= '@author';
+		if($scope.checkJournal) query += '@journal';
+		if($scope.checkConference) query += '@conference';
+
+		console.log(query);
+
+		var search = new SearchPublication({q: query});
 
 		search.$get(function(data){
-			handledata(data);
+			handledata(data.publications);
 		}),function(data){//error from server
 			$scope.showSimpleToast("Could not get a result: " + keyword + " :" + status);
 			return;

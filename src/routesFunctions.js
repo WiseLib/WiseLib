@@ -49,7 +49,7 @@ var postSingle = function(req, res, repr) {
 };
 //need to add authentification options
 var putSingle = function(req, res, repr) {
-	DBManager.put(req.body, repr, function(id) {console.log(req.body);
+	DBManager.put(req.body, repr, function(id) {
 		res.status(200).end();
 	});
 };

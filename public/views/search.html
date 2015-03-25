@@ -4,8 +4,24 @@
 	<h4>Search a publication</h4>
 	<md-input-container>
 	<label>keyword</label>
-	<input id="keyword" type="text" class="form-control" ng-model="keyword" label="keyword">
+	<input id="keyword" pattern=".{3,}" required title="3 characters minimum" type="text" class="form-control" ng-model="keyword" label="keyword">
 </md-input-container>
+
+<p class="searchCheckbox">
+	Search on: 
+ <md-checkbox ng-model="checkTitle" >
+    Title
+  </md-checkbox>
+  <md-checkbox ng-model="checkAuthor" >
+    Author
+  </md-checkbox>
+  <md-checkbox ng-model="checkJournal" >
+    Journal
+  </md-checkbox>
+  <md-checkbox ng-model="checkConference" >
+    Conference
+  </md-checkbox>
+  </p>
 
 <md-button class="md-raised md-primary" ng-disabled="keyword == null" ng-click="search()">Search</md-button>
 
@@ -13,46 +29,15 @@
 
 <div class="results">
 <div layout layout-sm="column" layout-wrap class="result-block">
-<h4>Result for Author</h4>
-<p ng-show= "foundAuthor.length == 0">No results</p>
-<ul>
-	<li ng-repeat="foundpublication in foundAuthor">
-		<publicationmin publication="foundpublication" ng-click="view(publication)"></publicationmin>
-	</li>
-</ul>
-</div>
-
-<div layout layout-sm="column" layout-wrap class="result-block">
-<h4>Result for Journal</h4>
-<p ng-show= "foundJournal.length == 0">No results</p>
-<ul >
-	<li ng-repeat="foundpublication in foundJournal">
-		<publicationmin publication="foundpublication" ng-click="view(publication)"></publicationmin>
-	</li>
-</ul>
-</div>
-
-<div layout layout-sm="column" layout-wrap class="result-block">
-<h4>Result for Proceeding</h4>
-<p ng-show ="foundProceeding.length == 0">No results</p>
-<ul >
-	<li ng-repeat="foundpublication in foundProceeding">
-		<publicationmin publication="foundpublication" ng-click="view(publication)"></publicationmin>
-	</li>
-</ul>
-</div>
-
-<div layout layout-sm="column" layout-wrap class="result-block">
-<h4>Result for Publication</h4>
-<p ng-show ="foundPublications.length == 0">No results</p>
+<h4>Results</h4>
+<p ng-show= "foundPublications.length == 0">No results</p>
 <ul>
 	<li ng-repeat="foundpublication in foundPublications">
 		<publicationmin publication="foundpublication" ng-click="view(publication)"></publicationmin>
 	</li>
 </ul>
 </div>
+
 </div>
-
-
 
 </md-content>
