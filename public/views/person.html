@@ -7,39 +7,42 @@
 		</div>
 		<md-tabs md-selected="data.selectedIndex">
 			<md-tab id="tab1" aria-controls="tab1-content">
-        About
-      </md-tab>
-      <md-tab id="tab2" aria-controls="tab2-content">
-        Publications
-      </md-tab>
-      </md-tabs>
-      <ng-switch on="data.selectedIndex" class="tabpanel-container">
-        <div role="tabpanel"
-             id="tab1-content"
-             aria-labelledby="tab1"
-             ng-switch-when="0">
-            <p>Affiliation: {{person.affiliation}}</p>
-			<p ng-if="disciplines.length > 0">Academic disciplines:</p>
-			<ul>
-				<li data-ng-repeat="d in disciplines">{{d}}</li>
-			</ul>
-        </div>
-		 <div role="tabpanel"
-             id="tab2-content"
-             aria-labelledby="tab2"
-             ng-switch-when="1">
-             <h2>Publications written by {{person.firstName}}</h2>
-	<md-progress-circular md-mode="indeterminate" ng-if="!publications.length && !error"></md-progress-circular>
-	<md-list class="publications-list">
-		<md-item ng-repeat="publication in publications">
-			<md-item-content>
-				<div class="md-tile-content">
-					<publicationmin publication="publication"></publicationmin>
+        		About
+      		</md-tab>
+      		<md-tab id="tab2" aria-controls="tab2-content">
+        		Publications
+    		</md-tab>
+    	</md-tabs>
+	    <ng-switch on="data.selectedIndex" class="tabpanel-container">
+	        <div role="tabpanel" id="tab1-content" aria-labelledby="tab1" ng-switch-when="0">
+	            <div layout="column">
+	            	<div layout="row" class="row">
+	            		<div flex="25" class="left">Affiliation</div>
+	            		<div flex> {{person.affiliation}}</div>
+	            	</div>
+					<div layout="row" ng-if="disciplines.length > 0" class="row">
+						<div flex="25" class="left">Academic disciplines:</div>
+						<div flex>
+							<ul>
+								<li data-ng-repeat="d in disciplines">{{d}}</li>
+							</ul>
+						</div>
+					</div>
 				</div>
-			</md-item-content>
-			<md-divider md-inset ng-if="!$last"></md-divider>
-		</md-item>
-	</md-list>
-             </div>
-        </ng-switch>
+	        </div>
+			<div role="tabpanel" id="tab2-content" aria-labelledby="tab2" ng-switch-when="1">
+	             <h2>Publications written by {{person.firstName}}</h2>
+				<md-progress-circular md-mode="indeterminate" ng-if="!publications.length && !error"></md-progress-circular>
+				<md-list class="publications-list">
+					<md-item ng-repeat="publication in publications">
+						<md-item-content>
+							<div class="md-tile-content">
+								<publicationmin publication="publication"></publicationmin>
+							</div>
+						</md-item-content>
+						<md-divider md-inset ng-if="!$last"></md-divider>
+					</md-item>
+				</md-list>
+	        </div>
+	    </ng-switch>
 </md-content>

@@ -35,3 +35,12 @@ tr:nth-child(even) td {
 .page-title {
 	font-size: 24px;
 }
+
+#tab1-content .row {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+#tab1-content .row .left {
+	color: #999;
+}
