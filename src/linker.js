@@ -51,12 +51,12 @@ Representation.prototype.formatSearch = function(json) {
         like = like.split(' ');
         like = _.map(like, function(word) {return '%' + word + '%';});
 
-        var thisthis = this; //rare bug hij kent this niet in de lodash for each??
+        var PubObject = this;
 
         if(parameters.length > 0 ){
             _.forEach(like, function(word) {
                 _.forEach(parameters, function(param) {
-                    if(thisthis[param])search.push({key: thisthis[param].fieldName, value: word});})
+                    if(PubObject[param])search.push({key: PubObject[param].fieldName, value: word});})
             })
         }
 

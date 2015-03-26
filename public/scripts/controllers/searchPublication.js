@@ -2,7 +2,7 @@
 
 angular.module('searchPublication', [])
 
-.controller('searchPublicationController',function($scope,$window,Page,SearchPublication,$mdToast){
+.controller('searchPublicationController',function($scope,$window,Page,SearchPublication,WebSearchPublication,$mdToast){
 
 	Page.setTitle('Search a publication');
 
@@ -33,29 +33,43 @@ angular.module('searchPublication', [])
 		};
 	}
 
-	$scope.search = function(){
-
-		$scope.empty([$scope.foundPublications]);
-
-		function handledata(data){
-
-			/*if(data.forAuthor) for (var i = 0; i < data.forAuthor.length; i++) {
-				$scope.add($scope.foundAuthor,data.forAuthor[i])
-			};
-
-			if(data.forJournal) for (var i = 0; i < data.forJournal.length; i++) {
-				$scope.add($scope.foundJournal,data.forJournal[i])
-			};
-
-			if(data.forProceeding)for (var i = 0; i < data.forProceeding.length; i++) {
-				$scope.add($scope.foundProceeding,data.forProceeding[i])
-			};*/
+	$scope.handledata = function(data){
 
 			if(data)for (var i = 0; i < data.length; i++) {
 				$scope.add($scope.foundPublications,data[i])
 			};
 
 		}
+
+
+	$scope.websearch = function(){
+
+
+		var keyword = $scope.keyword;
+
+		var query = '';
+
+		if($scope.checkTitle) query +='title=' + keyword + '&';
+		if($scope.checkAuthor) query+= 'author=' + keyword + '&';
+		if($scope.checkJournal) query += 'journal' + keyword + '&';
+		if($scope.checkConference) query += 'conference' + keyword + '&';
+
+
+		var search = new WebSearchPublication({query:query});
+
+		search.$query(function(data){
+			$scope.handledata(data);
+		}),function(data,status){//error from server
+			$scope.showSimpleToast("Could not get a result: " + keyword + " :" + status);
+			return;
+
+		}
+
+	};
+
+	$scope.search = function(){
+
+		$scope.empty([$scope.foundPublications]);
 
 		var keyword = $scope.keyword
 
@@ -71,8 +85,8 @@ angular.module('searchPublication', [])
 		var search = new SearchPublication({q: query});
 
 		search.$get(function(data){
-			handledata(data.publications);
-		}),function(data){//error from server
+			$scope.handledata(data.publications);
+		}),function(data,status){//error from server
 			$scope.showSimpleToast("Could not get a result: " + keyword + " :" + status);
 			return;
 
