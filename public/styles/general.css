@@ -22,3 +22,8 @@ td {
 tr:nth-child(even) td {
 	background-color: #f6f6f6;
 }
+
+.pdf-viewer {
+	height: 500px;
+	width: 100%;
+}
