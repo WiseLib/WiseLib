@@ -51,12 +51,11 @@ Representation.prototype.formatSearch = function(json) {
         like = like.split(' ');
         like = _.map(like, function(word) {return '%' + word + '%';});
 
-        var PubObject = this;
-
+        var formatSearch = this; 
         if(parameters.length > 0 ){
             _.forEach(like, function(word) {
                 _.forEach(parameters, function(param) {
-                    if(PubObject[param])search.push({key: PubObject[param].fieldName, value: word});})
+                    if(formatSearch[param])search.push({key: formatSearch[param].fieldName, value: word});})
             })
         }
 
@@ -67,6 +66,21 @@ Representation.prototype.formatSearch = function(json) {
                     search.push({key: f.fieldName, value: word});
                 });
             }
+        }
+    }
+    return search;
+};
+Representation.prototype.formatSearchRelations = function(json) {
+    var like = json[searchKey];
+    var search = [];
+    if(like !== undefined) {
+        like = like.split(' ');
+        like = _.map(like, function(word) {return '%' + word + '%';});
+        for(var field in this.relationSearch) {
+            var f = this.relationSearch[field];
+            _.forEach(like, function(word) {
+                search.push({key: f, value: word});
+            });
         }
     }
     return search;
@@ -94,7 +108,6 @@ Representation.prototype.toModel = function(jsonObj) {
     var queryParams = this.format(jsonObj);
     var queryRelations = this.formatRelations(jsonObj);
     var model = new this.model(queryParams);
-    //console.log(JSON.stringify(queryRelations));
     for(var i in queryRelations) {
         model.related(i).attach(queryRelations[i]);
     }
@@ -124,7 +137,7 @@ Representation.prototype.filterRelations = function(jsonObj, query) {
                 //filter on foreign keys
                 var w = {};
                 w[otherKey] = rel;
-                query = query.andWhere(w);
+                query = query.orWhere(w);
             });
         }
         //belongsTo
@@ -155,6 +168,28 @@ Representation.prototype.searchFields = function(jsonObj, query) {
 };
 //TODO
 Representation.prototype.searchRelations = function(jsonObj, query) {
+    var searchRelations = this.formatSearchRelations(jsonObj);
+    var model = new this.model();
+    //for all searchable relations
+    for(var i in searchRelations) {
+        //only search on relations that have not already been filtered
+        if(jsonObj[searchRelations[i].key] === undefined) {
+            //find the model of the relation
+            var relatedData = model.related(searchRelations[i].key).relatedData;
+            //make necessary joins with the relation table
+            var foreignKey = relatedData.joinTableName+'.'+relatedData.foreignKey;
+            var otherKey = relatedData.joinTableName+'.'+relatedData.otherKey;
+            query.innerJoin(relatedData.joinTableName, foreignKey, model.idAttribute);
+            //get relation model
+            var relation = relatedData.target;
+            var relationModel = new relation();
+            //search on relation fields
+            var relationSearch = relationModel.representation.formatSearch(jsonObj);
+            var subquery = relationModel.representation.searchFields(jsonObj, relationModel.query()).select('id');
+            query = query.orWhere(otherKey, 'in', subquery);
+        }
+        
+    }
     return query
 };
 
@@ -167,11 +202,21 @@ Representation.prototype.toQuery = function(jsonObj) {
         query = repr.filterRelations(jsonObj, query);
         query = repr.searchFields(jsonObj, query);
         query = repr.searchRelations(jsonObj, query);
+        console.log(query.toString());
     };
     return model.query(queryFunction);
 };
 
 //discipline
+var disciplineRepr = new Representation();
+disciplineRepr.id = {
+    fieldName: 'id',
+    name: 'id'
+};
+disciplineRepr.name = {
+    fieldName: 'name',
+    name: 'name'
+};
 var AcademicDiscipline = bookshelf.Model.extend({
     tableName: 'academic_discipline',
     parent: function() {
@@ -182,18 +227,11 @@ var AcademicDiscipline = bookshelf.Model.extend({
     },
     proceedings: function() {
         return this.belongsToMany(Proceeding, 'conference_has_academic_discipline', 'academic_discipline_id', 'conference_id');
-    }
+    },
+    representation: disciplineRepr
 });
-var disciplineRepr = new Representation();
-disciplineRepr.id = {
-    fieldName: 'id',
-    name: 'id'
-};
-disciplineRepr.name = {
-    fieldName: 'name',
-    name: 'name'
-};
 disciplineRepr[searchKey] = [disciplineRepr.name];
+disciplineRepr.relationSearch = [];
 disciplineRepr.model = AcademicDiscipline;
 disciplineRepr.relations = ['parent', 'journals', 'proceedings'];
 
@@ -206,15 +244,6 @@ var Affiliation = bookshelf.Model.extend({
 });
 
 //person
-var Person = bookshelf.Model.extend({
-    tableName: 'person',
-    affiliation: function() {
-        return this.belongsTo(Affiliation, 'part_of_affiliation_id');
-    },
-    publications: function() {
-        return this.belongsToMany(Publication, 'publication_written_by_person', 'person_id', 'publication_id');
-    }
-});
 var personRepr = new Representation();
 personRepr.id = {
     fieldName: 'id',
@@ -232,17 +261,20 @@ personRepr.picture = {
     fieldName: 'picture',
     name: 'picture'
 };
+var Person = bookshelf.Model.extend({
+    tableName: 'person',
+    affiliation: function() {
+        return this.belongsTo(Affiliation, 'part_of_affiliation_id');
+    },
+    publications: function() {
+        return this.belongsToMany(Publication, 'publication_written_by_person', 'person_id', 'publication_id');
+    },
+    representation: personRepr
+});
 personRepr[searchKey] = [personRepr.firstName, personRepr.lastName];
+personRepr.relationSearch = ['publications'];
 personRepr.model = Person;
 personRepr.relations = ['publications'];
-
-//user
-var User = bookshelf.Model.extend({
-    tableName: 'user',
-    person: function() {
-        return this.belongsTo(Person, 'person_id');
-    }
-});
 //User
 var userRepr = new Representation();
 userRepr.id = {
@@ -257,17 +289,18 @@ userRepr.password = {
     fieldName: 'password',
     name: 'password'
 };
+var User = bookshelf.Model.extend({
+    tableName: 'user',
+    person: function() {
+        return this.belongsTo(Person, 'person_id');
+    }
+});
 userRepr[searchKey] = [userRepr.email];
+userRepr.relationSearch = [];
 userRepr.model = User;
 userRepr.relations = ['person'];
 
 //journal
-var Journal = bookshelf.Model.extend({
-    tableName: 'journal',
-    disciplines: function() {
-        return this.belongsToMany(AcademicDiscipline, 'journal_has_academic_discipline', 'journal_id', 'academic_discipline_id');
-    }
-});
 var journalRepr = new Representation();
 journalRepr.id = {
     fieldName: 'id',
@@ -281,17 +314,19 @@ journalRepr.rank = {
     fieldName: 'rank',
     name: 'rank'
 };
+var Journal = bookshelf.Model.extend({
+    tableName: 'journal',
+    disciplines: function() {
+        return this.belongsToMany(AcademicDiscipline, 'journal_has_academic_discipline', 'journal_id', 'academic_discipline_id');
+    },
+    representation: journalRepr
+});
 journalRepr[searchKey] = [journalRepr.name];
+journalRepr.relationSearch = ['disciplines'];
 journalRepr.model = Journal;
 journalRepr.relations = ['disciplines'];
 
 //proceeding
-var Proceeding = bookshelf.Model.extend({
-    tableName: 'conference',
-    disciplines: function() {
-        return this.belongsToMany(AcademicDiscipline, 'conference_has_academic_discipline', 'conference_id', 'academic_discipline_id');
-    }
-});
 var proceedingRepr = new Representation();
 proceedingRepr.id = {
     fieldName: 'id',
@@ -305,20 +340,19 @@ proceedingRepr.rank = {
     fieldName: 'rank',
     name: 'rank'
 };
+var Proceeding = bookshelf.Model.extend({
+    tableName: 'conference',
+    disciplines: function() {
+        return this.belongsToMany(AcademicDiscipline, 'conference_has_academic_discipline', 'conference_id', 'academic_discipline_id');
+    },
+    representation: proceedingRepr
+});
 proceedingRepr[searchKey] = [proceedingRepr.name];
+proceedingRepr.relationSearch = ['disciplines'];
 proceedingRepr.model = Proceeding;
 proceedingRepr.relations = ['disciplines'];
 
 //publication
-var Publication = bookshelf.Model.extend({
-    tableName: 'publication',
-    uploader: function() {
-        return this.belongsTo(User, 'published_by_user_id');
-    },
-    authors: function() {
-        return this.belongsToMany(Person, 'publication_written_by_person', 'publication_id', 'person_id');
-    }
-});
 var publicationRepr = new Representation();
 publicationRepr.id = {
     fieldName: 'id',
@@ -348,7 +382,18 @@ publicationRepr.abstract = {
     fieldName: 'summary_text',
     name: 'abstract'
 };
+var Publication = bookshelf.Model.extend({
+    tableName: 'publication',
+    uploader: function() {
+        return this.belongsTo(User, 'published_by_user_id');
+    },
+    authors: function() {
+        return this.belongsToMany(Person, 'publication_written_by_person', 'publication_id', 'person_id');
+    },
+    representation: publicationRepr
+});
 publicationRepr[searchKey] = [publicationRepr.title];
+publicationRepr.relationSearch = ['authors'];
 publicationRepr.model = Publication;
 publicationRepr.relations = ['uploader', 'authors'];
 
