@@ -1,3 +1,11 @@
 <h3><a href="{{publication.url}}">{{publication.title}}</a></h3>
+<h4>Uploaded by {{publication.uploader}}</h4>
+<h4>Authors:</h4>
+<ul style="list-style-type: none">
+	<li ng-repeat="author in publication.personAuthors">
+		{{author}}
+	</li>
+</ul>
 <h4>{{publication.numberOfPages}} pages. Published in {{publication.year}}</h4>
-<p>{{publication.abstract}}</p>
+<h4>Abstract:</h4>
+<p style="margin-left: 25px;">{{publication.abstract}}</p>

@@ -25,6 +25,9 @@
 
 <md-button class="md-raised md-primary" ng-disabled="keyword == null" ng-click="search()">Search</md-button>
 
+<md-button class="md-raised md-primary" ng-disabled="keyword == null || (!checkTitle && !checkAuthor && !checkJournal && !checkConference)" ng-click="websearch()">Search the web</md-button>
+
+
 </div>
 
 <div class="results">

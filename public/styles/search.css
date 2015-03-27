@@ -1,3 +1,8 @@
+.searchCheckbox md-checkbox{
+
+	display:inline-block;
+}
+
 .search-field{
 	margin-bottom: 50px;
 }

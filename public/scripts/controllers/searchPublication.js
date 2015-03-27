@@ -2,7 +2,7 @@
 
 angular.module('searchPublication', [])
 
-.controller('searchPublicationController',function($scope,$window,Page,SearchPublication,$mdToast){
+.controller('searchPublicationController',function($scope,$window,Page,SearchPublication,WebSearchPublication,PersonById,User,$mdToast){
 
 	Page.setTitle('Search a publication');
 
@@ -33,29 +33,76 @@ angular.module('searchPublication', [])
 		};
 	}
 
+	$scope.handledata = function(data){
+
+		if(data)for (var i = 0; i < data.length; i++) {
+
+			var publication = data[i];
+
+			(function(publication){
+
+				var uploaderId = publication.uploader;
+				var uploaderUser = new User({id: uploaderId});
+
+				uploaderUser.$get(function(data){
+					uploaderId = data.person
+					var uploader = new PersonById({id: uploaderId});
+					uploader.$get(function(data){
+
+						publication.uploader = data.firstName + ' ' + data.lastName;
+
+						var authors = publication.authors;
+						publication['personAuthors']=[];
+						if(authors.length == 0)authors.push({id : uploaderId});
+
+						for (var i = 0; i < authors.length; i++) {
+							var author = authors[i];
+							author = new PersonById({id: author.id})
+
+							author.$get(function(data){ 
+								publication.personAuthors.push(data.firstName  + ' ' + data.lastName);
+
+								if(i = authors.length)$scope.add($scope.foundPublications,publication);
+
+							},function(data){})
+						};
+					},function(data){})
+				},function(data){})
+
+				
+
+			}(publication));
+		};
+
+	}
+
+
+	$scope.websearch = function(){
+
+
+		var keyword = $scope.keyword;
+
+		var query = '';
+
+		if($scope.checkTitle) query +='title=' + keyword + '&';
+		if($scope.checkAuthor) query+= 'author=' + keyword + '&';
+		if($scope.checkJournal) query += 'journal' + keyword + '&';
+		if($scope.checkConference) query += 'conference' + keyword + '&';
+
+
+		var search = new WebSearchPublication({query:query});
+
+		search.$query(function(data){
+			$scope.handledata(data);
+		}),function(data,status){//error from server
+			$scope.showSimpleToast("Could not get a result: " + keyword + " :" + status);
+		}
+
+	};
+
 	$scope.search = function(){
 
 		$scope.empty([$scope.foundPublications]);
-
-		function handledata(data){
-
-			/*if(data.forAuthor) for (var i = 0; i < data.forAuthor.length; i++) {
-				$scope.add($scope.foundAuthor,data.forAuthor[i])
-			};
-
-			if(data.forJournal) for (var i = 0; i < data.forJournal.length; i++) {
-				$scope.add($scope.foundJournal,data.forJournal[i])
-			};
-
-			if(data.forProceeding)for (var i = 0; i < data.forProceeding.length; i++) {
-				$scope.add($scope.foundProceeding,data.forProceeding[i])
-			};*/
-
-			if(data)for (var i = 0; i < data.length; i++) {
-				$scope.add($scope.foundPublications,data[i])
-			};
-
-		}
 
 		var keyword = $scope.keyword
 
@@ -66,16 +113,13 @@ angular.module('searchPublication', [])
 		if($scope.checkJournal) query += '@journal';
 		if($scope.checkConference) query += '@conference';
 
-		console.log(query);
 
 		var search = new SearchPublication({q: query});
 
 		search.$get(function(data){
-			handledata(data.publications);
-		}),function(data){//error from server
+			$scope.handledata(data.publications);
+		}),function(data,status){//error from server
 			$scope.showSimpleToast("Could not get a result: " + keyword + " :" + status);
-			return;
-
 		}
 	}
 
