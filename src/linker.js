@@ -51,11 +51,15 @@ Representation.prototype.formatSearch = function(json) {
         like = like.split(' ');
         like = _.map(like, function(word) {return '%' + word + '%';});
 
-        var formatSearch = this; 
+        var PubObj = this; 
+
         if(parameters.length > 0 ){
             _.forEach(like, function(word) {
                 _.forEach(parameters, function(param) {
-                    if(formatSearch[param])search.push({key: formatSearch[param].fieldName, value: word});})
+                    if(PubObj[param]){
+                        search.push({key: PubObj[param].fieldName, value: word});
+                    }
+                })
             })
         }
 
@@ -74,13 +78,31 @@ Representation.prototype.formatSearchRelations = function(json) {
     var like = json[searchKey];
     var search = [];
     if(like !== undefined) {
+        like = like.split('@');
+        var temp  = like.shift();
+        var parameters = like;
+        like= temp;
         like = like.split(' ');
         like = _.map(like, function(word) {return '%' + word + '%';});
-        for(var field in this.relationSearch) {
-            var f = this.relationSearch[field];
+
+        if(parameters.length > 0 ){
+            var PubObj = this
+
             _.forEach(like, function(word) {
-                search.push({key: f, value: word});
-            });
+                _.forEach(parameters, function(param) {
+                    var field = PubObj.relationSearch.indexOf(param);
+                    if(field !== -1)search.push({key: PubObj.relationSearch[field], value: word});
+                })
+            })
+        }
+
+        else {
+            for(var field in this.relationSearch) {
+                var f = this.relationSearch[field];
+                _.forEach(like, function(word) {
+                    search.push({key: f, value: word});
+                });
+            }
         }
     }
     return search;
@@ -173,7 +195,7 @@ Representation.prototype.searchRelations = function(jsonObj, query) {
     //for all searchable relations
     for(var i in searchRelations) {
         //only search on relations that have not already been filtered
-        if(jsonObj[searchRelations[i].key] === undefined) {
+        if(jsonObj[searchRelations[i].key] === undefined) { 
             //find the model of the relation
             var relatedData = model.related(searchRelations[i].key).relatedData;
             //make necessary joins with the relation table
@@ -184,12 +206,13 @@ Representation.prototype.searchRelations = function(jsonObj, query) {
             var relation = relatedData.target;
             var relationModel = new relation();
             //search on relation fields
-            var relationSearch = relationModel.representation.formatSearch(jsonObj);
+            jsonObj = {q:jsonObj.q.split('@')[0]}
+            var relationSearch = relationModel.representation.formatSearch(jsonObj);console.log(jsonObj)
             var subquery = relationModel.representation.searchFields(jsonObj, relationModel.query()).select('id');
             query = query.orWhere(otherKey, 'in', subquery);
         }
         
-    }
+    } 
     return query
 };
 
@@ -202,7 +225,7 @@ Representation.prototype.toQuery = function(jsonObj) {
         query = repr.filterRelations(jsonObj, query);
         query = repr.searchFields(jsonObj, query);
         query = repr.searchRelations(jsonObj, query);
-        console.log(query.toString());
+        //console.log(query.toString());
     };
     return model.query(queryFunction);
 };
