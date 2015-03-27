@@ -36,7 +36,7 @@
 			</table>
 		</div>
 		<div role="tabpanel" id="tab1-content" aria-labelledby="tab1" ng-switch-when="1">
-		<iframe src="http://docs.google.com/gview?url=http://www.stoa.org.uk/topics/bullshit/pdf/on-bullshit.pdf&embedded=true" class="pdf-viewer" frameborder="0"></iframe>
+		<iframe ng-src="{{'http://docs.google.com/gview?url=' + publication.url + '&embedded=true'}}" class="pdf-viewer" frameborder="0"></iframe>
 		</div>
 	</ng-switch>
 </md-content>
