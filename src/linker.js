@@ -98,7 +98,18 @@ Representation.prototype.parse = function(toParse) {
         if(relation !== undefined) {
             //assumes all table id's are named 'id'
             //note : for non-array, should return relation.id, but returning {id: relation.id} because used in jsonManager
-            json[this.relations[i]] = (relation.constructor === Array) ? _.map(relation, function(rel) {return {id:rel.id};}) : relation.id;
+            if(_.isArray(relation)) {
+                json[this.relations[i]] = _.map(relation, function(rel) {return {id:rel.id};});
+            }
+            else {
+                if(this.relations[i] === 'super') {
+                    console.log(relation);
+                }
+                else {
+                    json[this.relations[i]] = relation.id;
+                }
+            }
+            //json[this.relations[i]] = (relation.constructor === Array) ? _.map(relation, function(rel) {return {id:rel.id};}) : relation.id;
         }
     }
 
@@ -399,15 +410,6 @@ publicationRepr.model = Publication;
 publicationRepr.relations = ['uploader', 'authors'];
 
 //journalPublication
-var JournalPublication = bookshelf.Model.extend({
-    tableName: 'journal_publication',
-    super: function() {
-        return this.belongsTo(Publication, 'id');
-    },
-    journal: function() {
-        return this.belongsTo(Journal, 'part_of_journal_id');
-    }
-});
 var journalPublicationRepr = new Representation();
 journalPublicationRepr.id = {
     fieldName: 'id',
@@ -425,17 +427,17 @@ journalPublicationRepr.journal = {
     fieldName: 'part_of_journal_id',
     name:'journal'
 };
-journalPublicationRepr.model = JournalPublication;
-//proceedingPublication
-var ProceedingPublication = bookshelf.Model.extend({
-    tableName: 'proceeding_publication',
-    super: function() {
-        return this.belongsTo(Publication, 'id');
+var JournalPublication = bookshelf.Model.extend({
+    tableName: 'journal_publication',
+    journal: function() {
+        return this.belongsTo(Journal, 'part_of_journal_id');
     },
-    proceeding: function() {
-        return this.belongsTo(Proceeding, 'part_of_conference_id');
-    }
+    representation: journalPublicationRepr
 });
+journalPublicationRepr.model = JournalPublication;
+journalPublicationRepr.relations = ['journal'];
+journalPublicationRepr.super = publicationRepr;
+//proceedingPublication
 var proceedingPublicationRepr = new Representation();
 proceedingPublicationRepr.id = {
     fieldName: 'id',
@@ -453,7 +455,15 @@ proceedingPublicationRepr.proceeding = {
     fieldName: 'part_of_conference_id',
     name:'proceeding'
 };
+var ProceedingPublication = bookshelf.Model.extend({
+    tableName: 'proceeding_publication',
+    proceeding: function() {
+        return this.belongsTo(Proceeding, 'part_of_conference_id');
+    }
+});
 proceedingPublicationRepr.model = ProceedingPublication;
+proceedingPublicationRepr.relations = ['proceeding'];
+proceedingPublicationRepr.super = publicationRepr;
 
 module.exports.searchKey = searchKey;
 module.exports.disciplineRepr = disciplineRepr;
@@ -465,3 +475,4 @@ module.exports.proceedingRepr = proceedingRepr;
 module.exports.publicationRepr = publicationRepr;
 module.exports.journalPublicationRepr = journalPublicationRepr;
 module.exports.proceedingPublicationRepr = proceedingPublicationRepr;
+module.exports.bookshelf = bookshelf;

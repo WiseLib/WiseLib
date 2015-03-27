@@ -24,22 +24,31 @@ var splitSign = '|';
 //need to add authentification options
 var getMultiple = function(req, res, repr, name) {
 	var params = req.query;
-	DBManager.get(params, repr, function(results) {
-		var result={};
-		result[name]= results;
-		res.json(result);
-	});
+	if(typeof name === 'string') {
+		DBManager.get(params, repr, function(results) {
+			var result={};
+			result[name]= results;
+			res.json(result);
+		});
+	}
+	else {
+		DBManager.get(params, repr, name);
+	}
+	
 };
 //need to add authentification options
-var getSingle = function(req, res, repr) {
-	DBManager.get({id: req.params.id}, repr, function(results) {
-		if(results[0] === undefined) {
-			res.status(404).end();
-		}
-		else {
-			res.json(results[0]);
-		}
-	});
+var getSingle = function(req, res, repr, fct) {
+	if(fct === undefined) {
+		fct = function(results) {
+			if(results[0] === undefined) {
+				res.status(404).end();
+			}
+			else {
+				res.json(results[0]);
+			}
+		};
+	}
+	DBManager.get({id: req.params.id}, repr, fct);
 };
 //need to add authentification options
 var postSingle = function(req, res, repr) {
@@ -159,11 +168,24 @@ module.exports = {
 		if(req.query.authors !== undefined) {
 			req.query.authors = splitInArray(req.query.authors);
 		}
-		getMultiple(req, res, linker.publicationRepr, 'publications');
+		getMultiple(req, res, linker.journalPublicationRepr, function(jp) {
+			getMultiple(req, res, linker.proceedingPublicationRepr, function(pp) {
+				var result={};
+				result['publications']= jp.concat(pp);
+				res.json(result);
+			});
+		});
 	},
 
 	getPublication: function(req, res) {
-		getSingle(req, res, linker.publicationRepr);
+		getSingle(req, res, linker.journalPublicationRepr, function(jp) {
+			if(jp[0] === undefined) {
+				getSingle(req, res, linker.proceedingPublicationRepr);
+			}
+			else {
+				res.json(jp[0]);
+			}
+		});
 	},
 
 	postPublication :function(req, res) {

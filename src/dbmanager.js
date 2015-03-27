@@ -1,6 +1,8 @@
 'use strict';
 var linker = require('./linker.js');
 var _ = require('lodash');
+var Promise = require('bluebird');
+//var bookshelf = require('bookshelf')(knex);
 /**
  * The Database manager. This manager communicates with the database via a config object.
  * For each class of the core module, the database has methods to get/put/post/delete objects of the core module.
@@ -31,27 +33,36 @@ DBManager.prototype.post = function(jsonObj, classObj, next) {
     });
 };
 
-DBManager.prototype.getLIKE = function(jsonObj, classObj, next){//implements a get method with LIKE instead of '='
-    var queryParams = classObj.format(jsonObj);
-    var param = Object.keys(queryParams)[0];//only one field can be used (for now)
-
-    classObj.model.where(param, 'LIKE', '%'+queryParams[param]+'%').fetchAll({withRelated: classObj.relations}).then(function(results) {
-        var convertedResults = _.map(results.models, function(result) {
-            return classObj.parse(result.toJSON());
-        });
-        next(convertedResults);
-    });
-
-}
-
 DBManager.prototype.get = function(jsonObj, classObj, next) {
     //fetch all based on given attributes (such as title, year, id)/relations (authors, parent)
-    classObj.toQuery(jsonObj).fetchAll({withRelated: classObj.relations}).then(function(results) {
-        var parsed = _.map(results.models, function(model) {
-            return classObj.parse(model.toJSON());
+    if(classObj.super !== undefined) {
+        classObj.super.toQuery(jsonObj).fetchAll({withRelated: classObj.super.relations}).then(function(results) {
+            var queries = [];
+            var parsed = [];
+            for(var res in results.models) {
+                var id = {};
+                id[classObj.id.fieldName] = results.models[res].id;
+                queries.push(classObj.model.where(id).fetch({withRelated: classObj.relations}).then(function(sub) {
+                    if(sub !== null) {
+                        var sup = classObj.super.parse(results.get(sub.id).toJSON());
+                        var par = classObj.parse(sub.toJSON());
+                        parsed.push(_.merge(sup, par));
+                    }
+                }));
+            }
+            Promise.all(queries).then(function() {
+                next(parsed);
+            });
         });
-        next(parsed);
-    });
+    }
+    else {
+        classObj.toQuery(jsonObj).fetchAll({withRelated: classObj.relations}).then(function(results) {
+            var parsed = _.map(results.models, function(model) {
+                return classObj.parse(model.toJSON());
+            });
+            next(parsed);
+        });
+    }
 };
 
 //id is required, maybe check in event 'updating' (see bookshelf.js)
