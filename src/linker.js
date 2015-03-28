@@ -35,7 +35,13 @@ Representation.prototype.formatRelations = function(json) {
         var relation = json[this.relations[i]];
         if(relation !== undefined) {
             //assumes all objects are given by id (and called 'id')
-            queryParams[this.relations[i]] = (relation.constructor === Array) ? _.map(relation, function(rel) {return rel.id;}) : relation;
+            if(_.isArray(relation)) {
+                queryParams[this.relations[i]] = _.map(relation, function(rel) {return rel.id;});
+            }
+            else {
+                queryParams[this.relations[i]] = _.isEqual(relation, '') ? null : relation;
+            }
+            //queryParams[this.relations[i]] = _.isArray(relation) ? _.map(relation, function(rel) {return rel.id;}) : relation;
         }
     }
     return queryParams;
@@ -123,14 +129,8 @@ Representation.prototype.parse = function(toParse) {
                 json[this.relations[i]] = _.map(relation, function(rel) {return {id:rel.id};});
             }
             else {
-                if(this.relations[i] === 'super') {
-                    console.log(relation);
-                }
-                else {
-                    json[this.relations[i]] = relation.id;
-                }
+                json[this.relations[i]] = relation.id;
             }
-            //json[this.relations[i]] = (relation.constructor === Array) ? _.map(relation, function(rel) {return {id:rel.id};}) : relation.id;
         }
     }
 
@@ -142,7 +142,17 @@ Representation.prototype.toModel = function(jsonObj) {
     var queryRelations = this.formatRelations(jsonObj);
     var model = new this.model(queryParams);
     for(var i in queryRelations) {
-        model.related(i).attach(queryRelations[i]);
+        var relation = model.related(i);
+        //for now, in bookshelf, attach only supports belongsToMany relations
+        //also, in bookshelf, attach only works when id is known
+        if(_.isEqual(relation.relatedData.type, 'belongsToMany')) {
+            if(model.id !== undefined) {
+                relation.attach(queryRelations[i]);
+            }
+        }
+        else {
+            model.set(relation.relatedData.foreignKey, queryRelations[i]);
+        }
     }
     return model;
 };
@@ -445,10 +455,6 @@ journalPublicationRepr.number = {
     fieldName: 'appeared_in_nr',
     name: 'number'
 };
-journalPublicationRepr.journal = {
-    fieldName: 'part_of_journal_id',
-    name:'journal'
-};
 var JournalPublication = bookshelf.Model.extend({
     tableName: 'journal_publication',
     journal: function() {
@@ -473,10 +479,6 @@ proceedingPublicationRepr.city = {
     fieldName: 'held_in_city_name',
     name: 'city'
 };
-proceedingPublicationRepr.proceeding = {
-    fieldName: 'part_of_conference_id',
-    name:'proceeding'
-};
 var ProceedingPublication = bookshelf.Model.extend({
     tableName: 'proceeding_publication',
     proceeding: function() {
@@ -497,4 +499,3 @@ module.exports.proceedingRepr = proceedingRepr;
 module.exports.publicationRepr = publicationRepr;
 module.exports.journalPublicationRepr = journalPublicationRepr;
 module.exports.proceedingPublicationRepr = proceedingPublicationRepr;
-module.exports.bookshelf = bookshelf;

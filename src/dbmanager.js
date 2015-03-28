@@ -2,7 +2,6 @@
 var linker = require('./linker.js');
 var _ = require('lodash');
 var Promise = require('bluebird');
-//var bookshelf = require('bookshelf')(knex);
 /**
  * The Database manager. This manager communicates with the database via a config object.
  * For each class of the core module, the database has methods to get/put/post/delete objects of the core module.
@@ -17,20 +16,24 @@ var Promise = require('bluebird');
 var DBManager = function() {};
 
 DBManager.prototype.post = function(jsonObj, classObj, next) {
-    var toPost = classObj.format(jsonObj);
-    new classObj.model(toPost).save({}, {method: 'insert'}).then(function(model) {
-        var id = {};
-        id[model.idAttribute] = model.id;
-        var relations = new classObj.model(id);
-        var queryRelations = classObj.formatRelations(jsonObj);
-        for(var i in queryRelations) {
-            relations.related(i).set(queryRelations[i].attributes);
+    var dbManager = this;
+    var postSubclass = function(superId) {
+        if(superId !== undefined) {
+            jsonObj[classObj.id.name] = superId;
         }
-        relations.save({}, {method: 'update'}).then(function(m) {
-            var convertedResult = classObj.parse(m.toJSON());
-            next(m.id);
+        var toPost = classObj.toModel(jsonObj);
+        toPost.save({}, {method: 'insert'}).then(function(model) {
+            jsonObj[classObj.id.name] = model.id;
+            dbManager.put(jsonObj, classObj, next);
         });
-    });
+    };
+    if(classObj.super !== undefined) {
+        this.post(jsonObj, classObj.super, postSubclass);
+    }
+    else {
+        postSubclass();
+    }
+    
 };
 
 DBManager.prototype.get = function(jsonObj, classObj, next) {
@@ -67,18 +70,30 @@ DBManager.prototype.get = function(jsonObj, classObj, next) {
 
 //id is required, maybe check in event 'updating' (see bookshelf.js)
 DBManager.prototype.put = function(jsonObj, classObj, next) {
+    var dbManager = this;
     var toSave = classObj.toModel(jsonObj);
     toSave.save({}, {method: 'update'}).then(function(model) {
-        var convertedResult = classObj.parse(model.toJSON());
-        next(convertedResult.id);
+        if(classObj.super !== undefined) {
+            dbManager.put(jsonObj, classObj.super, next);
+        }
+        else {
+            var convertedResult = classObj.parse(model.toJSON());
+            next(convertedResult.id);
+        }
     });
 };
 
 //id is required, maybe check in event 'destroying' (see bookshelf.js)
 DBManager.prototype.delete = function(jsonObj, classObj, next) {
+    var dbManager = this;
     var toDelete = classObj.toModel(jsonObj);
     toDelete.destroy().then(function(model) {
-        next();
+        if(classObj.super !== undefined) {
+            dbManager.delete(jsonObj, classObj.super, next);
+        }
+        else {
+            next();
+        }
     });
 };
 
