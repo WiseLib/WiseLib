@@ -9,6 +9,10 @@ module.controller('publicationController', function($scope, $window, $routeParam
     $scope.editors = [];
     $scope.publications = [];
 
+    $scope.incrementSelectedIndex = function(i) {
+        $scope.selectedIndex = $scope.selectedIndex + i;
+    };
+
     Publication.get({id: $routeParams.id}, function(pub) {
         console.log(pub);
         function getPerson(id) {

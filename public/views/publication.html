@@ -1,7 +1,7 @@
 <md-content layout-align="center">
 	<md-progress-circular md-mode="indeterminate" ng-if="!publication"></md-progress-circular>
 	<div class="page-title">{{publication.title}}</div>
-	<md-tabs md-selected="data.selectedIndex">
+	<md-tabs md-selected="selectedIndex">
 		<md-tab id="tab1" aria-controls="tab1-content">
         	About
       	</md-tab>
@@ -12,8 +12,8 @@
     	Referenced publications
     	</md-tab>
     </md-tabs>
-     <ng-switch on="data.selectedIndex" class="tabpanel-container">
-        <div role="tabpanel" id="tab1-content" aria-labelledby="tab1" ng-switch-when="0">
+     <ng-switch on="selectedIndex" class="tabpanel-container">
+        <div role="tabpanel" id="tab1-content" aria-labelledby="tab1" ng-switch-when="0" md-swipe-right="incrementSelectedIndex(-1)" md-swipe-left="incrementSelectedIndex(1)">
         	<p>{{publication.abstract}}</p>
 			<table>
 				<tbody>
@@ -46,10 +46,10 @@
 				</tbody>
 			</table>
 		</div>
-		<div role="tabpanel" id="tab2-content" aria-labelledby="tab2" ng-switch-when="1">
+		<div role="tabpanel" id="tab2-content" aria-labelledby="tab2" ng-switch-when="1" md-swipe-right="incrementSelectedIndex(-1)" md-swipe-left="incrementSelectedIndex(1)">
 		<iframe ng-src="{{'http://docs.google.com/gview?url=' + publication.url + '&embedded=true'}}" class="pdf-viewer" frameborder="0"></iframe>
 		</div>
-		<div role="tabpanel" id="tab3-content" aria-labelledby="tab3" ng-switch-when="2">
+		<div role="tabpanel" id="tab3-content" aria-labelledby="tab3" ng-switch-when="2" md-swipe-right="incrementSelectedIndex(-1)" md-swipe-left="incrementSelectedIndex(1)">
 			<md-list class="publications-list">
 				<md-item ng-repeat="publication in publications">
 					<md-item-content>
