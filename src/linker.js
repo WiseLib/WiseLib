@@ -31,7 +31,7 @@ Representation.prototype.format = function(json) {
 Representation.prototype.formatRelations = function(json) {
     var queryParams = {};
     for(var i=0; i < this.relations.length; i++) {
-        var relation = json[this.relations[i]];
+    	var relation = json[this.relations[i]];
         if(relation !== undefined) {
             //assumes all objects are given by id (and called 'id')
             queryParams[this.relations[i]] = (relation.constructor === Array) ? _.map(relation, function(rel) {return rel.id;}) : relation;
@@ -68,6 +68,7 @@ Representation.prototype.toModel = function(jsonObj) {
     }
     return model;
 };
+var Journal, Proceeding, Publication; //To avoid 'used before defined' warnings
 
 //discipline
 var AcademicDiscipline = bookshelf.Model.extend({
@@ -96,7 +97,7 @@ disciplineRepr.parentId = {
     name: 'parent'
 };*/
 disciplineRepr.model = AcademicDiscipline;
-disciplineRepr.relations = ['parent'];
+disciplineRepr.relations = ['parent', 'journals', 'proceedings'];
 
 //affiliation
 var Affiliation = bookshelf.Model.extend({
@@ -165,7 +166,7 @@ userRepr.model = User;
 userRepr.relations = ['person'];
 
 //journal
-var Journal = bookshelf.Model.extend({
+Journal = bookshelf.Model.extend({
     tableName: 'journal',
     disciplines: function() {
         return this.belongsToMany(AcademicDiscipline, 'journal_has_academic_discipline', 'journal_id', 'academic_discipline_id');
@@ -188,7 +189,7 @@ journalRepr.model = Journal;
 journalRepr.relations = ['disciplines'];
 
 //proceeding
-var Proceeding = bookshelf.Model.extend({
+Proceeding = bookshelf.Model.extend({
     tableName: 'conference',
     disciplines: function() {
         return this.belongsToMany(AcademicDiscipline, 'conference_has_academic_discipline', 'conference_id', 'academic_discipline_id');
@@ -211,7 +212,7 @@ proceedingRepr.model = Proceeding;
 proceedingRepr.relations = ['disciplines'];
 
 //publication
-var Publication = bookshelf.Model.extend({
+Publication = bookshelf.Model.extend({
     tableName: 'publication',
     uploader: function() {
         return this.belongsTo(User, 'published_by_user_id');

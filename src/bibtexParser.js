@@ -1,7 +1,6 @@
-'use strict';
+'use strict'
 var bibtexParse = require('bibtex-parse-js');
 var fs = require('fs');
-
 
 function bibtexToJSON(bibtexText,succes){
     var bibJSON = bibtexParse.toJSON(bibtexText);

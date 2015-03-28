@@ -33,11 +33,39 @@ DBManager.prototype.post = function(jsonObj, classObj, next) {
 
 DBManager.prototype.get = function(jsonObj, classObj, next) {
     var queryParams = classObj.format(jsonObj);
+    var queryRelations = classObj.formatRelations(jsonObj);
+    //first fetch all based on given attributes (such as title, year, id)
     classObj.model.where(queryParams).fetchAll({withRelated: classObj.relations}).then(function(results) {
-        var convertedResults = _.map(results.models, function(result) {
-            return classObj.parse(result.toJSON());
-        });
-        next(convertedResults);
+        //then, filter on given relations (such as authors, uploader)
+        var filtered = [];
+        //loop through all the fetched results
+        for(var result in results.models) {
+            var add = true;
+            //for each result, see if it contains the given relation
+            //loop through all given relations
+            for(var relation in queryRelations) {
+                //get tuples of current relation of current result
+                var models = results.models[result].related(relation);
+                //tuples must contain all values of current relation
+                //belongsToMany relations
+                if(queryRelations[relation].constructor === Array) {
+                    _.forEach(queryRelations[relation], function(id) {
+                        var model = models.get(id);
+                        if(model === undefined) {
+                            add = false;
+                        }
+                    });
+                }
+                //belongsTo relations
+                else {
+                    add = add && (models.id == queryRelations[relation]);
+                }
+            }
+            if (add) {
+                filtered.push(classObj.parse(results.models[result].toJSON()));
+            }
+        }
+        next(filtered);
     });
 };
 

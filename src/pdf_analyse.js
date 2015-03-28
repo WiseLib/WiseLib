@@ -1,6 +1,5 @@
 'use strict';
 var pdfExtract = require('pdf-extract');
-var fs = require('fs');
 
 
 function removeMulipleSpace(text){

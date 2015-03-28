@@ -14,7 +14,6 @@ var ejwt = require('express-jwt');
 
 var auth = ejwt({secret: config.secretToken});
 
-
 module.exports = function(app) {
 
     app.route('/disciplines.json')
@@ -22,7 +21,6 @@ module.exports = function(app) {
 
     app.route('/disciplines/:id.json')
     .get(routeFunctions.getDiscipline);
-
     app.route('/journals.json')
     .get(routeFunctions.getJournals);
 
@@ -67,7 +65,8 @@ module.exports = function(app) {
     .post(auth, routeFunctions.postPublication);
 
     app.route('/publications/:id.json')
-    .get(routeFunctions.getPublication);
+    .get(routeFunctions.getPublication)
+    .delete(auth, routeFunctions.deletePublication);
 
     app.route('/publications/:id/authors.json')
     .get(routeFunctions.getPublicationAuthors);
@@ -77,10 +76,6 @@ module.exports = function(app) {
 
     app.route('/logout')
     .post(function(req, res) {res.status(501).end();});
-
-
-    app.route('/users/login.json')
-    .post(routeFunctions.postUserLogin);
 
     app.route('/uploadfile')
     .post(auth, routeFunctions.postUploadFile);
