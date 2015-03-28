@@ -317,6 +317,28 @@ proceedingPublicationRepr.proceeding = {
 };
 proceedingPublicationRepr.model = ProceedingPublication;
 
+// unknownPersonPublication
+var unknownPersonPublication = bookshelf.Model.extend({
+    tableName: 'publication_with_unknown_person',
+    super: function(){
+        return this.belongsTo(Publication, 'id');
+    }
+});
+var unknownPersonPublicationRepr = new Representation();
+unknownPersonPublicationRepr.id = {
+    fieldName: 'publication_id',
+    name: 'id'
+};
+unknownPersonPublicationRepr.firstNameAuthor = {
+    fieldName: 'author_first_name',
+    name: 'firstNameAuthor'
+};
+unknownPersonPublicationRepr.lastNameAuthor = {
+    fieldName: 'author_last_name',
+    name: 'lastNameAuthor'
+};
+unknownPersonPublicationRepr.model = unknownPersonPublication;
+
 module.exports.disciplineRepr = disciplineRepr;
 module.exports.journalRepr = journalRepr;
 module.exports.personRepr = personRepr;
@@ -326,3 +348,4 @@ module.exports.proceedingRepr = proceedingRepr;
 module.exports.publicationRepr = publicationRepr;
 module.exports.journalPublicationRepr = journalPublicationRepr;
 module.exports.proceedingPublicationRepr = proceedingPublicationRepr;
+module.exports.unknownPersonPublicationRepr = unknownPersonPublicationRepr;

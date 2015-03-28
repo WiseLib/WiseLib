@@ -10,12 +10,15 @@ function link(req,res){
 
 function searchDB(reference){
     var title =  reference.entryTag.title;
+    var authorName = reference.entryTag.title;
     var result = DBManager.get({title: title}, publicationRepr, function(results){
         if(data.length < 1){
             var newId;
+            //post publication with unknown person
             DBManager.post(reference, publicationRepr, function(id){
                 newId = id;
             })
+
             //TODO publication_with_unknown_person tabel vullen met de nieuwe publication
             /*
             * for(index = 0; index < reference.authors.length; index++){
