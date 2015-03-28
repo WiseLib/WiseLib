@@ -17,16 +17,23 @@
         	<p>{{publication.abstract}}</p>
 			<table>
 				<tbody>
-					<tr>
+					<tr ng-if="uploaderPersonId">
 						<td>Uploaded by</td>
-						<td>User number {{publication.uploader}}</td>
+						<td><personmin person="persons[uploaderPersonId]"></personmin></td>
 					</tr>
 					<tr>
-						<td rowspan="{{publication.authors.length}}">Authors</td>
-						<td><personmin person="authors[0]"></personmin></td>
+						<td rowspan="{{authors.length}}">Authors</td>
+						<td><personmin person="persons[authors[0]]"></personmin></td>
 					</tr>
 					<tr ng-repeat="author in authors" ng-if="$index > 0">
-						<td><personmin person="author"></personmin></td>
+						<td><personmin person="persons[author]"></personmin></td>
+					</tr>
+					<tr ng-if="editors.length > 0">
+						<td rowspan="{{editors.length}}">Editors</td>
+						<td><personmin person="persons[editors[0]]"></personmin></td>
+					</tr>
+					<tr ng-repeat="editor in editors" ng-if="$index > 0">
+						<td><personmin person="persons[editor]"></personmin></td>
 					</tr>
 					<tr>
 						<td>Number of pages</td>
