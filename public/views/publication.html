@@ -8,6 +8,9 @@
       	<md-tab id="tab2" aria-controls="tab2-content">
         	View
     	</md-tab>
+    	<md-tab id="tab3" aria-controls="tab3-content">
+    	Referenced publications
+    	</md-tab>
     </md-tabs>
      <ng-switch on="data.selectedIndex" class="tabpanel-container">
         <div role="tabpanel" id="tab1-content" aria-labelledby="tab1" ng-switch-when="0">
@@ -36,8 +39,20 @@
 				</tbody>
 			</table>
 		</div>
-		<div role="tabpanel" id="tab1-content" aria-labelledby="tab1" ng-switch-when="1">
+		<div role="tabpanel" id="tab2-content" aria-labelledby="tab2" ng-switch-when="1">
 		<iframe ng-src="{{'http://docs.google.com/gview?url=' + publication.url + '&embedded=true'}}" class="pdf-viewer" frameborder="0"></iframe>
+		</div>
+		<div role="tabpanel" id="tab3-content" aria-labelledby="tab3" ng-switch-when="2">
+			<md-list class="publications-list">
+				<md-item ng-repeat="publication in publications">
+					<md-item-content>
+						<div class="md-tile-content">
+							<publicationmin publication="publication"></publicationmin>
+						</div>
+					</md-item-content>
+					<md-divider md-inset ng-if="!$last"></md-divider>
+				</md-item>
+			</md-list>
 		</div>
 	</ng-switch>
 </md-content>
