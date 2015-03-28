@@ -10,10 +10,11 @@ function link(req,res){
 
 function searchDB(reference){
     var title =  reference.entryTag.title;
-    var authorName = reference.entryTag.title;
+    var authorNames = getAuthorNames(reference);
     var result = DBManager.get({title: title}, publicationRepr, function(results){
         if(data.length < 1){
             var newId;
+            var authors = getAuthorNames(reference);
             //post publication with unknown person
             DBManager.post(reference, publicationRepr, function(id){
                 newId = id;
@@ -29,11 +30,23 @@ function searchDB(reference){
         if(data.length = 1){
             return results.id;
         }
-        if(data.length < 1){
-            //TODO publication_with_unknown_person tabel vullen met nieuwe publication
-            // eventueel bestaande users contacteren mbv een notification dat met person validation
-        }
+        //TODO what if more then 1 title comes up??
     });
 
     //TODO finish function
+}
+
+function getAuthorNames(reference){
+    var authors = reference.entryTag.author;
+    var authorNames = authors.split('and');
+    var data = {names: []};
+    for(index = 0; index < authorNames.length; index++){
+        var name = authorNames[index].split(',');
+        if(name.length < 2){
+            data.names.push({lastName: name[0], firstName: ""});
+        } else {
+            data.names.push({lastName: name[0], firstName: name[1]});
+        }
+    }
+    return data;
 }

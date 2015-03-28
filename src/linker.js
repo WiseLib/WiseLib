@@ -222,6 +222,9 @@ Publication = bookshelf.Model.extend({
     },
     references: function() {
         return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
+    },
+    unknownAuthors: function() {
+        return this.hasMany(UnknownAuthors, 'id');
     }
 });
 var publicationRepr = new Representation();
@@ -318,7 +321,7 @@ proceedingPublicationRepr.proceeding = {
 proceedingPublicationRepr.model = ProceedingPublication;
 
 // unknownPersonPublication
-var unknownPersonPublication = bookshelf.Model.extend({
+var UnknownPersonPublication = bookshelf.Model.extend({
     tableName: 'publication_with_unknown_person',
     super: function(){
         return this.belongsTo(Publication, 'id');
@@ -337,7 +340,7 @@ unknownPersonPublicationRepr.lastNameAuthor = {
     fieldName: 'author_last_name',
     name: 'lastNameAuthor'
 };
-unknownPersonPublicationRepr.model = unknownPersonPublication;
+unknownPersonPublicationRepr.model = UnknownPersonPublication;
 
 module.exports.disciplineRepr = disciplineRepr;
 module.exports.journalRepr = journalRepr;
