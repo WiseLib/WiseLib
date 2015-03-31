@@ -1,0 +1,10 @@
+<h3><a href="{{publication.link}}">{{publication.title}}</a></h3>
+<h4>Authors:</h4>
+<ul style="list-style-type: none">
+	<li ng-repeat="author in publication.authors">
+		{{author.first_name}} {{author.last_name}}
+	</li>
+</ul>
+<h4>{{publication.source}} ({{publication.year}})</h4>
+<h4>Abstract:</h4>
+<p style="margin-left: 25px;">{{publication.abstract}}</p>

@@ -13,8 +13,18 @@ angular.module('publication', [])
 })
 
 .factory('WebSearchPublication',function($resource){
-	return $resource('https://api.mendeley.com:port/search/catalog/?access_token=:accessToken&:query',
-		{accessToken : 'MSwxNDI3MzkxMjM5OTUxLDMwNjI3MTk3MSw3MTQsYWxsLCxKQzJmUVFDU3hBbElaQ0ZETkt2bUl6ZVZoRFk',
+	return $resource('https://api.mendeley.com:port/search/catalog/?access_token=:token&:query',
+		{token : '@token',
 		query:'@query',
 		port : ':443'});
+})
+
+
+.factory('GetApiToken',function($resource){
+	return $resource('https://api.mendeley.com/oauth/token',{},{
+		get:{
+			method:'POST',
+			headers : {'Authorization' : 'Basic MTY1ODpVQ21EdTF1RFZxWVVQRGZV','Content-Type': 'application/x-www-form-urlencoded'}
+			}
+		})
 });
