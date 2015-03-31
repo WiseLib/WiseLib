@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 'user', 'person'])
+angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 'user', 'person', 'pascalprecht.translate'])
 
 /**
  * Configure the Routes
@@ -34,6 +34,14 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
         controller: 'myPublicationsController'
     })
     .otherwise({redirectTo: '/'});
+}])
+
+.config(['$translateProvider', function($translateProvider) {
+    $translateProvider.translations('en', {
+        'TITLE': 'title',
+        'FOO': 'this is a test of angular-translate'
+    });
+    $translateProvider.preferredLanguage('en');
 }])
 
 .config(function ($httpProvider) {
