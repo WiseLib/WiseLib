@@ -37,11 +37,12 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
 }])
 
 .config(['$translateProvider', function($translateProvider) {
-    $translateProvider.translations('en', {
-        'TITLE': 'title',
-        'FOO': 'this is a test of angular-translate'
-    });
-    $translateProvider.preferredLanguage('en');
+    //TODO: using https://github.com/angular-translate/angular-translate/issues/475: use $translateProvider.useLocalStorage(); //saves bandwith, loads faster
+    $translateProvider.useStaticFilesLoader({
+  prefix: '/lang/',
+  suffix: '.json'
+});
+    $translateProvider.preferredLanguage('nl');
 }])
 
 .config(function ($httpProvider) {

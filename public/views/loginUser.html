@@ -1,20 +1,20 @@
 <md-content layout="column">
 	<form role="form" name="form" ng-submit="login()">
 		<md-input-container>
-			<label>Email</label>
+			<label>{{'EMAIL' | translate}}</label>
 			<input ng-model="loginUserForm.email" name="email" type="email" required>
             <div ng-messages="form.email.$error">
-                <div ng-message="required">This field is required.</div>
-                <div ng-message="email">Please enter a valid email address.</div>
+                <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
+                <div ng-message="email">{{'ENTER_VALID_EMAIL' | translate}}</div>
             </div>
 		</md-input-container>
 		<md-input-container>
-			<label>Password</label>
+			<label>{{'PASSWORD' | translate}}</label>
 			<input ng-model="loginUserForm.password" name="password" type="password" required>
             <div ng-messages="form.password.$error">
-                <div ng-message="required">This field is required.</div>
+                <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
             </div>
 		</md-input-container>
-		<md-button type="submit" ng-disabled="form.$invalid" class="md-raised md-primary">Login</md-button>
+		<md-button type="submit" ng-disabled="form.$invalid" class="md-raised md-primary">{{'LOG_IN' | translate}}</md-button>
 	</form>
 </md-content>
