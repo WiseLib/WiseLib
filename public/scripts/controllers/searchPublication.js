@@ -124,9 +124,6 @@ $scope.websearch = function(){
 		GetApiToken.get(body,function(data){
 
 			$scope.access_token = data.access_token;
-
-			console.log($scope.access_token)
-
 			websearch();
 
 		},function(data){console.log(data);$scope.showSimpleToast("External search: " + data.statusText)});
