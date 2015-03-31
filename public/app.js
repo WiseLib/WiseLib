@@ -42,7 +42,7 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
   prefix: '/lang/',
   suffix: '.json'
 });
-    $translateProvider.preferredLanguage('nl');
+    $translateProvider.preferredLanguage('en');
 }])
 
 .config(function ($httpProvider) {
@@ -57,7 +57,7 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
     };
 })
 
-.controller('navController', function($scope, $window, $mdSidenav, Page, AuthenticationService) {
+.controller('navController', function($scope, $window, $mdSidenav, $translate, Page, AuthenticationService) {
     $scope.Page = Page;
     $scope.auth = AuthenticationService;
     $scope.ToggleMenu = function() {
@@ -67,6 +67,10 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
     $scope.logout = function() {
         AuthenticationService.isAuthenticated = false;
         delete $window.sessionStorage.token;
+    };
+
+    $scope.changeLanguage = function(lang) {
+        $translate.use(lang);
     };
 })
 

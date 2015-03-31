@@ -51,6 +51,11 @@
             <md-content style="overflow: visible;" class="md-default-theme">
                 <ul class="menu">
                     <li>
+                        <div layout="row">
+                            <md-button class="md-button md-default-theme menu-lang-btn" ng-click="changeLanguage('en')">English</md-button>
+                            <md-button class="md-button md-default-theme menu-lang-btn" ng-click="changeLanguage('nl')">Nederlands</md-button>
+                        </div>
+                    <li>
                         <md-button class="md-button md-default-theme" href="/login" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">{{'LOG_IN' | translate }}</md-button>
                     </li>
                     <li>
