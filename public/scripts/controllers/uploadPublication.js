@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication', []);
 
-module.controller('uploadPublicationController', function ($scope,$window,$http, fetcher, Page,$mdToast,Person) {
+module.controller('uploadPublicationController', function ($scope,$window,$http, Page,$mdToast,Person) {
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
 
@@ -12,7 +12,6 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
     $scope.disciplines = [];
     $scope.references = [];
     $scope.JSONreferences = [];
-    $scope.fetcher = fetcher;
 
     $scope.chooseJournal = function(jour){
         $scope.journal = jour;
