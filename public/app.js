@@ -71,6 +71,7 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
 
     $scope.changeLanguage = function(lang) {
         $translate.use(lang);
+        $mdSidenav('left').toggle();
     };
 })
 

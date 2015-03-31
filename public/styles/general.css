@@ -24,9 +24,7 @@ tr:nth-child(even) td {
 }
 
 .menu-lang-btn {
-	border-bottom-width: 2px;
-	border-bottom-style: solid;
-	border-bottom-color: #000000;
+	box-shadow: 0px 8px 17px rgba(0,0,0,.2);
 	border-radius: 0px !important;
 	text-align: center !important;
 }
