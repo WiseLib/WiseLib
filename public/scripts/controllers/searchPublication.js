@@ -109,7 +109,7 @@ angular.module('searchPublication', [])
 		var query=keyword;
 
 		if($scope.checkTitle) query +='@title';
-		if($scope.checkAuthor) query+= '@author';
+		if($scope.checkAuthor) query+= '@authors';
 		if($scope.checkJournal) query += '@journal';
 		if($scope.checkConference) query += '@conference';
 
