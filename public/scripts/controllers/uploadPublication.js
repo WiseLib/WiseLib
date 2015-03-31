@@ -73,20 +73,24 @@ module.controller('uploadPublicationController', function($scope, fetcher, $wind
                     Person.query({firstName: firstName, lastName: lastName}, function(response) {
                         foundPersons = {firstName:firstName,lastName:lastName,authorList:response.persons};
                         if (response.persons.length<1) {//response is empty if person does not exist on server
-                            foundPersons.status= '(Will be added to database)';
+                            $translate('NAME_WILL_BE_ADDED_TO_DATABASE').then(function(translated) {
+                                foundPersons.status= '(' + translated + ')';
+                            });
                             $scope.add($scope.authors,foundPersons);
                         }
                         else {
                             $scope.add($scope.chooseAuthor,foundPersons);
                         }
                     }, function(error) {
-
+                        console.log(error);
                     });
                 }(firstName,lastName));
             }
         }).
 error(function() {
-    $scope.showSimpleToast('Not a pdf');
+    $translate('UPLOADED_FILE_NOT_PDF').then(function(translated) {
+        $scope.showSimpleToast(translated);
+    });
 });
 
 };
@@ -116,7 +120,9 @@ $scope.uploadbibtex = function(files){
 
     }).
     error(function() {
-        $scope.showSimpleToast('Not a bibtex');
+        $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
+            $scope.showSimpleToast(translated);
+        });
     });
 
 };
@@ -161,7 +167,10 @@ var authArray = new Array($scope.authors.length);
         for (var i = 1; i < $scope.authors.length; i++) {//add co authors (id) to list
             var author = $scope.authors[i];
             if(author.status){//person not in database
-                var affiliation = prompt('Enter the affiliation for ' + author.firstName + ' ' + author.lastName);
+                var affiliation;
+                $translate('ENTER_AFFILIATION_FOR').then(function(translated) {
+                    affiliation = prompt(translated + ' ' + author.firstName + ' ' + author.lastName);
+                });
                 var newPerson = new Person({firstName: author.firstName, lastName:author.lastName});
 
                 (function(index){
@@ -174,7 +183,9 @@ var authArray = new Array($scope.authors.length);
                         return;}
 
                     },function(){//error from server
-                        $scope.showSimpleToast('Could not add person: ' + author.firstName + ' ' + author.lastName + status);
+                        $translate('COULD_NOT_ADD_PERSON').then(function(translated) {
+                            $scope.showSimpleToast(translated + ': ' + author.firstName + ' ' + author.lastName + status);
+                        });
                         return;
                     });
                 }(i));

@@ -18,45 +18,54 @@ angular.module('publication')
         if(data.publications.length > 0) {
             $scope.publications = data.publications;
         } else {
-            $scope.error = 'No publications found';
+            $translate('NO_PUBLICATIONS_FOUND').then(function(translated) {
+                $scope.error = translated;
+        });
         }
     }, function(error) {
         $scope.error = error.status + ' ' + error.statusText;
     });
 
     $scope.deletePublication = function(pub) {
-      var confirm = $mdDialog.confirm()
-        .title('Do you really want to remove this publication?')
-        .content('You can\'t undo this.')
-        .ariaLabel('Remove publication dialog')
-        .ok('Remove')
-        .cancel('Cancel');
+        var confirm;
+      $translate(['REMOVE_PUBLICATION_CONFIRM_TITLE', 'CANT_UNDO', 'REMOVE_PUBLICATION_DIALOG', 'REMOVE', 'CANCEL']).then(function(translations) {
+          confirm = $mdDialog.confirm()
+            .title(translations.REMOVE_PUBLICATION_CONFIRM_TITLE)
+            .content(translations.CANT_UNDO)
+            .ariaLabel(translations.REMOVE_PUBLICATION_DIALOG)
+            .ok(translations.REMOVE)
+            .cancel(translations.CANCEL);
+        });
     $mdDialog.show(confirm).then(function() {
       Publication.delete({id: pub.id}, function() {
-        for (var i = $scope.publications.length - 1; i >= 0; i--) {
+        for (var i = $scope.publications.length - 1; i >= 0; i--) { //Remove publication from list
           if($scope.publications[i].id === pub.id) {
             $scope.publications.splice(i,1);
             break;
           }
         }
-        $mdToast.show({
-                    controller: 'ToastCtrl',
-                    templateUrl: '../views/feedback-toast.html',
-                    hideDelay: 6000,
-                    position: 'top right',
-                    locals: {text: 'Publication succesfully removed',
-                        error: false}
+        $translate('SUCCESFULLY_REMOVED_PUBLICATION').then(function(translated) {
+            $mdToast.show({
+                        controller: 'ToastCtrl',
+                        templateUrl: '../views/feedback-toast.html',
+                        hideDelay: 6000,
+                        position: 'top right',
+                        locals: {text: translated,
+                            error: false}
                 });
+        });
 
       }, function(data) {
-        $mdToast.show({
-                    controller: 'ToastCtrl',
-                    templateUrl: '../views/feedback-toast.html',
-                    hideDelay: 6000,
-                    position: 'top right',
-                    locals: {text: 'Error removing publication: ' + data.error,
-                        error: true}
-                });
+        $translate('ERROR_REMOVING_PUBLICATION').then(function(translated) {
+            $mdToast.show({
+                        controller: 'ToastCtrl',
+                        templateUrl: '../views/feedback-toast.html',
+                        hideDelay: 6000,
+                        position: 'top right',
+                        locals: {text: translated + ': ' + data.error,
+                            error: true}
+                    });
+        });
       });
     }, function() {
       console.log('Clicked cancel!');
