@@ -65,7 +65,6 @@ angular.module('communication', [])
 
     var fetchJournals = function (params) {
         if(params && params.name !== ''){
-            params= {name:params.name};
             var journals = fetchForClass('Journal', params);
         return journals.journals;
         }
