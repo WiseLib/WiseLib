@@ -2,8 +2,10 @@
 
 angular.module('user')
 
-.controller('registerUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
-    Page.setTitle('Register');
+.controller('registerUserController', function($scope, $http, $window, $location, $translate, Page, $mdToast, $animate, AuthenticationService, User, Person) {
+    $translate('REGISTER').then(function(register) {
+    Page.setTitle(register);
+  });
     $scope.userForm = {};
     $scope.persons = [];
     $scope.userForm.profileImageSrc = '';

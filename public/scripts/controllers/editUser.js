@@ -2,8 +2,10 @@
 
 angular.module('user')
 
-.controller('updateUserController', function($scope, $window, $location, Page, $mdToast, AuthenticationService, User, Person) {
-    Page.setTitle('Update profile');
+.controller('updateUserController', function($scope, $window, $location, $translate, Page, $mdToast, AuthenticationService, User, Person) {
+    $translate('UPDATE_PROFILE').then(function(translated) {
+    Page.setTitle(translated);
+  });
     $scope.userEditForm = {};
     $scope.personEditForm = {};
 

@@ -1,11 +1,13 @@
 'use strict';
 var module = angular.module('publication', ['communication']);
 
-module.controller('uploadPublicationController', function ($scope,fetcher,$window,$http, Page,$mdToast,Person) {
+module.controller('uploadPublicationController', function($scope, fetcher, $window, $http, $translate, Page, $mdToast, Person) {
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
 
-    Page.setTitle('Upload publication');
+    $translate('UPLOAD_PUBLICATION').then(function(translated) {
+    Page.setTitle(translated);
+  });
     $scope.authors = [];
     $scope.chooseAuthor = [];
     $scope.newAuthors =[];
