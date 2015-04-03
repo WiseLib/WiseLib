@@ -28,6 +28,7 @@ module.exports = function(app) {
     // serve static Angular files
     app.use(express.static(__dirname + '/../public/'));
     app.use('/img/pi', express.static(__dirname + '/../img/pi'));
+    app.use('/uploads', express.static(__dirname + '/../uploads'));
 
     // register all controllers
     routes(app);
