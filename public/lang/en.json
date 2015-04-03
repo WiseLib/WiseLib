@@ -72,5 +72,10 @@
 	"UPLOAD_FILE_NOT_PDF": "Uploaded file isn't a PDF file",
 	"UPLOADED_FILE_NOT_BIBTEX": "Uploaded file isn't a BIBTEX file",
 	"ENTER_AFFILIATION_FOR": "Enter the affiliation for",
-	"COULD_NOT_ADD_PERSON": "Could not add person"
+	"COULD_NOT_ADD_PERSON": "Could not add person",
+	"ABOUT": "About",
+	"VIEW": "View",
+	"REFERENCED_PUBLICATIONS": "Referenced publications",
+	"UPLOADED_BY": "Uploaded by",
+	"YEAR_OF_PUBLISHING": "Year of publishing"
 }

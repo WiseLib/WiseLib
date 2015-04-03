@@ -69,8 +69,13 @@
 	"CANCEL": "Annuleer",
 	"SUCCESFULLY_REMOVED_PUBLICATION": "Publicatie succesvol verwijderd",
 	"ERROR_REMOVING_PUBLICATION": "Fout bij het verwijderen van de publicatie",
-	"UPLOAD_FILE_NOT_PDF": "Ge&uuml;ploadet bestand is geen PDF bestand",
-	"UPLOADED_FILE_NOT_BIBTEX": "Ge&uuml;ploadet bestand is geen BIBTEX bestand",
+	"UPLOAD_FILE_NOT_PDF": "Geüploadet bestand is geen PDF bestand",
+	"UPLOADED_FILE_NOT_BIBTEX": "Geüploadet bestand is geen BIBTEX bestand",
 	"ENTER_AFFILIATION_FOR": "Voeg de affiliatie toe voor",
-	"COULD_NOT_ADD_PERSON": "Persoon kon niet toegevoegd worden"
+	"COULD_NOT_ADD_PERSON": "Persoon kon niet toegevoegd worden",
+	"ABOUT": "Over",
+	"VIEW": "Bekijk",
+	"REFERENCED_PUBLICATIONS": "Naar verwezen publicaties",
+	"UPLOADED_BY": "Geüpload door",
+	"YEAR_OF_PUBLISHING": "Jaar van publicering"
 }
