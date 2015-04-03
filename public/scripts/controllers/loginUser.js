@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('loginUser', ['ngMessages'])
+angular.module('user')
 
 .controller('loginUserController', ['$scope', '$location', '$window', 'UserService', 'AuthenticationService', 'Page', '$mdToast',
    function($scope, $location, $window, UserService, AuthenticationService, Page, $mdToast) {

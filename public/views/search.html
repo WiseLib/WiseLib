@@ -23,9 +23,9 @@
   </md-checkbox>
   </p>
 
-<md-button class="md-raised md-primary" ng-disabled="keyword == null" ng-click="search()">Search</md-button>
+<md-button class="md-raised md-primary" ng-disabled="keyword == null" ng-click="search();extern=false">Search</md-button>
 
-<md-button class="md-raised md-primary" ng-disabled="keyword == null || (!checkTitle && !checkAuthor && !checkJournal && !checkConference)" ng-click="websearch()">Search the web</md-button>
+<md-button class="md-raised md-primary" ng-disabled="keyword == null || (!checkTitle && !checkAuthor && !checkJournal && !checkConference)" ng-click="websearch();extern=true">Search the web</md-button>
 
 
 </div>
@@ -34,11 +34,18 @@
 <div layout layout-sm="column" layout-wrap class="result-block">
 <h4>Results</h4>
 <p ng-show= "foundPublications.length == 0">No results</p>
-<ul>
+<ul ng-show="extern">
 	<li ng-repeat="foundpublication in foundPublications">
 		<externpublicationmin publication="foundpublication" ng-click="view(publication)"></externpublicationmin>
 	</li>
 </ul>
+
+<ul ne-show="!extern">
+  <li ng-repeat="foundpublication in foundPublications">
+    <publicationmin publication="foundpublication" ng-click="view(publication)"></publicationmin>
+  </li>
+</ul>
+
 </div>
 
 </div>

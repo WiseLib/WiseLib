@@ -434,12 +434,20 @@ var Publication = bookshelf.Model.extend({
     authors: function() {
         return this.belongsToMany(Person, 'publication_written_by_person', 'publication_id', 'person_id');
     },
+    editors: function() {
+        return this.belongsToMany(Person, 'publication_edited_by_person', 'publication_id', 'person_id');
+    },
+    referencedPublications: function() {
+       return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
+    },
+
+
     representation: publicationRepr
 });
 publicationRepr[searchKey] = [publicationRepr.title];
 publicationRepr.relationSearch = ['authors'];
 publicationRepr.model = Publication;
-publicationRepr.relations = ['uploader', 'authors'];
+publicationRepr.relations = ['uploader', 'authors', 'editors', 'referencedPublications'];
 
 //journalPublication
 var journalPublicationRepr = new Representation();

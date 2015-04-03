@@ -8,7 +8,7 @@
  * Licensed under the GPL-2.0 license.
  */
 
- var validator = require('./validator.js');
+ //var validator = require('./validator.js'); //Not used yet
  var DBManager = require('./dbmanager.js');
  var config = require('./config.js');
  var linker = require('./linker.js');
@@ -60,6 +60,12 @@ var postSingle = function(req, res, repr) {
 var putSingle = function(req, res, repr) {
 	DBManager.put(req.body, repr, function(id) {
 		res.status(200).end();
+	});
+};
+
+var deleteSingle = function(req, res, repr) {
+	DBManager.delete({id: req.params.id}, repr, function() {
+		res.sendStatus(200);
 	});
 };
 
@@ -187,6 +193,9 @@ module.exports = {
 			}
 		});
 	},
+	deletePublication: function(req, res) {
+		deleteSingle(req, res, linker.publicationRepr);
+	},
 
 	postPublication :function(req, res) {
 		res.status(501).end();
@@ -197,10 +206,6 @@ module.exports = {
 		getMultiple(req, res, linker.personRepr, 'persons');
 	},
 	login: function(req, res) {
-		res.status(501).end();
-	},
-
-	postUserLogin: function(req, res) {
 		var email = req.body.email;
 		var password = req.body.password;
 		if(email === '' || password === '') {

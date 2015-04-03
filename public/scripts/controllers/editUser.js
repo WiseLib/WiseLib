@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('editUser', [])
+angular.module('user')
 
 .controller('updateUserController', function($scope, $window, $location, Page, $mdToast, AuthenticationService, User, Person) {
     Page.setTitle('Update profile');
@@ -13,16 +13,16 @@ angular.module('editUser', [])
    */
     $scope.update = function (service) {
         service.$put(
-        function(data) { //Success
+        function() { //Success
             $mdToast.show({
                 controller: 'ToastCtrl',
                 templateUrl: '../views/feedback-toast.html',
                 hideDelay: 6000,
                 position: 'top right',
-                locals: {text: 'Saved Changes',
+                locals: {text: 'Saved changes',
                          error: false}
             });
-        }, 
+        },
         function(data) { //Error
             console.log(data);
             $mdToast.show({
@@ -30,7 +30,7 @@ angular.module('editUser', [])
                 templateUrl: '../views/feedback-toast.html',
                 hideDelay: 6000,
                 position: 'top right',
-                locals: {text: 'Error: ' + data,
+                locals: {text: 'Error: ' + data.error,
                          error: true}
             });
         });
@@ -42,7 +42,6 @@ angular.module('editUser', [])
                 delete obj[key];
             }
         }
-        console.log('going to return' + JSON.stringify(obj));
         return obj;
     }
 
@@ -56,7 +55,7 @@ angular.module('editUser', [])
     $scope.updatePerson = function() {
         var token = $window.sessionStorage.token;
         var user = JSON.parse(atob(token.split('.')[1]));
-        $scope.personEditForm.id = user.person.id;
+        $scope.personEditForm.id = user.person;
         $scope.update(new Person(filterEmpty($scope.personEditForm)));
     };
 });

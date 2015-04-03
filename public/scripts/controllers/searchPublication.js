@@ -1,19 +1,21 @@
 'use strict';
 
-angular.module('searchPublication', ['ngMaterial'])
+angular.module('publication')
 
 .controller('searchPublicationController',function($scope,$window,$mdToast,Page,SearchPublication,WebSearchPublication,PersonById,User,GetApiToken){
 
 	Page.setTitle('Search a publication');
 
-	$scope.showSimpleToast= function(text)  {$mdToast.show({
-		controller: 'ToastCtrl',
-		templateUrl: '../views/feedback-toast.html',
-		hideDelay: 6000,
-		position: 'top right',
-		locals: {text: text,
-			error: false}
-		})};
+	$scope.showSimpleToast= function(text)  {
+		$mdToast.show({
+			controller: 'ToastCtrl',
+			templateUrl: '../views/feedback-toast.html',
+			hideDelay: 6000,
+			position: 'top right',
+			locals: {text: text,
+				error: false}
+			});
+	};
 
 	//$scope.foundAuthor = []; //all publications from given author
 
@@ -39,8 +41,8 @@ angular.module('searchPublication', ['ngMaterial'])
 	$scope.empty = function(arrays){
 		for (var i = 0; i < arrays.length; i++) {
 			arrays[i].length = 0;
-		};
-	}
+		}
+	};
 
 	$scope.handledata = function(data){
 
@@ -54,20 +56,20 @@ angular.module('searchPublication', ['ngMaterial'])
 				var uploaderUser = new User({id: uploaderId});
 
 				uploaderUser.$get(function(data){//lookup the uploader
-					uploaderId = data.person
+					uploaderId = data.person;
 					var uploader = new PersonById({id: uploaderId});
 					uploader.$get(function(data){
 
 						publication.uploader = data.firstName + ' ' + data.lastName;
 
 						var authors = publication.authors;
-						publication['personAuthors']=[];
-						if(authors.length == 0)authors.push({id : uploaderId});
+						publication.personAuthors=[];
+						if(authors.length === 0)authors.push({id : uploaderId});
 
-						var count=0;
+						var count=-1;
 						for (var i = 0; i < authors.length; i++) {
 							var author = authors[i];
-							author = new PersonById({id: author.id})
+							author = new PersonById({id: author.id});
 
 							author.$get(function(data){ //lookup each author of the publication
 								publication.personAuthors.push(data.firstName  + ' ' + data.lastName);
@@ -75,37 +77,39 @@ angular.module('searchPublication', ['ngMaterial'])
 								console.log(count);
 								if(count === (authors.length - 1)) $scope.add($scope.foundPublications,publication);//add publication to result list when all authors are looked up.
 
-							},function(data){})
-						};
-					},function(data){})
-				},function(data){})
+							},function(data){$scope.showSimpleToast(data.statusText);});
+						}
+					},function(data){$scope.showSimpleToast(data.statusText);});
+				},function(data){$scope.showSimpleToast(data.statusText);});
 
-				
 
-			}(publication));
-};
 
+}(publication));
 }
+
+};
 
 $scope.HandleExternData= function(data){//arrary of id,title,authors(array of {first_name:?,last_name?}),link,abstract,year,source
 
-	for (var i = 0; i < data.length; i++) {
-		var externPub=data[i];
+for (var i = 0; i < data.length; i++) {
+	var externPub=data[i];
 
-		$scope.add($scope.foundPublications,externPub);
-	};
-
+	$scope.add($scope.foundPublications,externPub);
 }
+
+};
 
 $scope.access_token = undefined;
 $scope.websearch = function(){
+
+	$scope.empty([$scope.foundPublications]);
 
 	function websearch(){
 		WebSearchPublication.query({query:query,token:$scope.access_token},function(data){
 			$scope.HandleExternData(data);
 		}),function(data){//error from server
 			$scope.showSimpleToast("Could not get a result: " + keyword + " :" + data);
-		}
+		};
 	}
 
 	var keyword = $scope.keyword;
@@ -118,27 +122,26 @@ $scope.websearch = function(){
 	if($scope.checkConference) query += 'conference' + keyword + '&';
 
 
-	var body = 'grant_type=refresh_token&refresh_token=MSwzMDYyNzE5NzEsMTAyOCxhbGwsLCxtc0xxM0s1V3NoTWNCYk5SYUlsVXZjbHgySzQ%3E&redirect_uri=localhost%253A8080%252Fsearch'
+	var body = 'grant_type=refresh_token&refresh_token=MSwzMDYyNzE5NzEsMTAyOCxhbGwsLCxtc0xxM0s1V3NoTWNCYk5SYUlsVXZjbHgySzQ%3E&redirect_uri=localhost%253A8080%252Fsearch';
 
-	if($scope.access_token == undefined){
+	if($scope.access_token === undefined){
 		GetApiToken.get(body,function(data){
 
 			$scope.access_token = data.access_token;
 			websearch();
 
-		},function(data){console.log(data);$scope.showSimpleToast("External search: " + data.statusText)});
-
+		},function(data){
+			$scope.showSimpleToast("External search: " + data.statusText);
+		});
 	}
-
 	else{websearch();}
-
 };
 
 $scope.search = function(){
 
 	$scope.empty([$scope.foundPublications]);
 
-	var keyword = $scope.keyword
+	var keyword = $scope.keyword;
 
 	var query=keyword;
 
@@ -152,9 +155,9 @@ $scope.search = function(){
 
 	search.$get(function(data){
 		$scope.handledata(data.publications);
-		}),function(data,status){//error from server
-		$scope.showSimpleToast("Could not get a result: " + keyword + " :" + status);
-	}
-}
+		}),function(data){//error from server
+		$scope.showSimpleToast("Could not get a result: " + keyword + " :" + data.status);
+	};
+};
 
 });

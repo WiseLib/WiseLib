@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('user', [])
+angular.module('user')
 
 .factory('User', function($resource) {
     return $resource('/users/:id.json', {id:'@id'}, {
@@ -18,7 +18,7 @@ angular.module('user', [])
 .factory('UserService', function($http) {
     return {
         logIn: function(email, password) {
-            return $http.post('/users/login.json', {email: email, password: password});
+            return $http.post('/login', {email: email, password: password});
         },
         logOut: function() {
         }

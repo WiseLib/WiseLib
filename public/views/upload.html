@@ -97,7 +97,7 @@
 <div ng-show="type == 'Proceeding'">
     <md-input-container>
     <label>Search a Proceeding</label>
-    <input id="proceeding" type="text" ng-model="searchproceeding.name">
+    <input id="proceeding" type="text" ng-model="searchproceeding.q">
 </md-input-container>
 <ul class="choices">
     <li ng-click="chooseProceeding(possibleProceeding)" ng-repeat="possibleProceeding in fetcher.fetchProceedings(searchproceeding)|limitTo:5">
@@ -124,7 +124,7 @@
 <div ng-show="type == 'Journal'">
     <md-input-container>
     <label for="searchjournal">Search a Journal</label>
-    <input id="searchjournal" type="text" ng-model="searchjournal.name">
+    <input id="searchjournal" type="text" ng-model="searchjournal.q">
 </md-input-container>
 <ul class="choices">
     <li ng-click="chooseJournal(possibleJournal);searchjournal.name=''" ng-repeat="possibleJournal in fetcher.fetchJournals(searchjournal)|limitTo:5">

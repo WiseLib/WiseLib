@@ -36,7 +36,7 @@ angular.module('communication', [])
             classes[className] = [];
             classesParams[className] = JSON.stringify(params);
             var path = '/' + className.toLowerCase() + 's.json';
-            fetchForPath(path, params).success(function (data, status, headers, config) {
+            fetchForPath(path, params).success(function (data) {
                 classes[className] = data;
                 return data;
             });
@@ -45,10 +45,11 @@ angular.module('communication', [])
     };
 
     var fetchDisciplines = function (params) {
+        if(params)
         return fetchForClass('Discipline', params).disciplines;
     };
     var fetchPersons = function (params) {
-        if(params !== undefined){
+        if(params && params.firstName !== '' && params.lastName !== ''){
             return fetchForClass('Person', params).persons;}
         };
 
@@ -67,7 +68,6 @@ angular.module('communication', [])
                 return journals.journals;
             }
         };
-
         return {
             fetchDisciplines : fetchDisciplines,
             fetchPersons : fetchPersons,

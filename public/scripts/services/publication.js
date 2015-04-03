@@ -1,10 +1,10 @@
 'use strict';
 
-angular.module('publication', [])
+angular.module('publication')
 
 .factory('Publication', function($resource) {
-	return $resource('/persons/:id/publications.json', {id:'@id'}, {
-		query: { method: 'GET', isArray: false }
+	return $resource('/publications/:id.json', {}, {
+		query: { method: 'GET', isArray: false , url:'/publications.json'}
 	});
 })
 
