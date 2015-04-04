@@ -1,11 +1,11 @@
 'use strict';
 
-angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 'user', 'person', 'pascalprecht.translate'])
+angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 'user', 'person', 'ngCookies', 'pascalprecht.translate'])
 
 /**
  * Configure the Routes
  */
-.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+ .config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
     // use the HTML5 History API & set HTM5 mode true
     $locationProvider.html5Mode(true);
     $routeProvider
@@ -45,19 +45,19 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
 }])
 
 .config(['$translateProvider', function($translateProvider) {
-    //TODO: using https://github.com/angular-translate/angular-translate/issues/475: use $translateProvider.useLocalStorage(); //saves bandwith, loads faster
     $translateProvider.useStaticFilesLoader({
-  prefix: '/lang/',
-  suffix: '.json'
-});
+      prefix: '/lang/',
+      suffix: '.json'
+  });
     $translateProvider.preferredLanguage('en');
+    $translateProvider.useLocalStorage();
 }])
 
 .config(function($sceDelegateProvider) {
     $sceDelegateProvider.resourceUrlWhitelist([
     // Allow same origin resource loads.
     '**'
-  ]);
+    ]);
 })
 
 .config(function ($httpProvider) {
