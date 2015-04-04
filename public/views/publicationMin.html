@@ -1,9 +1,9 @@
-<h3 class="publication-title"><a ng-href="/publications/{{publication.id}}"></h3>
-<h4>Uploaded by {{publication.uploader}}</h4>
-<h4>Authors:</h4>
-<ul style="list-style-type: none">
-	<li ng-repeat="author in publication.personAuthors">
-		{{author}}
+<h3 class="publication-title"><a ng-href="/publications/{{publication.id}}">{{publication.title}}</a></h3>
+<h4 ng-show="publication.uploader.id !== undefined">Uploaded by <a ng-href="/persons/{{publication.uploader.id}}">{{publication.uploader.firstName + ' ' + publication.uploader.lastName}}</a></h4>
+<h4 ng-show="publication.authors[0].firstName !== undefined">Authors:</h4>
+<ul ng-show="publication.authors[0].firstName !== undefined" style="list-style-type: none">
+	<li ng-repeat="author in publication.authors">
+		<a ng-href="/persons/{{author.id}}">{{author.firstName + ' ' + author.lastName}}</a>
 	</li>
 </ul>
 <h4>{{publication.numberOfPages}} pages. Published in {{publication.year}}</h4>

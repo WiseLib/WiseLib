@@ -2,162 +2,188 @@
 
 angular.module('publication')
 
-.controller('searchPublicationController',function($scope,$window,$mdToast,Page,SearchPublication,WebSearchPublication,PersonById,User,GetApiToken){
+.controller('searchPublicationController', function($scope, $window, $mdToast, Page, Publication, WebSearchPublication, Person, User, GetApiToken) {
 
-	Page.setTitle('Search a publication');
+    Page.setTitle('Search a publication');
 
-	$scope.showSimpleToast= function(text)  {
-		$mdToast.show({
-			controller: 'ToastCtrl',
-			templateUrl: '../views/feedback-toast.html',
-			hideDelay: 6000,
-			position: 'top right',
-			locals: {text: text,
-				error: false}
-			});
-	};
+    $scope.searching = function(){ return true;};
 
-	//$scope.foundAuthor = []; //all publications from given author
+    $scope.showSimpleToast = function(text) {
+        $mdToast.show({
+            controller: 'ToastCtrl',
+            templateUrl: '../views/feedback-toast.html',
+            hideDelay: 6000,
+            position: 'top right',
+            locals: {
+                text: text,
+                error: false
+            }
+        });
+    };
 
-	//$scope.foundJournal = [];//all publications in given journal
+    //$scope.foundAuthor = []; //all publications from given author
 
-	//$scope.foundProceeding = [];//idem from proceeding
+    //$scope.foundJournal = [];//all publications in given journal
 
-	$scope.foundPublications = [];//results from search on title
+    //$scope.foundProceeding = [];//idem from proceeding
 
-	$scope.add = function (array, element) {
-		if (array.indexOf(element) === -1) {
-			array.push(element);
-		}
-	};
+    $scope.foundPublications = []; //results from search on title
 
-	$scope.remove = function (array, element) {
-		var i = array.indexOf(element);
-		if (i > -1) {
-			array.splice(i, 1);
-		}
-	};
+    $scope.add = function(array, element) {
+        if (array.indexOf(element) === -1) {
+            array.push(element);
+        }
+    };
 
-	$scope.empty = function(arrays){
-		for (var i = 0; i < arrays.length; i++) {
-			arrays[i].length = 0;
-		}
-	};
+    $scope.remove = function(array, element) {
+        var i = array.indexOf(element);
+        if (i > -1) {
+            array.splice(i, 1);
+        }
+    };
 
-	$scope.handledata = function(data){
+    $scope.empty = function(arrays) {
+        for (var i = 0; i < arrays.length; i++) {
+            arrays[i].length = 0;
+        }
+    };
 
-		if(data)for (var i = 0; i < data.length; i++) {
+    $scope.handledata = function(data) {
 
-			var publication = data[i];
+        if (data)
+            for (var i = 0; i < data.length; i++) {
 
-			(function(publication){
+                var publication = data[i];
 
-				var uploaderId = publication.uploader;
-				var uploaderUser = new User({id: uploaderId});
+                (function(publication) {
 
-				uploaderUser.$get(function(data){//lookup the uploader
-					uploaderId = data.person;
-					var uploader = new PersonById({id: uploaderId});
-					uploader.$get(function(data){
+                    var uploaderId = publication.uploader;
+                    var uploaderUser = new User({
+                        id: uploaderId
+                    });
 
-						publication.uploader = data.firstName + ' ' + data.lastName;
+                    uploaderUser.$get(function(data) { //lookup the uploader
+                        uploaderId = data.person;
+                        var uploader = new Person({
+                            id: uploaderId
+                        });
+                        uploader.$get(function(data) {
 
-						var authors = publication.authors;
-						publication.personAuthors=[];
-						if(authors.length === 0)authors.push({id : uploaderId});
+                            publication.uploader = data;
 
-						var count=-1;
-						for (var i = 0; i < authors.length; i++) {
-							var author = authors[i];
-							author = new PersonById({id: author.id});
+                            var authors = publication.authors;
+                            publication.personAuthors = [];
+                            if (authors.length === 0) authors.push({
+                                id: uploaderId
+                            });
 
-							author.$get(function(data){ //lookup each author of the publication
-								publication.personAuthors.push(data.firstName  + ' ' + data.lastName);
-								count=count+1;
-								console.log(count);
-								if(count === (authors.length - 1)) $scope.add($scope.foundPublications,publication);//add publication to result list when all authors are looked up.
+                            var count = -1;
+                            for (var i = 0; i < authors.length; i++) {
+                                var author = authors[i];
+                                author = new Person({
+                                    id: author.id
+                                });
 
-							},function(data){$scope.showSimpleToast(data.statusText);});
-						}
-					},function(data){$scope.showSimpleToast(data.statusText);});
-				},function(data){$scope.showSimpleToast(data.statusText);});
+                                (function(i) {
+                                    author.$get(function(data) { //lookup each author of the publication
+                                        authors[i] = data;
+                                        count = count + 1;
+                                        console.log(count);
+                                        if (count === (authors.length - 1)) $scope.add($scope.foundPublications, publication); //add publication to result list when all authors are looked up.
 
+                                    }, function(data) {
+                                        $scope.showSimpleToast(data.statusText);
+                                    });
+                                }(i));
+                            }
+                        }, function(data) {
+                            $scope.showSimpleToast(data.statusText);
+                        });
+                    }, function(data) {
+                        $scope.showSimpleToast(data.statusText);
+                    });
+                }(publication));
+            }
 
+    };
 
-}(publication));
-}
+    $scope.HandleExternData = function(data) { //arrary of id,title,authors(array of {first_name:?,last_name?}),link,abstract,year,source
 
-};
+        for (var i = 0; i < data.length; i++) {
+            var externPub = data[i];
 
-$scope.HandleExternData= function(data){//arrary of id,title,authors(array of {first_name:?,last_name?}),link,abstract,year,source
+            $scope.add($scope.foundPublications, externPub);
+        }
 
-for (var i = 0; i < data.length; i++) {
-	var externPub=data[i];
+    };
 
-	$scope.add($scope.foundPublications,externPub);
-}
+    $scope.access_token = undefined;
+    $scope.websearch = function() {
 
-};
+        $scope.empty([$scope.foundPublications]);
 
-$scope.access_token = undefined;
-$scope.websearch = function(){
+        function websearch() {
+            WebSearchPublication.query({
+                    query: query,
+                    token: $scope.access_token
+                }, function(data) {
+                    $scope.HandleExternData(data);
+                }),
+                function(data) { //error from server
+                    $scope.showSimpleToast("Could not get a result: " + keyword + " :" + data);
+                };
+        }
 
-	$scope.empty([$scope.foundPublications]);
+        var keyword = $scope.keyword;
 
-	function websearch(){
-		WebSearchPublication.query({query:query,token:$scope.access_token},function(data){
-			$scope.HandleExternData(data);
-		}),function(data){//error from server
-			$scope.showSimpleToast("Could not get a result: " + keyword + " :" + data);
-		};
-	}
+        var query = '';
 
-	var keyword = $scope.keyword;
-
-	var query = '';
-
-	if($scope.checkTitle) query +='title=' + keyword + '&';
-	if($scope.checkAuthor) query+= 'author=' + keyword + '&';
-	if($scope.checkJournal) query += 'journal' + keyword + '&';
-	if($scope.checkConference) query += 'conference' + keyword + '&';
-
-
-	var body = 'grant_type=refresh_token&refresh_token=MSwzMDYyNzE5NzEsMTAyOCxhbGwsLCxtc0xxM0s1V3NoTWNCYk5SYUlsVXZjbHgySzQ%3E&redirect_uri=localhost%253A8080%252Fsearch';
-
-	if($scope.access_token === undefined){
-		GetApiToken.get(body,function(data){
-
-			$scope.access_token = data.access_token;
-			websearch();
-
-		},function(data){
-			$scope.showSimpleToast("External search: " + data.statusText);
-		});
-	}
-	else{websearch();}
-};
-
-$scope.search = function(){
-
-	$scope.empty([$scope.foundPublications]);
-
-	var keyword = $scope.keyword;
-
-	var query=keyword;
-
-	if($scope.checkTitle) query +='@title';
-	if($scope.checkAuthor) query+= '@authors';
-	if($scope.checkJournal) query += '@journal';
-	if($scope.checkConference) query += '@conference';
+        if ($scope.checkTitle) query += 'title=' + keyword + '&';
+        if ($scope.checkAuthor) query += 'author=' + keyword + '&';
+        if ($scope.checkJournal) query += 'journal' + keyword + '&';
+        if ($scope.checkConference) query += 'conference' + keyword + '&';
 
 
-	var search = new SearchPublication({q: query});
+        var body = 'grant_type=refresh_token&refresh_token=MSwzMDYyNzE5NzEsMTAyOCxhbGwsLCxtc0xxM0s1V3NoTWNCYk5SYUlsVXZjbHgySzQ%3E&redirect_uri=localhost%253A8080%252Fsearch';
 
-	search.$get(function(data){
-		$scope.handledata(data.publications);
-		}),function(data){//error from server
-		$scope.showSimpleToast("Could not get a result: " + keyword + " :" + data.status);
-	};
-};
+        if ($scope.access_token === undefined) {
+            GetApiToken.get(body, function(data) {
+
+                $scope.access_token = data.access_token;
+                websearch();
+
+            }, function(data) {
+                $scope.showSimpleToast("External search: " + data.statusText);
+            });
+        } else {
+            websearch();
+        }
+    };
+
+    $scope.search = function() {
+
+        $scope.empty([$scope.foundPublications]);
+
+        var keyword = $scope.keyword;
+
+        var query = keyword;
+
+        if ($scope.checkTitle) query += '@title';
+        if ($scope.checkAuthor) query += '@authors';
+        if ($scope.checkJournal) query += '@journal';
+        if ($scope.checkConference) query += '@conference';
+
+
+        var search = new Publication({
+            q: query
+        });
+
+        search.$search(function(data) {
+                $scope.handledata(data.publications);
+            }),
+            function(data) { //error from server
+                $scope.showSimpleToast("Could not get a result: " + keyword + " :" + data.status);
+            };
+    };
 
 });

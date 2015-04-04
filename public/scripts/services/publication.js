@@ -3,13 +3,9 @@
 angular.module('publication')
 
 .factory('Publication', function($resource) {
-	return $resource('/publications/:id.json', {}, {
-		query: { method: 'GET', isArray: false , url:'/publications.json'}
+	return $resource('/publications/:id.json', {id:'@id'}, {
+		search: { method: 'GET', isArray: false , url:'/publications.json/?q=:q',params: {q:'@q'}}
 	});
-})
-
-.factory('SearchPublication', function($resource) {
-	return $resource('/publications.json/?q=:q',{q:'@q'});
 })
 
 .factory('WebSearchPublication',function($resource){
