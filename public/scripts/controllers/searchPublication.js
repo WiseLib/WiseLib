@@ -2,9 +2,11 @@
 
 angular.module('publication')
 
-.controller('searchPublicationController', function($scope, $window, $mdToast, $q, Page, Publication, WebSearchPublication, Person, User, GetApiToken) {
+.controller('searchPublicationController', function($scope, $window, $mdToast, $q, $translate, Page, Publication, WebSearchPublication, Person, User, GetApiToken) {
 
-    Page.setTitle('Search a publication');
+    $translate('SEARCH_A_PUBLICATION').then(function(translated) {
+        Page.setTitle(translated);
+    });
 
     $scope.searching = function(){ return true;};
 

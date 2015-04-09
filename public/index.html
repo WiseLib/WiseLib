@@ -34,12 +34,12 @@
 
         <script src="scripts/controllers/publication.js"></script>
         <script src="scripts/controllers/uploadPublication.js"></script>
-        
+
         <script src="scripts/controllers/searchPublication.js"></script>
         <script src="scripts/controllers/myPublications.js"></script>
         <script src="scripts/services/publication.js"></script>
         <script src="scripts/directives/publication.js"></script>
-        
+
         <script src="scripts/services/person.js"></script>
         <script src="scripts/directives/person.js"></script>
 
@@ -74,15 +74,15 @@
                     </li>
                     <li>
                         <md-button class="md-button md-default-theme" href="/" ng-show="auth.isAuthenticated" ng-click="logout()">{{'LOG_OUT' | translate }}</md-button>
-                  </li>
-                  <li>
-                        <md-button class="md-button md-default-theme" href="/update" ng-show="auth.isAuthenticated" ng-click="ToggleMenu()">Update profile</md-button>
+                    </li>
+                    <li>
+                        <md-button class="md-button md-default-theme" href="/update" ng-show="auth.isAuthenticated" ng-click="ToggleMenu()">{{'UPDATE_PROFILE' | translate}}</md-button>
                     </li>
                     <li>
                         <md-button class="md-button md-default-theme" href="/register" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">{{'REGISTER' | translate }}</md-button>
-                  </li>
-<li>
-                        <md-button class="md-button md-default-theme" href="/search" ng-click="ToggleMenu()">Search a publication</md-button>
+                    </li>
+                    <li>
+                        <md-button class="md-button md-default-theme" href="/search" ng-click="ToggleMenu()">{{'SEARCH_A_PUBLICATION' | translate}}</md-button>
                     <li>
                         <md-button class="md-button md-default-theme" href="/mypublications" ng-show="auth.isAuthenticated" ng-click="ToggleMenu()">{{'MY_PUBLICATIONS' | translate }}</md-button>
                     </li>
@@ -107,9 +107,9 @@
 
             <md-content ng-view class="main-content"></md-content>
         </div>
-        <!-- inject:vendor:js -->
-        <!-- endinject -->
-        <!-- inject:js -->
-        <!-- endinject -->
+    <!-- inject:vendor:js -->
+    <!-- endinject -->
+    <!-- inject:js -->
+    <!-- endinject -->
     </body>
 </html>

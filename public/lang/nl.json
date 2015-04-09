@@ -77,5 +77,14 @@
 	"VIEW": "Bekijk",
 	"REFERENCED_PUBLICATIONS": "Naar verwezen publicaties",
 	"UPLOADED_BY": "Geüpload door",
-	"YEAR_OF_PUBLISHING": "Jaar van publicering"
+	"YEAR_OF_PUBLISHING": "Jaar van publicering",
+	"SEARCH_A_PUBLICATION": "Zoek een publicatie",
+	"KEYWORD": "Sleutelwoord",
+	"AUTHOR": "Auteur",
+	"CONFERENCE": "Conference",
+	"SEARCH": "Zoek",
+	"SEARCH_ON": "Zoek op",
+	"SEARCH_THE_WEB": "Zoek op het web",
+	"RESULTS": "Resultaten",
+	"NO_RESULTS": "Geen resultaten"
 }

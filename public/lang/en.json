@@ -77,5 +77,14 @@
 	"VIEW": "View",
 	"REFERENCED_PUBLICATIONS": "Referenced publications",
 	"UPLOADED_BY": "Uploaded by",
-	"YEAR_OF_PUBLISHING": "Year of publishing"
+	"YEAR_OF_PUBLISHING": "Year of publishing",
+	"SEARCH_A_PUBLICATION": "Search a publication",
+	"KEYWORD": "Keyword",
+	"AUTHOR": "Author",
+	"CONFERENCE": "Conference",
+	"SEARCH": "Search",
+	"SEARCH_ON": "Search on",
+	"SEARCH_THE_WEB": "Search the web",
+	"RESULTS": "Results",
+	"NO_RESULTS": "No results"
 }

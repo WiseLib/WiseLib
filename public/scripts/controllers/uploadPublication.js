@@ -6,8 +6,8 @@ module.controller('uploadPublicationController', function($scope, fetcher, $wind
     var user = JSON.parse(atob(token.split('.')[1]));
 
     $translate('UPLOAD_PUBLICATION').then(function(translated) {
-    Page.setTitle(translated);
-  });
+        Page.setTitle(translated);
+    });
     $scope.authors = [];
     $scope.chooseAuthor = [];
     $scope.newAuthors =[];
