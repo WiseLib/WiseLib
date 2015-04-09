@@ -48,6 +48,13 @@ angular.module('client', ['ngMaterial', 'ngRoute','publication', 'ngResource', '
     .otherwise({redirectTo: '/'});
 }])
 
+.config(function($sceDelegateProvider) {
+    $sceDelegateProvider.resourceUrlWhitelist([
+    // Allow same origin resource loads.
+    '**'
+  ]);
+})
+
 .config(function ($httpProvider) {
     $httpProvider.interceptors.push('TokenInterceptor');
 })

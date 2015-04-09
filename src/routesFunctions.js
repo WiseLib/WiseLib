@@ -138,7 +138,7 @@ module.exports = {
 		getMultiple(req, res, linker.personRepr, 'persons');
 	},
 
-	getPerson :function(req, res) {
+	getPerson: function(req, res) {
 		getSingle(req, res, linker.personRepr);
 	},
 
