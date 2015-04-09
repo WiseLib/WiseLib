@@ -100,7 +100,7 @@
     <input id="proceeding" type="text" ng-model="searchproceeding.q">
 </md-input-container>
 <ul class="choices">
-    <li ng-click="chooseProceeding(possibleProceeding)" ng-repeat="possibleProceeding in fetcher.fetchProceedings(searchproceeding)">
+    <li ng-click="chooseProceeding(possibleProceeding)" ng-repeat="possibleProceeding in fetcher.fetchProceedings(searchproceeding)|limitTo:5">
         <proceedingmin proceeding="possibleProceeding"></proceedingmin>
     </li>
 </ul>

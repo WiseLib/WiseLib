@@ -53,8 +53,9 @@
     "bibtex-parse-js": "0.0.19",
     "knex": "~0.7.6",
     "pdf-extract": "~1.0.8",
-    "mysql": "~2.6.1",
-    "bookshelf": "~0.7.9"
+    "bookshelf": "~0.7.9",
+    "bluebird": "~2.9.16",
+    "mysql": "~2.6.1"
   },
   "devDependencies": {
     "gulp": "^3.8.11",

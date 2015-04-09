@@ -1,5 +1,5 @@
 'use strict';
-var module = angular.module('publication');
+var module = angular.module('publication',['communication', 'proceeding', 'ngMaterial']);
 
 module.controller('publicationController', function($scope, $window, $routeParams, Page, Publication, Person, User) {
     Page.setTitle('Publication');
