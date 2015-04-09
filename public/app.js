@@ -29,6 +29,10 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
         templateUrl: 'views/loginUser.html',
         controller: 'loginUserController'
     })
+    .when('/search', {
+        templateUrl: 'views/search.html', 
+        controller: 'searchPublicationController'
+    })
     .when('/mypublications', {
         templateUrl: 'views/myPublications.html',
         controller: 'myPublicationsController'

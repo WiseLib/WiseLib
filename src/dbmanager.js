@@ -1,6 +1,7 @@
 'use strict';
 var linker = require('./linker.js');
 var _ = require('lodash');
+var Promise = require('bluebird');
 /**
  * The Database manager. This manager communicates with the database via a config object.
  * For each class of the core module, the database has methods to get/put/post/delete objects of the core module.
@@ -15,74 +16,84 @@ var _ = require('lodash');
 var DBManager = function() {};
 
 DBManager.prototype.post = function(jsonObj, classObj, next) {
-    var toPost = classObj.format(jsonObj);
-    new classObj.model(toPost).save({}, {method: 'insert'}).then(function(model) {
-        var id = {};
-        id[model.idAttribute] = model.id;
-        var relations = new classObj.model(id);
-        var queryRelations = classObj.formatRelations(jsonObj);
-        for(var i in queryRelations) {
-            relations.related(i).set(queryRelations[i].attributes);
+    var dbManager = this;
+    var postSubclass = function(superId) {
+        if(superId !== undefined) {
+            jsonObj[classObj.id.name] = superId;
         }
-        relations.save({}, {method: 'update'}).then(function(m) {
-            var convertedResult = classObj.parse(m.toJSON());
-            next(m.id);
+        var toPost = classObj.toModel(jsonObj);
+        toPost.save({}, {method: 'insert'}).then(function(model) {
+            jsonObj[classObj.id.name] = model.id;
+            dbManager.put(jsonObj, classObj, next);
         });
-    });
+    };
+    if(classObj.super !== undefined) {
+        this.post(jsonObj, classObj.super, postSubclass);
+    }
+    else {
+        postSubclass();
+    }
+    
 };
 
 DBManager.prototype.get = function(jsonObj, classObj, next) {
-    var queryParams = classObj.format(jsonObj);
-    var queryRelations = classObj.formatRelations(jsonObj);
-    //first fetch all based on given attributes (such as title, year, id)
-    classObj.model.where(queryParams).fetchAll({withRelated: classObj.relations}).then(function(results) {
-        //then, filter on given relations (such as authors, uploader)
-        var filtered = [];
-        //loop through all the fetched results
-        for(var result in results.models) {
-            var add = true;
-            //for each result, see if it contains the given relation
-            //loop through all given relations
-            for(var relation in queryRelations) {
-                //get tuples of current relation of current result
-                var models = results.models[result].related(relation);
-                //tuples must contain all values of current relation
-                //belongsToMany relations
-                if(queryRelations[relation].constructor === Array) {
-                    _.forEach(queryRelations[relation], function(id) {
-                        var model = models.get(id);
-                        if(model === undefined) {
-                            add = false;
-                        }
-                    });
-                }
-                //belongsTo relations
-                else {
-                    add = add && (models.id == queryRelations[relation]);
-                }
+    //fetch all based on given attributes (such as title, year, id)/relations (authors, parent)
+    if(classObj.super !== undefined) {
+        classObj.super.toQuery(jsonObj).fetchAll({withRelated: classObj.super.relations}).then(function(results) {
+            var queries = [];
+            var parsed = [];
+            for(var res in results.models) {
+                var id = {};
+                id[classObj.id.fieldName] = results.models[res].id;
+                queries.push(classObj.model.where(id).fetch({withRelated: classObj.relations}).then(function(sub) {
+                    if(sub !== null) {
+                        var sup = classObj.super.parse(results.get(sub.id).toJSON());
+                        var par = classObj.parse(sub.toJSON());
+                        parsed.push(_.merge(sup, par));
+                    }
+                }));
             }
-            if (add) {
-                filtered.push(classObj.parse(results.models[result].toJSON()));
-            }
-        }
-        next(filtered);
-    });
+            Promise.all(queries).then(function() {
+                next(parsed);
+            });
+        });
+    }
+    else {
+        classObj.toQuery(jsonObj).fetchAll({withRelated: classObj.relations}).then(function(results) {
+            var parsed = _.map(results.models, function(model) {
+                return classObj.parse(model.toJSON());
+            });
+            next(parsed);
+        });
+    }
 };
 
 //id is required, maybe check in event 'updating' (see bookshelf.js)
 DBManager.prototype.put = function(jsonObj, classObj, next) {
+    var dbManager = this;
     var toSave = classObj.toModel(jsonObj);
     toSave.save({}, {method: 'update'}).then(function(model) {
-        var convertedResult = classObj.parse(model.toJSON());
-        next(convertedResult.id);
+        if(classObj.super !== undefined) {
+            dbManager.put(jsonObj, classObj.super, next);
+        }
+        else {
+            var convertedResult = classObj.parse(model.toJSON());
+            next(convertedResult.id);
+        }
     });
 };
 
 //id is required, maybe check in event 'destroying' (see bookshelf.js)
 DBManager.prototype.delete = function(jsonObj, classObj, next) {
+    var dbManager = this;
     var toDelete = classObj.toModel(jsonObj);
     toDelete.destroy().then(function(model) {
-        next();
+        if(classObj.super !== undefined) {
+            dbManager.delete(jsonObj, classObj.super, next);
+        }
+        else {
+            next();
+        }
     });
 };
 

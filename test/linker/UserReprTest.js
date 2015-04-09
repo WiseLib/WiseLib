@@ -24,6 +24,16 @@ describe('User Representation test', function() {
 		password:'password',
 		person:{id:1}
 	}];
+	var search= {};
+	search[linker.searchKey] = 'Convert Word';
+	var expected = [{
+		key:'email_address',
+		value:'%Convert%'
+	},
+	{
+		key:'email_address',
+		value:'%Word%'
+	}];
 
 	it('should convert the JSON representation', function() {
 		for(var repr in jsonRepresentations) {
@@ -40,5 +50,9 @@ describe('User Representation test', function() {
 			var converted = linker.userRepr.parse(dbReprWithRelations[repr]);
 			_.isEqual(converted, jsonRepresentations[repr]).should.be.true;
 		}
+	});
+	it('should convert search-string', function() {
+		var converted = linker.userRepr.formatSearch(search);
+		_.isEqual(expected, converted).should.be.true;
 	});
 });

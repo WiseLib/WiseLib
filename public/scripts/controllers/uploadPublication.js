@@ -1,5 +1,5 @@
 'use strict';
-var module = angular.module('publication', ['communication']);
+var module = angular.module('publication');
 
 module.controller('uploadPublicationController', function($scope, fetcher, $window, $http, $translate, Page, $mdToast, Person) {
     var token = $window.sessionStorage.token;
@@ -18,11 +18,11 @@ module.controller('uploadPublicationController', function($scope, fetcher, $wind
 
     $scope.chooseJournal = function(jour){
         $scope.journal = jour;
-    };
+    }
 
     $scope.chooseProceeding = function(proc){
         $scope.proceeding = proc;
-    };
+    }
 
     $scope.add = function (array, element) {
         if (array.indexOf(element) === -1) {
@@ -47,20 +47,25 @@ module.controller('uploadPublicationController', function($scope, fetcher, $wind
     };
 
     $scope.uploadpdf = function(files){
+
         var fd = new FormData();
-        fd.append('file', files[0]);
+        fd.append("file", files[0]);
 
         $http.post('uploadfile', fd, {
             withCredentials: true,
             headers: {'Content-Type': undefined },
             transformRequest: angular.identity
         }).
-        success(function(data) {
+        success(function(data, status, headers, config) {
+
             $scope.localfile = true;
+
             $scope.title = data.title;
             $scope.numberOfPages=data.numberofpages;
             $scope.url = data.path;
+
             $scope.authors = [user.person];
+
             var index;
             for (index = 0; index < data.authors.length; ++index) {
 
@@ -81,31 +86,32 @@ module.controller('uploadPublicationController', function($scope, fetcher, $wind
                         else {
                             $scope.add($scope.chooseAuthor,foundPersons);
                         }
-                    }, function(error) {
+                    }, function(error) {});
                         console.log(error);
                     });
                 }(firstName,lastName));
-            }
+
+            }   
         }).
-error(function() {
+error(function(data, status, headers, config) {
     $translate('UPLOADED_FILE_NOT_PDF').then(function(translated) {
         $scope.showSimpleToast(translated);
     });
 });
 
-};
+}
 
 $scope.uploadbibtex = function(files){
 
     var fd = new FormData();
-    fd.append('file', files[0]);
+    fd.append("file", files[0]);
 
     $http.post('uploadfile', fd, {
         withCredentials: true,
         headers: {'Content-Type': undefined },
         transformRequest: angular.identity
     }).
-    success(function(data) {
+    success(function(data, status, headers, config) {
 
         var index;
         $scope.JSONreferences=[];
@@ -116,10 +122,11 @@ $scope.uploadbibtex = function(files){
 
             var title = reference.entryTags.title;
             $scope.add($scope.references,title);
-        }
+        }   
+
 
     }).
-    error(function() {
+    error(function(data, status, headers, config) {
         $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
             $scope.showSimpleToast(translated);
         });
@@ -128,16 +135,19 @@ $scope.uploadbibtex = function(files){
 };
 
 $scope.post = function () {
+
     function upload(){
         console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
        /*  $http.post('users/'+user.id+'/publications.json', toPost)
         .success(function(data, status, headers, config) {
-            $location.path('/mypublications')
+            $location.path('/mypublications') 
         })
         .error(function(data, status, headers, config) {
-            $scope.showSimpleToast('Something went wrong:' + status);
+            $scope.showSimpleToast("Something went wrong:" + status);
         });*/
 }
+
+
 
 var toPost = {};
 toPost.title = $scope.title;
@@ -165,8 +175,11 @@ var authArray = new Array($scope.authors.length);
         authArray[0] = {id: $scope.authors[0].id};//Uploader
         if($scope.authors.length = 1) {upload();return;} //no other co authors
         for (var i = 1; i < $scope.authors.length; i++) {//add co authors (id) to list
+
             var author = $scope.authors[i];
+
             if(author.status){//person not in database
+
                 var affiliation;
                 $translate('ENTER_AFFILIATION_FOR').then(function(translated) {
                     affiliation = prompt(translated + ' ' + author.firstName + ' ' + author.lastName);
@@ -175,22 +188,27 @@ var authArray = new Array($scope.authors.length);
 
                 (function(index){
                     newPerson.$save(function (data){//create new person on server
-                     authArray[index]= {id: data.personId};
+                       authArray[index]= {id: data.personId};
 
-                     if(index === $scope.authors.length) {
+                       if(index = $scope.authors.length){
                         toPost.authors = authArray;
                         upload();//on success and last author, start the upload
                         return;}
 
-                    },function(){//error from server
+                    },function(data){//error from server
                         $translate('COULD_NOT_ADD_PERSON').then(function(translated) {
                             $scope.showSimpleToast(translated + ': ' + author.firstName + ' ' + author.lastName + status);
                         });
                         return;
-                    });
-                }(i));
+                    })
+                    
+                }(i))
+
             }
+
             authArray[i] = {id: author.id};
         }
+        
+        
     };
 });

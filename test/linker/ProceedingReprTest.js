@@ -36,6 +36,16 @@ describe('Proceeding Representation test', function() {
 		name:'Non-existing Proceeding',
 		disciplines:[]
 	}];
+	var search= {};
+	search[linker.searchKey] = 'Convert Word';
+	var expected = [{
+		key:'name',
+		value:'%Convert%'
+	},
+	{
+		key:'name',
+		value:'%Word%'
+	}];
 
 	it('should convert the JSON representation', function() {
 		for(var repr in jsonRepresentations) {
@@ -52,5 +62,9 @@ describe('Proceeding Representation test', function() {
 			var converted = linker.proceedingRepr.parse(dbReprWithRelations[repr]);
 			_.isEqual(converted, jsonRepresentations[repr]).should.be.true;
 		}
+	});
+	it('should convert search-string', function() {
+		var converted = linker.proceedingRepr.formatSearch(search);
+		_.isEqual(expected, converted).should.be.true;
 	});
 });
