@@ -61,8 +61,8 @@ var configuration = require('../../config.json')
  	});
 
  	var response =  new User.fakeresponse();
-	var request2 = new User.fakerequest({email:'mail@mail.com',password:'password',person:false});//person does not already exist
-	var request = new User.fakerequest('mail@mail.com','password',4);//person exists with id '4'
+	var request2 = new User.fakerequest('mail.com','password',false);//person does not already exist
+	var request = new User.fakerequest('mail.com','password',9000);//person exists with id '4'
 
 	describe('Create user', function(){
 		it('should create user without error', function(done){
@@ -84,13 +84,13 @@ var configuration = require('../../config.json')
 	describe('Test database',function(){
 		it('should contain new user',function(done){
 
-			var query = 'SELECT * FROM user WHERE email_address LIKE ' + request.body.email + ';';
+			var query = 'SELECT * FROM user WHERE email_address LIKE "' + request.body.email + '";';
 			c.query(query)
 			.on('result', function (res) {
 
 				res.on('row',function(row){
 
-					row.should.have.property('email_address', 'mail@mail.com');
+					row.should.have.property('email_address', 'mail.com');
 					row.should.have.property('password','password');
 					if(request.personId) {row.should.have.property('person_id',request.personId.toString());}
 					else{request.personId = row.person_id};

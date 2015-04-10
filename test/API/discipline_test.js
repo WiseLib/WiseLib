@@ -5,20 +5,26 @@
  * @return {object} response - A faked response
  */
 
-function fakeresponse(){
+function fakeresponse() {
 
 	var result;
 
-	var done = function(){};
+	var done = function() {};
 
-	this.status= function(stat){return this;};
+	this.status = function(stat) {
+		return this;
+	};
 
-	this.json = function(jsonanswer){
-		result = jsonanswer.disciplines.splice(0);
+	this.json = function(jsonanswer) {
+		if (jsonanswer.disciplines !== undefined) //result of getMultiple
+			result = jsonanswer.disciplines.splice(0);
+		else result = jsonanswer;
 		this.done();
 	};
 
-	this.result = function(){return result;};
+	this.result = function() {
+		return result;
+	};
 }
 
 
@@ -28,12 +34,13 @@ function fakeresponse(){
  * @param  {object} query - the query should be either empty or have an id field
  * @return {object} request - a faked request
  */
-function fakerequest(Query){
+function fakerequest(Query) {
 
-	this.Query= Query;
 
-	this.query = this.Query;
+	this.query = Query;
+
+	this.params = Query;
 }
 
-exports.fakeresponse=fakeresponse;
-exports.fakerequest =fakerequest;
+exports.fakeresponse = fakeresponse;
+exports.fakerequest = fakerequest;

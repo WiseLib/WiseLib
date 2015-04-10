@@ -3,128 +3,164 @@ var should = require('should');
 var DBManager = require('../../src/dbmanager.js');
 var Discipline = require('../../src/discipline.js');
 var linker = require('../../src/linker.js');
-var config = require('../../config.json');
 
 /**
- * This checks the discipline related methods defined in the dbmanager. Since every post method has an opposite delete, the database should remain clean
+ * This checks the discipline related linker representation with the methods defined in the dbmanager. Since every post method has an opposite delete,
+ * the database should remain clean
  * @test
  */
 
- describe('DbManager tests',function(){
+describe('DbManager tests', function() {
 
-	var dbmanager = new DBManager(config.database);//DBManger(host,database)
-
-//getDiscipline method test
-describe('getDisciplines method test',function(){
-	var result;
-	describe('Retrieve all disciplines',function(){
-		describe('Call method',function(){
-			it('should execute without error',function(done){
-				dbmanager.get({},linker.disciplineRepr,function(res){result= res;done();});
-			});
-		});
-		describe('Analyse result',function(){
-			it('result should hold all disciplines',function(){
-				resultLength = result.length;
-					resultLength.should.be.equal(69);//Known amount of disicplines
-				});
-		});
-	});
-	describe('Retrieve discipline by id',function(){
-		var ID = 1;
-		describe('Call method',function(){
-			it('should execute without error',function(done){
-				dbmanager.get({id: ID},linker.disciplineRepr,function(res){result= res;done();});
-			});
-		});
-		describe('Analyse result',function(){
-			it('result should hold correct discipline',function(){
-				result[0].should.be.an.object;
-				resultLength = result.length;
-				resultLength.should.be.equal(1);
-				result[0].should.have.property('id',ID);
-				result[0].should.have.property('name','Computer Science');
-			});
-		});
-	});
-	describe('Retrieve discipline group by parentID',function(){
-		var parentID = 60;
-		describe('Call method',function(){
-			it('should execute without error',function(done){
-				dbmanager.get({parent: parentID},linker.disciplineRepr,function(res){result= res;done();});
-			});
-		});
-		describe('Analyse result',function(){
-			it('result should hold correct discipline',function(){
-					console.log(result);
-					result.should.be.an.Array;
-					result.forEach(function(disc){
-						disc.should.have.properties('id','name','parent');
-						disc.parent.should.have.property('id',parentID);
+	var dbmanager = DBManager;
+	//getDiscipline method test
+	describe('getDisciplines method test', function() {
+		var result;
+		describe('Retrieve all disciplines', function() {
+			describe('Call method', function() {
+				it('should execute without error', function(done) {
+					dbmanager.get({}, linker.disciplineRepr, function(res) {
+						result = res;
+						done();
 					});
 				});
-		});
-	});
-});
-	//putDiscipline method test
-	describe('putDiscipline method test',function(){
-		var response;
-		var discipline= {id:69,name:"Artificial neural network"};
-		describe('Call method',function(){
-			it('should execute withour error',function(done){
-				dbmanager.put(discipline,linker.disciplineRepr ,function(res) {response = res, done()});
+			});
+			describe('Analyse result', function() {
+				it('result should hold all disciplines', function() {
+					var resultLength = result.length;
+					resultLength.should.be.equal(69); //Known amount of disicplines
+				});
 			});
 		});
-		describe('Check database for updated disicpline',function(){
-			it('discipline should be updated',function(done){
+		describe('Retrieve discipline by id', function() {
+			var ID = 1;
+			describe('Call method', function() {
+				it('should execute without error', function(done) {
+					dbmanager.get({
+						id: ID
+					}, linker.disciplineRepr, function(res) {
+						result = res;
+						done();
+					});
+				});
+			});
+			describe('Analyse result', function() {
+				it('result should hold correct discipline', function() {
+					result[0].should.be.an.object;
+					var resultLength = result.length;
+					resultLength.should.be.equal(1);
+					result[0].should.have.property('id', ID);
+					result[0].should.have.property('name', 'Computer Science');
+				});
+			});
+		});
+		describe('Retrieve discipline group by parentID', function() {
+			var parentID = 60;
+			describe('Call method', function() {
+				it('should execute without error', function(done) {
+					dbmanager.get({
+						parent: parentID
+					}, linker.disciplineRepr, function(res) {
+						result = res;
+						done();
+					});
+				});
+			});
+			describe('Analyse result', function() {
+				it('result should hold correct discipline', function() {
+					result.should.be.an.Array;
+					result.forEach(function(disc) {
+						disc.should.have.properties('id', 'name', 'parent');
+						disc.should.have.property('parent', parentID);
+					});
+				});
+			});
+		});
+	});
+	//putDiscipline method test
+	describe('putDiscipline method test', function() {
+		var response;
+		var discipline = {
+			id: 69,
+			name: "Artificial neural network"
+		};
+		describe('Call method', function() {
+			it('should execute withour error', function(done) {
+				dbmanager.put(discipline, linker.disciplineRepr, function(res) {
+					response = res, done()
+				});
+			});
+		});
+		describe('Check database for updated disicpline', function() {
+			it('discipline should be updated', function(done) {
 				response.should.be.equal(discipline.id);
 				done();
 			});
 		});
 	});
 	//post/deleteDiscipline
-	describe ('Post and Delete discipline test',function(){
+	describe('Post and Delete discipline test', function() {
 		var response = 7;
-		var parentDiscipline = {name: 'TestDiscipline' , parent: '1'};//discipline with parent
-		var discipline = {name:'TestDiscipline' , parentId : 'NULL' }; //discipline without parent
+		var parentDiscipline = {
+			name: 'TestDiscipline',
+			parent: '1'
+		}; //discipline with parent
+		var discipline = {
+			name: 'TestDiscipline',
+			parentId: 'NULL'
+		}; //discipline without parent
 
-		describe('postDiscipline method test',function(){
+		describe('postDiscipline method test', function() {
 
-			describe('Call method',function(){
-				it('should execute withour error',function(done){
-					dbmanager.post(parentDiscipline,linker.disciplineRepr ,function(res) {response = res; done();});
+			describe('Call method', function() {
+				it('should execute withour error', function(done) {
+					dbmanager.post(parentDiscipline, linker.disciplineRepr, function(res) {
+						response = res;
+						done();
+					});
 				});
-				it('query should have succeeded',function(){
-					if(response)
+				it('query should have succeeded', function() {
+					if (response)
 						response.should.be.a.number;
 					else throw new Error("No response");
 				});
 			});
-			describe('Check database for newly added disicpline',function(){
-				if(response){
+			describe('Check database for newly added disicpline', function() {
+				if (response) {
 					var result;
-					it('query should search the new discipline',function(done){
-						dbmanager.get({id: response.toString()},linker.disciplineRepr,function(res){result= res;done();});;
+					it('query should search the new discipline', function(done) {
+						dbmanager.get({
+							id: response.toString()
+						}, linker.disciplineRepr, function(res) {
+							result = res;
+							done();
+						});
 					});
-					it('database should hold the new discipline',function(){
+					it('database should hold the new discipline', function() {
 
-						if(result){
-							result[0].should.have.property('id',response);
-							result[0].should.have.property('name','TestDiscipline');
-						}
-						else{throw new Error("No result")};
+						if (result) {
+							result[0].should.have.property('id', response);
+							result[0].should.have.property('name', 'TestDiscipline');
+						} else {
+							throw new Error("No result")
+						};
 					});
 				}
 			});
 		});
-		describe('deleteDisicipline method test',function(){
+		describe('deleteDisicipline method test', function() {
 
-			it('should now delete the previously added discipline',function(done){
-				dbmanager.delete({id:response},linker.disciplineRepr,function(res){response = res; done();});
+			it('should now delete the previously added discipline', function(done) {
+				dbmanager.delete({
+					id: response
+				}, linker.disciplineRepr, function(res) {
+					response = res;
+					done();
+				});
 			});
 
-			if(response.affectedRows){
-				it('should have deleted without error',function(){
+			if (response.affectedRows) {
+				it('should have deleted without error', function() {
 					response.affectedRows.should.be.equal(1);
 				});
 			}

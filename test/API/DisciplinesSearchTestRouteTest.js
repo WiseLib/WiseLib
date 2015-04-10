@@ -2,7 +2,6 @@
 var should = require('should');
 var discipline = require('./discipline_test.js');
 var server = require('../../src/routesFunctions.js');
-var Client = require('mariasql');
 
 /**
  * This test checks the getDisiciplines route, a function which returns a list, in JSON format, of a disciplines defined in the database.
@@ -45,10 +44,10 @@ describe ('Retrieve list of disciplines from server database',function(){
 			it('should excute without error',function(done){
 
 				response.done = done;
-				var request = new discipline.fakerequest({id: '1'});
+				var request = new discipline.fakerequest({id: 1});
 				try{
 
-					server.getDisciplines(request,response);
+					server.getDiscipline(request,response);
 				}
 				catch(x)
 				{
@@ -60,11 +59,8 @@ describe ('Retrieve list of disciplines from server database',function(){
 			it('should hold correct discipline',function(){
 				var result = response.result();
 				result.should.be.an.object;
-				var resultLength = result.length;
-				resultLength.should.be.greaterThan(0);
-				resultLength.should.be.equal(1);
-				result[0].should.have.property('id',1);
-				result[0].should.have.property('name','Computer Science');
+				result.should.have.property('id',1);
+				result.should.have.property('name','Computer Science');
 			});
 		});
 	});

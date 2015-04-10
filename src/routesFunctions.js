@@ -53,7 +53,7 @@ var getSingle = function(req, res, repr, fct) {
 //need to add authentification options
 var postSingle = function(req, res, repr) {
 	DBManager.post(req.body, repr, function(id) {
-		res.status(200).end();
+		res.status(200).json(id);
 	});
 };
 //need to add authentification options
@@ -79,7 +79,7 @@ var splitInArray = function(param) {
 
 module.exports = {
 
-	getDisciplines: function(req, res) {
+	getDisciplines: function(req, res) {//tested
 		if(req.query.journals !== undefined) {
 			req.query.journals = splitInArray(req.query.journals);
 		}
@@ -89,22 +89,22 @@ module.exports = {
 		getMultiple(req, res, linker.disciplineRepr, 'disciplines');
 	},
 
-	getDiscipline : function(req, res) {
+	getDiscipline : function(req, res) {//tested
 		getSingle(req, res, linker.disciplineRepr);
 	},
 
-	getJournals :function(req, res) {
+	getJournals :function(req, res) {//tested
 		if(req.query.disciplines !== undefined) {
 			req.query.disciplines = splitInArray(req.query.disciplines);
 		}
 		getMultiple(req, res, linker.journalRepr, 'journals');
 	},
 
-	getJournal: function(req, res) {
+	getJournal: function(req, res) {//tested
 		getSingle(req, res, linker.journalRepr);
 	},
 
-	getJournalDisciplines: function(req, res) {
+	getJournalDisciplines: function(req, res) {//tested
 		req.query.journals = [{id:req.params.id}];
 		if(req.query.proceedings !== undefined) {
 			req.query.proceedings = splitInArray(req.query.proceedings);
@@ -112,18 +112,18 @@ module.exports = {
 		getMultiple(req, res, linker.disciplineRepr, 'disciplines');
 	},
 
-	getProceedings: function(req, res) {
+	getProceedings: function(req, res) {//tested
 		if(req.query.disciplines !== undefined) {
 			req.query.disciplines = splitInArray(req.query.disciplines);
 		}
 		getMultiple(req, res, linker.proceedingRepr, 'proceedings');
 	},
 
-	getProceeding: function(req, res) {
+	getProceeding: function(req, res) {//tested
 		getSingle(req, res, linker.proceedingRepr);
 	},
 
-	getProceedingDisciplines :function(req, res) {
+	getProceedingDisciplines :function(req, res) {//tested
 		req.query.proceedings = [{id:req.params.id}];
 		if(req.query.journals !== undefined) {
 			req.query.journals = splitInArray(req.query.journals);
@@ -131,18 +131,18 @@ module.exports = {
 		getMultiple(req, res, linker.disciplineRepr, 'disciplines');
 	},
 
-	getPersons: function(req, res) {
+	getPersons: function(req, res) {//tested
 		if(req.query.publications !== undefined) {
 			req.query.publications = splitInArray(req.query.publications);
 		}
 		getMultiple(req, res, linker.personRepr, 'persons');
 	},
 
-	getPerson: function(req, res) {
+	getPerson: function(req, res) {//tested
 		getSingle(req, res, linker.personRepr);
 	},
 
-	getPersonPublications: function(req, res) {
+	getPersonPublications: function(req, res) {//tested
 		req.query.authors = [{id:req.params.id}];
 		getMultiple(req, res, linker.publicationRepr, 'publications');
 	},
@@ -155,7 +155,7 @@ module.exports = {
 		putSingle(req, res, linker.personRepr);
 	},
 
-	getUser: function(req, res) {
+	getUser: function(req, res) {//tested
 		getSingle(req, res, linker.userRepr);
 	},
 
@@ -170,7 +170,7 @@ module.exports = {
 		putSingle(req, res, linker.userRepr);
 	},
 
-	getPublications :function(req, res) {
+	getPublications :function(req, res) {//tested
 		if(req.query.authors !== undefined) {
 			req.query.authors = splitInArray(req.query.authors);
 		}
@@ -183,7 +183,7 @@ module.exports = {
 		});
 	},
 
-	getPublication: function(req, res) {
+	getPublication: function(req, res) {//tested
 		getSingle(req, res, linker.journalPublicationRepr, function(jp) {
 			if(jp[0] === undefined) {
 				getSingle(req, res, linker.proceedingPublicationRepr);
@@ -201,7 +201,7 @@ module.exports = {
 		res.status(501).end();
 	},
 
-	getPublicationAuthors: function(req, res) {
+	getPublicationAuthors: function(req, res) {//tested
 		req.query.publications = [{id:req.params.id}];
 		getMultiple(req, res, linker.personRepr, 'persons');
 	},

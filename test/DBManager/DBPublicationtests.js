@@ -1,6 +1,6 @@
 var should = require('should');
 var DBManager = require('../../src/dbmanager.js');
-var linker = require('../../src/linker.js')
+var linker = require('../../src/linker.js');
 var config = require('../../config.json');
 /**
  * This checks the Publication related methods defined in the dbmanager. Since every post method has an opposite delete, the database should remain clean
@@ -8,7 +8,7 @@ var config = require('../../config.json');
  */
  describe('DbManager tests',function(){
 
-	var dbmanager = new DBManager(config.database);//DBManger(host,database)
+	var dbmanager = DBManager;
 
 	describe('getPublication',function(){
 		var result;
@@ -69,7 +69,7 @@ var config = require('../../config.json');
 			describe('Analyse result',function(){
 				it('result should hold correct publications',function(){
 					resultLength = result.length;
-					resultLength.should.be.equal(13);
+					resultLength.should.be.equal(5);
 					result[0].should.have.property('id',2);
 					result[0].should.have.property('title','test');
 					result[0].should.have.property('uploader',172);

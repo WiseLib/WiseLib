@@ -7,12 +7,12 @@
  function fakeresponse(){
 
  	var done = function(){};
- 	this.status = this;
+ 	this.status = function(){return this;}
 
- 	this.id;
+ 	this.result;
 
- 	this.json = function(id){
- 		this.id = id;
+ 	this.json = function(json){
+ 		this.result = json;
 		//console.log(id);
 		this.done();
 	};
@@ -32,7 +32,6 @@
  		email:mail,
  		password:password,
  		person:id,
- 		profileImageSrc:null
  	};
 
  }

@@ -92,7 +92,7 @@ DBManager.prototype.delete = function(jsonObj, classObj, next) {
             dbManager.delete(jsonObj, classObj.super, next);
         }
         else {
-            next();
+            next(model);
         }
     });
 };
