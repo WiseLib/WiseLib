@@ -3,8 +3,9 @@ var bibtexParse = require('bibtex-parse-js');
 var fs = require('fs');
 
 function bibtexToJSON(bibtexText,succes){
-    var bibJSON = bibtexParse.toJSON(bibtexText);
-    //console.log(bibJSON);
+    var lowerBibTex = bibtexText.toLowerCase();
+    var bibJSON = bibtexParse.toJSON(lowerBibTex);
+    console.log(bibJSON);
     succes(bibJSON);
 }
 

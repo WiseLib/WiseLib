@@ -1,9 +1,12 @@
 'use strict';
-var module = angular.module('publication', []);
+var module = angular.module('publication');
 
-module.controller('uploadPublicationController', function ($scope,$window,$http, Page,$mdToast,Person) {
+module.controller('uploadPublicationController', function ($scope,$window,$http, fetcher, Page,$mdToast,Person) {
+
+
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
+
 
     Page.setTitle('Upload publication');
     $scope.authors = [];
@@ -12,14 +15,15 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
     $scope.disciplines = [];
     $scope.references = [];
     $scope.JSONreferences = [];
+    $scope.fetcher = fetcher;
 
     $scope.chooseJournal = function(jour){
         $scope.journal = jour;
-    };
+    }
 
     $scope.chooseProceeding = function(proc){
         $scope.proceeding = proc;
-    };
+    }
 
     $scope.add = function (array, element) {
         if (array.indexOf(element) === -1) {
@@ -44,20 +48,25 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
     };
 
     $scope.uploadpdf = function(files){
+
         var fd = new FormData();
-        fd.append('file', files[0]);
+        fd.append("file", files[0]);
 
         $http.post('uploadfile', fd, {
             withCredentials: true,
             headers: {'Content-Type': undefined },
             transformRequest: angular.identity
         }).
-        success(function(data) {
+        success(function(data, status, headers, config) {
+
             $scope.localfile = true;
+
             $scope.title = data.title;
             $scope.numberOfPages=data.numberofpages;
             $scope.url = data.path;
+
             $scope.authors = [user.person];
+
             var index;
             for (index = 0; index < data.authors.length; ++index) {
 
@@ -70,35 +79,35 @@ module.controller('uploadPublicationController', function ($scope,$window,$http,
                     Person.query({firstName: firstName, lastName: lastName}, function(response) {
                         foundPersons = {firstName:firstName,lastName:lastName,authorList:response.persons};
                         if (response.persons.length<1) {//response is empty if person does not exist on server
-                            foundPersons.status= '(Will be added to database)';
+                            foundPersons.status= "(Will be added to database)";
                             $scope.add($scope.authors,foundPersons);
                         }
                         else {
                             $scope.add($scope.chooseAuthor,foundPersons);
                         }
-                    }, function(error) {
-
-                    });
+                    }, function(error) {});
                 }(firstName,lastName));
+
             }
+
         }).
-error(function() {
-    $scope.showSimpleToast('Not a pdf');
+error(function(data, status, headers, config) {
+    $scope.showSimpleToast("Not a pdf");
 });
 
-};
+}
 
 $scope.uploadbibtex = function(files){
 
     var fd = new FormData();
-    fd.append('file', files[0]);
+    fd.append("file", files[0]);
 
     $http.post('uploadfile', fd, {
         withCredentials: true,
         headers: {'Content-Type': undefined },
         transformRequest: angular.identity
     }).
-    success(function(data) {
+    success(function(data, status, headers, config) {
 
         var index;
         $scope.JSONreferences=[];
@@ -111,24 +120,29 @@ $scope.uploadbibtex = function(files){
             $scope.add($scope.references,title);
         }
 
+
     }).
-    error(function() {
-        $scope.showSimpleToast('Not a bibtex');
+    error(function(data, status, headers, config) {
+        $scope.showSimpleToast("Not a bibtex");
     });
 
-};
+}
+
 
 $scope.post = function () {
-    function upload(){
+
+    //function upload(){
         console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
        /*  $http.post('users/'+user.id+'/publications.json', toPost)
         .success(function(data, status, headers, config) {
             $location.path('/mypublications')
         })
         .error(function(data, status, headers, config) {
-            $scope.showSimpleToast('Something went wrong:' + status);
+            $scope.showSimpleToast("Something went wrong:" + status);
         });*/
 }
+
+
 
 var toPost = {};
 toPost.title = $scope.title;
@@ -150,33 +164,43 @@ else {
     toPost.city = $scope.city;
 }
 
+
 toPost.uploader = user.id;
+
 
 var authArray = new Array($scope.authors.length);
         authArray[0] = {id: $scope.authors[0].id};//Uploader
         if($scope.authors.length = 1) {upload();return;} //no other co authors
         for (var i = 1; i < $scope.authors.length; i++) {//add co authors (id) to list
+
             var author = $scope.authors[i];
+
             if(author.status){//person not in database
-                var affiliation = prompt('Enter the affiliation for ' + author.firstName + ' ' + author.lastName);
+
+                var affiliation = prompt("Enter the affiliation for " + author.firstName + " " + author.lastName)
                 var newPerson = new Person({firstName: author.firstName, lastName:author.lastName});
 
                 (function(index){
                     newPerson.$save(function (data){//create new person on server
-                     authArray[index]= {id: data.personId};
+                       authArray[index]= {id: data.personId};
 
-                     if(index === $scope.authors.length) {
+                       if(index = $scope.authors.length){
                         toPost.authors = authArray;
                         upload();//on success and last author, start the upload
                         return;}
 
-                    },function(){//error from server
-                        $scope.showSimpleToast('Could not add person: ' + author.firstName + ' ' + author.lastName + status);
+                    },function(data){//error from server
+                        $scope.showSimpleToast("Could not add person: " + author.firstName + " " + author.lastName + status);
                         return;
-                    });
-                }(i));
+                    })
+
+                }(i))
+
             }
+
             authArray[i] = {id: author.id};
         }
+
+
     };
 });

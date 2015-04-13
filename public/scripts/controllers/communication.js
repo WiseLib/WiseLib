@@ -53,28 +53,25 @@ angular.module('communication', [])
             return fetchForClass('Person', params).persons;}
         };
 
-    var fetchProceedings = function (params) {
-        if(params){
-        if (classesParams.Proceeding !== JSON.stringify(params)) {
-            classesParams.Proceeding = params;
-        }
-        var proceeding=  fetchForClass('Proceeding', params);
-        return proceeding.proceedings;
-    }
-    };
+        var fetchProceedings = function (params) {
+            if(params){
+                params= {q:params.name};
+                var proceeding=  fetchForClass('Proceeding', params);
+                return proceeding.proceedings;
+            }
+        };
 
-    var fetchJournals = function (params) {
-        if(params && params.name !== ''){
-            params= {name:params.name};
-            var journals = fetchForClass('Journal', params);
-        return journals.journals;
-        }
-    };
-
-    return {
-        fetchDisciplines : fetchDisciplines,
-        fetchPersons : fetchPersons,
-        fetchProceedings : fetchProceedings,
-        fetchJournals : fetchJournals
-    };
-}]);
+        var fetchJournals = function (params) {
+            if(params){
+                params= {q:params.name};
+                var journals = fetchForClass('Journal', params);
+                return journals.journals;
+            }
+        };
+        return {
+            fetchDisciplines : fetchDisciplines,
+            fetchPersons : fetchPersons,
+            fetchProceedings : fetchProceedings,
+            fetchJournals : fetchJournals
+        };
+    }]);

@@ -14,6 +14,7 @@
  var linker = require('./linker.js');
  var imageSaver = require('./imagesaver.js');
  var filehandler = require('./filehandler.js');
+ var references = require('./references.js');
 
  //For login
  var jwt = require('jsonwebtoken');
@@ -24,22 +25,31 @@ var splitSign = '|';
 //need to add authentification options
 var getMultiple = function(req, res, repr, name) {
 	var params = req.query;
-	DBManager.get(params, repr, function(results) {
-		var result={};
-		result[name]= results;
-		res.json(result);
-	});
+	if(typeof name === 'string') {
+		DBManager.get(params, repr, function(results) {
+			var result={};
+			result[name]= results;
+			res.json(result);
+		});
+	}
+	else {
+		DBManager.get(params, repr, name);
+	}
+
 };
 //need to add authentification options
-var getSingle = function(req, res, repr) {
-	DBManager.get({id: req.params.id}, repr, function(results) {
-		if(results[0] === undefined) {
-			res.status(404).end();
-		}
-		else {
-			res.json(results[0]);
-		}
-	});
+var getSingle = function(req, res, repr, fct) {
+	if(fct === undefined) {
+		fct = function(results) {
+			if(results[0] === undefined) {
+				res.status(404).end();
+			}
+			else {
+				res.json(results[0]);
+			}
+		};
+	}
+	DBManager.get({id: req.params.id}, repr, fct);
 };
 //need to add authentification options
 var postSingle = function(req, res, repr) {
@@ -129,7 +139,7 @@ module.exports = {
 		getMultiple(req, res, linker.personRepr, 'persons');
 	},
 
-	getPerson :function(req, res) {
+	getPerson: function(req, res) {
 		getSingle(req, res, linker.personRepr);
 	},
 
@@ -165,17 +175,34 @@ module.exports = {
 		if(req.query.authors !== undefined) {
 			req.query.authors = splitInArray(req.query.authors);
 		}
-		getMultiple(req, res, linker.publicationRepr, 'publications');
+		getMultiple(req, res, linker.journalPublicationRepr, function(jp) {
+			getMultiple(req, res, linker.proceedingPublicationRepr, function(pp) {
+				var result={};
+				result['publications']= jp.concat(pp);
+				res.json(result);
+			});
+		});
 	},
 
 	getPublication: function(req, res) {
-		getSingle(req, res, linker.publicationRepr);
+		getSingle(req, res, linker.journalPublicationRepr, function(jp) {
+			if(jp[0] === undefined) {
+				getSingle(req, res, linker.proceedingPublicationRepr);
+			}
+			else {
+				res.json(jp[0]);
+			}
+		});
 	},
 	deletePublication: function(req, res) {
 		deleteSingle(req, res, linker.publicationRepr);
 	},
 
 	postPublication :function(req, res) {
+        var refArray = references.link(req);
+        for(var x in refArray){
+            req.referencedPublications.push({referenced_id: x});
+        }
 		res.status(501).end();
 	},
 
