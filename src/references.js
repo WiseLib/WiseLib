@@ -1,54 +1,63 @@
+var DBManager = require('./dbmanager.js');
+var linker = require('./linker.js');
+
 function link(req,res){
-    console.log("linker" + req);
     var references = req.references;
     var resultId = [];
     //Alle references moeten afgegaan worden en gezocht worden in de database
     for(index = 0; index < references.length; index++){
         var reference = references[index];
         var pubId = searchDB(reference);
-        resultId.push(pubId);
+        console.log('Index = ' + pubId);
+        req.references[index] = pubId;
     }
-    return resultId;
+    return req;
 }
 
 function searchDB(reference){
-    var title =  reference.entryTag.title;
-    var authorNames = getAuthorNames(reference);
     var authors = getAuthorNames(reference);
+    console.log(authors.names);
     var DbJson = bibToDb(reference);
-    var result = DBManager.get({title: title}, publicationRepr, function(results){
-        if(data.length < 1){
-            var newId;
-            //post publication with unknown person
-            DBManager.post(DbJson, publicationRepr, function(id){
-                newId = id;
-            })
+    console.log(JSON.stringify(DbJson));
+    var result = DBManager.get({title: DbJson.title}, linker.publicationRepr, function(id){
+        console.log(results);
 
-            //TODO publication_with_unknown_person tabel vullen met de nieuwe publication
-
-             for(index = 0; index < authorNames.length(); index++){
-                 var data = {publication_id: newId,
-                             author_first_name: authorNames[index].firstName,
-                             author_last_name: authorNames[index].lastName}
-                  DBManager.post(data, unknownPersonPublicationRepr, function(id){})
-               }
-
-               return newId;
-
-        }
-        if(data.length = 1){
+        if(results.length = 1){
+            console.log("KNOWN PUBLICATION");
             return results.id;
         }
         //TODO what if more then 1 title comes up??
-    });
+    })
+    if(result == null){
+        console.log("UNKNOWN PUBLICATION");
+        var newId;
+        //post publication with unknown person
+        DBManager.post(DbJson, linker.publicationRepr, function(id){
+            newId = id;
+            console.log("ID: " + id);
+        });
+
+        //TODO publication_with_unknown_person tabel vullen met de nieuwe publication
+        for(index = 0; authors.names[index].lastname != null; index++){
+            var data = {publication_id: newId,
+                author_first_name: authors.names[index].firstName,
+                author_last_name: authors.names[index].lastName}
+                DBManager.post(data, linker.unknownPersonPublicationRepr, function(id){
+                    console.log("UNKNOWN PERSON ADDED")
+                })
+            }
+
+            return newId;
+
+        };
 }
 
 function getAuthorNames(reference){
-    var authors = reference.entryTag.author;
-    var authorNames = authors.split('and');
+    var authors = reference.entryTags.author;
+    var authorNames = authors.split(' and ');
     var data = {names: []};
     for(index = 0; index < authorNames.length; index++){
-        var name = authorNames[index].split(',');
+        var name = authorNames[index].split(', ');
         if(name.length < 2){
             data.names.push({lastName: name[0], firstName: " "});
         } else {
@@ -59,33 +68,18 @@ function getAuthorNames(reference){
 }
 
 function bibToDb(reference){
-    var data = {publication_type: "null",
-                title: "null",
-                publication_title: " ",
-                nr_of_pages: "0",
-                published_in_year: "null",
-                abstract: " "}
+    var data = {type: null,
+                title: null,
+                numberOfPages: 1,
+                year: null}
 
-    try{
-        data.publication_type = reference.entryType;
-        data.title = reference.entryTag.title;
-        data.published_in_year = reference.entryTag.year;
-    }
-    catch(ex){
-        console.error("Crucial information missing: check if Type, Title and Year are filled in");
-    }
-    try{
-        data.nr_of_pages = reference.entryTag.pages;
-    }catch(ex){
-        console.log("Pages: " + reference.entryTag.pages);
-    }
-    try{
-        data.abstract = reference.entryTag.pages;
-    }
-    catch(ex){
-        console.log("Abstract: " + reference.entryTag.abstract);
-    }
+        data.type = reference.entryType;
+        data.title = reference.entryTags.title;
+        data.year = reference.entryTags.year;
 
+        if(reference.entryTags.pages != null){
+            data.numberOfPages = reference.entryTags.pages;
+        }
     return data;
 }
 

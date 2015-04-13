@@ -5,7 +5,6 @@ var fs = require('fs');
 function bibtexToJSON(bibtexText,succes){
     var lowerBibTex = bibtexText.toLowerCase();
     var bibJSON = bibtexParse.toJSON(lowerBibTex);
-    console.log(bibJSON);
     succes(bibJSON);
 }
 
