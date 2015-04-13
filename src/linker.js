@@ -280,12 +280,26 @@ disciplineRepr.model = AcademicDiscipline;
 disciplineRepr.relations = ['parent', 'journals', 'proceedings'];
 
 //affiliation
+var affiliationRepr = new Representation();
+affiliationRepr.id = {
+    fieldName: 'id',
+    name: 'id'
+};
+affiliationRepr.name = {
+    fieldName: 'name',
+    name: 'name'
+};
+
 var Affiliation = bookshelf.Model.extend({
     tableName: 'affiliation',
     parent: function() {
         return this.belongsTo(Affiliation, 'part_of_affiliation_id');
     }
 });
+affiliationRepr[searchKey] = [affiliationRepr.name];
+affiliationRepr.relationSearch = [];
+affiliationRepr.model = Affiliation;
+affiliationRepr.relations = ['parent'];
 
 //person
 var personRepr = new Representation();
@@ -500,6 +514,7 @@ proceedingPublicationRepr.super = publicationRepr;
 module.exports.searchKey = searchKey;
 module.exports.disciplineRepr = disciplineRepr;
 module.exports.journalRepr = journalRepr;
+module.exports.affiliationRepr = affiliationRepr;
 module.exports.personRepr = personRepr;
 module.exports.userRepr = userRepr;
 module.exports.publicationRepr = publicationRepr;
