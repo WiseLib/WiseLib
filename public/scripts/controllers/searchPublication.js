@@ -131,7 +131,7 @@ angular.module('publication')
         }
     };
 
-    $scope.access_token = undefined;
+    $scope.accessToken = undefined;
     $scope.websearch = function() {
 
         $scope.empty([$scope.foundPublications]);
@@ -139,25 +139,25 @@ angular.module('publication')
         var webSearch = function() {
             WebSearchPublication.query({
                 query: query,
-                token: $scope.access_token
+                token: $scope.accessToken
             }, function(data) {
                 $scope.HandleExternData(data);
             }, function(data) { //error from server
-                $scope.showSimpleToast("Could not get a result: " + keyword + " :" + data);
+                $scope.showSimpleToast('Could not get a result: ' + keyword + ' :' + data);
             });
-        }
+        };
 
         var query = $scope.addFilters($scope.keyword);
         var body = 'grant_type=refresh_token&refresh_token=MSwzMDYyNzE5NzEsMTAyOCxhbGwsLCxtc0xxM0s1V3NoTWNCYk5SYUlsVXZjbHgySzQ%3E&redirect_uri=localhost%253A8080%252Fsearch';
 
-        if ($scope.access_token === undefined) {
+        if ($scope.accessToken === undefined) {
             GetApiToken.get(body, function(data) {
 
-                $scope.access_token = data.access_token;
+                $scope.accessToken = data.access_token;
                 webSearch();
 
             }, function(data) {
-                $scope.showSimpleToast("External search: " + data.statusText);
+                $scope.showSimpleToast('External search: ' + data.statusText);
             });
         } else {
             webSearch();
@@ -172,7 +172,7 @@ angular.module('publication')
         Publication.search({q: query}, function(data) {
             $scope.handleData(data.publications);
         }, function(data) { //error from server
-            $scope.showSimpleToast("Could not get a result: " + keyword + " :" + data.status);
+            $scope.showSimpleToast('Could not get a result: ' + keyword + ' :' + data.status);
         });
     };
 

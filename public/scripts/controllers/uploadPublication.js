@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication');
 
-module.controller('uploadPublicationController', function($scope, fetcher, $window, $http, $translate, Page, $mdToast, Person) {
+module.controller('uploadPublicationController', function($scope, $window, $http, $translate, Page, $mdToast, Person, Journal, Proceeding) {
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
 
@@ -14,7 +14,48 @@ module.controller('uploadPublicationController', function($scope, fetcher, $wind
     $scope.disciplines = [];
     $scope.references = [];
     $scope.JSONreferences = [];
-    $scope.fetcher = fetcher;
+
+    var lastSearch;
+    var persons = [];
+    $scope.fetchPersons = function (author){
+        if (author === undefined) return [];
+        if (JSON.stringify(author) === lastSearch) return persons;
+        lastSearch =  JSON.stringify(author);
+
+        var firstName = author.firstName;
+        var lastName = author.lastName;
+
+        function returnData(data){
+             persons = data.persons;
+             return data.persons;
+        }
+        if(firstName !== undefined && lastName === undefined)Person.searchFirstName({fn:firstName},function(data){returnData(data);},function(data){});
+        if(firstName === undefined && lastName !== undefined)Person.searchLastName({ln:lastName},function(data){returnData(data);},function(data){});
+        if(firstName !== undefined && lastName !== undefined)Person.searchBoth({fn:firstName,ln:lastName},function(data){returnData(data);},function(data){});
+    };
+
+    var proceedings;
+    var lastProcSearch;
+    $scope.fetchProceedings = function(name){
+        if (name === undefined || name === '') return [];
+        if (JSON.stringify(name) === lastProcSearch) return proceedings;
+        lastProcSearch =  JSON.stringify(name);
+        Proceeding.search({q:name},function(data){
+            proceedings= data.proceedings;
+            return data.proceedings;
+        });
+    };
+    var journals;
+    var lastJourSearch;
+    $scope.fetchJournals = function (name){
+        if (name === undefined || name === '') return [];
+        if (JSON.stringify(name) === lastJourSearch) return journals;
+        lastJourSearch =  JSON.stringify(name);
+        Journal.search({q:name},function(data){
+            journals= data.journals;
+            return data.journals;
+        });
+    };
 
     $scope.chooseJournal = function(jour){
         $scope.journal = jour;
@@ -104,7 +145,7 @@ error(function(data, status, headers, config) {
 $scope.uploadbibtex = function(files){
 
     var fd = new FormData();
-    fd.append("file", files[0]);
+    fd.append('file', files[0]);
 
     $http.post('uploadfile', fd, {
         withCredentials: true,
