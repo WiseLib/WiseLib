@@ -45,7 +45,7 @@
 <input id="lastname" type="text" class="form-control" ng-model="possibleAuthor.lastName" label="Last name">
 </md-input-container>
 <ul class="choices"> 
-    <li ng-repeat="person in fetcher.fetchPersons(possibleAuthor)">
+    <li ng-repeat="person in fetchPersons(possibleAuthor)">
         <personmin person="person" ng-click="add(authors, person)"></personmin>
     </li>
 </ul>
@@ -56,7 +56,7 @@
         <h4 style="text-decoration: underline;">{{Authorlist.firstName + " "+ Authorlist.lastName}}</h4>
         <ul class="choices">
             <li ng-repeat="possibleAuthor in Authorlist.authorList">
-                <p><personmin person="possibleAuthor"  ng-click="add(authors, possibleAuthor);remove(chooseAuthor,Authorlist)"></personmin></p>
+                <p><personmin person="possibleAuthor" ng-click="add(authors, possibleAuthor);remove(chooseAuthor,Authorlist)"></personmin></p>
             </li>
         </ul>
 
@@ -66,8 +66,8 @@
 <h4 ng-show="authors.length > 0">Selected authors</h4>
 <ul class="choices chosen"> 
     <li ng-repeat="chosenAuthor in authors">
-        <p><personmin person="chosenAuthor" ng-click="remove(authors, chosenAuthor)"></personmin>{{" " + chosenAuthor.status}}</p>
-        <div id="overlay">REMOVE</div>
+        <p><personmin person="chosenAuthor" ></personmin>{{" " + chosenAuthor.status}}</p>
+        <div id="overlay" ng-click="remove(authors, chosenAuthor)">REMOVE</div>
     </li>
 </ul>
 </div>
@@ -97,10 +97,10 @@
 <div ng-show="type == 'Proceeding'">
     <md-input-container>
     <label>Search a Proceeding</label>
-    <input id="proceeding" type="text" ng-model="searchproceeding.q">
+    <input id="proceeding" type="text" ng-model="searchproceeding">
 </md-input-container>
 <ul class="choices">
-    <li ng-click="chooseProceeding(possibleProceeding)" ng-repeat="possibleProceeding in fetcher.fetchProceedings(searchproceeding)|limitTo:5">
+    <li ng-click="chooseProceeding(possibleProceeding)" ng-repeat="possibleProceeding in fetchProceedings(searchproceeding)|limitTo:5">
         <proceedingmin proceeding="possibleProceeding"></proceedingmin>
     </li>
 </ul>
@@ -124,10 +124,10 @@
 <div ng-show="type == 'Journal'">
     <md-input-container>
     <label for="searchjournal">Search a Journal</label>
-    <input id="searchjournal" type="text" ng-model="searchjournal.q">
+    <input id="searchjournal" type="text" ng-model="searchjournal">
 </md-input-container>
 <ul class="choices">
-    <li ng-click="chooseJournal(possibleJournal);searchjournal.name=''" ng-repeat="possibleJournal in fetcher.fetchJournals(searchjournal)|limitTo:5">
+    <li ng-click="chooseJournal(possibleJournal);searchjournal.name=''" ng-repeat="possibleJournal in fetchJournals(searchjournal)|limitTo:5">
         <p><proceedingmin proceeding="possibleJournal"></proceedingmin><p>
     </li>
 </ul>
