@@ -2,11 +2,13 @@
 
 angular.module('user')
 
-.controller('registerUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
+.controller('registerUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person, Affiliation) {
     Page.setTitle('Register');
     $scope.userForm = {};
     $scope.persons = [];
     $scope.userForm.profileImageSrc = '';
+    $scope.affiliations = [];
+    $scope.affiliationsParent = '';
 
     //feedback after clicking the submit button
     $scope.successMessage = '';
@@ -14,6 +16,7 @@ angular.module('user')
 
     $scope.$watch('userForm.firstName', function () {$scope.searchPersons(); });
     $scope.$watch('userForm.lastName', function () {$scope.searchPersons(); });
+    $scope.$watch('selectedAffiliation', function() {$scope.addAffiliation($scope.selectedAffiliation)});
 
     /**
     * Load image to show preview of profile image to upload and use
@@ -75,6 +78,54 @@ angular.module('user')
                          error: true}
             });
         });
+    };
+
+    $scope.searchAffiliations = function(id) {
+        Affiliation.query({parent: id}, function(data) {
+            $scope.choiceAffiliations = data.affiliations;
+        }, function(error) {console.log('error! ' + error); });
+    };
+    $scope.filterAffiliations = function(name) {
+        var aff = $scope.choiceAffiliations;
+        var filtered = [];
+        for(var i in aff) {
+            if(aff[i].name.toLowerCase().indexOf(name.toLowerCase()) > -1) {
+                filtered.push(aff[i]);
+            }
+        }
+        return filtered;
+    };
+    $scope.postAffiliation = function(name) {
+        var toPost = {};
+        toPost.name = name;
+        if($scope.affiliationsParent != '') {
+            toPost.parent = $scope.affiliationsParent;
+        }
+        console.log('we will post :' + JSON.stringify(toPost));
+    };
+    $scope.addAffiliation = function(toAdd) {
+        console.log(toAdd);
+        if(toAdd !== undefined) {
+            $scope.affiliations.push(toAdd);
+            $scope.userForm.affiliation = toAdd.id;
+            $scope.affiliationsParent = toAdd.id;
+            $scope.affiliationName = '';
+        }
+        $scope.searchAffiliations($scope.affiliationsParent);
+    };
+    $scope.popAffiliation = function() {
+        var popped = $scope.affiliations.pop();
+        if(popped === undefined || $scope.affiliations.length === 0) {
+            $scope.affiliationsParent = '';
+        }
+        else {
+            $scope.affiliationsParent = popped.parent;
+        }
+        console.log('parent after pop :' + $scope.affiliationsParent);
+        console.log('affiliations after pop : ' + JSON.stringify($scope.affiliations));
+        $scope.affiliationName = '';
+        $scope.selectedAffiliation = undefined;
+        $scope.searchAffiliations($scope.affiliationsParent);
     };
 
 });

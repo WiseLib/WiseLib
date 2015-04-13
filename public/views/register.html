@@ -49,6 +49,31 @@
                 <div ng-message="minlength">The password needs to be at least 8 characters long.</div>
             </div>
         </md-input-container>
+        <div class="form-block">
+            <h4>Person Affiliation</h4>
+            <ul>
+                <li ng-repeat="chosenAffiliation in affiliations">
+                    <p>{{chosenAffiliation.name}}</p>
+                </li>
+            </ul>
+            <md-button 
+                class="md-raised" 
+                ng-show="affiliations.length > 0" 
+                ng-click="popAffiliation()">Undo</md-button>
+            <md-autocomplete
+                md-selected-item="selectedAffiliation"
+                md-search-text="affiliationName"
+                md-items="affiliation in filterAffiliations(affiliationName)"
+                md-item-text="affiliation.name"
+                md-no-cache="true"
+                placeholder="University, Faculty, Department ...">
+                <span md-highlight-text="affiliationName">{{affiliation.name}}</span>
+            </md-autocomplete>
+            <md-button 
+                class="md-raised" 
+                ng-show="affiliationName != selectedAffiliation.name && affiliationName.length > 0" 
+                ng-click="postAffiliation(affiliationName)">Add affiliation</md-button>
+        </div>
         <md-button type="submit" class="md-raised md-primary" ng-disabled="form.$invalid">Register</md-button>
     </form>
 </md-content>

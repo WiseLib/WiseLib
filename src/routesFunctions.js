@@ -131,6 +131,18 @@ module.exports = {
 		getMultiple(req, res, linker.disciplineRepr, 'disciplines');
 	},
 
+	getAffiliations: function(req, res) {
+		getMultiple(req, res, linker.affiliationRepr, 'affiliations');
+	},
+
+	getAffiliation: function(req, res) {
+		getSingle(req, res, linker.affiliationRepr);
+	},
+
+	postAffiliation: function(req, res) {
+		postSingle(req, res, linker.affiliationRepr);
+	},
+
 	getPersons: function(req, res) {
 		if(req.query.publications !== undefined) {
 			req.query.publications = splitInArray(req.query.publications);
