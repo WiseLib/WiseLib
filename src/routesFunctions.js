@@ -53,7 +53,7 @@ var getSingle = function(req, res, repr, fct) {
 //need to add authentification options
 var postSingle = function(req, res, repr) {
 	DBManager.post(req.body, repr, function(id) {
-		res.status(200).end();
+		res.status(201).json({id: id});
 	});
 };
 //need to add authentification options

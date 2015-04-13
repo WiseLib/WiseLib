@@ -101,10 +101,22 @@ angular.module('user')
         if($scope.affiliationsParent != '') {
             toPost.parent = $scope.affiliationsParent;
         }
-        console.log('we will post :' + JSON.stringify(toPost));
+        Affiliation.save(toPost, function(data) {
+            toPost.id = data.id;
+            console.log('posted :' + JSON.stringify(toPost));
+            $scope.addAffiliation(toPost);
+        }, function(data) {
+            $mdToast.show({
+                controller: 'ToastCtrl',
+                templateUrl: '../views/feedback-toast.html',
+                hideDelay: 6000,
+                position: 'top right',
+                locals: {text: 'Error: ' + data.error,
+                         error: true}
+            });
+        });
     };
     $scope.addAffiliation = function(toAdd) {
-        console.log(toAdd);
         if(toAdd !== undefined) {
             $scope.affiliations.push(toAdd);
             $scope.userForm.affiliation = toAdd.id;
@@ -121,8 +133,6 @@ angular.module('user')
         else {
             $scope.affiliationsParent = popped.parent;
         }
-        console.log('parent after pop :' + $scope.affiliationsParent);
-        console.log('affiliations after pop : ' + JSON.stringify($scope.affiliations));
         $scope.affiliationName = '';
         $scope.selectedAffiliation = undefined;
         $scope.searchAffiliations($scope.affiliationsParent);
