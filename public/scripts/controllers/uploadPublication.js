@@ -131,7 +131,7 @@ $scope.uploadbibtex = function(files){
 
 $scope.post = function () {
 
-    //function upload(){
+    function upload(){
         console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
        /*  $http.post('users/'+user.id+'/publications.json', toPost)
         .success(function(data, status, headers, config) {

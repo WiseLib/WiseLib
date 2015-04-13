@@ -201,7 +201,7 @@ module.exports = {
 	postPublication :function(req, res) {
         var refArray = references.link(req);
         for(var x in refArray){
-            req.referencedPublications.push({referenced_id: x});
+            req.references.push({id: x});
         }
 		res.status(501).end();
 	},
