@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('user', ['proceeding', 'ngMaterial'])
+angular.module('user', ['proceeding', 'affiliation', 'ngMaterial'])
 
 .controller('uploadUserController', ['$http', 'Page', function ($http, Page) {
     Page.setTitle('Upload user');

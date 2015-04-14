@@ -32,7 +32,7 @@
         </md-input-container>
     </div>
     <div class="form-block" ng-show="persons.length == 0">
-        <h4>Affiliation</h4>
+        <h4>{{'AFFILIATION' | translate}}</h4>
         <ul>
             <li ng-repeat="chosenAffiliation in affiliations">
                 <p>{{chosenAffiliation.name}}</p>
@@ -41,19 +41,19 @@
         <md-button 
             class="md-raised" 
             ng-show="affiliations.length > 0" 
-            ng-click="popAffiliation()">Undo</md-button>
+            ng-click="popAffiliation()">{{'UNDO' | translate}}</md-button>
         <md-autocomplete
             md-selected-item="selectedAffiliation"
             md-search-text="affiliationName"
             md-items="affiliation in filterAffiliations(affiliationName)"
             md-item-text="affiliation.name"
             md-no-cache="true"
-            placeholder="University, Faculty, Department ...">
+            placeholder="{{'AFFILIATION_PLACEHOLDER' | translate}}">
             <span md-highlight-text="affiliationName">{{affiliation.name}}</span>
         </md-autocomplete>
         <md-button 
             class="md-raised" 
             ng-show="affiliationName != selectedAffiliation.name && affiliationName.length > 0" 
-            ng-click="postAffiliation(affiliationName)">Add affiliation</md-button>
+            ng-click="postAffiliation(affiliationName)">{{'ADD_AFFILIATION' | translate}}</md-button>
     </div>
 </md-content>
