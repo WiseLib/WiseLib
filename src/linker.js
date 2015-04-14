@@ -17,6 +17,8 @@ var knex = require('knex')({
 var bookshelf = require('bookshelf')(knex);
 var searchKey = 'q';
 
+var Publication, Journal, Proceeding;
+
 var Representation = function() {};
 Representation.prototype.relations = [];
 Representation.prototype.format = function(json) {
@@ -57,7 +59,7 @@ Representation.prototype.formatSearch = function(json) {
         like = like.split(' ');
         like = _.map(like, function(word) {return '%' + word + '%';});
 
-        var PubObj = this; 
+        var PubObj = this;
 
         if(parameters.length > 0 ){
             _.forEach(like, function(word) {
@@ -65,11 +67,11 @@ Representation.prototype.formatSearch = function(json) {
                     if(PubObj[param]){
                         search.push({key: PubObj[param].fieldName, value: word});
                     }
-                })
-            })
+                });
+            });
         }
 
-        else {  
+        else {
             for(var field in this[searchKey]) {
                 var f = this[searchKey][field];
                 _.forEach(like, function(word) {
@@ -92,14 +94,14 @@ Representation.prototype.formatSearchRelations = function(json) {
         like = _.map(like, function(word) {return '%' + word + '%';});
 
         if(parameters.length > 0 ){
-            var PubObj = this
+            var PubObj = this;
 
             _.forEach(like, function(word) {
                 _.forEach(parameters, function(param) {
                     var field = PubObj.relationSearch.indexOf(param);
                     if(field !== -1)search.push({key: PubObj.relationSearch[field], value: word});
-                })
-            })
+                });
+            });
         }
 
         else {
@@ -216,7 +218,7 @@ Representation.prototype.searchRelations = function(jsonObj, query) {
     //for all searchable relations
     for(var i in searchRelations) {
         //only search on relations that have not already been filtered
-        if(jsonObj[searchRelations[i].key] === undefined) { 
+        if(jsonObj[searchRelations[i].key] === undefined) {
             //find the model of the relation
             var relatedData = model.related(searchRelations[i].key).relatedData;
             //make necessary joins with the relation table
@@ -224,17 +226,17 @@ Representation.prototype.searchRelations = function(jsonObj, query) {
             var otherKey = relatedData.joinTableName+'.'+relatedData.otherKey;
             query.innerJoin(relatedData.joinTableName, foreignKey, model.idAttribute);
             //get relation model
-            var relation = relatedData.target;
-            var relationModel = new relation();
+            var Relation = relatedData.target;
+            var relationModel = new Relation();
             //search on relation fields
-            jsonObj = {q:jsonObj.q.split('@')[0]}
+            jsonObj = {q:jsonObj.q.split('@')[0]};
             var relationSearch = relationModel.representation.formatSearch(jsonObj);
             var subquery = relationModel.representation.searchFields(jsonObj, relationModel.query()).select('id');
             query = query.orWhere(otherKey, 'in', subquery);
         }
-        
-    } 
-    return query
+
+    }
+    return query;
 };
 
 Representation.prototype.toQuery = function(jsonObj) {

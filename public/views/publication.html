@@ -3,13 +3,13 @@
 	<div class="page-title">{{publication.title}}</div>
 	<md-tabs md-selected="selectedIndex">
 		<md-tab id="tab1" aria-controls="tab1-content">
-        	About
+        	{{'ABOUT' | translate}}
       	</md-tab>
       	<md-tab id="tab2" aria-controls="tab2-content">
-        	View
+        	{{'VIEW' | translate}}
     	</md-tab>
     	<md-tab id="tab3" aria-controls="tab3-content">
-    	Referenced publications
+    	{{'REFERENCED_PUBLICATIONS' | translate}}
     	</md-tab>
     </md-tabs>
      <ng-switch on="selectedIndex" class="tabpanel-container">
@@ -18,29 +18,29 @@
 			<table>
 				<tbody>
 					<tr ng-if="uploaderPersonId">
-						<td>Uploaded by</td>
+						<td>{{'UPLOADED_BY' | translate}}</td>
 						<td><personmin person="persons[uploaderPersonId]"></personmin></td>
 					</tr>
 					<tr>
-						<td rowspan="{{authors.length}}">Authors</td>
+						<td rowspan="{{authors.length}}">{{'AUTHORS' | translate}}</td>
 						<td><personmin person="persons[authors[0]]"></personmin></td>
 					</tr>
 					<tr ng-repeat="author in authors" ng-if="$index > 0">
 						<td><personmin person="persons[author]"></personmin></td>
 					</tr>
 					<tr ng-if="editors.length > 0">
-						<td rowspan="{{editors.length}}">Editors</td>
+						<td rowspan="{{editors.length}}">{{'EDITORS' | translate}}</td>
 						<td><personmin person="persons[editors[0]]"></personmin></td>
 					</tr>
 					<tr ng-repeat="editor in editors" ng-if="$index > 0">
 						<td><personmin person="persons[editor]"></personmin></td>
 					</tr>
 					<tr>
-						<td>Number of pages</td>
+						<td>{{'NR_OF_PAGES' | translate}}</td>
 						<td>{{publication.numberOfPages}}</td>
 					</tr>
 					<tr>
-						<td>Year of publishing</td>
+						<td>{{'YEAR_OF_PUBLISHING' | translate}}</td>
 						<td>{{publication.year}}</td>
 					</tr>
 				</tbody>
