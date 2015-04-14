@@ -2,6 +2,10 @@
 var should = require('should');
 var references = require('../src/references.js');
 
+function end(id){
+    console.log("ID: " + id);
+}
+
 describe('Validate references test', function(){
     describe('Validate unknown reference', function(){
         var reference = {references: [{ citationKey: 'sutto1998',
@@ -12,11 +16,9 @@ describe('Validate references test', function(){
                           publisher: 'a bradford book',
                           year: '1998',
                           owner: 'wout van riel' }}]};
-        var result = references.link(reference);
 
-        console.log(result.references);
 
-        result.references.should.not.be.empty;
+        references.link(reference, end);
 
     });
 })

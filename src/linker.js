@@ -439,6 +439,9 @@ var Publication = bookshelf.Model.extend({
     },
     referencedPublications: function() {
        return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
+   },
+    unknownAuthors: function() {
+        return this.belongsToMany(UnknownPersonPublication, 'publication_with_unknown_person', 'publication_id', 'author_first_name', 'author_last_name');
     },
 
 

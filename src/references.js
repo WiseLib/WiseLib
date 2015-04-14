@@ -1,56 +1,39 @@
 var DBManager = require('./dbmanager.js');
 var linker = require('./linker.js');
+var Promise = require('bluebird');
 
-function link(req,res){
+function link(req, next){
     var references = req.references;
     var resultId = [];
     //Alle references moeten afgegaan worden en gezocht worden in de database
-    for(index = 0; index < references.length; index++){
-        var reference = references[index];
-        var pubId = searchDB(reference);
-        console.log('Index = ' + pubId);
-        req.references[index] = pubId;
-    }
-    return req;
+    searchDB(references[0], next);
+
 }
 
-function searchDB(reference){
-    var authors = getAuthorNames(reference);
-    console.log(authors.names);
+function searchDB(reference, next){
     var DbJson = bibToDb(reference);
-    console.log(JSON.stringify(DbJson));
-    var result = DBManager.get({title: DbJson.title}, linker.publicationRepr, function(id){
-        console.log(results);
-
+    DBManager.get({title: DbJson.title}, linker.publicationRepr, function(id){
+        console.log("RESULT GET: " + results);
         if(results.length = 1){
             console.log("KNOWN PUBLICATION");
-            return results.id;
-        }
-        //TODO what if more then 1 title comes up??
-    })
-    if(result == null){
-        console.log("UNKNOWN PUBLICATION");
-        var newId;
-        //post publication with unknown person
-        DBManager.post(DbJson, linker.publicationRepr, function(id){
-            newId = id;
-            console.log("ID: " + id);
-        });
-
-        //TODO publication_with_unknown_person tabel vullen met de nieuwe publication
-        for(index = 0; authors.names[index].lastname != null; index++){
-            var data = {publication_id: newId,
-                author_first_name: authors.names[index].firstName,
-                author_last_name: authors.names[index].lastName}
-                DBManager.post(data, linker.unknownPersonPublicationRepr, function(id){
-                    console.log("UNKNOWN PERSON ADDED")
-                })
-            }
-
-            return newId;
-
+            next(id);
+        } else {
+            postUnknownPublication(reference, next);
         };
+    })}
+
+function postUnknownPublicationr(reference, next){
+    //post publication with unknown person
+    var authors = getAuthorNames(reference);
+    for(index = 0; authors.names[index].lastname != null; index++){
+        reference.unknownAuthors.push(authors.names[index]);
+    };
+    DBManager.post(reference, linker.publicationRepr, function(id){
+        console.log("ID: " + id);
+        next(id);
+    });
 }
+
 
 function getAuthorNames(reference){
     var authors = reference.entryTags.author;
@@ -70,15 +53,19 @@ function getAuthorNames(reference){
 function bibToDb(reference){
     var data = {type: null,
                 title: null,
+                publication_title: "dummy",
                 numberOfPages: 1,
-                year: null}
+                year: null,
+                abstract: "dummy"}
 
         data.type = reference.entryType;
         data.title = reference.entryTags.title;
-        data.year = reference.entryTags.year;
+        var year = parseInt(reference.entryTags.year);
+        data.year = year;
 
         if(reference.entryTags.pages != null){
-            data.numberOfPages = reference.entryTags.pages;
+            var pages = parseInt(reference.entryTags.pages);
+            data.numberOfPages = pages;
         }
     return data;
 }
