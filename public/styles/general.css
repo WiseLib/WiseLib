@@ -45,6 +45,7 @@ tr:nth-child(even) td {
 
 .page-title {
 	font-size: 24px;
+	padding-left: 10px;
 }
 
 #tab1-content .row {
@@ -54,4 +55,8 @@ tr:nth-child(even) td {
 
 #tab1-content .row .left {
 	color: #999;
+}
+
+personmin a {
+	align-items: center;
 }

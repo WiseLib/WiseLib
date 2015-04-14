@@ -3,7 +3,7 @@
 	<md-progress-circular md-mode="indeterminate" ng-if="!person && !error"></md-progress-circular>
 	<div layout="row">
 		<div><img ng-src="{{person.picture || '/assets/dummy.jpg'}}"  class="profile-image-big" alt="{{'PROFILE_IMAGE' | translate}}"></img></div>
-		<div class="page-title">{{person.firstName}} {{person.lastName}}</div>
+		<div class="page-title" layout="row" layout-align="start center">{{person.firstName}} {{person.lastName}}</div>
 		</div>
 		<md-tabs md-selected="data.selectedIndex">
 			<md-tab id="tab1" aria-controls="tab1-content">
