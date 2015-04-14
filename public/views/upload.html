@@ -34,21 +34,11 @@
 </md-input-container>
 </div>
 
-<div layout layout-sm="column" class="form-block" layout-wrap>
+<div class="form-block">
     <h4>Authors</h4>
-    <md-input-container>
-    <label>First Name</label>
-    <input id="firstname" type="text" class="form-control" ng-model="possibleAuthor.firstName" label="First name">
-</md-input-container>
-<md-input-container>
-<label>Last Name</label>
-<input id="lastname" type="text" class="form-control" ng-model="possibleAuthor.lastName" label="Last name">
-</md-input-container>
-<ul class="choices"> 
-    <li ng-repeat="person in fetcher.fetchPersons(possibleAuthor)">
-        <personmin person="person" ng-click="add(authors, person)"></personmin>
-    </li>
-</ul>
+    <addperson />
+    <md-button class="md-raised" ng-click="addAuthor()">Add Author</md-button>
+</div>
 
 <h4 ng-show="chooseAuthor.length > 0">Select the correct author</h4>
 <ul style="width: 50%;padding-left: 0px;margin-left: 0px;" ng-show="chooseAuthor.length > 0">
