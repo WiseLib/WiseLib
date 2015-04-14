@@ -1,7 +1,10 @@
 'use strict';
 var module = angular.module('person', ['proceeding', 'ngMaterial', 'affiliation', 'discipline']);
 
-module.controller('personController', function ($scope,$window, $routeParams, Page, Person, Affiliation, Discipline) {
+module.controller('personController', function($scope,$window, $routeParams, $translate, Page, Person, Affiliation, Discipline) {
+	$translate('PERSON').then(function(translated) {
+        Page.setTitle(translated);
+    });
 	Page.setTitle('Person');
 	$scope.disciplines = [];
 	Person.get({id: $routeParams.id}, function(person) {

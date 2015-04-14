@@ -87,5 +87,10 @@
 	"SEARCH_THE_WEB": "Zoek op het web",
 	"RESULTS": "Resultaten",
 	"NO_RESULTS": "Geen resultaten",
-	"LANGUAGE": "Taal"
+	"LANGUAGE": "Taal",
+	"PUBLICATIONS": "Publicaties",
+	"AFFILIATION": "Affiliatie",
+	"ACADEMIC_DISCIPLINES": "Academische disciplines",
+	"PUBLICATIONS_WRITTEN_BY": "Publicaties geschreven door",
+	"PERSON": "Persoon"
 }
