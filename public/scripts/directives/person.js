@@ -11,4 +11,11 @@ angular.module('person')
 
     directive.templateUrl = '../views/personMin.html';
     return directive;
+})
+
+.directive('addperson', function() {
+	return {
+		restrict: 'E',
+		templateUrl: '../views/addPerson.html'
+	};
 });

@@ -8,3 +8,6 @@ angular.module('person',[])
 		publications: {method: 'GET', isArray: false, url:'/persons/:id/publications.json'}
 	});
 })
+.service('PersonState', function() {
+	this.person = {};
+})
