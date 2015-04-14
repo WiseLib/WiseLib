@@ -1,22 +1,22 @@
 <md-content layout="column">
     <form role="form" name="form" ng-submit="createUser()" layout="column">
         <md-input-container>
-            <label>Email</label>
+            <label>{{'EMAIL' | translate}}</label>
             <input type="email" name="email" ng-model="userForm.email" required>
             <div ng-messages="form.email.$error">
-                <div ng-message="required">This field is required.</div>
-                <div ng-message="email">Please enter a valid email address.</div>
+                <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
+                <div ng-message="email">{{'ENTER_VALID_EMAIL' | translate}}</div>
             </div>
         </md-input-container>
         <md-input-container>
-            <label>Password</label>
+            <label>{{'PASSWORD' | translate}}</label>
             <input type="password" ng-minlength="8" name="password" ng-model="userForm.password" required>
             <div ng-messages="form.password.$error">
-                <div ng-message="required">This field is required.</div>
-                <div ng-message="minlength">The password needs to be at least 8 characters long.</div>
+                <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
+                <div ng-message="minlength">{{'PWD_8_CHARS' | translate }}</div>
             </div>
         </md-input-container>
-        <addperson></addperson>
-        <md-button type="submit" class="md-raised md-primary" ng-disabled="form.$invalid">Register</md-button>
+        <addperson />
+        <md-button type="submit" class="md-raised md-primary" ng-disabled="form.$invalid">{{'REGISTER' | translate}}</md-button>
     </form>
 </md-content>

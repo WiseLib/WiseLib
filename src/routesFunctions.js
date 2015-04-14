@@ -34,7 +34,7 @@ var getMultiple = function(req, res, repr, name) {
 	else {
 		DBManager.get(params, repr, name);
 	}
-	
+
 };
 //need to add authentification options
 var getSingle = function(req, res, repr, fct) {
@@ -189,7 +189,7 @@ module.exports = {
 		getMultiple(req, res, linker.journalPublicationRepr, function(jp) {
 			getMultiple(req, res, linker.proceedingPublicationRepr, function(pp) {
 				var result={};
-				result['publications']= jp.concat(pp);
+				result.publications= jp.concat(pp);
 				res.json(result);
 			});
 		});

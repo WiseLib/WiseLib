@@ -1,12 +1,11 @@
 'use strict';
 
-angular.module('user', ['communication', 'proceeding', 'affiliation', 'ngMaterial'])
+angular.module('user', ['proceeding', 'ngMaterial'])
 
-.controller('uploadUserController', ['$http', 'fetcher', 'Page', function ($http, fetcher, Page) {
+.controller('uploadUserController', ['$http', 'Page', function ($http, Page) {
     Page.setTitle('Upload user');
     this.authors = [];
     this.disciplines = [];
-    this.fetcher = fetcher;
 
     this.add = function (array, element) {
         if (array.indexOf(element) === -1) {

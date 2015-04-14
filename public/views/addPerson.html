@@ -1,23 +1,23 @@
 <md-content layout="column" ng-controller="addPersonController">
     <div layout="row" class="form-block">
         <md-input-container>
-            <label>First Name</label>
+            <label>{{'FIRST_NAME' | translate}}</label>
             <input type="text" name="firstName" ng-model="person.firstName" required>
             <div ng-messages="form.firstName.$error">
-                <div ng-message="required">This field is required.</div>
+                <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
             </div>
         </md-input-container>
         <md-input-container>
-            <label>Last Name</label>
+            <label>{{'LAST_NAME' | translate}}</label>
             <input type="text" name="lastName" ng-model="person.lastName" required>
             <div ng-messages="form.lastName.$error">
-                <div ng-message="required">This field is required.</div>
+                <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
             </div>
         </md-input-container>
     </div>
-    <p ng-show="persons.length == 0">Your name will be added to the database.</p>
+    <p ng-show="persons.length == 0">{{'NAME_WILL_BE_ADDED_TO_DATABASE' | translate}}</p>
     <div ng-show="persons.length > 0">
-        <p>Person in database</p>
+        <p>{{'PERSON_IN_DATABASE' | translate}}</p>
         <md-radio-group ng-model="person.id" ng-if="persons.length > 0">
             <md-radio-button  ng-repeat="p in persons" ng-value="p.id">
                 <personmin person="p" />
@@ -25,7 +25,7 @@
         </md-radio-group>
     </div>
     <div class="form-block" ng-show="persons.length == 0">
-        <h4>Profile image</h4>
+        <h4>{{'PROFILE_IMAGE' | translate}}</h4>
         <img ng-src="{{person.profileImageSrc || '/assets/dummy.jpg'}}" class="profile-image" ng-model="person.profileImageSrc" name="profileImage" alt="profile image" />
         <md-input-container>
             <input type="file" accept="image/*" onchange="angular.element(this).scope().fileNameChanged(this)" />

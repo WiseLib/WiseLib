@@ -3,49 +3,49 @@
 <div class="uploadfield">
    <md-button class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadpdf').click();">
    <md-icon md-svg-src='/assets/upload.svg'></md-icon>
-   <md-tooltip >Upload a pdf</md-tooltip>
+   <md-tooltip >{{'UPLOAD_PDF' | translate}}</md-tooltip>
 </md-button>
-<span class="label">Fill in all fields below, or upload a pdf file</span>
+<span class="label">{{'FILL_IN_FIELDS_BELOW_OR_UPLOAD_PDF' | translate}}</span>
 </div>
 
 <form id="upload-publication" role="form" class="form-horizontal" name="postPublicationForm">
     <input ng-hide="true" id="uploadpdf" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadpdf(this.files)"/>
     <div class="form-block">
-        <h4>Publication Information</h4>
+        <h4>{{'PUBLICATION_INFORMATION' | translate}}</h4>
         <md-input-container>
-        <label>Title</label>
+        <label>{{'TITLE' | translate}}</label>
         <input type="text" ng-model="title">
     </md-input-container>
     <md-input-container>
-    <label>Year</label>
+    <label>{{'YEAR' | translate}}</label>
     <input id="year" type="number" ng-model="year">
 </md-input-container>
 <md-input-container>
-<label>Number of pages</label>
+<label>{{'NR_OF_PAGES' | translate}}</label>
 <input id="nb-pages" type="number" min="1" ng-model="numberOfPages">
 </md-input-container>
 <md-input-container>
-<label ng-hide="localfile" >URL</label>
+<label ng-hide="localfile" >{{'URL'}}</label>
 <input ng-hide="localfile" id="url"  ng-model="url">
 </md-input-container>
 <md-input-container>
-<label>Abstract</label>
+<label>{{'ABSTRACT' | translate}}</label>
 <textarea ng-model="abstract" columns="1" md-maxlength="500"></textarea>
 </md-input-container>
 </div>
 
 <div class="form-block">
-    <h4>Authors</h4>
-    <p ng-show="pdfAuthors.length > 0">Extracted authors from PDF left : {{pdfAuthors.length}}</p>
+    <h4>{{'AUTHORS' | translate}}</h4>
+    <p ng-show="pdfAuthors.length > 0">{{'EXTRACTED_AUTHORS_LEFT' | translate}} : {{pdfAuthors.length}}</p>
     <addperson />
-    <md-button class="md-raised" ng-click="addAuthor()">Add Author</md-button>
+    <md-button class="md-raised" ng-click="addAuthor()">{{'ADD_AUTHOR' | translate}}</md-button>
 </div>
 
-<h4 ng-show="authors.length > 0">Selected authors</h4>
-<ul class="choices chosen"> 
+<h4 ng-show="authors.length > 0">{{'SELECTED_AUTHORS' | translate}}</h4>
+<ul class="choices chosen">
     <li ng-repeat="chosenAuthor in authors">
-        <p><personmin person="chosenAuthor" ng-click="remove(authors, chosenAuthor)"></personmin>{{" " + chosenAuthor.status}}</p>
-        <div id="overlay">REMOVE</div>
+        <p><personmin person="chosenAuthor" ></personmin>{{" " + chosenAuthor.status}}</p>
+        <div id="overlay" ng-click="remove(authors, chosenAuthor)">{{'REMOVE' | translate}}</div>
     </li>
 </ul>
 </div>
@@ -67,84 +67,84 @@
 </div>
 -->
 <div class="form-block">
-    <h4>Publication type</h4>
+    <h4>{{'PUBLICATION_TYPE' | translate}}</h4>
     <md-radio-group ng-model="type">
-    <md-radio-button value="Journal">Journal</md-radio-button>
-    <md-radio-button value="Proceeding">Proceeding</md-radio-button>
+    <md-radio-button value="Journal">{{'JOURNAL' | translate}}</md-radio-button>
+    <md-radio-button value="Proceeding">{{'PROCEEDING' | translate}}</md-radio-button>
 </md-radio-group>
 <div ng-show="type == 'Proceeding'">
     <md-input-container>
-    <label>Search a Proceeding</label>
-    <input id="proceeding" type="text" ng-model="searchproceeding.q">
+    <label>{{'SEARCH_A_PROCEEDING' | translate}}</label>
+    <input id="proceeding" type="text" ng-model="searchproceeding">
 </md-input-container>
 <ul class="choices">
-    <li ng-click="chooseProceeding(possibleProceeding)" ng-repeat="possibleProceeding in fetcher.fetchProceedings(searchproceeding)|limitTo:5">
+    <li ng-click="chooseProceeding(possibleProceeding)" ng-repeat="possibleProceeding in fetchProceedings(searchproceeding)|limitTo:5">
         <proceedingmin proceeding="possibleProceeding"></proceedingmin>
     </li>
 </ul>
 <div ng-show="proceeding !== undefined">
-    <h4>Selected Proceeding</h4>
+    <h4>{{'SELECTED_PROCEEDING' | translate}}</h4>
     <proceedingmin proceeding="proceeding"></proceedingmin>
 </div>
 <md-input-container >
-<label>Editors</label>
+<label>{{'EDITORS' | translate}}</label>
 <input id="city" type="text" ng-model="editors">
 </md-input-container>
 <md-input-container >
-<label>Publisher</label>
+<label>{{'PUBLISHER' | translate}}</label>
 <input id="publisher" type="text" ng-model="publisher">
 </md-input-container>
 <md-input-container>
-<label>City</label>
+<label>{{'CITY' | translate}}</label>
 <input id="city" type="text" ng-model="city">
 </md-input-container>
 </div>
 <div ng-show="type == 'Journal'">
     <md-input-container>
-    <label for="searchjournal">Search a Journal</label>
-    <input id="searchjournal" type="text" ng-model="searchjournal.q">
+    <label for="searchjournal">{{'SEARCH_A_JOURNAL' | translate}}</label>
+    <input id="searchjournal" type="text" ng-model="searchjournal">
 </md-input-container>
 <ul class="choices">
-    <li ng-click="chooseJournal(possibleJournal);searchjournal.name=''" ng-repeat="possibleJournal in fetcher.fetchJournals(searchjournal)|limitTo:5">
+    <li ng-click="chooseJournal(possibleJournal);searchjournal.name=''" ng-repeat="possibleJournal in fetchJournals(searchjournal)|limitTo:5">
         <p><proceedingmin proceeding="possibleJournal"></proceedingmin><p>
     </li>
 </ul>
 <div ng-show="journal !== undefined">
-    <h4>Selected Journal</h4>
+    <h4>{{'SELECTED_JOURNAL' | translate}}</h4>
     <proceedingmin proceeding="journal"></proceedingmin>
 </div>
 <md-input-container>
-<label>Volume</label>
+<label>{{'VOLUME' | translate}}</label>
 <input type="number" ng-model="volume">
 </md-input-container>
 <md-input-container>
-<label>Number</label>
+<label>{{'NUMBER' | translate}}</label>
 <input type="number" ng-model="number">
 </md-input-container>
 </div>
 </div>
 
 <div class="uploadfield">
-    <span class="label">Add references, or upload a bibtex file</span>
+    <span class="label">{{'ADD_REFERENCES_OR_UPLOAD_BIBTEX' | translate}}</span>
     <md-button class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadbib').click();">
     <md-icon md-svg-src='/assets/upload.svg'></md-icon>
-    <md-tooltip >Upload a bibtex file</md-tooltip>
+    <md-tooltip >{{'UPLOAD_BIBTEX_FILE' | translate}}</md-tooltip>
 </md-button>
 </div>
 <input ng-hide="true" id="uploadbib" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadbibtex(this.files)"/>
 
 <div layout layout-sm="column" layout-wrap class="form-block">
-    <h4>References</h4>
+    <h4>{{'REFERENCES' | translate}}</h4>
     <md-input-container>
-    <label>References</label>
+    <label>{{'REFERENCES' | translate}}</label>
     <input id="reference" type="text" class="form-control" ng-model="possiblereference" label="Reference">
 </md-input-container>
-<md-button class="btn btn-primary" ng-click="add(references, possiblereference)">Add</md-button>
-<h4 ng-show="references.length > 0">Selected References</h4>
+<md-button class="btn btn-primary" ng-click="add(references, possiblereference)">{{'ADD' | translate}}</md-button>
+<h4 ng-show="references.length > 0">{{'SELECTED_REFERENCES' | translate}}</h4>
 <ul class="choices chosen">
     <li ng-repeat="reference in references">
         <p  style="postion:relative" ng-click="remove(references, reference)">{{reference}}</p>
-        <div id="overlay">REMOVE</div>
+        <div id="overlay">{{'REMOVE' | translate}}</div>
     </li>
 </ul>
 </div>
@@ -153,8 +153,8 @@
 
 <md-button class="md-raised md-primary reserve-tooltip-space" ng-disabled="postPublicationForm.$invalid" ng-click="post()">
 <!-- md-direction doesn't work in this version of angular-material. Temporary fix in the css file -->
-<md-tooltip md-direction="top">Upload your publication</md-tooltip>
-Send
+<md-tooltip md-direction="top">{{'UPLOAD_YOUR_PUBLICATION' | translate}}</md-tooltip>
+{{'SEND' | translate}}
 </md-button>
 </form>
 </md-content>
