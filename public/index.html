@@ -55,7 +55,8 @@
     </head>
     <body layout="row" ng-controller="navController">
         <!--<div ng-include='"views/header.html"'></div>-->
-        <md-sidenav layout="column" style="overflow: hidden; display: flex;" class="site-sidenav md-sidenav-left md-whiteframe-z2 md-closed" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')" tabindex="-1">
+        <md-sidenav layout="column" class="site-sidenav md-sidenav-left md-whiteframe-z2 md-closed" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')" tabindex="-1">
+        <md-content id="sidenav-wrapper">
             <md-toolbar class="md-default-theme" layout="column">
                 <h1 class="md-toolbar-tools">
                     <a class="logo-name" href="/" ng-click="ToggleMenu()"></a>
@@ -64,11 +65,6 @@
             </md-toolbar>
             <md-content style="overflow: visible;" class="md-default-theme">
                 <ul class="menu">
-                    <li>
-                        <div layout="row">
-                            <md-button class="md-button md-default-theme menu-lang-btn" ng-click="changeLanguage('en')">English</md-button>
-                            <md-button class="md-button md-default-theme menu-lang-btn" ng-click="changeLanguage('nl')">Nederlands</md-button>
-                        </div>
                     <li>
                         <md-button class="md-button md-default-theme" href="/login" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">{{'LOG_IN' | translate }}</md-button>
                     </li>
@@ -83,6 +79,7 @@
                     </li>
                     <li>
                         <md-button class="md-button md-default-theme" href="/search" ng-click="ToggleMenu()">{{'SEARCH_A_PUBLICATION' | translate}}</md-button>
+                    </li>
                     <li>
                         <md-button class="md-button md-default-theme" href="/mypublications" ng-show="auth.isAuthenticated" ng-click="ToggleMenu()">{{'MY_PUBLICATIONS' | translate }}</md-button>
                     </li>
@@ -93,6 +90,10 @@
                         </md-button>
                     </li>
                 </ul>
+            </md-content>
+            <md-content id="lang-btns">
+            {{'LANGUAGE' | translate}}: <a href="#" ng-click="changeLanguage('en')">English</a> | <a href="#" ng-click="changeLanguage('nl')">Nederlands</a>
+            </md-content>
             </md-content>
         </md-sidenav>
         <div layout="column" layout-fill tabindex="-1" role="main">
