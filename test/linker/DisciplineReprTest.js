@@ -32,6 +32,16 @@ describe('Discipline Representation test', function() {
 		name:'Operating systems',
 		parent:{id:1}
 	}];
+	var search= {};
+	search[linker.searchKey] = 'Convert Word';
+	var expected = [{
+		key:'name',
+		value:'%Convert%'
+	},
+	{
+		key:'name',
+		value:'%Word%'
+	}];
 
 	it('should convert the JSON representation', function() {
 		for(var repr in jsonRepresentations) {
@@ -48,5 +58,9 @@ describe('Discipline Representation test', function() {
 			var converted = linker.disciplineRepr.parse(dbReprWithRelations[repr]);
 			_.isEqual(converted, jsonRepresentations[repr]).should.be.true;
 		}
+	});
+	it('should convert search-string', function() {
+		var converted = linker.disciplineRepr.formatSearch(search);
+		_.isEqual(expected, converted).should.be.true;
 	});
 });

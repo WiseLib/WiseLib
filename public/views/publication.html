@@ -1,0 +1,65 @@
+<md-content layout-align="center">
+	<md-progress-circular md-mode="indeterminate" ng-if="!publication"></md-progress-circular>
+	<div class="page-title">{{publication.title}}</div>
+	<md-tabs md-selected="selectedIndex">
+		<md-tab id="tab1" aria-controls="tab1-content">
+        	{{'ABOUT' | translate}}
+      	</md-tab>
+      	<md-tab id="tab2" aria-controls="tab2-content">
+        	{{'VIEW' | translate}}
+    	</md-tab>
+    	<md-tab id="tab3" aria-controls="tab3-content">
+    	{{'REFERENCED_PUBLICATIONS' | translate}}
+    	</md-tab>
+    </md-tabs>
+     <ng-switch on="selectedIndex" class="tabpanel-container">
+        <div role="tabpanel" id="tab1-content" aria-labelledby="tab1" ng-switch-when="0" md-swipe-right="incrementSelectedIndex(-1)" md-swipe-left="incrementSelectedIndex(1)">
+        	<p>{{publication.abstract}}</p>
+			<table>
+				<tbody>
+					<tr ng-if="uploaderPersonId">
+						<td>{{'UPLOADED_BY' | translate}}</td>
+						<td><personmin person="persons[uploaderPersonId]"></personmin></td>
+					</tr>
+					<tr>
+						<td rowspan="{{authors.length}}">{{'AUTHORS' | translate}}</td>
+						<td><personmin person="persons[authors[0]]"></personmin></td>
+					</tr>
+					<tr ng-repeat="author in authors" ng-if="$index > 0">
+						<td><personmin person="persons[author]"></personmin></td>
+					</tr>
+					<tr ng-if="editors.length > 0">
+						<td rowspan="{{editors.length}}">{{'EDITORS' | translate}}</td>
+						<td><personmin person="persons[editors[0]]"></personmin></td>
+					</tr>
+					<tr ng-repeat="editor in editors" ng-if="$index > 0">
+						<td><personmin person="persons[editor]"></personmin></td>
+					</tr>
+					<tr>
+						<td>{{'NR_OF_PAGES' | translate}}</td>
+						<td>{{publication.numberOfPages}}</td>
+					</tr>
+					<tr>
+						<td>{{'YEAR_OF_PUBLISHING' | translate}}</td>
+						<td>{{publication.year}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div role="tabpanel" id="tab2-content" aria-labelledby="tab2" ng-switch-when="1" md-swipe-right="incrementSelectedIndex(-1)" md-swipe-left="incrementSelectedIndex(1)">
+		<iframe ng-src="{{'http://docs.google.com/gview?url=http://wilma.vub.ac.be:8080/' + publication.url + '&embedded=true'}}" class="pdf-viewer" frameborder="0"></iframe>
+		</div>
+		<div role="tabpanel" id="tab3-content" aria-labelledby="tab3" ng-switch-when="2" md-swipe-right="incrementSelectedIndex(-1)" md-swipe-left="incrementSelectedIndex(1)">
+			<md-list class="publications-list">
+				<md-item ng-repeat="publication in publications">
+					<md-item-content>
+						<div class="md-tile-content">
+							<publicationmin publication="publication"></publicationmin>
+						</div>
+					</md-item-content>
+					<md-divider md-inset ng-if="!$last"></md-divider>
+				</md-item>
+			</md-list>
+		</div>
+	</ng-switch>
+</md-content>

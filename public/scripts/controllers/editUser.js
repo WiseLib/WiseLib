@@ -2,8 +2,10 @@
 
 angular.module('user')
 
-.controller('updateUserController', function($scope, $window, $location, Page, $mdToast, AuthenticationService, User, Person) {
-    Page.setTitle('Update profile');
+.controller('updateUserController', function($scope, $window, $location, $translate, Page, $mdToast, AuthenticationService, User, Person) {
+    $translate('UPDATE_PROFILE').then(function(translated) {
+    Page.setTitle(translated);
+  });
     $scope.userEditForm = {};
     $scope.personEditForm = {};
 
@@ -14,24 +16,27 @@ angular.module('user')
     $scope.update = function (service) {
         service.$put(
         function() { //Success
-            $mdToast.show({
-                controller: 'ToastCtrl',
-                templateUrl: '../views/feedback-toast.html',
-                hideDelay: 6000,
-                position: 'top right',
-                locals: {text: 'Saved changes',
-                         error: false}
+            $translate('SAVED_CHANGES').then(function(translated) {
+                $mdToast.show({
+                    controller: 'ToastCtrl',
+                    templateUrl: '../views/feedback-toast.html',
+                    hideDelay: 6000,
+                    position: 'top right',
+                    locals: {text: translated,
+                             error: false}
+                });
             });
         },
         function(data) { //Error
-            console.log(data);
-            $mdToast.show({
-                controller: 'ToastCtrl',
-                templateUrl: '../views/feedback-toast.html',
-                hideDelay: 6000,
-                position: 'top right',
-                locals: {text: 'Error: ' + data.error,
-                         error: true}
+            $translate('ERROR').then(function(translated) {
+                $mdToast.show({
+                    controller: 'ToastCtrl',
+                    templateUrl: '../views/feedback-toast.html',
+                    hideDelay: 6000,
+                    position: 'top right',
+                    locals: {text: translated + ': ' + data.error,
+                             error: true}
+                });
             });
         });
     };
@@ -46,7 +51,6 @@ angular.module('user')
     }
 
     $scope.updateUser = function() {
-        console.log(JSON.stringify($scope.userEditForm));
         var token = $window.sessionStorage.token;
         var user = JSON.parse(atob(token.split('.')[1]));
         $scope.userEditForm.id = user.id;

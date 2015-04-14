@@ -2,8 +2,10 @@
 
 angular.module('user')
 
-.controller('registerUserController', function($scope, $http, $window, $location, Page, $mdToast, $animate, AuthenticationService, User, Person) {
-    Page.setTitle('Register');
+.controller('registerUserController', function($scope, $http, $window, $location, $translate, Page, $mdToast, $animate, AuthenticationService, User, Person) {
+    $translate('REGISTER').then(function(register) {
+    Page.setTitle(register);
+  });
     $scope.userForm = {};
     $scope.persons = [];
     $scope.userForm.profileImageSrc = '';
@@ -57,22 +59,26 @@ angular.module('user')
             AuthenticationService.isAuthenticated = true;
             $window.sessionStorage.token = data.token;
             $location.path('/restricted');
-            $mdToast.show({
+            $translate('SUCCESSFULLY_REGISTERED').then(function(translated) {
+                $mdToast.show({
                 controller: 'ToastCtrl',
                 templateUrl: '../views/feedback-toast.html',
                 hideDelay: 6000,
                 position: 'top right',
-                locals: {text: 'Succesfully registered',
+                locals: {text: translated,
                          error: false}
+                });
             });
         }, function(data) { //Error
-            $mdToast.show({
-                controller: 'ToastCtrl',
-                templateUrl: '../views/feedback-toast.html',
-                hideDelay: 6000,
-                position: 'top right',
-                locals: {text: 'Error: ' + data.error,
-                         error: true}
+            $translate('SUCCESSFULLY_REGISTERED').then(function(translated) {
+                $mdToast.show({
+                    controller: 'ToastCtrl',
+                    templateUrl: '../views/feedback-toast.html',
+                    hideDelay: 6000,
+                    position: 'top right',
+                    locals: {text: translated + ': ' + data.error,
+                             error: true}
+                });
             });
         });
     };
