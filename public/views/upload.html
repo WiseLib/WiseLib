@@ -36,22 +36,10 @@
 
 <div class="form-block">
     <h4>Authors</h4>
+    <p ng-show="pdfAuthors.length > 0">Extracted authors from PDF left : {{pdfAuthors.length}}</p>
     <addperson />
     <md-button class="md-raised" ng-click="addAuthor()">Add Author</md-button>
 </div>
-
-<h4 ng-show="chooseAuthor.length > 0">Select the correct author</h4>
-<ul style="width: 50%;padding-left: 0px;margin-left: 0px;" ng-show="chooseAuthor.length > 0">
-    <li id="authorselect" ng-repeat="Authorlist in chooseAuthor">
-        <h4 style="text-decoration: underline;">{{Authorlist.firstName + " "+ Authorlist.lastName}}</h4>
-        <ul class="choices">
-            <li ng-repeat="possibleAuthor in Authorlist.authorList">
-                <p><personmin person="possibleAuthor"  ng-click="add(authors, possibleAuthor);remove(chooseAuthor,Authorlist)"></personmin></p>
-            </li>
-        </ul>
-
-    </li>
-</ul>
 
 <h4 ng-show="authors.length > 0">Selected authors</h4>
 <ul class="choices chosen"> 
