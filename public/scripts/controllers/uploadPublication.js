@@ -68,6 +68,15 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         $scope.selectCurrentPDFAuthor();
     };
 
+    $scope.skipAuthor = function(){
+        //clear person object
+        for(var v in PersonState.person) {
+            PersonState.person[v] = undefined;
+        }
+        //next pdf-extracted author
+        $scope.selectCurrentPDFAuthor();
+    }
+
     $scope.setCurrentAuthor = function(person) {
         PersonState.person.firstName = person.firstName;
         PersonState.person.lastName = person.lastName;

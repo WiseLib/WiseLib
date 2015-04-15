@@ -36,6 +36,10 @@
         <div class="form-block">
             <h4>{{'AUTHORS' | translate}}</h4>
             <p ng-show="pdfAuthors.length > 0">{{'EXTRACTED_AUTHORS_LEFT' | translate}} : {{pdfAuthors.length}}</p>
+            <md-button class="md-raised" style="margin-bottom:10px;"ng-click="skipAuthor()">
+                <md-tooltip>{{'SKIP_TOOLTIP' | translate}}</md-tooltip>
+                {{'SKIP' | translate}}
+            </md-button>
             <addperson />
             <md-button class="md-raised" ng-click="addAuthor()">{{'ADD_AUTHOR' | translate}}</md-button>
         </div>

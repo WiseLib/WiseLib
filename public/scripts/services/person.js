@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('person',[])
+angular.module('person',['ngMessages'])
 .factory('Person', function($resource) {
 	return $resource('/persons/:id.json', {id:'@id'}, {
 		query: { method: 'GET', isArray: false , url: '/persons.json'},

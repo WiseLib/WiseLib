@@ -93,5 +93,7 @@
 	"SEARCH_THE_WEB": "Search the web",
 	"RESULTS": "Results",
 	"NO_RESULTS": "No results",
-	"LANGUAGE": "Language"
+	"LANGUAGE": "Language",
+	"SKIP":"Skip",
+	"SKIP_TOOLTIP":"Skip this author"
 }
