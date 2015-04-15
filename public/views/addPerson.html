@@ -1,70 +1,71 @@
 <md-content layout="column" ng-controller="addPersonController">
-  <form role="form" name="form" layout="column">
-    <div layout="row" class="form-block">
-        <md-input-container>
-            <label>{{'FIRST_NAME' | translate}}</label>
-            <input type="text" name="firstName" ng-model="person.firstName" required>
-            <div ng-messages="form.firstName.$error">
-                <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
+    <form role="form" name="form" layout="column">
+        <div layout="row" class="form-block">
+            <md-input-container>
+                <label>{{'FIRST_NAME' | translate}}</label>
+                <input type="text" name="firstName" ng-model="person.firstName" required>
+                <div ng-messages="form.firstName.$error">
+                    <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
+                </div>
+            </md-input-container>
+            <md-input-container>
+                <label>{{'LAST_NAME' | translate}}</label>
+                <input type="text" name="lastName" ng-model="person.lastName" required>
+                <div ng-messages="form.lastName.$error">
+                    <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
+                </div>
+            </md-input-container>
+        </div>
+       
+        <div ng-hide="person.firstName == undefined && person.lastName == undefined">
+            <div ng-show="persons.length > 0">
+                <p>{{'PERSON_IN_DATABASE' | translate}}</p>
+                <md-radio-group ng-model="person.id" ng-if="persons.length > 0">
+                    <md-radio-button  ng-repeat="p in persons" ng-value="p.id">
+                        <personmin person="p" />
+                    </md-radio-button>
+                </md-radio-group>
             </div>
-        </md-input-container>
-        <md-input-container>
-            <label>{{'LAST_NAME' | translate}}</label>
-            <input type="text" name="lastName" ng-model="person.lastName" required>
-            <div ng-messages="form.lastName.$error">
-                <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
+
+             <p ng-show="!person.id && persons.length == 0">{{'NAME_WILL_BE_ADDED_TO_DATABASE' | translate}}</p>
+             <p ng-show="!person.id && persons.length > 0">{{'ADD_PERSON_TO_DATABASE' | translate}}</p>
+
+            <div class="form-block" ng-show="!person.id">
+                <h4>{{'PROFILE_IMAGE' | translate}}</h4>
+                <img ng-src="{{person.profileImageSrc || '/assets/dummy.jpg'}}" class="profile-image" ng-model="person.profileImageSrc" name="profileImage" alt="profile image" />
+                <md-input-container>
+                    <input type="file" accept="image/*" onchange="angular.element(this).scope().fileNameChanged(this)" />
+                </md-input-container>
             </div>
-        </md-input-container>
-    </div>
-   
-    <div ng-hide="person.firstName == undefined && person.lastName == undefined">
-
-    <div ng-show="persons.length > 0">
-        <p>{{'PERSON_IN_DATABASE' | translate}}</p>
-        <md-radio-group ng-model="person.id" ng-if="persons.length > 0">
-            <md-radio-button  ng-repeat="p in persons" ng-value="p.id">
-                <personmin person="p" />
-            </md-radio-button>
-        </md-radio-group>
-    </div>
-
-     <p ng-show="!person.id && persons.length == 0">{{'NAME_WILL_BE_ADDED_TO_DATABASE' | translate}}</p>
-     <p ng-show="!person.id && persons.length > 0">{{'ADD_PERSON_TO_DATABASE' | translate}}</p>
-
-    <div class="form-block" ng-show="!person.id">
-        <h4>{{'PROFILE_IMAGE' | translate}}</h4>
-        <img ng-src="{{person.profileImageSrc || '/assets/dummy.jpg'}}" class="profile-image" ng-model="person.profileImageSrc" name="profileImage" alt="profile image" />
-        <md-input-container>
-            <input type="file" accept="image/*" onchange="angular.element(this).scope().fileNameChanged(this)" />
-        </md-input-container>
-    </div>
-    <div class="form-block" ng-show="!person.id">
-        <h4>{{'AFFILIATION' | translate}}</h4>
-        <ul>
-            <li ng-repeat="chosenAffiliation in affiliations">
-                <p>{{chosenAffiliation.name}}</p>
-            </li>
-        </ul>
-        <md-button 
-            class="md-raised" 
-            ng-show="affiliations.length > 0" 
-            ng-click="popAffiliation()">{{'UNDO' | translate}}</md-button>
-        <p><md-autocomplete
-            md-selected-item="selectedAffiliation"
-            md-search-text="affiliationName"
-            md-items="affiliation in filterAffiliations(affiliationName)"
-            md-item-text="affiliation.name"
-            md-no-cache="true"
-            placeholder="{{'AFFILIATION_PLACEHOLDER' | translate}}">
-            <span md-highlight-text="affiliationName">{{affiliation.name}}</span>
-        </md-autocomplete></p>
-        <md-button 
-            class="md-raised" 
-            ng-show="affiliationName != selectedAffiliation.name && affiliationName.length > 0" 
-            ng-click="postAffiliation(affiliationName)">{{'ADD_AFFILIATION' | translate}}</md-button>
-    </div>
-
-    </div>
-
+            <div class="form-block" ng-show="!person.id">
+                <h4>{{'AFFILIATION' | translate}}</h4>
+                <ul>
+                    <li ng-repeat="chosenAffiliation in affiliations">
+                        <p>{{chosenAffiliation.name}}</p>
+                    </li>
+                </ul>
+                <md-button 
+                    class="md-raised" 
+                    ng-show="affiliations.length > 0" 
+                    ng-click="popAffiliation()">
+                    {{'UNDO' | translate}}
+                </md-button>
+                <md-autocomplete
+                    md-selected-item="selectedAffiliation"
+                    md-search-text="affiliationName"
+                    md-items="affiliation in filterAffiliations(affiliationName)"
+                    md-item-text="affiliation.name"
+                    md-no-cache="true"
+                    placeholder="{{'AFFILIATION_PLACEHOLDER' | translate}}">
+                    <span md-highlight-text="affiliationName">{{affiliation.name}}</span>
+                </md-autocomplete>
+                <md-button 
+                    class="md-raised" 
+                    ng-show="affiliationName != selectedAffiliation.name && affiliationName.length > 0" 
+                    ng-click="postAffiliation(affiliationName)">
+                    {{'ADD_AFFILIATION' | translate}}
+                </md-button>
+            </div>
+        </div>
     </form>
 </md-content>
