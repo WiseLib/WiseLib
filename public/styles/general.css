@@ -60,3 +60,9 @@ tr:nth-child(even) td {
 personmin a {
 	align-items: center;
 }
+
+.ac-disc-list {
+	margin-top: 0px;
+  	padding-left: 0;
+  	list-style-position: inside;
+}
