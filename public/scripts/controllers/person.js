@@ -5,7 +5,6 @@ module.controller('personController', function($scope,$window, $routeParams, $tr
 	$translate('PERSON').then(function(translated) {
         Page.setTitle(translated);
     });
-	Page.setTitle('Person');
 	$scope.disciplines = [];
 	Person.get({id: $routeParams.id}, function(person) {
 		console.log(person);

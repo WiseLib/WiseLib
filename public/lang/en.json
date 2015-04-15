@@ -92,5 +92,6 @@
 	"AFFILIATION": "Affiliation",
 	"ACADEMIC_DISCIPLINES": "Academic disciplines",
 	"PUBLICATIONS_WRITTEN_BY": "Publications written by",
-	"PERSON": "Person"
+	"PERSON": "Person",
+	"PUBLICATION": "Publication"
 }
