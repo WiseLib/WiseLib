@@ -4,6 +4,11 @@
     margin-right: 4px;
 }
 
+.profile-image-big {
+	width: 100px;
+	border-radius: 50px;
+}
+
 a {
 	color: #000;
 	text-decoration: none;
@@ -28,6 +33,10 @@ tr:nth-child(even) td {
 	width: 100%;
 }
 
+.indent {
+	padding: 0px 0px 0px 5px;
+}
+
 .menu-lang-btn {
 	box-shadow: 0px 8px 17px rgba(0,0,0,.2);
 	border-radius: 0px !important;
@@ -36,4 +45,24 @@ tr:nth-child(even) td {
 
 .page-title {
 	font-size: 24px;
+	padding-left: 10px;
+}
+
+#tab1-content .row {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+#tab1-content .row .left {
+	color: #999;
+}
+
+personmin a {
+	align-items: center;
+}
+
+.ac-disc-list {
+	margin-top: 0px;
+  	padding-left: 0;
+  	list-style-position: inside;
 }

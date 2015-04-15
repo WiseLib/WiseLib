@@ -282,14 +282,28 @@ disciplineRepr.model = AcademicDiscipline;
 disciplineRepr.relations = ['parent', 'journals', 'proceedings'];
 
 //affiliation
+var affiliationRepr = new Representation();
+affiliationRepr.id = {
+    fieldName: 'id',
+    name: 'id'
+};
+affiliationRepr.name = {
+    fieldName: 'name',
+    name: 'name'
+};
+
 var Affiliation = bookshelf.Model.extend({
     tableName: 'affiliation',
     parent: function() {
         return this.belongsTo(Affiliation, 'part_of_affiliation_id');
     }
 });
+affiliationRepr[searchKey] = [affiliationRepr.name];
+affiliationRepr.relationSearch = [];
+affiliationRepr.model = Affiliation;
+affiliationRepr.relations = ['parent'];
 
-//person
+//Person
 var personRepr = new Representation();
 personRepr.id = {
     fieldName: 'id',
@@ -312,6 +326,9 @@ var Person = bookshelf.Model.extend({
     affiliation: function() {
         return this.belongsTo(Affiliation, 'part_of_affiliation_id');
     },
+    disciplines: function() {
+        return this.belongsToMany(AcademicDiscipline, 'person_studies_academic_discipline', 'person_id', 'academic_discipline_id');
+    },
     publications: function() {
         return this.belongsToMany(Publication, 'publication_written_by_person', 'person_id', 'publication_id');
     },
@@ -320,7 +337,8 @@ var Person = bookshelf.Model.extend({
 personRepr[searchKey] = [personRepr.firstName, personRepr.lastName];
 personRepr.relationSearch = ['publications'];
 personRepr.model = Person;
-personRepr.relations = ['publications'];
+personRepr.relations = ['publications', 'affiliation', 'disciplines'];
+
 //User
 var userRepr = new Representation();
 userRepr.id = {
@@ -500,8 +518,10 @@ proceedingPublicationRepr.relations = ['proceeding'];
 proceedingPublicationRepr.super = publicationRepr;
 
 module.exports.searchKey = searchKey;
+module.exports.affiliationRepr = affiliationRepr;
 module.exports.disciplineRepr = disciplineRepr;
 module.exports.journalRepr = journalRepr;
+module.exports.affiliationRepr = affiliationRepr;
 module.exports.personRepr = personRepr;
 module.exports.userRepr = userRepr;
 module.exports.publicationRepr = publicationRepr;

@@ -18,3 +18,4 @@ config.json
 src/config.json
 /test/pdfs/output
 *.orig
+/src/.DS_Store
