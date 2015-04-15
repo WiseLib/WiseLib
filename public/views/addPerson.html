@@ -17,6 +17,8 @@
         </md-input-container>
     </div>
    
+    <div ng-hide="person.firstName == undefined && person.lastName == undefined">
+
     <div ng-show="persons.length > 0">
         <p>{{'PERSON_IN_DATABASE' | translate}}</p>
         <md-radio-group ng-model="person.id" ng-if="persons.length > 0">
@@ -61,5 +63,8 @@
             ng-show="affiliationName != selectedAffiliation.name && affiliationName.length > 0" 
             ng-click="postAffiliation(affiliationName)">{{'ADD_AFFILIATION' | translate}}</md-button>
     </div>
+
+    </div>
+
     </form>
 </md-content>
