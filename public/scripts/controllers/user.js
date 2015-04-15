@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('user', ['proceeding', 'ngMaterial'])
+angular.module('user', ['proceeding', 'ngMaterial','ngMessages'])
 
-.controller('uploadUserController', ['$http', 'Page', function ($http, Page) {
+.controller('uploadUserController', function ($http, Page) {
     Page.setTitle('Upload user');
     this.authors = [];
     this.disciplines = [];
@@ -55,4 +55,4 @@ angular.module('user', ['proceeding', 'ngMaterial'])
         console.log('POST : ' + JSON.stringify(toPost));
         $http.post('users/1/users.json', toPost);
     };
-}]);
+});
