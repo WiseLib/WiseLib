@@ -1,11 +1,12 @@
 <md-content layout="column">
 
 <div class="uploadfield">
+<span class="label">{{'FILL_IN_FIELDS_BELOW_OR_UPLOAD_PDF' | translate}}</span>
    <md-button class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadpdf').click();">
    <md-icon md-svg-src='/assets/upload.svg'></md-icon>
    <md-tooltip >{{'UPLOAD_PDF' | translate}}</md-tooltip>
 </md-button>
-<span class="label">{{'FILL_IN_FIELDS_BELOW_OR_UPLOAD_PDF' | translate}}</span>
+
 </div>
 
 <form id="upload-publication" role="form" class="form-horizontal" name="postPublicationForm">
@@ -46,9 +47,12 @@
 </md-input-container>
 <ul class="choices"> 
     <li ng-repeat="person in fetchPersons(possibleAuthor)">
-        <personmin person="person" ng-click="add(authors, person)"></personmin>
+        <p><personmin person="person" ng-click="add(authors, person)"></personmin></p>
     </li>
 </ul>
+<md-button ng-show="possibleAuthor.firstName !== undefined && possibleAuthor.lastName !== undefined"class="md-raised"  ng-click="addNewPerson(possibleAuthor)">
+ <md-tooltip>{{'ADD_PERSON' | translate}}</md-tooltip> {{'PERSON_NOT_IN_LIST' | translate}}
+</md-button>
 
 <h4 ng-show="chooseAuthor.length > 0">{{'SELECT_CORRECT_AUTHOR' | translate}}</h4>
 <ul style="width: 50%;padding-left: 0px;margin-left: 0px;" ng-show="chooseAuthor.length > 0">

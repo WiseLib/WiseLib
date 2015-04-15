@@ -1,4 +1,6 @@
 {
+	"ADD_PERSON" : "Click to add person to the database",
+	"PERSON_NOT_IN_LIST" : "Person not in list?",
 	"WELCOME": "Welcome to WiseLib",
 	"WELCOME_SUB": "A browsable research database",
 	"WISELIB_DESCR": "WiseLib lets you share your papers and search through papers shared by others colleagues.",

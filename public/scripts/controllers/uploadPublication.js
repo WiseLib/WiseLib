@@ -87,6 +87,15 @@ module.controller('uploadPublicationController', function($scope, $window, $http
           );
     };
 
+    $scope.addNewPerson = function(person){
+        var newPerson;
+        $translate('NAME_WILL_BE_ADDED_TO_DATABASE').then(function(translated) {
+            newPerson = {firstName:person.firstName,lastName:person.lastName,status:'(' + translated + ')'};
+            $scope.add($scope.authors,newPerson);
+        });
+
+    };
+
     $scope.uploadpdf = function(files){
 
         var fd = new FormData();
@@ -105,7 +114,9 @@ module.controller('uploadPublicationController', function($scope, $window, $http
             $scope.numberOfPages=data.numberofpages;
             $scope.url = data.path;
 
-            $scope.authors = [user.person];
+
+            $scope.authors = [];
+            Person.get({id:user.person},function(person){$scope.add($scope.authors,person)});
 
             var index;
             for (index = 0; index < data.authors.length; ++index) {
