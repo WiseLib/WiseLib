@@ -15,7 +15,7 @@
             </div>
         </md-input-container>
     </div>
-    <p ng-show="persons.length == 0">{{'NAME_WILL_BE_ADDED_TO_DATABASE' | translate}}</p>
+    <p ng-show="!person.id">{{'NAME_WILL_BE_ADDED_TO_DATABASE' | translate}}</p>
     <div ng-show="persons.length > 0">
         <p>{{'PERSON_IN_DATABASE' | translate}}</p>
         <md-radio-group ng-model="person.id" ng-if="persons.length > 0">
@@ -24,14 +24,14 @@
             </md-radio-button>
         </md-radio-group>
     </div>
-    <div class="form-block" ng-show="persons.length == 0">
+    <div class="form-block" ng-show="!person.id">
         <h4>{{'PROFILE_IMAGE' | translate}}</h4>
         <img ng-src="{{person.profileImageSrc || '/assets/dummy.jpg'}}" class="profile-image" ng-model="person.profileImageSrc" name="profileImage" alt="profile image" />
         <md-input-container>
             <input type="file" accept="image/*" onchange="angular.element(this).scope().fileNameChanged(this)" />
         </md-input-container>
     </div>
-    <div class="form-block" ng-show="persons.length == 0">
+    <div class="form-block" ng-show="!person.id">
         <h4>{{'AFFILIATION' | translate}}</h4>
         <ul>
             <li ng-repeat="chosenAffiliation in affiliations">
