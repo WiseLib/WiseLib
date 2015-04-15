@@ -1,4 +1,5 @@
 <md-content layout="column" ng-controller="addPersonController">
+  <form role="form" name="form" layout="column">
     <div layout="row" class="form-block">
         <md-input-container>
             <label>{{'FIRST_NAME' | translate}}</label>
@@ -56,4 +57,5 @@
             ng-show="affiliationName != selectedAffiliation.name && affiliationName.length > 0" 
             ng-click="postAffiliation(affiliationName)">{{'ADD_AFFILIATION' | translate}}</md-button>
     </div>
+    </form>
 </md-content>
