@@ -59,7 +59,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
     $scope.addAuthor = function() {
         //copy json object
         var author = JSON.parse(JSON.stringify(PersonState.person));
-        //empty person
+        //clear person object
         for(var v in PersonState.person) {
             PersonState.person[v] = undefined;
         }
