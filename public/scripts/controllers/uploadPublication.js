@@ -14,6 +14,8 @@ module.controller('uploadPublicationController', function($scope, $window, $http
     $scope.references = [];
     $scope.JSONreferences = [];
 
+    $scope.PersonState = PersonState;
+
     var lastSearch;
     var persons = [];
     $scope.fetchPersons = function (author){

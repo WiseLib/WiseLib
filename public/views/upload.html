@@ -41,7 +41,7 @@
                 {{'SKIP' | translate}}
             </md-button>
             <addperson />
-            <md-button class="md-raised" ng-click="addAuthor()">{{'ADD_AUTHOR' | translate}}</md-button>
+            <md-button ng-disabled="PersonState.person.affiliation == undefined"class="md-raised" ng-click="addAuthor()">{{'ADD_AUTHOR' | translate}}</md-button>
         </div>
 
         <h4 ng-show="authors.length > 0">{{'SELECTED_AUTHORS' | translate}}</h4>
