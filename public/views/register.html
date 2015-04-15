@@ -1,38 +1,5 @@
 <md-content layout="column">
     <form role="form" name="form" ng-submit="createUser()" layout="column">
-        <div layout="row">
-            <md-input-container>
-                <label>{{'FIRST_NAME' | translate}}</label>
-                <input type="text" name="firstName" ng-model="userForm.firstName" required>
-                <div ng-messages="form.firstName.$error">
-                    <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
-                </div>
-            </md-input-container>
-            <md-input-container>
-                <label>{{'LAST_NAME' | translate}}</label>
-                <input type="text" name="lastName" ng-model="userForm.lastName" required>
-                <div ng-messages="form.lastName.$error">
-                    <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
-                </div>
-            </md-input-container>
-        </div>
-        <div class="form-group">
-            <label for="personId" class="col-xs-1 control-label">{{'PERSON_IN_DATABASE' | translate}} {{ personId }}</label>
-            <md-radio-group ng-model="userForm.personId" ng-if="persons.length > 0">
-                <md-radio-button  ng-repeat="person in persons" ng-value="person.id" aria-label="{{ person.firstName + ' ' + person.lastName }}"><personmin person="person" />
-                </md-radio-button>
-            </md-radio-group>
-            <label class="control-label" ng-show="persons.length == 0">
-                {{'NAME_WILL_BE_ADDED_TO_DATABASE' | translate}}
-            </label>
-        </div>
-        <div ng-hide="userForm.personId">
-            <label>{{'PROFILE_IMAGE' | translate}}</label><br />
-            <img ng-src="{{userForm.profileImageSrc || '/assets/dummy.jpg'}}" class="profile-image" ng-model="userForm.profileImageSrc" name="profileImage" alt="{{'PROFILE_IMAGE' | translate}}" />
-            <md-input-container>
-                <input type="file" accept="image/*" onchange="angular.element(this).scope().fileNameChanged(this)" />
-            </md-input-container>
-        </div>
         <md-input-container>
             <label>{{'EMAIL' | translate}}</label>
             <input type="email" name="email" ng-model="userForm.email" required>
@@ -49,6 +16,7 @@
                 <div ng-message="minlength">{{'PWD_8_CHARS' | translate }}</div>
             </div>
         </md-input-container>
+        <addperson />
         <md-button type="submit" class="md-raised md-primary" ng-disabled="form.$invalid">{{'REGISTER' | translate}}</md-button>
     </form>
 </md-content>

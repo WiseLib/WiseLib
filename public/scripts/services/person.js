@@ -10,5 +10,7 @@ angular.module('person')
 		searchLastName: { method: 'GET', url:'/persons.json/?lastName=:ln',params: {ln:'@ln'}},
 		searchBoth: { method: 'GET', url:'/persons.json/?firstName=:fn&lastName=:ln',params: {fn:'@fn',ln:'@ln'}}
 	});
+})
+.service('PersonState', function() {
+	this.person = {};
 });
-

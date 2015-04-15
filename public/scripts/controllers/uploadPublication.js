@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication');
 
-module.controller('uploadPublicationController', function($scope, $window, $http, $translate, Page, $mdToast, Person, Journal, Proceeding) {
+module.controller('uploadPublicationController', function($scope, $window, $http, $translate, Page, $mdToast, Person, PersonState, Journal, Proceeding) {
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
 
@@ -9,11 +9,12 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         Page.setTitle(translated);
     });
     $scope.authors = [];
-    $scope.chooseAuthor = [];
-    $scope.newAuthors =[];
+    $scope.pdfAuthors =[];
     $scope.disciplines = [];
     $scope.references = [];
     $scope.JSONreferences = [];
+
+    $scope.PersonState = PersonState;
 
     var lastSearch;
     var persons = [];
@@ -55,6 +56,39 @@ module.controller('uploadPublicationController', function($scope, $window, $http
             journals= data.journals;
             return data.journals;
         });
+    };
+
+    $scope.addAuthor = function() {
+        //copy json object
+        var author = JSON.parse(JSON.stringify(PersonState.person));
+        //clear person object
+        for(var v in PersonState.person) {
+            PersonState.person[v] = undefined;
+        }
+        $scope.add($scope.authors, author);
+        //next pdf-extracted author
+        $scope.selectCurrentPDFAuthor();
+    };
+
+    $scope.skipAuthor = function(){
+        //clear person object
+        for(var v in PersonState.person) {
+            PersonState.person[v] = undefined;
+        }
+        //next pdf-extracted author
+        $scope.selectCurrentPDFAuthor();
+    }
+
+    $scope.setCurrentAuthor = function(person) {
+        PersonState.person.firstName = person.firstName;
+        PersonState.person.lastName = person.lastName;
+    };
+
+    $scope.selectCurrentPDFAuthor = function() {
+        $scope.pdfAuthors.shift();
+        if($scope.pdfAuthors.length > 0) {
+            $scope.setCurrentAuthor($scope.pdfAuthors[0]);
+        }
     };
 
     $scope.chooseJournal = function(jour){
@@ -106,113 +140,85 @@ module.controller('uploadPublicationController', function($scope, $window, $http
             $scope.url = data.path;
 
             $scope.authors = [user.person];
+            $scope.pdfAuthors = data.authors;
+            if($scope.pdfAuthors.length > 0) {
+                $scope.setCurrentAuthor($scope.pdfAuthors[0]);
+            }   
+
+        }).
+        error(function(data, status, headers, config) {
+            $translate('UPLOADED_FILE_NOT_PDF').then(function(translated) {
+                $scope.showSimpleToast(translated);
+            });
+        });
+    };
+
+    $scope.uploadbibtex = function(files){
+
+        var fd = new FormData();
+        fd.append("file", files[0]);
+
+        $http.post('uploadfile', fd, {
+            withCredentials: true,
+            headers: {'Content-Type': undefined },
+            transformRequest: angular.identity
+        }).
+        success(function(data, status, headers, config) {
 
             var index;
-            for (index = 0; index < data.authors.length; ++index) {
+            $scope.JSONreferences=[];
+            $scope.references=[];
+            for (index = 0; index < data.length; ++index) {
+                var reference = data[index];
+                $scope.add($scope.JSONreferences,reference);
 
-                var firstName = data.authors[index].firstName;
-                var lastName = data.authors[index].lastName;
-
-                var foundPersons;
-
-                (function(firstName,lastName){
-                    Person.query({firstName: firstName, lastName: lastName}, function(response) {
-                        foundPersons = {firstName:firstName,lastName:lastName,authorList:response.persons};
-                        if (response.persons.length<1) {//response is empty if person does not exist on server
-                            $translate('NAME_WILL_BE_ADDED_TO_DATABASE').then(function(translated) {
-                                foundPersons.status= '(' + translated + ')';
-                            });
-                            $scope.add($scope.authors,foundPersons);
-                        }
-                        else {
-                            $scope.add($scope.chooseAuthor,foundPersons);
-                        }
-                    }, function(error) {
-                        console.log(error);
-                    });
-                }(firstName,lastName));
-
-            }
+                var title = reference.entryTags.title;
+                $scope.add($scope.references,title);
+            }   
         }).
-error(function(data, status, headers, config) {
-    $translate('UPLOADED_FILE_NOT_PDF').then(function(translated) {
-        $scope.showSimpleToast(translated);
-    });
-});
+        error(function(data, status, headers, config) {
+            $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
+                $scope.showSimpleToast(translated);
+            });
+        });
+    };
 
-};
+    $scope.post = function () {
 
-$scope.uploadbibtex = function(files){
+        function upload(){
+            console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
+        /*  $http.post('users/'+user.id+'/publications.json', toPost)
+            .success(function(data, status, headers, config) {
+                $location.path('/mypublications') 
+            })
+            .error(function(data, status, headers, config) {
+                $scope.showSimpleToast("Something went wrong:" + status);
+            });*/
+        };
 
-    var fd = new FormData();
-    fd.append('file', files[0]);
-
-    $http.post('uploadfile', fd, {
-        withCredentials: true,
-        headers: {'Content-Type': undefined },
-        transformRequest: angular.identity
-    }).
-    success(function(data, status, headers, config) {
-
-        var index;
-        $scope.JSONreferences=[];
-        $scope.references=[];
-        for (index = 0; index < data.length; ++index) {
-            var reference = data[index];
-            $scope.add($scope.JSONreferences,reference);
-
-            var title = reference.entryTags.title;
-            $scope.add($scope.references,title);
+        var toPost = {};
+        toPost.title = $scope.title;
+        toPost.numberOfPages = $scope.numberOfPages;
+        toPost.year = $scope.year;
+        toPost.url = $scope.url;
+        toPost.abstract = $scope.abstract;
+        toPost.references = $scope.JSONreferences;
+        toPost.type = $scope.type;
+        if ($scope.type === 'Journal') {
+            toPost.journalId = $scope.journal.id;
+            toPost.volume = $scope.volume;
+            toPost.number = $scope.number;
+        }
+        else {
+            toPost.proceedingId = $scope.proceeding.id;
+            toPost.editors = $scope.editors;
+            toPost.publisher = $scope.publisher;
+            toPost.city = $scope.city;
         }
 
+        toPost.uploader = user.id;
 
-    }).
-    error(function(data, status, headers, config) {
-        $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
-            $scope.showSimpleToast(translated);
-        });
-    });
-
-};
-
-$scope.post = function () {
-
-    function upload(){
-        console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
-       /*  $http.post('users/'+user.id+'/publications.json', toPost)
-        .success(function(data, status, headers, config) {
-            $location.path('/mypublications')
-        })
-        .error(function(data, status, headers, config) {
-            $scope.showSimpleToast("Something went wrong:" + status);
-        });*/
-}
-
-
-
-var toPost = {};
-toPost.title = $scope.title;
-toPost.numberOfPages = $scope.numberOfPages;
-toPost.year = $scope.year;
-toPost.url = $scope.url;
-toPost.abstract = $scope.abstract;
-toPost.references = $scope.JSONreferences;
-toPost.type = $scope.type;
-if ($scope.type === 'Journal') {
-    toPost.journalId = $scope.journal.id;
-    toPost.volume = $scope.volume;
-    toPost.number = $scope.number;
-}
-else {
-    toPost.proceedingId = $scope.proceeding.id;
-    toPost.editors = $scope.editors;
-    toPost.publisher = $scope.publisher;
-    toPost.city = $scope.city;
-}
-
-toPost.uploader = user.id;
-
-var authArray = new Array($scope.authors.length);
+        var authArray = new Array($scope.authors.length);
         authArray[0] = {id: $scope.authors[0].id};//Uploader
         if($scope.authors.length === 1) {upload();return;} //no other co authors
         for (var i = 1; i < $scope.authors.length; i++) {//add co authors (id) to list

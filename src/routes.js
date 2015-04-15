@@ -46,6 +46,13 @@ module.exports = function(app) {
     app.route('/proceedings/:id/disciplines.json')
     .get(routeFunctions.getProceedingDisciplines);
 
+    app.route('/affiliations.json')
+    .get(routeFunctions.getAffiliations)
+    .post(routeFunctions.postAffiliation);
+
+    app.route('/affiliations/:id.json')
+    .get(routeFunctions.getAffiliation);
+
     app.route('/persons.json')
     .get(routeFunctions.getPersons)
     .post(routeFunctions.postPerson);
