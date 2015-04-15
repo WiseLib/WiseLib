@@ -95,5 +95,11 @@
 	"NO_RESULTS": "Geen resultaten",
 	"LANGUAGE": "Taal",
 	"SKIP":"Sla over",
-	"SKIP_TOOLTIP":"Sla deze auteur over"
+	"SKIP_TOOLTIP":"Sla deze auteur over",
+	"PUBLICATIONS": "Publicaties",
+	"AFFILIATION": "Affiliatie",
+	"ACADEMIC_DISCIPLINES": "Academische disciplines",
+	"PUBLICATIONS_WRITTEN_BY": "Publicaties geschreven door",
+	"PERSON": "Persoon",
+	"PUBLICATION": "Publicatie"
 }

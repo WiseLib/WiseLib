@@ -3,8 +3,8 @@ angular.module('publication')
 
 .controller('myPublicationsController', function($scope, $window, $translate, Page, Publication, $mdDialog, $mdToast, Person) {
     $translate('MY_PUBLICATIONS').then(function(translated) {
-    Page.setTitle(translated);
-  });
+        Page.setTitle(translated);
+    });
     $scope.error = null;
     $scope.publications = [];
     $scope.showLoading = true;
