@@ -87,5 +87,11 @@
 	"SEARCH_THE_WEB": "Search the web",
 	"RESULTS": "Results",
 	"NO_RESULTS": "No results",
-	"LANGUAGE": "Language"
+	"LANGUAGE": "Language",
+	"PUBLICATIONS": "Publications",
+	"AFFILIATION": "Affiliation",
+	"ACADEMIC_DISCIPLINES": "Academic disciplines",
+	"PUBLICATIONS_WRITTEN_BY": "Publications written by",
+	"PERSON": "Person",
+	"PUBLICATION": "Publication"
 }

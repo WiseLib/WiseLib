@@ -288,8 +288,21 @@ var Affiliation = bookshelf.Model.extend({
         return this.belongsTo(Affiliation, 'part_of_affiliation_id');
     }
 });
+var affiliationRepr = new Representation();
 
-//person
+affiliationRepr.id = {
+    fieldName: 'id',
+    name: 'id'
+};
+
+affiliationRepr.name = {
+    fieldName: 'name',
+    name: 'name'
+};
+
+affiliationRepr.model = Affiliation;
+
+//Person
 var personRepr = new Representation();
 personRepr.id = {
     fieldName: 'id',
@@ -312,6 +325,9 @@ var Person = bookshelf.Model.extend({
     affiliation: function() {
         return this.belongsTo(Affiliation, 'part_of_affiliation_id');
     },
+    disciplines: function() {
+        return this.belongsToMany(AcademicDiscipline, 'person_studies_academic_discipline', 'person_id', 'academic_discipline_id');
+    },
     publications: function() {
         return this.belongsToMany(Publication, 'publication_written_by_person', 'person_id', 'publication_id');
     },
@@ -320,7 +336,8 @@ var Person = bookshelf.Model.extend({
 personRepr[searchKey] = [personRepr.firstName, personRepr.lastName];
 personRepr.relationSearch = ['publications'];
 personRepr.model = Person;
-personRepr.relations = ['publications'];
+personRepr.relations = ['publications', 'affiliation', 'disciplines'];
+
 //User
 var userRepr = new Representation();
 userRepr.id = {
@@ -500,6 +517,7 @@ proceedingPublicationRepr.relations = ['proceeding'];
 proceedingPublicationRepr.super = publicationRepr;
 
 module.exports.searchKey = searchKey;
+module.exports.affiliationRepr = affiliationRepr;
 module.exports.disciplineRepr = disciplineRepr;
 module.exports.journalRepr = journalRepr;
 module.exports.personRepr = personRepr;
