@@ -5,7 +5,7 @@ angular.module('publication')
 .factory('Publication', function($resource) {
 	return $resource('/publications/:id.json', {id:'@id'}, {
 		search: { method: 'GET', isArray: false, url:'/publications.json/?q=:q', params: {q:'@q'}},
-		post:{ method: 'POST', url:'/publications.json/'}
+		post:{ method: 'POST', url:'/publications.json'}
 	});
 })
 

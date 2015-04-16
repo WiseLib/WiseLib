@@ -1,6 +1,6 @@
 <md-content layout="column">
     <div class="uploadfield">
-        <md-button class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadpdf').click();">
+        <md-button type="button" class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadpdf').click();">
             <md-icon md-svg-src='/assets/upload.svg'></md-icon>
             <md-tooltip>{{'UPLOAD_PDF' | translate}}</md-tooltip>
         </md-button>
@@ -38,19 +38,18 @@
         <div class="form-block">
             <h4>{{'AUTHORS' | translate}}</h4>
             <p ng-show="pdfAuthors.length > 0">{{'EXTRACTED_AUTHORS_LEFT' | translate}} : {{pdfAuthors.length}}</p>
-            <md-button class="md-raised" style="margin-bottom:10px;" ng-click="skipAuthor()">
+            <md-button type="button" class="md-raised" style="margin-bottom:10px;" ng-click="skipAuthor()">
                 <md-tooltip>{{'SKIP_TOOLTIP' | translate}}</md-tooltip>
                 {{'SKIP' | translate}}
             </md-button>
             <addperson />
-            <md-button ng-disabled="PersonState.person.affiliation == undefined && PersonState.person.id == undefined" class="md-raised" ng-click="addAuthor()">{{'ADD_AUTHOR' | translate}}</md-button>
+            <md-button type="button" ng-disabled="PersonState.person.affiliation == undefined && PersonState.person.id == undefined" class="md-raised" ng-click="addAuthor()">{{'ADD_AUTHOR' | translate}}</md-button>
         </div>
 
         <h4 ng-show="authors.length > 0">{{'SELECTED_AUTHORS' | translate}}</h4>
         <ul class="choices chosen">
             <li ng-repeat="chosenAuthor in authors">
-                <p>
-                    <personmin person="chosenAuthor"></personmin>{{" " + chosenAuthor.status}}</p>
+                <p><personmin person="chosenAuthor"></personmin>{{" " + chosenAuthor.status}}</p>
                 <div id="overlay" ng-click="remove(authors, chosenAuthor)">{{'REMOVE' | translate}}</div>
             </li>
         </ul>
@@ -122,7 +121,7 @@
     <form id="ReferenceInfo" role="form" class="form-horizontal" name="ReferenceForm">
         <div class="uploadfield">
             <span class="label">{{'ADD_REFERENCES_OR_UPLOAD_BIBTEX' | translate}}</span>
-            <md-button class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadbib').click();">
+            <md-button type="button" class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadbib').click();">
                 <md-icon md-svg-src='/assets/upload.svg'></md-icon>
                 <md-tooltip>{{'UPLOAD_BIBTEX_FILE' | translate}}</md-tooltip>
             </md-button>
@@ -135,7 +134,7 @@
                 <label>{{'REFERENCES' | translate}}</label>
                 <input id="reference" type="text" class="form-control" ng-model="possiblereference" label="Reference">
             </md-input-container>
-            <md-button class="btn btn-primary" ng-click="add(references, possiblereference)">{{'ADD' | translate}}</md-button>
+            <md-button type="button" class="btn btn-primary" ng-click="add(references, possiblereference)">{{'ADD' | translate}}</md-button>
             <h4 ng-show="references.length > 0">{{'SELECTED_REFERENCES' | translate}}</h4>
             <ul class="choices chosen">
                 <li ng-repeat="reference in references">
@@ -145,7 +144,7 @@
             </ul>
         </div>
 
-        <md-button class="md-raised md-primary reserve-tooltip-space" ng-disabled="PublicationInfoForm.$invalid ||JournalConferenceForm.$invalid || authors.length < 1" ng-click="post()">
+        <md-button type="button" class="md-raised md-primary reserve-tooltip-space" ng-disabled="PublicationInfoForm.$invalid ||JournalConferenceForm.$invalid || authors.length < 1" ng-click="post()">
             <!-- md-direction doesn't work in this version of angular-material. Temporary fix in the css file -->
             <md-tooltip md-direction="top">{{'UPLOAD_YOUR_PUBLICATION' | translate}}</md-tooltip>
             {{'SEND' | translate}}
