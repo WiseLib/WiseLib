@@ -46,5 +46,29 @@
   }
 
   .main-content {
-    padding: 0px 40px;
+    padding: 5px 40px;
+  }
+
+  #lang-btns {
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+    padding: 10px;
+    height: 40px;
+    font-size: 13px;
+    line-height: 24px;
+  }
+
+  md-sidenav {
+    overflow: hidden;
+    display: flex;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+
+  #sidenav-wrapper {
+    min-height: 100%;
+    padding-bottom: 40px;
+    position: relative;
   }

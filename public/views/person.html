@@ -1,0 +1,48 @@
+<md-content>
+	<md-toolbar class="md-accent" ng-if="error">{{'ERROR' | translate}}: {{error}}</md-toolbar>
+	<md-progress-circular md-mode="indeterminate" ng-if="!person && !error"></md-progress-circular>
+	<div layout="row">
+		<div><img ng-src="{{person.picture || '/assets/dummy.jpg'}}"  class="profile-image-big" alt="{{'PROFILE_IMAGE' | translate}}"></img></div>
+		<div class="page-title" layout="row" layout-align="start center">{{person.firstName}} {{person.lastName}}</div>
+		</div>
+		<md-tabs md-selected="data.selectedIndex">
+			<md-tab id="tab1" aria-controls="tab1-content">
+        		{{'ABOUT' | translate}}
+      		</md-tab>
+      		<md-tab id="tab2" aria-controls="tab2-content">
+        		{{'PUBLICATIONS' | translate}}
+    		</md-tab>
+    	</md-tabs>
+	    <ng-switch on="data.selectedIndex" class="tabpanel-container">
+	        <div role="tabpanel" id="tab1-content" aria-labelledby="tab1" ng-switch-when="0">
+	            <div layout="column">
+	            	<div layout="row" class="row">
+	            		<div flex="25" class="left">{{'AFFILIATION' | translate}}</div>
+	            		<div flex> {{person.affiliation}}</div>
+	            	</div>
+					<div layout="row" ng-if="disciplines.length > 0" class="row">
+						<div flex="25" class="left">{{'ACADEMIC_DISCIPLINES' | translate}}</div>
+						<div flex>
+							<ul class="ac-disc-list">
+								<li data-ng-repeat="d in disciplines">{{d}}</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+	        </div>
+			<div role="tabpanel" id="tab2-content" aria-labelledby="tab2" ng-switch-when="1">
+	             <h2>{{'PUBLICATIONS_WRITTEN_BY' | translate}} {{person.firstName}}</h2>
+				<md-progress-circular md-mode="indeterminate" ng-if="!publications.length && !error"></md-progress-circular>
+				<md-list class="publications-list">
+					<md-item ng-repeat="publication in publications">
+						<md-item-content>
+							<div class="md-tile-content">
+								<publicationmin publication="publication"></publicationmin>
+							</div>
+						</md-item-content>
+						<md-divider md-inset ng-if="!$last"></md-divider>
+					</md-item>
+				</md-list>
+	        </div>
+	    </ng-switch>
+</md-content>

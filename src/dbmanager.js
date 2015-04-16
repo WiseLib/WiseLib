@@ -33,7 +33,7 @@ DBManager.prototype.post = function(jsonObj, classObj, next) {
     else {
         postSubclass();
     }
-    
+
 };
 
 DBManager.prototype.get = function(jsonObj, classObj, next) {

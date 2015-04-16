@@ -1,11 +1,11 @@
 'use strict';
 
-angular.module('client', ['ngMaterial', 'ngRoute','publication', 'ngResource', 'user', 'person'])
+angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 'user', 'person', 'ngCookies', 'pascalprecht.translate'])
 
 /**
  * Configure the Routes
  */
-.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+ .config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
     // use the HTML5 History API & set HTM5 mode true
     $locationProvider.html5Mode(true);
     $routeProvider
@@ -30,7 +30,7 @@ angular.module('client', ['ngMaterial', 'ngRoute','publication', 'ngResource', '
         controller: 'loginUserController'
     })
     .when('/search', {
-        templateUrl: 'views/search.html', 
+        templateUrl: 'views/search.html',
         controller: 'searchPublicationController'
     })
     .when('/mypublications', {
@@ -48,11 +48,20 @@ angular.module('client', ['ngMaterial', 'ngRoute','publication', 'ngResource', '
     .otherwise({redirectTo: '/'});
 }])
 
+.config(['$translateProvider', function($translateProvider) {
+    $translateProvider.useStaticFilesLoader({
+      prefix: '/lang/',
+      suffix: '.json'
+  });
+    $translateProvider.preferredLanguage('en');
+    $translateProvider.useLocalStorage();
+}])
+
 .config(function($sceDelegateProvider) {
     $sceDelegateProvider.resourceUrlWhitelist([
     // Allow same origin resource loads.
     '**'
-  ]);
+    ]);
 })
 
 .config(function ($httpProvider) {
@@ -67,7 +76,7 @@ angular.module('client', ['ngMaterial', 'ngRoute','publication', 'ngResource', '
     };
 })
 
-.controller('navController', function($scope, $window, $mdSidenav, Page, AuthenticationService) {
+.controller('navController', function($scope, $window, $mdSidenav, $translate, Page, AuthenticationService) {
     $scope.Page = Page;
     $scope.auth = AuthenticationService;
     $scope.ToggleMenu = function() {
@@ -77,6 +86,11 @@ angular.module('client', ['ngMaterial', 'ngRoute','publication', 'ngResource', '
     $scope.logout = function() {
         AuthenticationService.isAuthenticated = false;
         delete $window.sessionStorage.token;
+    };
+
+    $scope.changeLanguage = function(lang) {
+        $translate.use(lang);
+        $mdSidenav('left').toggle();
     };
 })
 

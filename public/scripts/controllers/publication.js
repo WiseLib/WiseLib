@@ -1,8 +1,10 @@
 'use strict';
-var module = angular.module('publication',['communication', 'proceeding', 'ngMaterial']);
+var module = angular.module('publication',['journal', 'proceeding', 'ngMaterial','ngMessages']);
 
-module.controller('publicationController', function($scope, $window, $routeParams, Page, Publication, Person, User) {
-    Page.setTitle('Publication');
+module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication, Person, User) {
+    $translate('PUBLICATION').then(function(translated) {
+        Page.setTitle(translated);
+    });
     $scope.publication = undefined;
     $scope.persons = {};
     $scope.authors = [];

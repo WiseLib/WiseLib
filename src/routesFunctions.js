@@ -34,7 +34,7 @@ var getMultiple = function(req, res, repr, name) {
 	else {
 		DBManager.get(params, repr, name);
 	}
-	
+
 };
 //need to add authentification options
 var getSingle = function(req, res, repr, fct) {
@@ -53,7 +53,11 @@ var getSingle = function(req, res, repr, fct) {
 //need to add authentification options
 var postSingle = function(req, res, repr) {
 	DBManager.post(req.body, repr, function(id) {
+<<<<<<< HEAD
 		res.status(200).json(id);
+=======
+		res.status(201).json({id: id});
+>>>>>>> master
 	});
 };
 //need to add authentification options
@@ -131,7 +135,19 @@ module.exports = {
 		getMultiple(req, res, linker.disciplineRepr, 'disciplines');
 	},
 
-	getPersons: function(req, res) {//tested
+	getAffiliations: function(req, res) {
+		getMultiple(req, res, linker.affiliationRepr, 'affiliations');
+	},
+
+	getAffiliation: function(req, res) {
+		getSingle(req, res, linker.affiliationRepr);
+	},
+
+	postAffiliation: function(req, res) {
+		postSingle(req, res, linker.affiliationRepr);
+	},
+
+	getPersons: function(req, res) {
 		if(req.query.publications !== undefined) {
 			req.query.publications = splitInArray(req.query.publications);
 		}
@@ -177,7 +193,7 @@ module.exports = {
 		getMultiple(req, res, linker.journalPublicationRepr, function(jp) {
 			getMultiple(req, res, linker.proceedingPublicationRepr, function(pp) {
 				var result={};
-				result['publications']= jp.concat(pp);
+				result.publications= jp.concat(pp);
 				res.json(result);
 			});
 		});
