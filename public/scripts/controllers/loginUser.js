@@ -2,8 +2,7 @@
 
 angular.module('user')
 
-.controller('loginUserController', ['$scope', '$location', '$window', 'UserService', 'AuthenticationService', '$translate', 'Page', '$mdToast',
-   function($scope, $location, $window, UserService, AuthenticationService, $translate, Page, $mdToast) {
+.controller('loginUserController',function($scope, $location, $window, UserService, AuthenticationService, $translate, Page, $mdToast) {
     $translate('LOG_IN').then(function(translated) {
     Page.setTitle(translated);
   });
@@ -56,4 +55,4 @@ angular.module('user')
             });
         }
     };
-}]);
+});

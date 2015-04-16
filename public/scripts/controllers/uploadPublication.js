@@ -13,7 +13,8 @@ module.controller('uploadPublicationController', function($scope, $window, $http
     $scope.disciplines = [];
     $scope.references = [];
     $scope.JSONreferences = [];
-
+    $scope.searchJournal;
+    $scope.searchProceeding;
     $scope.PersonState = PersonState;
 
     var lastSearch;
@@ -38,7 +39,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
     var proceedings;
     var lastProcSearch;
     $scope.fetchProceedings = function(name){
-        if (name === undefined || name === '') return [];
+        if (name === undefined || name.length < 3) return [];
         if (JSON.stringify(name) === lastProcSearch) return proceedings;
         lastProcSearch =  JSON.stringify(name);
         Proceeding.search({q:name},function(data){
@@ -49,7 +50,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
     var journals;
     var lastJourSearch;
     $scope.fetchJournals = function (name){
-        if (name === undefined || name === '') return [];
+        if (name === undefined || name.length < 3) return [];
         if (JSON.stringify(name) === lastJourSearch) return journals;
         lastJourSearch =  JSON.stringify(name);
         Journal.search({q:name},function(data){
@@ -92,10 +93,12 @@ module.controller('uploadPublicationController', function($scope, $window, $http
     };
 
     $scope.chooseJournal = function(jour){
+        $scope.searchJournal='';
         $scope.journal = jour;
     };
 
     $scope.chooseProceeding = function(proc){
+        $scope.searchProceeding='';
         $scope.proceeding = proc;
     };
 
@@ -139,7 +142,8 @@ module.controller('uploadPublicationController', function($scope, $window, $http
             $scope.numberOfPages=data.numberofpages;
             $scope.url = data.path;
 
-            $scope.authors = [user.person];
+            $scope.authors = [];
+            Person.get({id:user.person},function(person){$scope.add($scope.authors,person)});
             $scope.pdfAuthors = data.authors;
             if($scope.pdfAuthors.length > 0) {
                 $scope.setCurrentAuthor($scope.pdfAuthors[0]);
@@ -183,6 +187,23 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         });
     };
 
+    $scope.postPerson = function(person) {
+        var deferred = $q.defer();
+        if(person.id) {
+            deferred.resolve(person);
+        }
+        else {
+            Person.save(person, function(personData) {
+                person.id = personData.id;
+                deferred.resolve(person);
+            }, function(errorData) {
+                deferred.reject(errorData);
+            });
+        }
+
+        return deferred.promise;
+    };
+
     $scope.post = function () {
 
         function upload(){
@@ -223,42 +244,22 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         }
 
         toPost.uploader = user.id;
+        toPost.authors=[];
 
-        var authArray = new Array($scope.authors.length);
-        authArray[0] = {id: $scope.authors[0].id};//Uploader
-        if($scope.authors.length === 1) {upload();return;} //no other co authors
-        for (var i = 1; i < $scope.authors.length; i++) {//add co authors (id) to list
-
+        for (var i = 0; i < $scope.authors.length; i++) {
             var author = $scope.authors[i];
 
-            if(author.status){//person not in database
-
-                var affiliation;
-                $translate('ENTER_AFFILIATION_FOR').then(function(translated) {
-                    affiliation = prompt(translated + ' ' + author.firstName + ' ' + author.lastName);
-                });
-                var newPerson = new Person({firstName: author.firstName, lastName:author.lastName});
-
-                (function(index){
-                    newPerson.$save(function (data){//create new person on server
-                       authArray[index]= {id: data.personId};
-
-                       if(index === $scope.authors.length){
-                        toPost.authors = authArray;
-                        upload();//on success and last author, start the upload
-                        return;}
-
-                    },function(data){//error from server
-                        $translate('COULD_NOT_ADD_PERSON').then(function(translated) {
-                            $scope.showSimpleToast(translated + ': ' + author.firstName + ' ' + author.lastName + status);
-                        });
-                        return;
-                    });
-
-                }(i));
-
+            if(author.id !== undefined){
+                toPost.authors.push(author.id);
+                if(toPost.authors.length == $scope.authors.length)upload();
             }
-            authArray[i] = {id: author.id};
-        }
+
+            else{
+                Person.save(author,function(person){
+                    toPost.authors.push(person.id);
+                    if(toPost.authors.length == $scope.authors.length)upload();
+                });
+            }
+        };
     };
 });

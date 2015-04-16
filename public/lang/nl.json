@@ -1,4 +1,6 @@
 {
+	"ADD_PERSON" : "Klik om persoon toe te voegen",
+	"PERSON_NOT_IN_LIST" : "Persoon niet in de lijst?",
 	"WELCOME": "Welkom bij WiseLib",
 	"WELCOME_SUB": "Een doorzoekbare onderzoeksdatabank",
 	"WISELIB_DESCR": "WiseLib laat je papers delen met anderen en papers zoeken die gedeeld werden door anderen.",
@@ -33,7 +35,7 @@
 	"ADD_AFFILIATION": "Voeg affiliatie toe",
 	"SAVE_CHANGES": "Bewaar wijzigingen",
 	"UPLOAD_PDF": "Upload een PDF bestand",
-	"FILL_IN_FIELDS_BELOW_OR_UPLOAD_PDF": "Vul alle onderstaande velden in of uploadt een PDF bestand",
+	"FILL_IN_FIELDS_BELOW_OR_UPLOAD_PDF": "Vul alle onderstaande velden in of upload een PDF bestand",
 	"PUBLICATION_INFORMATION": "Publicatie informatie",
 	"TITLE": "Titel",
 	"YEAR": "Jaar",
