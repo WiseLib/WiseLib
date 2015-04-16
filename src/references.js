@@ -6,33 +6,84 @@ function link(req, next){
     var references = req.references;
     var resultId = [];
     //Alle references moeten afgegaan worden en gezocht worden in de database
-    searchDB(references[0], next);
-
-}
-
-function searchDB(reference, next){
-    var DbJson = bibToDb(reference);
-    DBManager.get({title: DbJson.title}, linker.publicationRepr, function(id){
-        console.log("RESULT GET: " + results);
-        if(results.length = 1){
-            console.log("KNOWN PUBLICATION");
-            next(id);
-        } else {
-            postUnknownPublication(reference, next);
-        };
-    })}
-
-function postUnknownPublicationr(reference, next){
-    //post publication with unknown person
-    var authors = getAuthorNames(reference);
-    for(index = 0; authors.names[index].lastname != null; index++){
-        reference.unknownAuthors.push(authors.names[index]);
-    };
-    DBManager.post(reference, linker.publicationRepr, function(id){
-        console.log("ID: " + id);
-        next(id);
+    var promises = [];
+    for(var r in references) {
+        var p = searchDB(references[r]);
+        var res = p.then(function(id) {
+            resultId[r] = id;
+            console.log(resultId);
+        })
+        .catch(function(reference) {
+            //rejected promise
+            console.log("REJECTION");
+            postUnknownPublication(reference, function(id){
+                console.log("ID: " + id);
+            });
+        });
+        promises.push(res);
+    }
+    Promise.all(promises).then(function () {
+        //all promises were executed
+        console.log(resultId);
+        return resultId;
     });
+
 }
+
+function searchDB(reference){
+    var promise = new Promise(function(resolve, reject){
+        var DbJson = bibToDb(reference);
+        console.log(JSON.stringify(DbJson));
+        console.log("SEARCH DB");
+        DBManager.get({title: DbJson.title}, linker.publicationRepr, function(results){
+            console.log("RESULT GET: " + JSON.stringify(results));
+            if(results.length === 1){
+                console.log("KNOWN PUBLICATION");
+                resolve(results[0].id);
+            } else {
+                console.log("UNKNOWN PUBLICATION")
+                var p = postUnknownPublication(reference);
+                var res = p.then(function(id) {
+                    console.log("ID: "+id);
+                    resolve(id);
+                })
+                .catch(function(reference) {
+                    //rejected promise
+                    reject();
+                });
+            };
+        });
+    });
+    return promise;
+}
+
+function postUnknownPublication(reference){
+    //post publication with unknown person
+    var promise = new Promise(function(resolve, reject){
+        var authors = getAuthorNames(reference);
+        var DbJson = bibToDb(reference);
+        console.log(JSON.stringify(authors));
+        DbJson.unknownAuthors = authors.names;
+        //var jsObj = JSON.parse(DbJson);
+        /*    for(index = 0; authors.names[index].lastname != null; index++){
+        DbJson.unknownAuthors.authors_last_name = authors.names[index].lastName;
+        DbJson.unknownAuthors.authors_first_name = authors.names[index].firstName;
+    };*/
+    //DbJson = JSON.stringify(jsObj);
+    console.log("POST UNKNOWN PUBLICATION: " + JSON.stringify(DbJson));
+    DBManager.post(reference, linker.publicationRepr, function(id){
+        if(id !== null){
+            console.log("UNKNOWN RESOLVED");
+            resolve(id);
+        } else {
+            console.log("ERROR");
+            reject();
+        }
+    });
+});
+return promise;
+}
+
 
 
 function getAuthorNames(reference){
@@ -53,10 +104,11 @@ function getAuthorNames(reference){
 function bibToDb(reference){
     var data = {type: null,
                 title: null,
-                publication_title: "dummy",
+                publication_title: "dummy2",
                 numberOfPages: 1,
                 year: null,
-                abstract: "dummy"}
+                url: "dummy",
+                abstract: "dummy2"}
 
         data.type = reference.entryType;
         data.title = reference.entryTags.title;

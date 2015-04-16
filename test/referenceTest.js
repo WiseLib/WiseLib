@@ -15,6 +15,14 @@ describe('Validate references test', function(){
                           author: 'sutton, richard and barto, andrew',
                           publisher: 'a bradford book',
                           year: '1998',
+                          owner: 'wout van riel' }},
+                          { citationKey: 'testero',
+                          entryType: 'publication',
+                          entryTags:
+                          { title: 'test learning: an introduction',
+                          author: 'bart, richard and eli, puns',
+                          publisher: 'a bradford book',
+                          year: '1994',
                           owner: 'wout van riel' }}]};
 
 
