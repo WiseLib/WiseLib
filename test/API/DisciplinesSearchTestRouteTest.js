@@ -4,8 +4,9 @@ var discipline = require('./discipline_test.js');
 var server = require('../../src/routesFunctions.js');
 
 /**
- * This test checks the getDisiciplines route, a function which returns a list, in JSON format, of a disciplines defined in the database.
- * The the test calls the function, if the function succeeds the answer get compared to the known number of disciplines present in the database.
+ * These tests check the Disicipline routes, functions which returns a list, in JSON format, of disciplines defined in the database.
+ * The first test calls the function, if the function succeeds the answer get compared to the known number of disciplines present in the database.
+ * The second tests searches for a discipline with a given id, the test succeeds if the result holds the correct discipline.
  * If the returned answer is equal to the known number, the test succeeds, if not, an assertion error is thrown.
  *
  * @test
@@ -34,7 +35,7 @@ describe ('Retrieve list of disciplines from server database',function(){
 				result.should.be.an.object;
 				var resultLength = result.length;
 				resultLength.should.be.greaterThan(0);
-				resultLength.should.be.equal(69);//for now
+				resultLength.should.be.equal(69);
 			});
 		});
 	});

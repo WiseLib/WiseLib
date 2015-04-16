@@ -9,8 +9,9 @@ function fakeresponse(){
 	var done = function(){};
 
 	var response;
+	var status;
 
-	this.status= function(x){return this;};
+	this.status= function(status){this.status=status;return this;};
 
 	this.json = function(json){
 		if(json.persons !== undefined) response = json.persons;
@@ -19,6 +20,8 @@ function fakeresponse(){
 	};
 
 	this.getresponse= function(){return response;};
+
+	this.end = function(){};
 }
 
 /**

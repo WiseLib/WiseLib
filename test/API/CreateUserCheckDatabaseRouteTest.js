@@ -62,7 +62,7 @@ var configuration = require('../../config.json')
 
  	var response =  new User.fakeresponse();
 	var request2 = new User.fakerequest('mail.com','password',false);//person does not already exist
-	var request = new User.fakerequest('mail.com','password',9000);//person exists with id '4'
+	var request = new User.fakerequest('mail.com','password',14);//person exists with id '10'
 
 	describe('Create user', function(){
 		it('should create user without error', function(done){

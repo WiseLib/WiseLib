@@ -187,6 +187,12 @@ module.controller('uploadPublicationController', function($scope, $window, $http
 
         function upload(){
             console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
+
+            Publication.post(JSON.stringify(toPost),function(data){
+                $location.path('/mypublications')
+            },function(data){
+                $scope.showSimpleToast("Something went wrong:" + status);
+            });
         /*  $http.post('users/'+user.id+'/publications.json', toPost)
             .success(function(data, status, headers, config) {
                 $location.path('/mypublications') 

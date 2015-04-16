@@ -45,6 +45,7 @@
                     </li>
                 </ul>
                 <md-button 
+                    type="button"
                     class="md-raised" 
                     ng-show="affiliations.length > 0" 
                     ng-click="popAffiliation()">
@@ -60,6 +61,7 @@
                     <span md-highlight-text="affiliationName">{{affiliation.name}}</span>
                 </md-autocomplete>
                 <md-button 
+                    type="button"
                     class="md-raised" 
                     ng-show="affiliationName != selectedAffiliation.name && affiliationName.length > 0" 
                     ng-click="postAffiliation(affiliationName)">

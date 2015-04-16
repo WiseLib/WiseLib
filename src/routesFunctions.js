@@ -53,11 +53,7 @@ var getSingle = function(req, res, repr, fct) {
 //need to add authentification options
 var postSingle = function(req, res, repr) {
 	DBManager.post(req.body, repr, function(id) {
-<<<<<<< HEAD
-		res.status(200).json(id);
-=======
 		res.status(201).json({id: id});
->>>>>>> master
 	});
 };
 //need to add authentification options
@@ -135,11 +131,11 @@ module.exports = {
 		getMultiple(req, res, linker.disciplineRepr, 'disciplines');
 	},
 
-	getAffiliations: function(req, res) {
+	getAffiliations: function(req, res) {//tested
 		getMultiple(req, res, linker.affiliationRepr, 'affiliations');
 	},
 
-	getAffiliation: function(req, res) {
+	getAffiliation: function(req, res) {//tested
 		getSingle(req, res, linker.affiliationRepr);
 	},
 
@@ -147,7 +143,7 @@ module.exports = {
 		postSingle(req, res, linker.affiliationRepr);
 	},
 
-	getPersons: function(req, res) {
+	getPersons: function(req, res) {//tested
 		if(req.query.publications !== undefined) {
 			req.query.publications = splitInArray(req.query.publications);
 		}

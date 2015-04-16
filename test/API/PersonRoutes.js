@@ -16,7 +16,7 @@ var server = require('../../src/routesFunctions.js');
  */
 describe('Search person in database test', function() {
 	var result = new Person.fakeresponse();
-	var request = new Person.fakerequest('Jan', 'Modaal');
+	var request = new Person.fakerequest('John', 'Smith');
 	describe('Execute function', function() {
 		it('should not error', function(done) {
 			result.done = done;
@@ -44,7 +44,7 @@ describe('Search person by id', function() {
 	var result = new Person.fakeresponse();
 	var person = {
 		params: {
-			id: 9000
+			id: 10
 		}
 	}
 	describe('Execute function', function() {
@@ -61,8 +61,8 @@ describe('Search person by id', function() {
 		it('should hold the correct person', function() {
 			result = result.getresponse();
 			result.should.be.an.object;
-			result.should.have.property('id', 9000);
-			result.should.have.property('firstName', 'Testguy')
+			result.should.have.property('id', 10);
+			result.should.have.property('firstName', 'Maria')
 		});
 	});
 

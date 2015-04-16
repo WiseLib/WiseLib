@@ -16,6 +16,8 @@
 		//console.log(id);
 		this.done();
 	};
+
+	this.end = function(){};
 }
 
 /**

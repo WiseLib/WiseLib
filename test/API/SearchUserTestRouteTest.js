@@ -15,7 +15,7 @@ var server = require('../../src/routesFunctions.js');
 describe('Search user in database test', function() {
 	describe('Search user by id', function() {
 		var result = new User.fakeresponse();
-		var user = {params: {id: 226}};
+		var user = {params: {id: 1}};
 
 		describe('Execute function', function() {
 			it('should not error', function(done) {
@@ -31,7 +31,8 @@ describe('Search user in database test', function() {
 			it('should hold the correct user', function() {
 				result = result.result;
 				result.should.be.an.object;
-				result.should.have.property('id', 226);
+				result.should.have.property('email','person1@mail.com');
+				result.should.have.property('id', 1);
 			});
 		});
 	});
