@@ -23,7 +23,7 @@ angular.module('publication')
         });
     };
 
-    $scope.foundPublications = []; 
+    $scope.foundPublications = [];
 
     $scope.add = function(array, element) {
         if (array.indexOf(element) === -1) {
@@ -69,7 +69,7 @@ angular.module('publication')
             for(var i = 0; i < data.length; i++) {
                 var publication = data[i];
 
-                (function(publication){//This is neccessary otherwise only last publication wil be added!! 
+                (function(publication){//This is neccessary otherwise only last publication wil be added!!
                 var promises = [];
                 //get uploader person
                 var deferred = $q.defer();
@@ -140,7 +140,9 @@ angular.module('publication')
             }, function(data) {
                 $scope.HandleExternData(data);
             }, function(data) { //error from server
-                $scope.showSimpleToast('Could not get a result: ' + keyword + ' :' + data);
+                $translate('COULD_NOT_GET_A_RESULT').then(function(translated) {
+                    $scope.showSimpleToast(translated + ': ' + keyword + ' :' + data.status);
+                });
             });
         };
 
@@ -154,7 +156,9 @@ angular.module('publication')
                 webSearch();
 
             }, function(data) {
-                $scope.showSimpleToast('External search: ' + data.statusText);
+                $translate('EXTERNAL_SEARCH').then(function(translated) {
+                    $scope.showSimpleToast(translated + ': ' + data.statusText);
+                });
             });
         } else {
             webSearch();
@@ -169,7 +173,9 @@ angular.module('publication')
         Publication.search({q: query}, function(data) {
             $scope.handleData(data.publications);
         }, function(data) { //error from server
-            $scope.showSimpleToast('Could not get a result: ' + keyword + ' :' + data.status);
+            $translate('COULD_NOT_GET_A_RESULT').then(function(translated) {
+                $scope.showSimpleToast(translated + ': ' + keyword + ' :' + data.status);
+            });
         });
     };
 

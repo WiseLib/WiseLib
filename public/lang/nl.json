@@ -103,5 +103,10 @@
 	"ACADEMIC_DISCIPLINES": "Academische disciplines",
 	"PUBLICATIONS_WRITTEN_BY": "Publicaties geschreven door",
 	"PERSON": "Persoon",
-	"PUBLICATION": "Publicatie"
+	"PUBLICATION": "Publicatie",
+	"3_CHARS_MINIMUM": "Vul alstublieft minstens 3 tekens in",
+	"FILL_IN_NUMBER": "Vul alstublieft een getal in",
+	"FILL_IN_VALID_URL": "Vul alstublieft een geldige URL in",
+	"COULD_NOT_GET_A_RESULT": "Kon geen resultaat verkrijgen",
+	"EXTERNAL_SEARCH": "Externe zoekopdracht"
 }

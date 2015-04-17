@@ -17,7 +17,6 @@ module.controller('personController', function($scope,$window, $routeParams, $tr
     }
 	$scope.disciplines = [];
 	Person.get({id: $routeParams.id}, function(person) {
-		//console.log(person);
 		$scope.person = person;
 		var affiliationId = person.affiliation;
 		$scope.person.affiliation='';

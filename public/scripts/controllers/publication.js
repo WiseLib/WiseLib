@@ -1,5 +1,5 @@
 'use strict';
-var module = angular.module('publication',['journal', 'proceeding', 'ngMaterial','ngMessages']);
+var module = angular.module('publication', ['ngMaterial', 'ngAnimate', 'journal', 'proceeding', 'ngMessages']);
 
 module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication, Person, User) {
     $translate('PUBLICATION').then(function(translated) {
@@ -26,7 +26,6 @@ module.controller('publicationController', function($scope, $window, $routeParam
         }
 
         User.get({id: pub.uploader}, function(user) {
-            //console.log('got user! ' + JSON.stringify(user));
             $scope.uploaderPersonId = user.person;
             if($scope.persons[user.person] !== undefined) {
                 getPerson(user.person);

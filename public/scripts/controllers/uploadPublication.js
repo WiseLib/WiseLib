@@ -19,7 +19,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
 
     var lastSearch;
     var persons = [];
-    
+
     var proceedings;
     var lastProcSearch;
     $scope.fetchProceedings = function(name){
@@ -62,7 +62,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         }
         //next pdf-extracted author
         $scope.selectCurrentPDFAuthor();
-    }
+    };
 
     $scope.setCurrentAuthor = function(person) {
         PersonState.person.firstName = person.firstName;
@@ -127,11 +127,11 @@ module.controller('uploadPublicationController', function($scope, $window, $http
             $scope.url = data.path;
 
             $scope.authors = [];
-            Person.query({id:user.person},function(person){$scope.add($scope.authors,person.persons[0])});
+            Person.query({id:user.person},function(person){$scope.add($scope.authors,person.persons[0]);});
             $scope.pdfAuthors = data.authors;
             if($scope.pdfAuthors.length > 0) {
                 $scope.setCurrentAuthor($scope.pdfAuthors[0]);
-            }   
+            }
 
         }).
         error(function(data, status, headers, config) {
@@ -144,7 +144,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
     $scope.uploadbibtex = function(files){
 
         var fd = new FormData();
-        fd.append("file", files[0]);
+        fd.append('file', files[0]);
 
         $http.post('uploadfile', fd, {
             withCredentials: true,
@@ -162,7 +162,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
 
                 var title = reference.entryTags.title;
                 $scope.add($scope.references,title);
-            }   
+            }
         }).
         error(function(data, status, headers, config) {
             $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
@@ -194,19 +194,21 @@ module.controller('uploadPublicationController', function($scope, $window, $http
             console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
 
             Publication.save(JSON.stringify(toPost),function(data){
-                $location.path('/mypublications')
+                $location.path('/mypublications');
             },function(data){
-                $scope.showSimpleToast("Something went wrong:" + data.status);
+                $translate('ERROR').then(function(translated) {
+                $scope.showSimpleToast(translated + ': ' + data.status);
+                });
             });
 
         /*  $http.post('users/'+user.id+'/publications.json', toPost)
             .success(function(data, status, headers, config) {
-                $location.path('/mypublications') 
+                $location.path('/mypublications')
             })
             .error(function(data, status, headers, config) {
                 $scope.showSimpleToast("Something went wrong:" + status);
             });*/
-        };
+        }
 
         var toPost = {};
         toPost.title = $scope.title;
@@ -236,15 +238,15 @@ module.controller('uploadPublicationController', function($scope, $window, $http
 
             if(author.id !== undefined){
                 toPost.authors.push({id:author.id});
-                if(toPost.authors.length == $scope.authors.length)upload();
+                if(toPost.authors.length === $scope.authors.length)upload();
             }
 
             else{
                 Person.save(author,function(person){
                     toPost.authors.push(person.id);
-                    if(toPost.authors.length == $scope.authors.length)upload();
+                    if(toPost.authors.length === $scope.authors.length)upload();
                 });
             }
-        };
+        }
     };
 });

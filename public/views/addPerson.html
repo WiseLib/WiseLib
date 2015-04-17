@@ -16,7 +16,7 @@
                 </div>
             </md-input-container>
         </div>
-       
+
         <div ng-hide="person.firstName == undefined && person.lastName == undefined">
             <div ng-show="persons.length > 0">
                 <p>{{'PERSON_IN_DATABASE' | translate}}</p>
@@ -44,10 +44,11 @@
                         <p>{{chosenAffiliation.name}}</p>
                     </li>
                 </ul>
-                <md-button 
-                    class="md-raised" 
-                    ng-show="affiliations.length > 0" 
-                    ng-click="popAffiliation()">
+                <md-button
+                    class="md-raised"
+                    ng-show="affiliations.length > 0"
+                    ng-click="popAffiliation()"
+                    type="button">
                     {{'UNDO' | translate}}
                 </md-button>
                 <md-autocomplete
@@ -59,10 +60,11 @@
                     placeholder="{{'AFFILIATION_PLACEHOLDER' | translate}}">
                     <span md-highlight-text="affiliationName">{{affiliation.name}}</span>
                 </md-autocomplete>
-                <md-button 
-                    class="md-raised" 
-                    ng-show="affiliationName != selectedAffiliation.name && affiliationName.length > 0" 
-                    ng-click="postAffiliation(affiliationName)">
+                <md-button
+                    class="md-raised"
+                    ng-show="affiliationName != selectedAffiliation.name && affiliationName.length > 0"
+                    ng-click="postAffiliation(affiliationName)"
+                    type="button">
                     {{'ADD_AFFILIATION' | translate}}
                 </md-button>
             </div>
