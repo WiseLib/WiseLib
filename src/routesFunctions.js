@@ -72,7 +72,7 @@ var putSingle = function(req, res, repr) {
 
 var deleteSingle = function(req, res, repr) {
 	DBManager.delete({id: req.params.id}, repr, function() {
-		res.sendStatus(200);
+		res.status(200).end();
 	});
 };
 
@@ -221,7 +221,9 @@ module.exports = {
 	},
 
 	postPublication :function(req, res) {
-		postSingle(req,res,linker.journalPublicationRepr);	
+		if (req.body.type == "Journal") postSingle(req,res,linker.journalPublicationRepr);	
+		else if(req.body.type == "Proceeding") postSingle(req,res,linker.proceedingPublicationRepr);
+		else req.status(401).json({error:"Wrong type" + req.body.type});
 	},
 
 	getPublicationAuthors: function(req, res) {

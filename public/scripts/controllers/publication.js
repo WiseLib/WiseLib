@@ -19,7 +19,7 @@ module.controller('publicationController', function($scope, $window, $routeParam
         //console.log(pub);
         function getPerson(id) {
             Person.get({id: id}, function(person) {
-                $scope.persons[id] = person.persons[0];
+                $scope.persons[id] = person;
             }, function(data) {
                 console.log('error: ' + data.error);
             });

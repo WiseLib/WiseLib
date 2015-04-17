@@ -23,13 +23,7 @@ angular.module('publication')
         });
     };
 
-    //$scope.foundAuthor = []; //all publications from given author
-
-    //$scope.foundJournal = [];//all publications in given journal
-
-    //$scope.foundProceeding = [];//idem from proceeding
-
-    $scope.foundPublications = []; //results from search on title
+    $scope.foundPublications = []; 
 
     $scope.add = function(array, element) {
         if (array.indexOf(element) === -1) {
@@ -71,10 +65,11 @@ angular.module('publication')
     };
 
     $scope.handleData = function(data) {
-
         if(data) {
             for(var i = 0; i < data.length; i++) {
                 var publication = data[i];
+
+                (function(publication){//This is neccessary otherwise only last publication wil be added!! 
                 var promises = [];
                 //get uploader person
                 var deferred = $q.defer();
@@ -119,6 +114,8 @@ angular.module('publication')
                 }, function(reason) {
                     $scope.showSimpleToast(reason);
                 });
+
+            })(publication);
             }
         }
     };
