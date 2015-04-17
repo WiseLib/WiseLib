@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication');
 
-module.controller('uploadPublicationController', function($scope, $window, $http, $translate, Page, $mdToast, Person, PersonState, Journal, Proceeding) {
+module.controller('uploadPublicationController', function($scope, $window, $http, $translate,$location,Page, $mdToast, Person, PersonState, Journal, Proceeding,Publication) {
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
 
@@ -19,23 +19,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
 
     var lastSearch;
     var persons = [];
-    $scope.fetchPersons = function (author){
-        if (author === undefined) return [];
-        if (JSON.stringify(author) === lastSearch) return persons;
-        lastSearch =  JSON.stringify(author);
-
-        var firstName = author.firstName;
-        var lastName = author.lastName;
-
-        function returnData(data){
-             persons = data.persons;
-             return data.persons;
-        }
-        if(firstName !== undefined && lastName === undefined)Person.searchFirstName({fn:firstName},function(data){returnData(data);},function(data){});
-        if(firstName === undefined && lastName !== undefined)Person.searchLastName({ln:lastName},function(data){returnData(data);},function(data){});
-        if(firstName !== undefined && lastName !== undefined)Person.searchBoth({fn:firstName,ln:lastName},function(data){returnData(data);},function(data){});
-    };
-
+    
     var proceedings;
     var lastProcSearch;
     $scope.fetchProceedings = function(name){
@@ -143,7 +127,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
             $scope.url = data.path;
 
             $scope.authors = [];
-            Person.get({id:user.person},function(person){$scope.add($scope.authors,person)});
+            Person.query({id:user.person},function(person){$scope.add($scope.authors,person.persons[0])});
             $scope.pdfAuthors = data.authors;
             if($scope.pdfAuthors.length > 0) {
                 $scope.setCurrentAuthor($scope.pdfAuthors[0]);
@@ -208,6 +192,13 @@ module.controller('uploadPublicationController', function($scope, $window, $http
 
         function upload(){
             console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
+
+            Publication.save(JSON.stringify(toPost),function(data){
+                $location.path('/mypublications')
+            },function(data){
+                $scope.showSimpleToast("Something went wrong:" + data.status);
+            });
+
         /*  $http.post('users/'+user.id+'/publications.json', toPost)
             .success(function(data, status, headers, config) {
                 $location.path('/mypublications') 
@@ -226,7 +217,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         toPost.references = $scope.JSONreferences;
         toPost.type = $scope.type;
         if ($scope.type === 'Journal') {
-            toPost.journalId = $scope.journal.id;
+            toPost.journal = $scope.journal.id;
             toPost.volume = $scope.volume;
             toPost.number = $scope.number;
         }
@@ -244,7 +235,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
             var author = $scope.authors[i];
 
             if(author.id !== undefined){
-                toPost.authors.push(author.id);
+                toPost.authors.push({id:author.id});
                 if(toPost.authors.length == $scope.authors.length)upload();
             }
 

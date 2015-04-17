@@ -162,7 +162,7 @@ module.exports = {
 	},
 
 	getPersonPublications: function(req, res) {
-		req.query.authors = [{id:req.params.id}];
+		req.query.authors = [{id:req.params.id}]
 		getMultiple(req, res, linker.publicationRepr, 'publications');
 	},
 
@@ -221,7 +221,7 @@ module.exports = {
 	},
 
 	postPublication :function(req, res) {
-		res.status(501).end();
+		postSingle(req,res,linker.journalPublicationRepr);	
 	},
 
 	getPublicationAuthors: function(req, res) {

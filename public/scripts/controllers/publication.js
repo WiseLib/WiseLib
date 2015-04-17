@@ -16,19 +16,19 @@ module.controller('publicationController', function($scope, $window, $routeParam
     };
 
     Publication.get({id: $routeParams.id}, function(pub) {
-        console.log(pub);
+        //console.log(pub);
         function getPerson(id) {
             Person.get({id: id}, function(person) {
-                $scope.persons[id] = person;
+                $scope.persons[id] = person.persons[0];
             }, function(data) {
                 console.log('error: ' + data.error);
             });
         }
 
         User.get({id: pub.uploader}, function(user) {
-            console.log('got user! ' + JSON.stringify(user));
+            //console.log('got user! ' + JSON.stringify(user));
             $scope.uploaderPersonId = user.person;
-            if(!$scope.persons[user.person]) {
+            if($scope.persons[user.person] !== undefined) {
                 getPerson(user.person);
             }
         }, function(data) {
