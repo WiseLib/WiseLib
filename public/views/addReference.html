@@ -1,0 +1,42 @@
+<md-content layout="column" ng-controller="addReferenceController">
+    <form role="form" name="form" layout="column">
+        <div layout="row" class="form-block">
+            <md-input-container>
+                <label>{{'TITLE' | translate}}</label>
+                <input type="text" name="title" ng-model="reference.title" required>
+                <div ng-messages="form.title.$error">
+                    <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
+                </div>
+            </md-input-container>
+        </div>
+        <div layout="row" class="form-block">
+            <md-input-container>
+                <label>{{'NR_OF_PAGES' | translate}}</label>
+                <input type="number" name="pages" ng-model="reference.pages" required>
+                <div ng-messages="form.pages.$error">
+                    <div ng-message="required">{{'FILL_IN_NUMBER' | translate}}</div>
+                </div>
+            </md-input-container>
+            <md-input-container>
+                <label>{{'YEAR' | translate}}</label>
+                <input type="number" name="year" ng-model="reference.year" required>
+                <div ng-messages="form.year.$error">
+                    <div ng-message="required">{{'FILL_IN_NUMBER' | translate}}</div>
+                </div>
+            </md-input-container>
+        </div>
+        <div  layout="row" class ="form-block">
+            <md-radio-group ng-model = "reference.type">
+                <label>{{'PUBLICATION_TYPE' | translate}}</label>
+                <md-radio-button value="Journal">{{'JOURNAL' | translate}}</md-radio-button>
+                <md-radio-button value="Proceeding">{{'PROCEEDING' | translate}}</md-radio-button>
+            </md-radio-group>
+        </div>
+        <div layout="row" class="form-block">
+            <md-input-container>
+                <label>{{'ABSTRACT' | translate}}</label>
+                <textarea ng-model="reference.abstract" columns="1" md-maxlength="500"></textarea>
+            </md-input-container>
+        </div>
+    </form>
+</md-content>

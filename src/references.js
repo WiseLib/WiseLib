@@ -10,8 +10,7 @@ function link(req, next){
     for(var r in references) {
         var p = searchDB(references[r]);
         var res = p.then(function(id) {
-            resultId[r] = id;
-            console.log(resultId);
+            resultId.push(id);
         })
         .catch(function(reference) {
             //rejected promise
@@ -102,6 +101,7 @@ function bibToDb(reference){
                 publication_title: "dummy2",
                 nr_of_pages: 1,
                 published_in_year: null,
+                url: 'test.com/test3',
                 abstract: "dummy2"}
 
         data.type = reference.entryType;
