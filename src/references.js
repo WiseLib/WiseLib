@@ -61,7 +61,7 @@ function postUnknownPublication(reference){
     var promise = new Promise(function(resolve, reject){
         var authors = getAuthorNames(reference);
         var DbJson = bibToDb(reference);
-        //DbJson.unknownAuthors = authors.names;
+        DbJson.unknownAuthors = authors.names;
 
         console.log("POST UNKNOWN PUBLICATION: " + JSON.stringify(DbJson));
         DBManager.post(DbJson, linker.publicationRepr, function(id){
