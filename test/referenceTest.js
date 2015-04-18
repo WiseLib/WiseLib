@@ -19,7 +19,7 @@ describe('Validate references test', function(){
                           { citationKey: 'testero',
                           entryType: 'publication',
                           entryTags:
-                          { title: 'test learning: an introduction',
+                          { title: 'test learning: an test',
                           author: 'bart, richard and eli, puns',
                           publisher: 'a bradford book',
                           year: '1994',

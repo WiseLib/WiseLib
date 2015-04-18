@@ -16,9 +16,9 @@ function link(req, next){
         .catch(function(reference) {
             //rejected promise
             console.log("REJECTION");
-            postUnknownPublication(reference, function(id){
+            /*postUnknownPublication(reference, function(id){
                 console.log("ID: " + id);
-            });
+            });*/
         });
         promises.push(res);
     }
@@ -62,26 +62,21 @@ function postUnknownPublication(reference){
     var promise = new Promise(function(resolve, reject){
         var authors = getAuthorNames(reference);
         var DbJson = bibToDb(reference);
-        console.log(JSON.stringify(authors));
-        DbJson.unknownAuthors = authors.names;
-        //var jsObj = JSON.parse(DbJson);
-        /*    for(index = 0; authors.names[index].lastname != null; index++){
-        DbJson.unknownAuthors.authors_last_name = authors.names[index].lastName;
-        DbJson.unknownAuthors.authors_first_name = authors.names[index].firstName;
-    };*/
-    //DbJson = JSON.stringify(jsObj);
-    console.log("POST UNKNOWN PUBLICATION: " + JSON.stringify(DbJson));
-    DBManager.post(reference, linker.publicationRepr, function(id){
-        if(id !== null){
-            console.log("UNKNOWN RESOLVED");
-            resolve(id);
-        } else {
-            console.log("ERROR");
-            reject();
-        }
+        //DbJson.unknownAuthors = authors.names;
+
+        console.log("POST UNKNOWN PUBLICATION: " + JSON.stringify(DbJson));
+        DBManager.post(DbJson, linker.publicationRepr, function(id){
+            console.log("ID: " + id);
+            if(id != null){
+                console.log("UNKNOWN RESOLVED");
+                resolve(id);
+            } else {
+                console.log("ERROR");
+                reject();
+            }
+        });
     });
-});
-return promise;
+    return promise;
 }
 
 
@@ -102,12 +97,11 @@ function getAuthorNames(reference){
 }
 
 function bibToDb(reference){
-    var data = {type: null,
+    var data = {publication_type: null,
                 title: null,
                 publication_title: "dummy2",
-                numberOfPages: 1,
-                year: null,
-                url: "dummy",
+                nr_of_pages: 1,
+                published_in_year: null,
                 abstract: "dummy2"}
 
         data.type = reference.entryType;

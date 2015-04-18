@@ -88,4 +88,3 @@ gulp.task('start', ['server']);
 
 // called when you run `gulp` from cli
 gulp.task('default', ['server']);
-
