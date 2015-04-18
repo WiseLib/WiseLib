@@ -4,7 +4,7 @@ angular.module('publication')
 
 .factory('Publication', function($resource) {
 	return $resource('/publications/:id.json', {id:'@id'}, {
-		search: { method: 'GET', isArray: false , url:'/publications.json/?q=:q',params: {q:'@q'}}
+		search: { method: 'GET', isArray: false, url:'/publications.json/?q=:q', params: {q:'@q'}}
 	});
 })
 
@@ -17,10 +17,10 @@ angular.module('publication')
 
 
 .factory('GetApiToken',function($resource){
-	return $resource('https://api.mendeley.com/oauth/token',{},{
+	return $resource('https://api.mendeley.com/oauth/token', {}, {
 		get:{
 			method:'POST',
-			headers : {'Authorization' : 'Basic MTY1ODpVQ21EdTF1RFZxWVVQRGZV','Content-Type': 'application/x-www-form-urlencoded'}
+			headers : {'Authorization' : 'Basic MTY1ODpVQ21EdTF1RFZxWVVQRGZV', 'Content-Type': 'application/x-www-form-urlencoded'}
 			}
-		})
+		});
 });

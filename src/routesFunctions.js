@@ -54,7 +54,7 @@ var getSingle = function(req, res, repr, fct) {
 //need to add authentification options
 var postSingle = function(req, res, repr) {
 	DBManager.post(req.body, repr, function(id) {
-		res.status(200).end();
+		res.status(201).json({id: id});
 	});
 };
 //need to add authentification options
@@ -132,6 +132,18 @@ module.exports = {
 		getMultiple(req, res, linker.disciplineRepr, 'disciplines');
 	},
 
+	getAffiliations: function(req, res) {
+		getMultiple(req, res, linker.affiliationRepr, 'affiliations');
+	},
+
+	getAffiliation: function(req, res) {
+		getSingle(req, res, linker.affiliationRepr);
+	},
+
+	postAffiliation: function(req, res) {
+		postSingle(req, res, linker.affiliationRepr);
+	},
+
 	getPersons: function(req, res) {
 		if(req.query.publications !== undefined) {
 			req.query.publications = splitInArray(req.query.publications);
@@ -178,7 +190,7 @@ module.exports = {
 		getMultiple(req, res, linker.journalPublicationRepr, function(jp) {
 			getMultiple(req, res, linker.proceedingPublicationRepr, function(pp) {
 				var result={};
-				result['publications']= jp.concat(pp);
+				result.publications= jp.concat(pp);
 				res.json(result);
 			});
 		});

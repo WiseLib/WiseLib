@@ -1,53 +1,51 @@
 <md-content layout="column">
-
-<div class="search-field">
-	<h4>Search a publication</h4>
-	<md-input-container>
-	<label>keyword</label>
-	<input id="keyword" pattern=".{3,}" required title="3 characters minimum" type="text" class="form-control" ng-model="keyword" label="keyword">
-</md-input-container>
-
-<p class="searchCheckbox">
-	Search on: 
- <md-checkbox ng-model="checkTitle" >
-    Title
+  <div class="search-field">
+    <form role="form" name="searchForm">
+     <md-input-container>
+     <label>{{'KEYWORD' | translate}}</label>
+     <input id="keyword" name="keyword" ng-minlength="3" required type="text" ng-model="keyword">
+     <div ng-messages="searchForm.keyword.$error">
+      <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
+      <div ng-message="minlength">{{'3_CHARS_MINIMUM' | translate}}</div>
+    </div>
+  </md-input-container>
+  <p class="searchCheckbox">
+  	{{'SEARCH_ON' | translate}}:
+   <md-checkbox ng-model="checkTitle" >
+   {{'TITLE' | translate}}
   </md-checkbox>
   <md-checkbox ng-model="checkAuthor" >
-    Author
+  {{'AUTHOR' | translate}}
   </md-checkbox>
   <md-checkbox ng-model="checkJournal" >
-    Journal
+  {{'JOURNAL' | translate}}
   </md-checkbox>
   <md-checkbox ng-model="checkConference" >
-    Conference
+  {{'CONFERENCE' | translate}}
   </md-checkbox>
   </p>
+  <md-button class="md-raised md-primary" ng-disabled="searchForm.$invalid" ng-click="search();extern=false">{{'SEARCH' | translate}}</md-button>
+  <md-button class="md-raised md-primary" ng-disabled="searchForm.$invalid || (!checkTitle && !checkAuthor && !checkJournal && !checkConference)" ng-click="websearch();extern=true">
+  {{'SEARCH_THE_WEB' | translate}}
+  </md-button>
+  </form>
+  </div>
 
-<md-button class="md-raised md-primary" ng-disabled="keyword == null" ng-click="search();extern=false">Search</md-button>
+  <div class="results">
+    <div layout layout-sm="column" layout-wrap class="result-block">
+      <h4>{{'RESULTS' | translate}}</h4>
+      <p ng-show= "foundPublications.length == 0">{{'NO_RESULTS' | translate}}</p>
+      <ul ng-show="extern">
+       <li ng-repeat="foundpublication in foundPublications">
+        <externpublicationmin publication="foundpublication" ng-click="view(publication)"></externpublicationmin>
+      </li>
+    </ul>
 
-<md-button class="md-raised md-primary" ng-disabled="keyword == null || (!checkTitle && !checkAuthor && !checkJournal && !checkConference)" ng-click="websearch();extern=true">Search the web</md-button>
-
-
-</div>
-
-<div class="results">
-<div layout layout-sm="column" layout-wrap class="result-block">
-<h4>Results</h4>
-<p ng-show= "foundPublications.length == 0">No results</p>
-<ul ng-show="extern">
-	<li ng-repeat="foundpublication in foundPublications">
-		<externpublicationmin publication="foundpublication" ng-click="view(publication)"></externpublicationmin>
-	</li>
-</ul>
-
-<ul ne-show="!extern">
-  <li ng-repeat="foundpublication in foundPublications">
-    <publicationmin publication="foundpublication" ng-click="view(publication)"></publicationmin>
-  </li>
-</ul>
-
-</div>
-
-</div>
-
+    <ul ne-show="!extern">
+      <li ng-repeat="foundpublication in foundPublications">
+        <publicationmin publication="foundpublication" ng-click="view(publication)"></publicationmin>
+      </li>
+    </ul>
+  </div>
+  </div>
 </md-content>

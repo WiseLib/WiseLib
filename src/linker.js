@@ -17,6 +17,8 @@ var knex = require('knex')({
 var bookshelf = require('bookshelf')(knex);
 var searchKey = 'q';
 
+var Publication, Journal, Proceeding;
+
 var Representation = function() {};
 Representation.prototype.relations = [];
 Representation.prototype.format = function(json) {
@@ -65,8 +67,8 @@ Representation.prototype.formatSearch = function(json) {
                     if(PubObj[param]){
                         search.push({key: PubObj[param].fieldName, value: word});
                     }
-                })
-            })
+                });
+            });
         }
 
         else {
@@ -92,14 +94,14 @@ Representation.prototype.formatSearchRelations = function(json) {
         like = _.map(like, function(word) {return '%' + word + '%';});
 
         if(parameters.length > 0 ){
-            var PubObj = this
+            var PubObj = this;
 
             _.forEach(like, function(word) {
                 _.forEach(parameters, function(param) {
                     var field = PubObj.relationSearch.indexOf(param);
                     if(field !== -1)search.push({key: PubObj.relationSearch[field], value: word});
-                })
-            })
+                });
+            });
         }
 
         else {
@@ -224,17 +226,18 @@ Representation.prototype.searchRelations = function(jsonObj, query) {
             var otherKey = relatedData.joinTableName+'.'+relatedData.otherKey;
             query.innerJoin(relatedData.joinTableName, foreignKey, model.idAttribute);
             //get relation model
-            var relation = relatedData.target;
-            var relationModel = new relation();
+            var Relation = relatedData.target;
+            var relationModel = new Relation();
             //search on relation fields
-            jsonObj = {q:jsonObj.q.split('@')[0]}
+            jsonObj = {q:jsonObj.q.split('@')[0]};
             var relationSearch = relationModel.representation.formatSearch(jsonObj);
             var subquery = relationModel.representation.searchFields(jsonObj, relationModel.query()).select('id');
             query = query.orWhere(otherKey, 'in', subquery);
         }
 
     }
-    return query
+
+    return query;
 };
 
 Representation.prototype.toQuery = function(jsonObj) {
@@ -280,14 +283,28 @@ disciplineRepr.model = AcademicDiscipline;
 disciplineRepr.relations = ['parent', 'journals', 'proceedings'];
 
 //affiliation
+var affiliationRepr = new Representation();
+affiliationRepr.id = {
+    fieldName: 'id',
+    name: 'id'
+};
+affiliationRepr.name = {
+    fieldName: 'name',
+    name: 'name'
+};
+
 var Affiliation = bookshelf.Model.extend({
     tableName: 'affiliation',
     parent: function() {
         return this.belongsTo(Affiliation, 'part_of_affiliation_id');
     }
 });
+affiliationRepr[searchKey] = [affiliationRepr.name];
+affiliationRepr.relationSearch = [];
+affiliationRepr.model = Affiliation;
+affiliationRepr.relations = ['parent'];
 
-//person
+//Person
 var personRepr = new Representation();
 personRepr.id = {
     fieldName: 'id',
@@ -310,6 +327,9 @@ var Person = bookshelf.Model.extend({
     affiliation: function() {
         return this.belongsTo(Affiliation, 'part_of_affiliation_id');
     },
+    disciplines: function() {
+        return this.belongsToMany(AcademicDiscipline, 'person_studies_academic_discipline', 'person_id', 'academic_discipline_id');
+    },
     publications: function() {
         return this.belongsToMany(Publication, 'publication_written_by_person', 'person_id', 'publication_id');
     },
@@ -318,7 +338,8 @@ var Person = bookshelf.Model.extend({
 personRepr[searchKey] = [personRepr.firstName, personRepr.lastName];
 personRepr.relationSearch = ['publications'];
 personRepr.model = Person;
-personRepr.relations = ['publications'];
+personRepr.relations = ['publications', 'affiliation', 'disciplines'];
+
 //User
 var userRepr = new Representation();
 userRepr.id = {
@@ -524,8 +545,10 @@ unknownPersonPublicationRepr.lastNameAuthor = {
 unknownPersonPublicationRepr.model = UnknownPersonPublication;
 
 module.exports.searchKey = searchKey;
+module.exports.affiliationRepr = affiliationRepr;
 module.exports.disciplineRepr = disciplineRepr;
 module.exports.journalRepr = journalRepr;
+module.exports.affiliationRepr = affiliationRepr;
 module.exports.personRepr = personRepr;
 module.exports.userRepr = userRepr;
 module.exports.publicationRepr = publicationRepr;

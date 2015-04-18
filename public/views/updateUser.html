@@ -1,30 +1,36 @@
 <md-content layout="column">
 	<form ng-submit="updateUser()" layout="column" ng-model="userEditForm" name="userForm">
 		<div class="form-block">
-			<h4>User Settings</h4>
+			<h4>{{'USER_SETTINGS' | translate}}</h4>
 			<md-input-container>
-				<label>Email</label>
+				<label>{{'EMAIL' | translate}}</label>
 				<input type="email" name="email" ng-model="userEditForm.email">
+				<div ng-messages="userForm.email.$error">
+                	<div ng-message="email">{{'ENTER_VALID_EMAIL' | translate}}</div>
+            	</div>
 			</md-input-container>
 			<md-input-container>
-				<label>Password</label>
+				<label>{{'PASSWORD' | translate}}</label>
 				<input type="password" name="password" ng-minlength="8" ng-model="userEditForm.password">
+				<div ng-messages="userForm.password.$error">
+                	<div ng-message="minlength">{{'PWD_8_CHARS' | translate}}</div>
+            	</div>
 			</md-input-container>
 		</div>
-		<md-button type="submit" class="md-raised md-primary" ng-disabled="userForm.$invalid">Save Changes</md-button>
+		<md-button type="submit" class="md-raised md-primary" ng-disabled="userForm.$invalid || (!userEditForm.email && !userEditForm.password)">{{'SAVE_CHANGES' | translate}}</md-button>
 	</form><br>
 	<form ng-submit="updatePerson()" layout="column" ng-model="personEditForm" name="personForm">
 		<div class="form-block">
-			<h4>Personal Settings</h4>
+			<h4>{{'PERSONAL_SETTINGS' | translate}}</h4>
 			<md-input-container>
-				<label>First Name</label>
+				<label>{{'FIRST_NAME' | translate}}</label>
 				<input type="text" name="firstName" ng-model="personEditForm.firstName">
 			</md-input-container>
 			<md-input-container>
-				<label>Last Name</label>
+				<label>{{'LAST_NAME' | translate}}</label>
 				<input type="text" name="lastName" ng-model="personEditForm.lastName">
 			</md-input-container>
 		</div>
-		<md-button type="submit" class="md-raised md-primary" ng-disabled="personForm.$invalid">Save Changes</md-button>
+		<md-button type="submit" class="md-raised md-primary" ng-disabled="!personEditForm.firstName && !personEditForm.lastName">{{'SAVE_CHANGES' | translate}}</md-button>
 	</form>
 </md-content>
