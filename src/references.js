@@ -101,13 +101,14 @@ function bibToDb(reference){
                 publication_title: "dummy2",
                 nr_of_pages: 1,
                 published_in_year: null,
-                url: 'test.com/test3',
+                url: null,
                 abstract: "dummy2"}
 
         data.type = reference.entryType;
         data.title = reference.entryTags.title;
         var year = parseInt(reference.entryTags.year);
         data.year = year;
+        data.url = 'http://wiselib.tk/publication/'+ reference.entryTags.title;
 
         if(reference.entryTags.pages != null){
             var pages = parseInt(reference.entryTags.pages);

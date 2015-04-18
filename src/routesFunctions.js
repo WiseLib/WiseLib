@@ -217,6 +217,7 @@ module.exports = {
             data.references.push({id: x});
         }
         req.references = data.references;
+        console.log(JSON.stringify(req));
 		res.status(501).end();
 	},
 
