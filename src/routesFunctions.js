@@ -182,6 +182,10 @@ module.exports = {
 		putSingle(req, res, linker.userRepr);
 	},
 
+	getUserLibrary: function(req, res) {
+		getMultiple(req, res, linker.userRepr, 'publications');
+	},
+
 	getPublications :function(req, res) {
 		if(req.query.authors !== undefined) {
 			req.query.authors = splitInArray(req.query.authors);

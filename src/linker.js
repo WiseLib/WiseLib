@@ -357,12 +357,16 @@ var User = bookshelf.Model.extend({
     tableName: 'user',
     person: function() {
         return this.belongsTo(Person, 'person_id');
-    }
+    },
+    library: function() {
+        return this.belongsToMany(Publication, 'publication_in_library', 'publication_id', 'user_id');
+    },
+    representation = userRepr
 });
 userRepr[searchKey] = [userRepr.email];
 userRepr.relationSearch = [];
 userRepr.model = User;
-userRepr.relations = ['person'];
+userRepr.relations = ['person', 'library'];
 
 //journal
 var journalRepr = new Representation();

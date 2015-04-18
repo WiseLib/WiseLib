@@ -101,5 +101,7 @@
 	"ACADEMIC_DISCIPLINES": "Academic disciplines",
 	"PUBLICATIONS_WRITTEN_BY": "Publications written by",
 	"PERSON": "Person",
-	"PUBLICATION": "Publication"
+	"PUBLICATION": "Publication",
+	"ALREADY_IN_LIBRARY":"Already in library",
+	"ADD_TO_LIBRARY":"Add to library"
 }

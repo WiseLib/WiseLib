@@ -1,7 +1,7 @@
 'use strict';
-var module = angular.module('publication',['journal', 'proceeding', 'ngMaterial','ngMessages']);
+var module = angular.module('publication',['journal', 'proceeding', 'user', 'ngMaterial','ngMessages']);
 
-module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication, Person, User) {
+module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication, Person, User, AuthenticationService) {
     $translate('PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
     });
@@ -10,6 +10,33 @@ module.controller('publicationController', function($scope, $window, $routeParam
     $scope.authors = [];
     $scope.editors = [];
     $scope.publications = [];
+    $scope.authenticatedUser = undefined;
+
+    if(AuthenticationService.isAuthenticated) {
+        var token = $window.sessionStorage.token;
+        var user = JSON.parse(atob(token.split('.')[1]));
+        $scope.authenticatedUser = user;
+    }
+
+    $scope.isInLibrary = function(publication) {
+        var inLibrary = false;
+        if($scope.authenticatedUser) {
+            inLibrary = $scope.authenticatedUser.library.indexOf({id:publication.id}) > -1;
+        }
+        return inLibrary;
+    };
+
+    $scope.addToLibrary = function(publication) {
+        if(!$scope.isInLibrary()) {
+            var userAddPublication = {id: user.id, library: user.library};
+            userAddPublication.library.push({id:publication.id});
+            User.put(userAddPublication, function() {
+                console.log('added to library');
+            }, function(errorData) {
+                console.log(errorData.error);
+            });
+        }
+    };
 
     $scope.incrementSelectedIndex = function(i) {
         $scope.selectedIndex = $scope.selectedIndex + i;

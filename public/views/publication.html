@@ -45,6 +45,15 @@
 					</tr>
 				</tbody>
 			</table>
+			<md-button class="md-raised" ng-disabled="!authenticatedUser || isInLibrary(publication)" ng-click="addToLibrary(publication)">
+				<md-tooltip ng-if="!authenticatedUser">
+					{{'LOGGED_IN_REQUIREMENT' | translate}}
+				</md-tooltip>
+				<md-tooltip ng-if="authenticatedUser && isInLibrary(publication)">
+					{{'ALREADY_IN_LIBRARY' | translate}}
+				</md-tooltip>
+				{{'ADD_TO_LIBRARY' | translate}}
+			</md-button>
 		</div>
 		<div role="tabpanel" id="tab2-content" aria-labelledby="tab2" ng-switch-when="1" md-swipe-right="incrementSelectedIndex(-1)" md-swipe-left="incrementSelectedIndex(1)">
 		<iframe ng-src="{{'http://docs.google.com/gview?url=http://wilma.vub.ac.be:8080/' + publication.url + '&embedded=true'}}" class="pdf-viewer" frameborder="0"></iframe>

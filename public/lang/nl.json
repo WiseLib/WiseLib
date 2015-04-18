@@ -101,5 +101,7 @@
 	"ACADEMIC_DISCIPLINES": "Academische disciplines",
 	"PUBLICATIONS_WRITTEN_BY": "Publicaties geschreven door",
 	"PERSON": "Persoon",
-	"PUBLICATION": "Publicatie"
+	"PUBLICATION": "Publicatie",
+	"ALREADY_IN_LIBRARY":"Publicatie al in bibliotheek",
+	"ADD_TO_LIBRARY":"Voeg in bibliotheek toe"
 }
