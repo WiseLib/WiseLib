@@ -43,9 +43,9 @@ module.exports = function(config) {
       'public/scripts/controllers/*.js',
       'public/scripts/directives/*.js',
       'public/scripts/services/*.js',
-      //'public/scripts/controllers/addUser.js',
-      //'public/services/*.js',
-      'test/ClientTests/addUsertest.js'
+
+      //'test/ClientTests/addUsertest.js'
+      'test/ClientTests/addPersonTest.js'
     ],
 
 

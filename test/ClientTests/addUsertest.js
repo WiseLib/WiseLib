@@ -2,8 +2,8 @@
 describe('addUser',function(){
 
 	describe('registerUserController',function(){
-		var $controller = null, $scope = null,$location = null,$mdToast;
-		var httpBackend = null, authRequestHandler= null, location= null,AuthenticationService =null,mdToast =null,User =null, Person =null, PersonState =null, Affiliation =null;
+		var $controller = null, $scope = null,$location = null,$mdToast = null;
+		var httpBackend = null, location= null,AuthenticationService =null,mdToast =null,User =null, Person =null, PersonState =null, Affiliation =null;
 		var controller;
 
 		var Page= {title : '',setTitle: function (text){title= text;}};
@@ -15,53 +15,74 @@ describe('addUser',function(){
     		$controller = _$controller_;
   		}));
 
-		beforeEach(inject(function ($controller,$rootScope,$httpBackend,$location,_User_,_Person_,_PersonState_,_Affiliation_) {
+		beforeEach(inject(function ($controller,$rootScope,$httpBackend,$location,_AuthenticationService_,_User_,_Person_,_PersonState_,_Affiliation_) {
 			$scope = $rootScope.$new();
 			httpBackend = $httpBackend;
 			location = $location;
-			AuthenticationService = {isAuthenticated: false};
+			AuthenticationService = _AuthenticationService_;
 			mdToast= {result:'',show:function(data){this.result=data.locals;}};
 
 			controller = $controller('registerUserController', {
-				$scope: $scope,
 				Page: Page,
-				$mdToast: mdToast,
-				AuthenticationService: AuthenticationService,
-
-				User:_User_,
-				Person:_Person_,
-				PersonState:_PersonState_,
-				Affiliation:_Affiliation_
+				$scope: $scope,
+				$mdToast: mdToast
 			});
+				
+			$mdToast= mdToast;
+			User=_User_;
+			Person=_Person_;
+			PersonState=_PersonState_;
+			Affiliation=_Affiliation_
+			
 		}));
 
 		describe('Register new person test',function(){
-			it('should succeed',function(done){
+			it('should create new person succeed',function(done){
 				$scope.userForm.email = 'emailTest';
-				$scope.userForm.email = 'passwordTest';
+				$scope.userForm.password = 'passwordTest';
 
-				httpBackend.expectPOST('person.json',{firstName: 'Test',profileImageSrc: ''}).respond(201,'');
-				$location= location;
-				$mdToast= mdToast;
+				PersonState.person={firstName:'John',lastName:'Teller',affiliation:1}
+
+				httpBackend.expectPOST('/persons.json',{firstName: 'John',lastName: 'Teller',affiliation:1}).respond(201,{id:1});
+				httpBackend.expectPOST('/users.json',{email: 'emailTest',password: 'passwordTest',person:1}).respond(201,{id:1});
+
 				$scope.createUser();
 				httpBackend.flush();
 				AuthenticationService.isAuthenticated.should.be.true;
-				$mdToast.result.error.should.be.false;
+				$mdToast.result.text.should.be.equal('"SUCCESSFULLY_REGISTERED"');//cannot check error as translate will fail.
 				done();
 			});
 
 			it('should give an error',function(done){
-				$scope.userForm.firstName = 'Test';
-				httpBackend.expectPOST('user.json',{firstName: 'Test',profileImageSrc: ''}).respond(401,'');
-				$location= location;
-				$mdToast = mdToast;
+				$scope.userForm.email = 'emailTest';
+				$scope.userForm.password = 'passwordTest';
+
+				PersonState.person={firstName:'John',lastName:'Teller',affiliation:1}
+
+				httpBackend.expectPOST('/persons.json',{firstName: 'John',lastName: 'Teller',affiliation:1}).respond(401,{});
+
 				$scope.createUser();
 				httpBackend.flush();
 				AuthenticationService.isAuthenticated.should.be.false;
-				$mdToast.result.error.should.be.true;
+				done();
+			});
+		});
+
+		describe('Register old person test',function(){
+			it('should create new person succeed',function(done){
+				$scope.userForm.email = 'emailTest';
+				$scope.userForm.password = 'passwordTest';
+
+				PersonState.person={id:1};
+
+				httpBackend.expectPOST('/users.json',{email: 'emailTest',password: 'passwordTest',person:1}).respond(201,{id:1});
+
+				$scope.createUser();
+				httpBackend.flush();
+				AuthenticationService.isAuthenticated.should.be.true;
+				$mdToast.result.text.should.be.equal('"SUCCESSFULLY_REGISTERED"');//cannot check error as translate will fail.
 				done();
 			});
 		});
 	});
-
 });
