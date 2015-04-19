@@ -13,19 +13,32 @@
             <h4>{{'PUBLICATION_INFORMATION' | translate}}</h4>
             <md-input-container>
                 <label>{{'TITLE' | translate}}</label>
-                <input type="text" ng-model="title" required>
+                <input type="text" ng-model="title" name="title" required>
+                <div ng-messages="PublicationInfoForm.title.$error">
+                    <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
+                </div>
             </md-input-container>
             <md-input-container>
                 <label>{{'YEAR' | translate}}</label>
-                <input id="year" type="number" ng-model="year" required>
+                <input id="year" type="number" name="year" ng-model="year" required>
+                <div ng-messages="PublicationInfoForm.year.$error">
+                    <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
+                    <div ng-message="number">{{'FILL_IN_NUMBER' | translate}}</div>
+                </div>
             </md-input-container>
             <md-input-container>
                 <label>{{'NR_OF_PAGES' | translate}}</label>
-                <input id="nb-pages" type="number" min="1" ng-model="numberOfPages">
+                <input id="nb-pages" name="numberOfPages" type="number" min="1" ng-model="numberOfPages">
+                <div ng-messages="PublicationInfoForm.numberOfPages.$error">
+                    <div ng-message="number">{{'FILL_IN_NUMBER' | translate}}</div>
+                </div>
             </md-input-container>
             <md-input-container>
                 <label ng-hide="localfile">{{'URL'}}</label>
-                <input ng-hide="localfile" id="url" ng-model="url">
+                <input ng-hide="localfile" id="url" type="url" name="url" ng-model="url">
+                <div ng-messages="PublicationInfoForm.url.$error">
+                    <div ng-message="url">{{'FILL_IN_VALID_URL' | translate}}</div>
+                </div>
             </md-input-container>
             <md-input-container>
                 <label>{{'ABSTRACT' | translate}}</label>

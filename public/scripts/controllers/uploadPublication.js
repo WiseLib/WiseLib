@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication');
 
-module.controller('uploadPublicationController', function($scope, $window, $http, $translate, Page, $mdToast, Person, PersonState, Journal, Proceeding,Publication) {
+module.controller('uploadPublicationController', function($scope, $window, $http, $translate,$location,Page, $mdToast, Person, PersonState, Journal, Proceeding,Publication) {
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
 
@@ -62,7 +62,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         }
         //next pdf-extracted author
         $scope.selectCurrentPDFAuthor();
-    }
+    };
 
     $scope.setCurrentAuthor = function(person) {
         PersonState.person.firstName = person.firstName;
@@ -131,12 +131,10 @@ module.controller('uploadPublicationController', function($scope, $window, $http
                 $scope.add($scope.authors,person.persons[0])
             },function(data){$scope.showSimpleToast("error")});
 
-            
-
             $scope.pdfAuthors = data.authors;
             if($scope.pdfAuthors.length > 0) {
                 $scope.setCurrentAuthor($scope.pdfAuthors[0]);
-            }   
+            }
 
         }).
         error(function(data, status, headers, config) {
@@ -149,7 +147,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
     $scope.uploadbibtex = function(files){
 
         var fd = new FormData();
-        fd.append("file", files[0]);
+        fd.append('file', files[0]);
 
         $http.post('uploadfile', fd, {
             withCredentials: true,
@@ -167,7 +165,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
 
                 var title = reference.entryTags.title;
                 $scope.add($scope.references,title);
-            }   
+            }
         }).
         error(function(data, status, headers, config) {
             $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
@@ -198,19 +196,14 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         function upload(){
             console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
 
-            Publication.post(JSON.stringify(toPost),function(data){
-                $location.path('/mypublications')
+            Publication.save(JSON.stringify(toPost),function(data){
+                $location.path('/mypublications');
             },function(data){
-                $scope.showSimpleToast("Something went wrong:" + data.status);
+                $translate('ERROR').then(function(translated) {
+                $scope.showSimpleToast(translated + ': ' + data.status);
+                });
             });
-        /*  $http.post('users/'+user.id+'/publications.json', toPost)
-            .success(function(data, status, headers, config) {
-                $location.path('/mypublications') 
-            })
-            .error(function(data, status, headers, config) {
-                $scope.showSimpleToast("Something went wrong:" + status);
-            });*/
-        };
+        }
 
         var toPost = {};
         toPost.title = $scope.title;
@@ -221,7 +214,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         toPost.references = $scope.JSONreferences;
         toPost.type = $scope.type;
         if ($scope.type === 'Journal') {
-            toPost.journalId = $scope.journal.id;
+            toPost.journal = $scope.journal.id;
             toPost.volume = $scope.volume;
             toPost.number = $scope.number;
         }
@@ -239,16 +232,16 @@ module.controller('uploadPublicationController', function($scope, $window, $http
             var author = $scope.authors[i];
 
             if(author.id !== undefined){
-                toPost.authors.push(author.id);
-                if(toPost.authors.length == $scope.authors.length)upload();
+                toPost.authors.push({id:author.id});
+                if(toPost.authors.length === $scope.authors.length)upload();
             }
 
             else{
                 Person.save(author,function(person){
                     toPost.authors.push(person.id);
-                    if(toPost.authors.length == $scope.authors.length)upload();
+                    if(toPost.authors.length === $scope.authors.length)upload();
                 });
             }
-        };
+        }
     };
 });

@@ -66,3 +66,8 @@ personmin a {
   	padding-left: 0;
   	list-style-position: inside;
 }
+
+.md-toolbar-tools {
+	margin-top: -2px;
+	padding-left: 40px;
+}

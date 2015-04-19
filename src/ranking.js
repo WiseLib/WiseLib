@@ -7,7 +7,7 @@ function calculateRank(jsonObj, type, callback) { //type = linker representation
 
 	/*
 		Journal/Conference = ligt vast (in database)
-		Persoon = combinatie van aantal gepubliceerde publicaties en publicaties per jaar 
+		Persoon = combinatie van aantal gepubliceerde publicaties en publicaties per jaar
 		Publicatie = combinatie van rank van auteurs, aantal citaties en rank van Journal/Conference
 	 */
 
@@ -27,16 +27,16 @@ function calculateRank(jsonObj, type, callback) { //type = linker representation
 								if (counter === jsonObj.authors.length) {
 									var averageAuthorRank = 0;
 									authorRanks.forEach(function(authorRank) {
-										averageAuthorRank += authorRank
+										averageAuthorRank += authorRank;
 									});
 									averageAuthorRank = averageAuthorRank / authorRanks.length;
-									callback(numberOfCitations * subRank * averageAuthorRank); //no citations : very bad --> rank = 0 
+									callback(numberOfCitations * subRank * averageAuthorRank); //no citations : very bad --> rank = 0
 								}
 
-							})
+							});
 					});
-			})
-	}
+			});
+	};
 
 	if (type === linker.proceedingPublicationRepr) {
 		var rank;
@@ -47,7 +47,7 @@ function calculateRank(jsonObj, type, callback) { //type = linker representation
 
 			rank = result[0].rank;
 			PublicationRank(rank);
-		})
+		});
 	} else if (type === linker.journalPublicationRepr) {
 		var rank;
 		var journalId = jsonObj.journal;
@@ -56,16 +56,16 @@ function calculateRank(jsonObj, type, callback) { //type = linker representation
 		}, linker.journalRepr, function(result) {
 			rank = result[0].rank;
 			PublicationRank(rank);
-		})
+		});
 
 	} else if (type === linker.personRepr) { //gemiddelde aantal publicaties (per jaar) * (1 + publicaties dit jaar)
 		var publications = jsonObj.publications;
 
 		var numberOfPublications = publications.length;
 
-		var years = new Array();
+		var years = [];
 
-		var counter = 0
+		var counter = 0;
 		publications.map(function(publication) {
 			DBManager.get({id: publication.id
 			}, linker.publicationRepr, function(result) {
@@ -83,14 +83,14 @@ function calculateRank(jsonObj, type, callback) { //type = linker representation
 
 					callback(rank);
 				}
-			})
-		})
+			});
+		});
 
 
 
-	} else throw new Error('Wrong type for ranking:' + type)
+	} else throw new Error('Wrong type for ranking:' + type);
 }
 
 module.exports = {
 	calculateRank: calculateRank
-}
+};
