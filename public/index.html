@@ -77,6 +77,9 @@
                         <md-button class="md-button md-default-theme" href="/register" ng-show="!auth.isAuthenticated" ng-click="ToggleMenu()">{{'REGISTER' | translate }}</md-button>
                     </li>
                     <li>
+                        <md-button class="md-button md-default-theme" ng-href="/persons/{{personId}}" ng-show="auth.isAuthenticated" ng-click="ToggleMenu()">{{'MY_PROFILE' | translate }}</md-button>
+                    </li>
+                    <li>
                         <md-button class="md-button md-default-theme" href="/search" ng-click="ToggleMenu()">{{'SEARCH_A_PUBLICATION' | translate}}</md-button>
                     </li>
                     <li>
