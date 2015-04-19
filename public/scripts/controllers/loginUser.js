@@ -14,12 +14,12 @@ angular.module('user')
      */
     $scope.login = function() {
         if ($scope.loginUserForm.email !== '' && $scope.loginUserForm.password !== '') {
-            console.log('email and password provided, trying to log in...');
+            //console.log('email and password provided, trying to log in...');
             UserService.logIn($scope.loginUserForm.email, $scope.loginUserForm.password)
             .success(function(data) {
                 AuthenticationService.isAuthenticated = true;
                 $window.sessionStorage.token = data.token;
-                $location.path('/restricted');
+                $location.path('/');
                 $translate('SUCCESSFULLY_LOGGED_IN').then(function(translated) {
                     $mdToast.show({
                         controller: 'ToastCtrl',

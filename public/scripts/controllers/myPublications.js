@@ -11,8 +11,7 @@ angular.module('publication')
 
     var token = $window.sessionStorage.token;
     var user = JSON.parse(atob(token.split('.')[1]));
-
-    console.log('user: ' + JSON.stringify(user));
+    //console.log('user: ' + JSON.stringify(user));
     Person.publications({id: user.person}, function(data) {
         $scope.showLoading = false;
         if(data.publications.length > 0) {
