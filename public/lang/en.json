@@ -1,4 +1,6 @@
 {
+	"ADD_PERSON" : "Click to add person to the database",
+	"PERSON_NOT_IN_LIST" : "Person not in list?",
 	"WELCOME": "Welcome to WiseLib",
 	"WELCOME_SUB": "A browsable research database",
 	"WISELIB_DESCR": "WiseLib lets you share your papers and search through papers shared by others colleagues.",
@@ -103,5 +105,10 @@
 	"PERSON": "Person",
 	"PUBLICATION": "Publication",
 	"ALREADY_IN_LIBRARY":"Already in library",
-	"ADD_TO_LIBRARY":"Add to library"
+	"ADD_TO_LIBRARY":"Add to library",
+	"3_CHARS_MINIMUM": "Please fill in at least 3 characters",
+	"FILL_IN_NUMBER": "Please fill in a number",
+	"FILL_IN_VALID_URL": "Please fill in a valid URL",
+	"COULD_NOT_GET_A_RESULT": "Could not get a result",
+	"EXTERNAL_SEARCH": "External search"
 }

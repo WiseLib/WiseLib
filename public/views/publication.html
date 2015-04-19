@@ -43,6 +43,10 @@
 						<td>{{'YEAR_OF_PUBLISHING' | translate}}</td>
 						<td>{{publication.year}}</td>
 					</tr>
+					<tr>
+						<td>Rank</td>
+						<td>{{publication.rank}}</td>
+					</tr>
 				</tbody>
 			</table>
 			<md-button class="md-raised" ng-disabled="!authenticatedUser || isInLibrary(publication)" ng-click="addToLibrary(publication)">
@@ -56,7 +60,7 @@
 			</md-button>
 		</div>
 		<div role="tabpanel" id="tab2-content" aria-labelledby="tab2" ng-switch-when="1" md-swipe-right="incrementSelectedIndex(-1)" md-swipe-left="incrementSelectedIndex(1)">
-		<iframe ng-src="{{'http://docs.google.com/gview?url=http://wilma.vub.ac.be:8080/' + publication.url + '&embedded=true'}}" class="pdf-viewer" frameborder="0"></iframe>
+		<iframe ng-src="{{publication.url}}" class="pdf-viewer" frameborder="0"></iframe>
 		</div>
 		<div role="tabpanel" id="tab3-content" aria-labelledby="tab3" ng-switch-when="2" md-swipe-right="incrementSelectedIndex(-1)" md-swipe-left="incrementSelectedIndex(1)">
 			<md-list class="publications-list">

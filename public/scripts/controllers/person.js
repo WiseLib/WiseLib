@@ -5,13 +5,22 @@ module.controller('personController', function($scope,$window, $routeParams, $tr
 	$translate('PERSON').then(function(translated) {
         Page.setTitle(translated);
     });
+
+    function getFullAffiliation(id){
+    	Affiliation.get({id: id}, function(affiliation) {
+    		if(affiliation.parent !== undefined){
+    			$scope.person.affiliation += ' ' + affiliation.name + ' /';
+    			getFullAffiliation(affiliation.parent);
+    		}
+			else $scope.person.affiliation += ' ' + affiliation.name;
+		});
+    }
 	$scope.disciplines = [];
 	Person.get({id: $routeParams.id}, function(person) {
-		console.log(person);
 		$scope.person = person;
-		Affiliation.get({id: person.affiliation}, function(affiliation) {
-			$scope.person.affiliation = affiliation.name;
-		});
+		var affiliationId = person.affiliation;
+		$scope.person.affiliation='';
+		getFullAffiliation(affiliationId);
 		function searchDiscipline(id) {
 			Discipline.get({id: id}, function(d) {
 				$scope.disciplines.push(d.name);
