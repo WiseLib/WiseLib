@@ -58,7 +58,6 @@ angular.module('person')
     };
 
     $scope.searchAffiliations = function(id) {
-        if(id === '')return '';
         Affiliation.query({parent: id}, function(data) {
             $scope.choiceAffiliations = data.affiliations;
         }, function(error) {console.log('error! ' + error); });

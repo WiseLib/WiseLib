@@ -2,7 +2,8 @@
 describe('addUser',function(){
 
 	describe('registerUserController',function(){
-		var $controller = null, $scope = null,$location = null, httpBackend = null, authRequestHandler= null, location= null,AuthenticationService =null,mdToast =null,User =null, Person =null, PersonState =null, Affiliation =null;
+		var $controller = null, $scope = null,$location = null,$mdToast;
+		var httpBackend = null, authRequestHandler= null, location= null,AuthenticationService =null,mdToast =null,User =null, Person =null, PersonState =null, Affiliation =null;
 		var controller;
 
 		var Page= {title : '',setTitle: function (text){title= text;}};
@@ -34,25 +35,12 @@ describe('addUser',function(){
 			});
 		}));
 
-		describe('searchPerson Test',function(){
-			it('should work',function(done){
-
-				authRequestHandler = httpBackend.when('GET', '/persons.json?firstName=Jan&lastName=Modaal').respond({persons: 'Test'});
-				$scope.userForm.firstName = 'Jan';
-				$scope.userForm.lastName = 'Modaal';
-				httpBackend.expectGET('/persons.json?firstName=Jan&lastName=Modaal');
-				$scope.$apply();
-				httpBackend.flush();
-
-				$scope.persons.should.not.be.empty;
-				done();
-			});
-		});
-
-		describe('Register person test',function(){
+		describe('Register new person test',function(){
 			it('should succeed',function(done){
-				$scope.userForm.firstName = 'Test';
-				httpBackend.expectPOST('user.json',{firstName: 'Test',profileImageSrc: ''}).respond(201,'');
+				$scope.userForm.email = 'emailTest';
+				$scope.userForm.email = 'passwordTest';
+
+				httpBackend.expectPOST('person.json',{firstName: 'Test',profileImageSrc: ''}).respond(201,'');
 				$location= location;
 				$mdToast= mdToast;
 				$scope.createUser();
