@@ -26,11 +26,26 @@ module.exports = function(config) {
     files: [
       'test/angular/angular.js',
       'test/angular/angular-mocks.js',
-      'public/*.js',
-      //'public/controllers/*.js',
-      'public/controllers/addUser.js',
+      'test/angular/angular-aria.js',
+      'test/angular/angular-animate.js',
+      'test/angular/angular-material.js',
+      'test/angular/angular-messages.js',
+      'test/angular/angular-resource.js',
+      'test/angular/angular-translate.js',
+      'test/angular/angular-translate-loader-static-files.js',
+      'test/angular/angular-translate-storage-cookie.js',
+      'test/angular/angular-translate-storage-local.js',
+
+      'public/app.js',
+      'public/scripts/controllers/user.js',
+      'public/scripts/controllers/person.js',
+      'public/scripts/controllers/publication.js',
+      'public/scripts/controllers/*.js',
+      'public/scripts/directives/*.js',
+      'public/scripts/services/*.js',
+      //'public/scripts/controllers/addUser.js',
       //'public/services/*.js',
-      'test/ClientTests/*.js'
+      'test/ClientTests/addUsertest.js'
     ],
 
 
@@ -51,13 +66,7 @@ module.exports = function(config) {
     reporters: ['progress','html'],
 
     htmlReporter: {
-      outputDir: './test/units.html',
-      templatePath: null, // set if you moved jasmine_template.html
-      focusOnFailures: true, // reports show failures on start
-      namedFiles: false, // name files instead of creating sub-directories
-      pageTitle: null, // page title for reports; browser info by default
-      urlFriendlyName: false // simply replaces spaces with _ for files/dirs
-
+      outputDir: './test/units.html'
     },
 
     // web server port

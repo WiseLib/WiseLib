@@ -1,5 +1,5 @@
 'use strict';
-var module = angular.module('publication',['journal', 'proceeding', 'ngMaterial','ngMessages']);
+var module = angular.module('publication',['journal', 'proceeding', 'ngMaterial','ngMessages','ngResource']);
 
 module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication, Person, User) {
     $translate('PUBLICATION').then(function(translated) {

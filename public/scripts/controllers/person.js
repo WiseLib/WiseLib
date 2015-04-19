@@ -1,5 +1,5 @@
 'use strict';
-var module = angular.module('person', ['proceeding', 'ngMaterial', 'ngMessages', 'affiliation', 'discipline']);
+var module = angular.module('person', ['ngMaterial', 'ngMessages', 'affiliation', 'discipline','ngResource']);
 
 module.controller('personController', function($scope,$window, $routeParams, $translate, Page, Person, Affiliation, Discipline) {
 	$translate('PERSON').then(function(translated) {
