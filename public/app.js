@@ -80,7 +80,7 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
     $scope.Page = Page;
     $scope.auth = AuthenticationService;
 
-    $scope.$watch(function(){return AuthenticationService.isAuthenticated;},function()//set personId on login
+    $scope.$watch(function(){return AuthenticationService.isAuthenticated;},function(){//set personId on login
         if(AuthenticationService.isAuthenticated){
             var token = $window.sessionStorage.token;
             var user = JSON.parse(atob(token.split('.')[1]));
