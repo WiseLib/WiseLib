@@ -42,24 +42,30 @@ input.file {
 
 .choices li{
 	position: relative;
+	padding: 5px;
+	margin-bottom: 5px;
 }
 
 .choices li:hover {
 	background-color: #E8F5E9;
 }
 
-.chosen li:hover {
-	color: #FF0000;
-	background-color: #FF0000;
-}
-
-#overlay{
+.choices li > #overlay{
 	position: absolute;
-	top: 25%;
+	top: 17%;
+	height: 20px;
 	display: none;
 	/*left: 50%;*/
 	width: 100%;
 	text-align: center;
+}
+
+.chosen li:hover{
+	color: #FF0000; 
+	background-color: #FF0000;
+}
+.chosen li:hover personmin {
+	visibility: hidden; 
 }
 
 .chosen li:hover #overlay{
@@ -68,6 +74,40 @@ input.file {
 	color: #FFFFFF;
 }
 
+
+.choice > #overlay{
+	position: absolute;
+	top:15%;
+	height: 20px;
+	display: none;
+	/*left: 50%;*/
+	width: 100%;
+	text-align: center;
+}
+
+.choice {
+	position: relative;
+	width: 100%;
+	padding: 5px;
+
+}
+
+.choice:hover {
+	/*color: #FF0000;*/
+	background-color: #FF0000;
+
+}
+
+.choice:hover :first-child{
+	visibility: hidden;
+	/*background-color: #FF0000;*/
+
+}
+.choice:hover #overlay{
+	z-index: 100;
+	display: block;
+	color: #FFFFFF;
+}
 
 li#authorselect{
 	list-style-type: none;

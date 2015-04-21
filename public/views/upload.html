@@ -35,8 +35,8 @@
             </md-input-container>
             <md-input-container>
                 <label ng-hide="localfile">{{'URL'}}</label>
-                <input ng-hide="localfile" id="url" type="url" name="url" ng-model="url">
-                <div ng-messages="PublicationInfoForm.url.$error">
+                <input ng-hide="localfile" id="url" type="url" name="url" ng-model="url" requiered>
+                <div ng-hide="localfile" ng-messages="PublicationInfoForm.url.$error">
                     <div ng-message="url">{{'FILL_IN_VALID_URL' | translate}}</div>
                 </div>
             </md-input-container>
@@ -62,7 +62,7 @@
         <h4 ng-show="authors.length > 0">{{'SELECTED_AUTHORS' | translate}}</h4>
         <ul class="choices chosen">
             <li ng-repeat="chosenAuthor in authors">
-                <p><personmin person="chosenAuthor"></personmin>{{" " + chosenAuthor.status}}</p>
+                <personmin person="chosenAuthor"></personmin>
                 <div id="overlay" ng-click="remove(authors, chosenAuthor)">{{'REMOVE' | translate}}</div>
             </li>
         </ul>
@@ -87,7 +87,10 @@
                 </ul>
                 <div ng-show="proceeding !== undefined">
                     <h4>{{'SELECTED_PROCEEDING' | translate}}</h4>
-                    <proceedingmin proceeding="proceeding"></proceedingmin>
+                    <div class="choice">
+                        <proceedingmin proceeding="proceeding"></proceedingmin>
+                        <div id="overlay" ng-click="chooseProceeding(undefined)" >{{'REMOVE' | translate}}</div>
+                    </div>
                 </div>
                 <md-input-container>
                     <label>{{'EDITORS' | translate}}</label>
@@ -109,14 +112,15 @@
                 </md-input-container>
                 <ul class="choices">
                     <li ng-click="chooseJournal(possibleJournal);" ng-repeat="possibleJournal in fetchJournals(searchJournal)|limitTo:5">
-                        <p>
-                            <proceedingmin proceeding="possibleJournal"></proceedingmin>
-                            <p>
+                            <proceedingmin  proceeding="possibleJournal"></proceedingmin>
                     </li>
                 </ul>
-                <div ng-show="journal !== undefined">
+                <div  ng-show="journal !== undefined">
                     <h4>{{'SELECTED_JOURNAL' | translate}}</h4>
-                    <proceedingmin proceeding="journal"></proceedingmin>
+                    <div class="choice">
+                        <proceedingmin proceeding="journal"></proceedingmin>
+                        <div id="overlay" ng-click="chooseJournal(undefined)" >{{'REMOVE' | translate}}</div>
+                    </div>
                 </div>
                 <md-input-container>
                     <label>{{'VOLUME' | translate}}</label>
@@ -157,7 +161,7 @@
             </ul>
         </div>
 
-        <md-button type="button" class="md-raised md-primary reserve-tooltip-space" ng-disabled="PublicationInfoForm.$invalid ||JournalConferenceForm.$invalid || authors.length < 1" ng-click="post()">
+        <md-button type="button" class="md-raised md-primary reserve-tooltip-space" ng-disabled="(PublicationInfoForm.$invalid && !localfile) ||JournalConferenceForm.$invalid || authors.length < 1" ng-click="post()">
             <!-- md-direction doesn't work in this version of angular-material. Temporary fix in the css file -->
             <md-tooltip md-direction="top">{{'UPLOAD_YOUR_PUBLICATION' | translate}}</md-tooltip>
             {{'SEND' | translate}}
