@@ -80,9 +80,13 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
     $scope.Page = Page;
     $scope.auth = AuthenticationService;
 
-    var token = $window.sessionStorage.token;
-    var user = JSON.parse(atob(token.split('.')[1]));
-    $scope.personId = user.person;
+    $scope.$watch(function(){return AuthenticationService.isAuthenticated;},function(){//set personId on login
+        if(AuthenticationService.isAuthenticated){
+            var token = $window.sessionStorage.token;
+            var user = JSON.parse(atob(token.split('.')[1]));
+            $scope.personId = user.person;
+        }
+    });
 
     $scope.ToggleMenu = function() {
         $mdSidenav('left').toggle();
