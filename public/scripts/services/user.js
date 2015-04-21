@@ -4,7 +4,8 @@ angular.module('user')
 
 .factory('User', function($resource) {
     return $resource('/users/:id.json', {id:'@id'}, {
-        get: {method: 'GET'}
+        get: {method: 'GET'},
+        put: {method: 'PUT'}
     });
 })
 
