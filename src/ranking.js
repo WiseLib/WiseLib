@@ -62,6 +62,7 @@ function calculateRank(jsonObj, type, callback) { //type = linker representation
 		var publications = jsonObj.publications;
 
 		var numberOfPublications = publications.length;
+		if(numberOfPublications === 0) callback(0);
 
 		var years = [];
 
