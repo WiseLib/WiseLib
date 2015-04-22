@@ -13,8 +13,8 @@ angular.module('user')
    * Sends a request to the server to register a user using form input
    * @return {None}
    */
-    $scope.update = function (service) {
-        service.$put(
+    $scope.update = function (service, json) {
+        service.put(json,
         function() { //Success
             $translate('SAVED_CHANGES').then(function(translated) {
                 $mdToast.show({
@@ -54,12 +54,12 @@ angular.module('user')
         var token = $window.sessionStorage.token;
         var user = JSON.parse(atob(token.split('.')[1]));
         $scope.userEditForm.id = user.id;
-        $scope.update(new User(filterEmpty($scope.userEditForm)));
+        $scope.update(User, filterEmpty($scope.userEditForm));
     };
     $scope.updatePerson = function() {
         var token = $window.sessionStorage.token;
         var user = JSON.parse(atob(token.split('.')[1]));
         $scope.personEditForm.id = user.person;
-        $scope.update(new Person(filterEmpty($scope.personEditForm)));
+        $scope.update(Person, filterEmpty($scope.personEditForm));
     };
 });
