@@ -243,7 +243,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
 
             else{
                 Person.save(author,function(person){
-                    toPost.authors.push(person.id);
+                    toPost.authors.push({id:person.id});
                     if(toPost.authors.length === $scope.authors.length)upload();
                 });
             }
