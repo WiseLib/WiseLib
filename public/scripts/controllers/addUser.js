@@ -2,7 +2,7 @@
 
 angular.module('user')
 
-.controller('registerUserController', function($scope, $window, $location, $translate, $q, Page, $mdToast, AuthenticationService, User, Person, PersonState, Affiliation) {
+.controller('registerUserController', function($scope, $location, $translate, $q, Page, $mdToast, AuthenticationService, User, Person, PersonState, Affiliation, TokenService) {
     $translate('REGISTER').then(function(register) {
         Page.setTitle(register);
     });
@@ -31,9 +31,9 @@ angular.module('user')
     };
 
     $scope.authenticate = function(token) {
+        TokenService.setToken(token);
         AuthenticationService.isAuthenticated = true;
-        $window.sessionStorage.token = token;
-        $location.path('/restricted');
+        $location.path('/');
     };
 
     $scope.postPerson = function(person) {

@@ -2,7 +2,7 @@
 
 angular.module('user')
 
-.controller('updateUserController', function($scope, $window, $location, $translate, Page, $mdToast, AuthenticationService, User, Person) {
+.controller('updateUserController', function($scope, $location, $translate, Page, $mdToast, AuthenticationService, User, Person, TokenService) {
     $translate('UPDATE_PROFILE').then(function(translated) {
     Page.setTitle(translated);
   });
@@ -51,14 +51,12 @@ angular.module('user')
     }
 
     $scope.updateUser = function() {
-        var token = $window.sessionStorage.token;
-        var user = JSON.parse(atob(token.split('.')[1]));
+        var user = TokenService.getUser();
         $scope.userEditForm.id = user.id;
         $scope.update(User, filterEmpty($scope.userEditForm));
     };
     $scope.updatePerson = function() {
-        var token = $window.sessionStorage.token;
-        var user = JSON.parse(atob(token.split('.')[1]));
+        var user = TokenService.getUser();
         $scope.personEditForm.id = user.person;
         $scope.update(Person, filterEmpty($scope.personEditForm));
     };

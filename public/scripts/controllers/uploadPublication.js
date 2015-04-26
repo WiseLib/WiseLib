@@ -1,9 +1,8 @@
 'use strict';
 var module = angular.module('publication');
 
-module.controller('uploadPublicationController', function($scope, $window, $http, $translate,$location,Page, $mdToast, Person, PersonState, Journal, Proceeding,Publication) {
-    var token = $window.sessionStorage.token;
-    var user = JSON.parse(atob(token.split('.')[1]));
+module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, $mdToast, Person, PersonState, Journal, Proceeding, Publication, TokenService) {
+    var user = TokenService.getUser();
 
     $translate('UPLOAD_PUBLICATION').then(function(translated) {
         Page.setTitle(translated);

@@ -18,7 +18,7 @@ angular.module('publication')
             position: 'top right',
             locals: {
                 text: text,
-                error: false
+                error: true
             }
         });
     };
@@ -156,7 +156,7 @@ angular.module('publication')
                 webSearch();
 
             }, function(data) {
-                $translate('EXTERNAL_SEARCH').then(function(translated) {
+                $translate('ERROR').then(function(translated) {
                     $scope.showSimpleToast(translated + ': ' + data.statusText);
                 });
             });

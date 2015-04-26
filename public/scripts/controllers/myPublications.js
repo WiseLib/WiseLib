@@ -1,7 +1,7 @@
 'use strict';
 angular.module('publication')
 
-.controller('myPublicationsController', function($scope, $window, $translate, Page, Publication, $mdDialog, $mdToast, Person) {
+.controller('myPublicationsController', function($scope, $translate, Page, Publication, $mdDialog, $mdToast, Person, TokenService) {
     $translate('MY_PUBLICATIONS').then(function(translated) {
         Page.setTitle(translated);
     });
@@ -9,9 +9,7 @@ angular.module('publication')
     $scope.publications = [];
     $scope.showLoading = true;
 
-    var token = $window.sessionStorage.token;
-    var user = JSON.parse(atob(token.split('.')[1]));
-    //console.log('user: ' + JSON.stringify(user));
+    var user = TokenService.getUser();
     Person.publications({id: user.person}, function(data) {
         $scope.showLoading = false;
         if(data.publications.length > 0) {

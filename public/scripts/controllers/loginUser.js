@@ -2,7 +2,7 @@
 
 angular.module('user')
 
-.controller('loginUserController',function($scope, $location, $window, UserService, AuthenticationService, $translate, Page, $mdToast) {
+.controller('loginUserController',function($scope, $location, UserService, AuthenticationService, $translate, Page, $mdToast, TokenService) {
     $translate('LOG_IN').then(function(translated) {
     Page.setTitle(translated);
   });
@@ -14,11 +14,10 @@ angular.module('user')
      */
     $scope.login = function() {
         if ($scope.loginUserForm.email !== '' && $scope.loginUserForm.password !== '') {
-            //console.log('email and password provided, trying to log in...');
             UserService.logIn($scope.loginUserForm.email, $scope.loginUserForm.password)
             .success(function(data) {
+                TokenService.setToken(data.token);
                 AuthenticationService.isAuthenticated = true;
-                $window.sessionStorage.token = data.token;
                 $location.path('/');
                 $translate('SUCCESSFULLY_LOGGED_IN').then(function(translated) {
                     $mdToast.show({

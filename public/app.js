@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 'user', 'person', 'ngCookies', 'pascalprecht.translate'])
+angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 'user', 'person', 'ngCookies', 'pascalprecht.translate', 'ngStorage'])
 
 /**
  * Configure the Routes
@@ -76,14 +76,13 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
     };
 })
 
-.controller('navController', function($scope, $window, $mdSidenav, $translate, Page, AuthenticationService) {
+.controller('navController', function($scope, $mdSidenav, $translate, Page, AuthenticationService, TokenService) {
     $scope.Page = Page;
     $scope.auth = AuthenticationService;
 
     $scope.$watch(function(){return AuthenticationService.isAuthenticated;},function(){//set personId on login
         if(AuthenticationService.isAuthenticated){
-            var token = $window.sessionStorage.token;
-            var user = JSON.parse(atob(token.split('.')[1]));
+            var user = TokenService.getUser();
             $scope.personId = user.person;
         }
     });
@@ -94,7 +93,7 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
 
     $scope.logout = function() {
         AuthenticationService.isAuthenticated = false;
-        delete $window.sessionStorage.token;
+        TokenService.deleteToken();
     };
 
     $scope.changeLanguage = function(lang) {
@@ -103,7 +102,7 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
     };
 })
 
-.controller('mainController', function ($scope, $http, Page) {
+.controller('mainController', function (Page) {
     Page.setTitle('Start');
 })
 
