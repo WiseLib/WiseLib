@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 'user', 'person', 'ngCookies', 'pascalprecht.translate', 'ngStorage'])
+angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 'user', 'person', 'ngCookies', 'pascalprecht.translate', 'ngStorage', 'toast'])
 
 /**
  * Configure the Routes
@@ -104,13 +104,4 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
 
 .controller('mainController', function (Page) {
     Page.setTitle('Start');
-})
-
-.controller('ToastCtrl', function($scope, $mdToast, text, error) {
-    $scope.content = text;
-    $scope.textColor = error ? 'FF0000' : '00FF00';
-    $scope.buttonClass = error ? 'md-warn' : 'md-success';
-    $scope.closeToast = function() {
-        $mdToast.hide();
-    };
 });

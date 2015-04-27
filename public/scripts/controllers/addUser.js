@@ -2,33 +2,11 @@
 
 angular.module('user')
 
-.controller('registerUserController', function($scope, $location, $translate, $q, Page, $mdToast, AuthenticationService, User, Person, PersonState, Affiliation, TokenService) {
+.controller('registerUserController', function($scope, $location, $translate, $q, Page, AuthenticationService, User, Person, PersonState, Affiliation, TokenService, ToastService) {
     $translate('REGISTER').then(function(register) {
         Page.setTitle(register);
     });
     $scope.userForm = {};
-
-    $scope.showSuccessMessage = function(message) {
-        $mdToast.show({
-            controller: 'ToastCtrl',
-            templateUrl: '../views/feedback-toast.html',
-            hideDelay: 6000,
-            position: 'top right',
-            locals: {text: message,
-                     error: false}
-        });
-    };
-
-    $scope.showErrorMessage = function(message) {
-        $mdToast.show({
-            controller: 'ToastCtrl',
-            templateUrl: '../views/feedback-toast.html',
-            hideDelay: 6000,
-            position: 'top right',
-            locals: {text: message,
-                     error: true}
-        });
-    };
 
     $scope.authenticate = function(token) {
         TokenService.setToken(token);
@@ -80,10 +58,10 @@ angular.module('user')
             return $translate('SUCCESSFULLY_REGISTERED');
         })
         .then(function(translation) {
-            $scope.showSuccessMessage(translation);
+            ToastService.showToast(translation, false);
         })
         .catch(function(errorData) {
-            $scope.showErrorMessage(JSON.stringify(errorData));
+            ToastService.showToast(JSON.stringify(errorData), true);
         });
     };
 

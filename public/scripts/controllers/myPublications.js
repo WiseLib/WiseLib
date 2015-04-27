@@ -1,7 +1,7 @@
 'use strict';
 angular.module('publication')
 
-.controller('myPublicationsController', function($scope, $translate, Page, Publication, $mdDialog, $mdToast, Person, TokenService) {
+.controller('myPublicationsController', function($scope, $translate, Page, Publication, $mdDialog, Person, TokenService, ToastService) {
     $translate('MY_PUBLICATIONS').then(function(translated) {
         Page.setTitle(translated);
     });
@@ -42,26 +42,12 @@ angular.module('publication')
           }
         }
         $translate('SUCCESFULLY_REMOVED_PUBLICATION').then(function(translated) {
-            $mdToast.show({
-                        controller: 'ToastCtrl',
-                        templateUrl: '../views/feedback-toast.html',
-                        hideDelay: 6000,
-                        position: 'top right',
-                        locals: {text: translated,
-                            error: false}
-                });
+            ToastService.showToast(translated, false);
         });
 
       }, function(data) {
         $translate('ERROR_REMOVING_PUBLICATION').then(function(translated) {
-            $mdToast.show({
-                        controller: 'ToastCtrl',
-                        templateUrl: '../views/feedback-toast.html',
-                        hideDelay: 6000,
-                        position: 'top right',
-                        locals: {text: translated + ': ' + data.error,
-                            error: true}
-                    });
+            ToastService.showToast(translated + ': ' + data.error, true);
         });
       });
     }, function() {

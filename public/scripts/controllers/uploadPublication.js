@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication');
 
-module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, $mdToast, Person, PersonState, Journal, Proceeding, Publication, TokenService) {
+module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, Person, PersonState, Journal, Proceeding, Publication, TokenService, ToastService) {
     var user = TokenService.getUser();
 
     $translate('UPLOAD_PUBLICATION').then(function(translated) {
@@ -98,15 +98,6 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         }
     };
 
-    $scope.showSimpleToast = function(text) {
-        $mdToast.show(
-          $mdToast.simple()
-          .content(text)
-          .position('top right')
-          .hideDelay(3000)
-          );
-    };
-
     $scope.uploadpdf = function(files){
 
         var fd = new FormData();
@@ -135,7 +126,7 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         }).
         error(function(data, status, headers, config) {
             $translate('UPLOADED_FILE_NOT_PDF').then(function(translated) {
-                $scope.showSimpleToast(translated);
+                ToastService.showToast(translated, true);
             });
         });
     };
@@ -165,7 +156,7 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         }).
         error(function(data, status, headers, config) {
             $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
-                $scope.showSimpleToast(translated);
+                ToastService.showToast(translated, true);
             });
         });
     };
@@ -196,7 +187,7 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 $location.path('/mypublications');
             },function(data){
                 $translate('ERROR').then(function(translated) {
-                $scope.showSimpleToast(translated + ': ' + data.status);
+                ToastService.showToast(translated + ': ' + data.status, true);
                 });
             });
 
@@ -205,7 +196,7 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 $location.path('/mypublications')
             })
             .error(function(data, status, headers, config) {
-                $scope.showSimpleToast("Something went wrong:" + status);
+                ToastService.showToast("Something went wrong:" + status, true);
             });*/
         }
 

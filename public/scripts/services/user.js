@@ -53,10 +53,8 @@ angular.module('user')
             if (token) {
                 var time = (new Date).getTime() / 1000;
                 if(TokenService.getUser().exp > time) { //Check if token isn't expired (=useless) yet
-                    console.log('still valid!');
                     config.headers.Authorization = 'Bearer ' + token;
                 } else {
-                    console.log('expired! ' + TokenService.getUser().exp + '<=' + time);
                     TokenService.deleteToken();
                     AuthenticationService.isAuthenticated = false;
                 }

@@ -2,7 +2,7 @@
 
 angular.module('user')
 
-.controller('updateUserController', function($scope, $location, $translate, Page, $mdToast, AuthenticationService, User, Person, TokenService) {
+.controller('updateUserController', function($scope, $location, $translate, Page, AuthenticationService, User, Person, TokenService, ToastService) {
     $translate('UPDATE_PROFILE').then(function(translated) {
     Page.setTitle(translated);
   });
@@ -17,26 +17,12 @@ angular.module('user')
         service.put(json,
         function() { //Success
             $translate('SAVED_CHANGES').then(function(translated) {
-                $mdToast.show({
-                    controller: 'ToastCtrl',
-                    templateUrl: '../views/feedback-toast.html',
-                    hideDelay: 6000,
-                    position: 'top right',
-                    locals: {text: translated,
-                             error: false}
-                });
+                ToastService.showToast(translated, false);
             });
         },
         function(data) { //Error
             $translate('ERROR').then(function(translated) {
-                $mdToast.show({
-                    controller: 'ToastCtrl',
-                    templateUrl: '../views/feedback-toast.html',
-                    hideDelay: 6000,
-                    position: 'top right',
-                    locals: {text: translated + ': ' + data.error,
-                             error: true}
-                });
+                ToastService.showToast(translated + ': ' + data.error, true);
             });
         });
     };
