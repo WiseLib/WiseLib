@@ -3,6 +3,10 @@ var Promise = require('bluebird');
 var RankAble = require('./rankable.js');
 var PersonRepr = require('../database/linker.js').personRepr;
 
+/* A person linked to an affiliation, and writing publications
+ * @superclass RankAble
+ * @constructor
+ */
 var Person = function(arg) {
 	RankAble.call(this, arg);
 }

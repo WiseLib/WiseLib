@@ -2,6 +2,10 @@
 var Publication = require('./publication.js');
 var ProceedingPublicationRepr = require('../database/linker.js').proceedingPublicationRepr;
 
+/* A publication used in a conference
+ * @superclass Publication
+ * @constructor
+ */
 var ProceedingPublication = function(arg) {
 	Publication.call(this, arg);
 }

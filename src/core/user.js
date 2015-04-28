@@ -2,6 +2,11 @@
 var SearchAble = require('../database/searchable.js');
 var UserRepr = require('../database/linker.js').userRepr;
 
+/* a user with an account on Wiselib.
+ * 'email' must be unique
+ * @superclass SearchAble
+ * @constructor
+ */
 var User = function(arg) {
 	SearchAble.call(this, arg);
 };

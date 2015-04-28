@@ -5,6 +5,11 @@ var Journal = require('./journal.js');
 var DBManager = require('../database/dbmanager.js');
 var JournalPublicationRepr = require('../database/linker.js').journalPublicationRepr;
 
+/* A publication that is pubished in a Journal
+ * the 'type' is always 'Journal' 
+ * @superclass Publication
+ * @constructor
+ */
 var JournalPublication = function(arg) {
 	Publication.call(this, arg);
 	this.assignVariables({type: 'Journal'});
@@ -51,7 +56,7 @@ JournalPublication.prototype.fetchAll = function() {
 				.then(function(jpJson) {
 					var jp = new journalPublication.constructor(jpJson);
 					jp.assignVariables(publication);
-					return jp;
+					return jp.calculateRank();
 				}));
 		});
 		return results;

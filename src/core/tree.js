@@ -1,6 +1,10 @@
 'use strict';
 var SearchAble = require('../database/searchable.js');
 
+/* Tree : tree-like structure refering to a parent (using variable 'parent')
+ * @superclass SearchAble
+ * @constructor
+ */
 var Tree = function(arg) {
 	SearchAble.call(this, arg);
 };

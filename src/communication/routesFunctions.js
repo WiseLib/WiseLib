@@ -192,7 +192,6 @@ module.exports = {
 		var params = req.query;
 		var jp = new core.JournalPublication(params).fetchAll();
 		var pp = new core.ProceedingPublication(params).fetchAll();
-		jp.catch(function(t){console.log(t)});
 		Promise.all([jp, pp])
 		.then(function(p) {
 			var result={};

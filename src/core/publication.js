@@ -4,6 +4,10 @@ var RankAble = require('./rankable.js');
 var PublicationRepr = require('../database/linker.js').publicationRepr;
 var DBManager = require('../database/dbmanager.js');
 
+/* A publication written by a number of persons
+ * @superclass RankAble
+ * @constructor
+ */
 var Publication = function(arg) {
 	RankAble.call(this, arg);
 }
@@ -41,6 +45,8 @@ Publication.prototype.calculateRank = function() {
 		return publication;
 	});
 };
+/* rank is NOT calculated with fetch
+ */
 Publication.prototype.fetch = function() {
 	var writeable = this;
 	if(!writeable.id) {
@@ -61,11 +67,14 @@ Publication.prototype.fetchAll = function() {
 	var rankable = this;
 	return DBManager.get(rankable, Publication.prototype.representation)
 	.then(function(res) {
-		var rankables = [];
-		for(var i in res) {
-			rankables.push(new rankable.constructor(res[i]));
-		}
-		return rankables;
+		return Promise.all(res.map(function(r) {
+			return new rankable.constructor(r);
+		}));
+	})
+	.then(function(rankables) {
+		return Promise.all(rankables.map(function(r) {
+			return Publication.prototype.calculateRank.call(r);
+		}));
 	})
 	.then(function(rankables) {
 		rankables.sort(function(a, b) {

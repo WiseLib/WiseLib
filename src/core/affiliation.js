@@ -1,7 +1,10 @@
 'use strict';
 var AffiliationRepr = require('../database/linker.js').affiliationRepr;
 var Tree = require('./tree.js');
-
+/* Affiliation : a person's affiliation (university, faculty...)
+ * @superclass Tree
+ * @constructor
+ */
 var Affiliation = function(arg) {
 	Tree.call(this, arg);
 };

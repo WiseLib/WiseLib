@@ -2,6 +2,14 @@
 var Promise = require('bluebird');
 var DBManager = require('./dbmanager.js');
 
+/* WriteAble : provides interaction with database, must subclass this to communicate with it
+ * (see fetch, fetchAll, save, destroy)
+ * @params arg (number) : the id of the new WriteAble
+ * @params arg (string) : string with id of the new WriteAble
+ * @params arg (json) : contains initial values of WriteAble variables (not necessarily all of them)
+ * @throw TypeError argument is invalid
+ * @abstract, @constructor
+ */
 var WriteAble = function(arg) {
 	if(typeof(arg) === 'number') {
 		this.initJSON({id:arg});
@@ -20,12 +28,18 @@ var WriteAble = function(arg) {
 		throw new TypeError('invalid argument : ' + arg + ' is a ' + typeof(arg));
 	}
 };
-
+/* Supported variables of WriteAble
+ * @protected
+ */
 WriteAble.prototype.variables = ['id'];
-/*
-Need to overwrite
-*/
+/* Database Representation of WriteAble
+ * @abstract, @protected
+ */
 WriteAble.prototype.representation = undefined;
+/* Assign given values to variables
+ * @param vars (json) contains variables with values to set
+ * @protected
+ */
 WriteAble.prototype.assignVariables = function (vars) {
     for (var v in this.variables) {
     	var assign = vars[this.variables[v]];
@@ -34,9 +48,18 @@ WriteAble.prototype.assignVariables = function (vars) {
     	}
     }
 };
+/* initialize instance with json file
+ * @param json (json) contains variables to initialize
+ * @protected
+ */
 WriteAble.prototype.initJSON = function(json) {
 	this.assignVariables(json);
 };
+/* fetch data from database, update this writeable accordingly
+ * @required id
+ * @return Promise<this> a Promise containing the updated writeable
+ * @public
+ */
 WriteAble.prototype.fetch = function() {
 	var writeable = this;
 	if(!writeable.id) {
@@ -53,6 +76,10 @@ WriteAble.prototype.fetch = function() {
 		}
 	});
 };
+/* fetch data from database, according to this writeable's variable values
+ * @return Promise<Array<WriteAble>> a Promise containing an array with all writeables corresponding to this writable
+ * @public
+ */
 WriteAble.prototype.fetchAll = function() {
 	var writeable = this;
 	return DBManager.get(writeable)
@@ -64,6 +91,11 @@ WriteAble.prototype.fetchAll = function() {
 		return writeables;
 	});
 };
+/* save current writeable to database. Will put if already exist (id is given), otherwise, will post
+ * @param representation (Representation) a custom representation that the DBManager will use
+ * @return Promise<this> a Promise containing the updated writeable
+ * @protected
+ */
 WriteAble.prototype.saveWithRepresentation = function(representation) {
 	var writeable = this;
 	if(writeable.id) {
@@ -80,9 +112,19 @@ WriteAble.prototype.saveWithRepresentation = function(representation) {
 		});
 	}
 };
+/* save current writeable to database. Will put if already exist (id is given), otherwise, will post
+ * @return Promise<this> a Promise containing the updated writeable
+ * @public
+ */
 WriteAble.prototype.save = function() {
 	return this.saveWithRepresentation(this.representation);
 };
+/* remove current writeable to database.
+ * @required id
+ * @param representation (Representation) a custom representation that the DBManager will use
+ * @return Promise<this> a Promise containing the updated writeable
+ * @protected
+ */
 WriteAble.prototype.destroyWithRepresentation = function(representation) {
 	var writeable = this;
 	if(!writeable.id) {
@@ -96,6 +138,11 @@ WriteAble.prototype.destroyWithRepresentation = function(representation) {
 		});
 	}
 };
+/* remove current writeable to database.
+ * @required id
+ * @return Promise<this> a Promise containing the updated writeable
+ * @public
+ */
 WriteAble.prototype.destroy = function() {
 	return this.destroyWithRepresentation(this.representation);
 };

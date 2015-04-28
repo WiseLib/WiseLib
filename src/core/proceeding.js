@@ -2,6 +2,10 @@
 var Album = require('./album.js');
 var ProceedingRepr = require('../database/linker.js').proceedingRepr;
 
+/* A collection of publications that are talked about during a conference
+ * @superclass Album
+ * @constructor
+ */
 var Proceeding = function(arg) {
 	Album.call(this, arg);
 }

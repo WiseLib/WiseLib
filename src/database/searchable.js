@@ -3,6 +3,9 @@ var Promise = require('bluebird');
 var WriteAble = require('./writeable.js');
 var DBManager = require('./dbmanager.js');
 
+/* Allow searching in database (using the 'q' variable)
+ * @superclass WriteAble
+ */
 var SearchAble = function(arg) {
 	WriteAble.call(this, arg);
 }

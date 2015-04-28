@@ -1,6 +1,10 @@
 'use strict';
 var RankAble = require('./rankable.js');
 
+/* Album : a collection of publications, specialized in specific disciplines
+ * @superclass RankAble
+ * @constructor
+ */
 var Album = function(arg) {
 	RankAble.call(this, arg);
 }
