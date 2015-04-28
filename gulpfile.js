@@ -52,7 +52,7 @@ gulp.task('server', function () {
 
 // run all tests
 gulp.task('mocha', function () {
-    return gulp.src('./test/**/*.js')
+    return gulp.src('./test/pdftest.js')
     .pipe(g.mocha({
         globals: ['chai'],
         timeout: 6000,

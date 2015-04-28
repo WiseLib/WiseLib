@@ -9,7 +9,6 @@ var options = {
 var LOG = false;
 
 function doTest(i){//separate function because mocha closes on the 'i' variable
-
 return it('should perform a correct analysis of pdf ' + i,function(done){
 
 	var path =  pdflist[i];
