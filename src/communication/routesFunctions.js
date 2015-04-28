@@ -11,8 +11,6 @@
  //var validator = require('./validator.js'); //Not used yet
  var Promise = require('bluebird');
  var config = require('../config.js');
- var imageSaver = require('../imagesaver.js');
- var filehandler = require('../filehandler.js');
  var core = require('../core/exports.js');
 
  //For login
@@ -176,7 +174,7 @@ module.exports = {
 
 	postUser: function(req, res) {
 		if(req.body.profileImageSrc) {
-			req.body.picture = imageSaver(req.body.profileImageSrc);
+			req.body.picture = new core.Formatter(req.body.profileImageSrc).format();
 		}
 		postSingle(req, res, core.User);
 	},
@@ -261,14 +259,21 @@ module.exports = {
 	},
 
 	postUploadFile: function(req,res){
-		var WrongType = function(){
+		var file = req.files.file;
+		if(core.PDFParser.prototype.isSupported(file.mimetype)) {
+			new core.PDFParser(file).extract()
+			.then(function(data) {
+				res.json(data);
+			});
+		}
+		else if (core.BibtexParser.prototype.isSupported(file.mimetype)) {
+			new core.BibtexParser(file).extract()
+			.then(function(data) {
+				res.json(data);
+			});
+		}
+		else {
 			res.status(400).send('Not a pdf or bibtex');
-		};
-
-		var OnEnd= function(data){
-			res.json(data);
-		};
-
-		filehandler.handleFile(req,WrongType,OnEnd);
+		}
 	}
 };

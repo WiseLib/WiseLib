@@ -11,3 +11,4 @@ module.exports.JournalPublication = require('./journalPublication.js');
 module.exports.ProceedingPublication = require('./proceedingPublication.js');
 module.exports.PDFParser = require('./pdfParser.js');
 module.exports.BibtexParser = require('./bibtexParser.js');
+module.exports.Formatter = require('./formatter.js');

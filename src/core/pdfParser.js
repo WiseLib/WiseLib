@@ -4,7 +4,11 @@ var Promise = require('bluebird');
 var Parser = require('./parser.js');
 var Publication = require('./publication.js');
 
-
+/* Extract data from a pdf containing a publication
+ * Extracted data : title, authors, numberOfPages
+ * @superclass Parser
+ * @constructor
+ */
 var PDFParser = function(arg) {
 	Parser.call(this, arg);
 };
@@ -44,9 +48,10 @@ PDFParser.prototype.extractTitle = function(text){//returns array with title and
 };
 
 PDFParser.prototype.extractAuthors = function(text,index){
+	var parser = this;
 	function format(text){
-		text = this.removeNumber(text);
-		text = this.removeMulipleSpace(text);
+		text = parser.removeNumber(text);
+		text = parser.removeMulipleSpace(text);
 		text = text.replace(/and /g,'');
 
 		var firstname= text.substr(0,text.indexOf(' '));
@@ -75,7 +80,8 @@ PDFParser.prototype.extractAuthors = function(text,index){
 	return authors;
 
 };
-
+/* @see Parser.extract
+ */
 PDFParser.prototype.extract = function(options) {
 	var pdfParser = this;
 	options = (typeof options === 'undefined') ? {type : 'text'} : options;
@@ -99,6 +105,8 @@ PDFParser.prototype.extract = function(options) {
 		});
 	});
 };
+/* only supports pdf
+ */
 PDFParser.prototype.isSupported = function(mimetype) {
 	return mimetype === 'application/pdf';
 };
