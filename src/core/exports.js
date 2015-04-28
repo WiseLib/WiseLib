@@ -1,4 +1,5 @@
 'use strict';
+module.exports.RankAble = require('./rankable.js');
 module.exports.Affiliation = require('./affiliation.js');
 module.exports.Discipline = require('./discipline.js');
 module.exports.Journal = require('./journal.js');

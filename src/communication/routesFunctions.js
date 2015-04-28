@@ -9,6 +9,7 @@
  */
 
  //var validator = require('./validator.js'); //Not used yet
+ var Promise = require('bluebird');
  var config = require('../config.js');
  var imageSaver = require('../imagesaver.js');
  var filehandler = require('../filehandler.js');
@@ -25,7 +26,6 @@ var getMultiple = function(req, res, coreClass, name) {
 	var params = req.query;
 	coreClass.prototype.fetchAll(new coreClass(params))
 	.then(function(instances) {
-		console.log(instances);
 		var result={};
 		result[name]= instances;
 		res.json(result);
@@ -36,7 +36,6 @@ var getMultiple = function(req, res, coreClass, name) {
 var getSingle = function(req, res, coreClass) {
 	new coreClass(req.params.id).fetch()
 	.then(function(instance) {
-		console.log(instance);
 		if(instance instanceof core.RankAble) {
 			console.log('calculing rank');
 			return instance.calculateRank();
@@ -73,44 +72,6 @@ var deleteSingle = function(req, res, coreClass) {
 		res.status(200).end();
 	});
 };
-/*
-var getSingle = function(req, res, repr, fct, rank) {
-	if(fct === undefined) {
-		fct = function(results) {
-			if(results[0] === undefined) {
-				res.status(404).end();
-			}
-			else {
-				if(rank){
-					Ranking.calculateRank(results[0],repr,function(rank){
-					results[0].rank = rank;
-					res.json(results[0]);
-					});
-				}
-				else res.json(results[0]);
-			}
-		};
-	}
-	DBManager.get({id: req.params.id}, repr, fct);
-};
-//need to add authentification options
-var postSingle = function(req, res, repr) {
-	DBManager.post(req.body, repr, function(id) {
-		res.status(201).json({id: id});
-	});
-};
-//need to add authentification options
-var putSingle = function(req, res, repr) {
-	DBManager.put(req.body, repr, function(id) {
-		res.status(200).end();
-	});
-};
-
-var deleteSingle = function(req, res, repr) {
-	DBManager.delete({id: req.params.id}, repr, function() {
-		res.status(200).end();
-	});
-};*/
 
 var splitInArray = function(param) {
 	var array = param.split(splitSign);
@@ -232,6 +193,7 @@ module.exports = {
 		var params = req.query;
 		var jp = core.JournalPublication.prototype.fetchAll(new core.JournalPublication(params));
 		var pp = core.ProceedingPublication.prototype.fetchAll(new core.ProceedingPublication(params));
+		jp.catch(function(t){console.log(t)});
 		Promise.all([jp, pp])
 		.then(function(p) {
 			var result={};
@@ -246,12 +208,7 @@ module.exports = {
 			return new core.ProceedingPublication(req.params.id).fetch();
 		})
 		.then(function(instance) {
-			if(instance instanceof core.RankAble) {
-				return instance.calculateRank();
-			}
-			else {
-				return instance;
-			}
+			return instance.calculateRank();
 		})
 		.then(function(instance) {
 			res.json(instance);

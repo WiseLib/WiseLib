@@ -7,6 +7,7 @@ var JournalPublicationRepr = require('../database/linker.js').journalPublication
 
 var JournalPublication = function(arg) {
 	Publication.call(this, arg);
+	this.assignVariables({type: 'Journal'});
 }
 
 JournalPublication.prototype = Object.create(Publication.prototype);

@@ -6,6 +6,13 @@ var WriteAble = function(arg) {
 	if(typeof(arg) === 'number') {
 		this.initJSON({id:arg});
 	}
+	else if(typeof(arg) === 'string') {
+		var num = parseInt(arg);
+		if(isNaN(num)) {
+			throw new TypeError('invalid argument : ' + arg + ' is an invalid ' + typeof(arg));
+		}
+		this.initJSON({id:num});
+	}
 	else if(typeof(arg) === 'object') {
 		this.initJSON(arg);
 	}
