@@ -37,7 +37,6 @@ var getSingle = function(req, res, coreClass) {
 	new coreClass(req.params.id).fetch()
 	.then(function(instance) {
 		if(instance instanceof core.RankAble) {
-			console.log('calculing rank');
 			return instance.calculateRank();
 		}
 		else {
@@ -203,9 +202,17 @@ module.exports = {
 	},
 
 	getPublication: function(req, res) {
-		new core.JournalPublication(req.params.id).fetch()
-		.catch(function(id) {
-			return new core.ProceedingPublication(req.params.id).fetch();
+		new core.Publication(req.params.id).fetch()
+		.then(function(instance) {
+			if(instance.type === 'Journal') {
+				return new core.JournalPublication(req.params.id).fetch();
+			}
+			else if(instance.type === 'Proceeding') {
+				return new core.ProceedingPublication(req.params.id).fetch();
+			}
+			else {
+				return instance;
+			}
 		})
 		.then(function(instance) {
 			return instance.calculateRank();
