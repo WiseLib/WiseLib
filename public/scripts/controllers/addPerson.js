@@ -2,7 +2,7 @@
 
 angular.module('person')
 
-.controller('addPersonController', function($scope, $mdToast, Person, PersonState, Affiliation) {
+.controller('addPersonController', function($scope, Person, PersonState, Affiliation, $translate, ToastService) {
     $scope.person = PersonState.person;
     $scope.persons = [];
     $scope.person.profileImageSrc = '';
@@ -84,14 +84,7 @@ angular.module('person')
             $scope.addAffiliation(toPost);
         }, function(data) {
             $translate('ERROR').then(function(translated) {
-                $mdToast.show({
-                    controller: 'ToastCtrl',
-                    templateUrl: '../views/feedback-toast.html',
-                    hideDelay: 6000,
-                    position: 'top right',
-                    locals: {text: translated + ': ' + data.error,
-                             error: true}
-                });
+                ToastService.showToast(translated + ': ' + data.error, true);
             });
         });
     };
