@@ -7,7 +7,7 @@ describe('User test', function() {
 	
 	var fromJSON = new User({email:'bruce@wayne.com', password:'ImBatman', person:9116, q:'search'});
 	var fromID = new User(262).fetch();
-	var fetched = User.prototype.fetchAll(new User({email: 'mreymond@vub.ac.be'}));
+	var fetched = new User({email: 'mreymond@vub.ac.be'}).fetchAll();
 	var toAdd = new User({email:'sean.connery@bond.com', password:'theTrueBond', person:9115});
 
 	it('should create User from JSON', function() {

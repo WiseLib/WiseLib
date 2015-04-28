@@ -7,7 +7,7 @@ describe('Discipline test', function() {
 	
 	var fromJSON = new Discipline({name:'discipline', q:'search'});
 	var fromID = new Discipline(2).fetch();
-	var fetched = Discipline.prototype.fetchAll(new Discipline({name: 'Computer Science'}));
+	var fetched = new Discipline({name: 'Computer Science'}).fetchAll();
 	var toAdd = new Discipline({name: 'testDiscipline'});
 
 	it('should create Discipline from JSON', function() {

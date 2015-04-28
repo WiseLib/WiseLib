@@ -7,7 +7,7 @@ describe('Affiliation test', function() {
 	
 	var fromJSON = new Affiliation({name:'affiliation', q:'search'});
 	var fromID = new Affiliation(2).fetch();
-	var fetched = Affiliation.prototype.fetchAll(new Affiliation({name: 'Vrije Universiteit Brussel'}));
+	var fetched = new Affiliation({name: 'Vrije Universiteit Brussel'}).fetchAll();
 	var toAdd = new Affiliation({name: 'testAffiliation'});
 
 	it('should create Affiliation from JSON', function() {

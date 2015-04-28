@@ -13,8 +13,9 @@ RankAble.prototype.variables.push.apply(RankAble.prototype.variables, SearchAble
 RankAble.prototype.calculateRank = function() {
 	throw new Error('not implemented');
 };
-RankAble.prototype.fetchAll = function(rankable) {
-	return SearchAble.prototype.fetchAll(rankable)
+RankAble.prototype.fetchAll = function() {
+	var rankable = this;
+	return SearchAble.prototype.fetchAll.call(rankable)
 	.then(function(rankables) {
 		rankables.sort(function(a, b) {
 			if(!a.rank || !b.rank) return 0;

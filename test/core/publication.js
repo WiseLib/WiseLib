@@ -13,7 +13,7 @@ describe('Publication test', function() {
 		                            authors: [{id:9022}, {id:9050}],
 		                            q:'search'});
 	var fromID = new Publication(9).fetch();
-	var fetched = Publication.prototype.fetchAll(new Publication({title: 'test'}));
+	var fetched = new Publication({title: 'test'}).fetchAll();
 	var toAdd = fromJSON;
 
 	it('should create Publication from JSON', function() {

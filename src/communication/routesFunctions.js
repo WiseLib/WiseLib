@@ -24,7 +24,7 @@ var splitSign = '|';
 //need to add authentification options
 var getMultiple = function(req, res, coreClass, name) {
 	var params = req.query;
-	coreClass.prototype.fetchAll(new coreClass(params))
+	new coreClass(params).fetchAll()
 	.then(function(instances) {
 		var result={};
 		result[name]= instances;
@@ -190,8 +190,8 @@ module.exports = {
 			req.query.authors = splitInArray(req.query.authors);
 		}
 		var params = req.query;
-		var jp = core.JournalPublication.prototype.fetchAll(new core.JournalPublication(params));
-		var pp = core.ProceedingPublication.prototype.fetchAll(new core.ProceedingPublication(params));
+		var jp = new core.JournalPublication(params).fetchAll();
+		var pp = new core.ProceedingPublication(params).fetchAll();
 		jp.catch(function(t){console.log(t)});
 		Promise.all([jp, pp])
 		.then(function(p) {
@@ -250,7 +250,7 @@ module.exports = {
 		if(email === '' || password === '') {
 			res.sendStatus(401);
 		}
-		core.User.prototype.fetchAll(new core.User({email: email, password: password}))
+		new core.User({email: email, password: password}).fetchAll()
 		.then(function(users) {
 			if(users.length === 1) {
 				var token = jwt.sign(users[0], config.secretToken, { expiresInMinutes: 60 });

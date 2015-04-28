@@ -23,8 +23,8 @@ Publication.prototype.calculateRank = function() {
 	var authorRanksPromise = [];
 	this.authors.forEach(function(a) {
 		authorRanksPromise.push(new Person(a.id).fetch()
-			.then(function(pub) {
-				return pub.calculateRank();
+			.then(function(pers) {
+				return pers.calculateRank();
 			})
 			.then(function(author) {
 				return author.rank;
@@ -57,7 +57,8 @@ Publication.prototype.fetch = function() {
 		}
 	});
 };
-Publication.prototype.fetchAll = function(rankable) {
+Publication.prototype.fetchAll = function() {
+	var rankable = this;
 	return DBManager.get(rankable, Publication.prototype.representation)
 	.then(function(res) {
 		var rankables = [];

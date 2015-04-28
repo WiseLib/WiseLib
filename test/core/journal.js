@@ -7,7 +7,7 @@ describe('Journal test', function() {
 	
 	var fromJSON = new Journal({name:'journal', q:'search', rank:12.076});
 	var fromID = new Journal(7).fetch();
-	var fetched = Journal.prototype.fetchAll(new Journal({name: 'Molecular Systems Biology'}));
+	var fetched = new Journal({name: 'Molecular Systems Biology'}).fetchAll();
 	var toAdd = new Journal({name: 'testJournal'});
 
 	it('should create Journal from JSON', function() {

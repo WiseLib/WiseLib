@@ -9,14 +9,14 @@ describe('JournalPublication test', function() {
 		                            url:'www.atest.com', 
 		                            numberOfPages:20, 
 		                            year:2015,
-		                            type:'unknown',
+		                            type:'Journal',
 		                            authors: [{id:9022}, {id:9050}],
 		                            journal:7,
 		                            volume:1,
 		                            number:1,
 		                            q:'search'});
 	var fromID = new JournalPublication(9).fetch();
-	var fetched = JournalPublication.prototype.fetchAll(new JournalPublication({title: 'My publication'}));
+	var fetched = new JournalPublication({title: 'My publication'}).fetchAll();
 	var toAdd = fromJSON;
 
 	it('should create JournalPublication from JSON', function() {
@@ -24,7 +24,7 @@ describe('JournalPublication test', function() {
 		_.isEqual(fromJSON.url, 'www.atest.com').should.be.true;
 		_.isEqual(fromJSON.numberOfPages, 20).should.be.true;
 		_.isEqual(fromJSON.year, 2015).should.be.true;
-		_.isEqual(fromJSON.type, 'unknown').should.be.true;
+		_.isEqual(fromJSON.type, 'Journal').should.be.true;
 		_.isEqual(fromJSON.authors.length, 2).should.be.true;
 		_.isEqual(fromJSON.journal, 7).should.be.true;
 		_.isEqual(fromJSON.volume, 1).should.be.true;

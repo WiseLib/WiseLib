@@ -38,8 +38,9 @@ JournalPublication.prototype.fetch = function() {
 		return journalPublication;
 	});
 };
-JournalPublication.prototype.fetchAll = function(journalPublication) {
-	var promise = Publication.prototype.fetchAll(journalPublication)
+JournalPublication.prototype.fetchAll = function() {
+	var journalPublication = this;
+	var promise = Publication.prototype.fetchAll.call(journalPublication)
 	.then(function(publications) {
 		var results = [];
 		publications.forEach(function(publication) {

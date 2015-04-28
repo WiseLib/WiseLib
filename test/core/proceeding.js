@@ -7,9 +7,9 @@ describe('Proceeding test', function() {
 	
 	var fromJSON = new Proceeding({name:'proceeding', q:'search', rank:12.076});
 	var fromID = new Proceeding(1).fetch();
-	var fetched = Proceeding.prototype.fetchAll(new Proceeding({
+	var fetched = new Proceeding({
 		name: 'Proceedings of the IEEE Computer Society Conference on Computer Vision and Pattern Recognition'
-	}));
+	}).fetchAll();
 	var toAdd = new Proceeding({name: 'testProceeding'});
 
 	it('should create Proceeding from JSON', function() {

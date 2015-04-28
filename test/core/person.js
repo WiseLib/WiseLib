@@ -7,7 +7,7 @@ describe('Person test', function() {
 	
 	var fromJSON = new Person({firstName:'Son', lastName:'Goku', affiliation:1, q:'search'});
 	var fromID = new Person(9050).fetch();
-	var fetched = Person.prototype.fetchAll(new Person({lastName: 'Modaal'}));
+	var fetched = new Person({lastName: 'Modaal'}).fetchAll();
 	var toAdd = new Person({firstName:'Son', lastName:'Goku', publications:[{id:2}]});
 
 	it('should create Person from JSON', function() {

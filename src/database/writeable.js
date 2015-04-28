@@ -53,7 +53,8 @@ WriteAble.prototype.fetch = function() {
 		}
 	});
 };
-WriteAble.prototype.fetchAll = function(writeable) {
+WriteAble.prototype.fetchAll = function() {
+	var writeable = this;
 	return DBManager.get(writeable)
 	.then(function(res) {
 		var writeables = [];
