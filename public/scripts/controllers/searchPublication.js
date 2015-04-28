@@ -2,26 +2,13 @@
 
 angular.module('publication')
 
-.controller('searchPublicationController', function($scope, $window, $mdToast, $q, $translate, Page, Publication, WebSearchPublication, Person, User, GetApiToken) {
+.controller('searchPublicationController', function($scope, $window, $q, $translate, Page, Publication, WebSearchPublication, Person, User, GetApiToken, ToastService) {
 
     $translate('SEARCH_A_PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
     });
 
     $scope.searching = function(){ return true;};
-
-    $scope.showSimpleToast = function(text) {
-        $mdToast.show({
-            controller: 'ToastCtrl',
-            templateUrl: '../views/feedback-toast.html',
-            hideDelay: 6000,
-            position: 'top right',
-            locals: {
-                text: text,
-                error: false
-            }
-        });
-    };
 
     $scope.foundPublications = [];
 
@@ -78,10 +65,10 @@ angular.module('publication')
                     Person.get({id: userData.person}, function(personData) {
                         deferred.resolve(personData);
                     }, function(personData) {
-                        $scope.showSimpleToast(personData.statusText);
+                        ToastService.showToast(personData.statusText, false);
                     });
                 }, function(userData) {
-                    $scope.showSimpleToast(userData.statusText);
+                    ToastService.showToast(userData.statusText, true);
                 });
                 //get authors
                 var authors = publication.authors;
@@ -99,7 +86,7 @@ angular.module('publication')
                         };
                     };
                     Person.get({id: author.id}, success(), function(personData) {
-                        $scope.showSimpleToast(personData.statusText);
+                        ToastService.showToast(personData.statusText, false);
                     });
                 }
                 $q.all(promises).then(function(personDataArray) {
@@ -112,7 +99,7 @@ angular.module('publication')
                     //add to results
                     $scope.add($scope.foundPublications, publication);
                 }, function(reason) {
-                    $scope.showSimpleToast(reason);
+                    ToastService.showToast(reason, true);
                 });
 
             })(publication);
@@ -141,7 +128,7 @@ angular.module('publication')
                 $scope.HandleExternData(data);
             }, function(data) { //error from server
                 $translate('COULD_NOT_GET_A_RESULT').then(function(translated) {
-                    $scope.showSimpleToast(translated + ': ' + keyword + ' :' + data.status);
+                    ToastService.showToast(translated + ': ' + keyword + ' :' + data.status, true);
                 });
             });
         };
@@ -156,8 +143,8 @@ angular.module('publication')
                 webSearch();
 
             }, function(data) {
-                $translate('EXTERNAL_SEARCH').then(function(translated) {
-                    $scope.showSimpleToast(translated + ': ' + data.statusText);
+                $translate('ERROR').then(function(translated) {
+                    ToastService.showToast(translated + ': ' + data.statusText, true);
                 });
             });
         } else {
@@ -174,7 +161,7 @@ angular.module('publication')
             $scope.handleData(data.publications);
         }, function(data) { //error from server
             $translate('COULD_NOT_GET_A_RESULT').then(function(translated) {
-                $scope.showSimpleToast(translated + ': ' + keyword + ' :' + data.status);
+                ToastService.showToast(translated + ': ' + keyword + ' :' + data.status, true);
             });
         });
     };
