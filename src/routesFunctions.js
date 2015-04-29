@@ -14,11 +14,8 @@
  var linker = require('./linker.js');
  var imageSaver = require('./imagesaver.js');
  var filehandler = require('./filehandler.js');
-<<<<<<< HEAD
  var references = require('./references.js');
-=======
  var Ranking = require('./ranking.js');
->>>>>>> 775591c8477799ff35ef2660a100313f8159525e
 
  //For login
  var jwt = require('jsonwebtoken');
@@ -223,23 +220,16 @@ module.exports = {
 	deletePublication: function(req, res) {
 		deleteSingle(req, res, linker.publicationRepr);
 	},
-
-<<<<<<< HEAD
-	postPublication :function(req, res) {
+	postPublication: function(req, res) {
         var refArray = references.link(req);
         var data = {references: []};
         for(var x in refArray){
             data.references.push({id: x});
         }
         req.references = data.references;
-        console.log(JSON.stringify(req));
-		res.status(501).end();
-=======
-	postPublication: function(req, res) {
 		if (req.body.type === 'Journal') postSingle(req, res, linker.journalPublicationRepr);
 		else if(req.body.type === 'Proceeding') postSingle(req, res, linker.proceedingPublicationRepr);
 		else req.status(401).json({error:'Wrong type' + req.body.type});
->>>>>>> 775591c8477799ff35ef2660a100313f8159525e
 	},
 
 	getPublicationAuthors: function(req, res) {
