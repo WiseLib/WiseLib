@@ -2,8 +2,7 @@
 
 angular.module('user')
 
-.controller('loginUserController', ['$scope', '$location', '$window', 'UserService', 'AuthenticationService', '$translate', 'Page', '$mdToast',
-   function($scope, $location, $window, UserService, AuthenticationService, $translate, Page, $mdToast) {
+.controller('loginUserController',function($scope, $location, UserService, AuthenticationService, $translate, Page, TokenService, ToastService) {
     $translate('LOG_IN').then(function(translated) {
     Page.setTitle(translated);
   });
@@ -15,45 +14,23 @@ angular.module('user')
      */
     $scope.login = function() {
         if ($scope.loginUserForm.email !== '' && $scope.loginUserForm.password !== '') {
-            console.log('email and password provided, trying to log in...');
             UserService.logIn($scope.loginUserForm.email, $scope.loginUserForm.password)
             .success(function(data) {
+                TokenService.setToken(data.token);
                 AuthenticationService.isAuthenticated = true;
-                $window.sessionStorage.token = data.token;
-                $location.path('/restricted');
+                $location.path('/');
                 $translate('SUCCESSFULLY_LOGGED_IN').then(function(translated) {
-                    $mdToast.show({
-                        controller: 'ToastCtrl',
-                        templateUrl: '../views/feedback-toast.html',
-                        hideDelay: 6000,
-                        position: 'top right',
-                        locals: {text: translated,
-                            error: false}
-                    });
+                    ToastService.showToast(translated, false);
                 });
             }).error(function(data) {
                 $translate('ERROR').then(function(translated) {
-                    $mdToast.show({
-                        controller: 'ToastCtrl',
-                        templateUrl: '../views/feedback-toast.html',
-                        hideDelay: 6000,
-                        position: 'top right',
-                        locals: {text: translated + ': ' + data.error,
-                            error: true}
-                    });
+                    ToastService.showToast(translated + ': ' + data.error, true);
                 });
             });
         } else {
             $translate('EMAIL_PASSWORD_NOT_PROVIDED').then(function(translated) {
-                $mdToast.show({
-                        controller: 'ToastCtrl',
-                        templateUrl: '../views/feedback-toast.html',
-                        hideDelay: 6000,
-                        position: 'top right',
-                        locals: {text: translated,
-                            error: true}
-                    });
+                ToastService.showToast(translated, true);
             });
         }
     };
-}]);
+});

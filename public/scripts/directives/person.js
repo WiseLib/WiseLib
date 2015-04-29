@@ -6,7 +6,8 @@ angular.module('person')
     var directive = {};
     directive.restrict = 'E';
     directive.scope = {
-        person: '=person'
+        person: '=person',
+        myclass: '@class'
     };
 
     directive.templateUrl = '../views/personMin.html';

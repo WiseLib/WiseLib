@@ -2,7 +2,7 @@
 
 angular.module('publication')
 
-.controller('searchPublicationController', function($scope, $window, $mdToast, $q, $translate, Page, Publication, WebSearchPublication, Person, User, GetApiToken) {
+.controller('searchPublicationController', function($scope, $window, $q, $translate, Page, Publication, WebSearchPublication, Person, User, GetApiToken, ToastService) {
 
     $translate('SEARCH_A_PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
@@ -10,26 +10,7 @@ angular.module('publication')
 
     $scope.searching = function(){ return true;};
 
-    $scope.showSimpleToast = function(text) {
-        $mdToast.show({
-            controller: 'ToastCtrl',
-            templateUrl: '../views/feedback-toast.html',
-            hideDelay: 6000,
-            position: 'top right',
-            locals: {
-                text: text,
-                error: false
-            }
-        });
-    };
-
-    //$scope.foundAuthor = []; //all publications from given author
-
-    //$scope.foundJournal = [];//all publications in given journal
-
-    //$scope.foundProceeding = [];//idem from proceeding
-
-    $scope.foundPublications = []; //results from search on title
+    $scope.foundPublications = [];
 
     $scope.add = function(array, element) {
         if (array.indexOf(element) === -1) {
@@ -71,10 +52,11 @@ angular.module('publication')
     };
 
     $scope.handleData = function(data) {
-
         if(data) {
             for(var i = 0; i < data.length; i++) {
                 var publication = data[i];
+
+                (function(publication){//This is neccessary otherwise only last publication wil be added!!
                 var promises = [];
                 //get uploader person
                 var deferred = $q.defer();
@@ -83,10 +65,10 @@ angular.module('publication')
                     Person.get({id: userData.person}, function(personData) {
                         deferred.resolve(personData);
                     }, function(personData) {
-                        $scope.showSimpleToast(personData.statusText);
+                        ToastService.showToast(personData.statusText, false);
                     });
                 }, function(userData) {
-                    $scope.showSimpleToast(userData.statusText);
+                    ToastService.showToast(userData.statusText, true);
                 });
                 //get authors
                 var authors = publication.authors;
@@ -104,7 +86,7 @@ angular.module('publication')
                         };
                     };
                     Person.get({id: author.id}, success(), function(personData) {
-                        $scope.showSimpleToast(personData.statusText);
+                        ToastService.showToast(personData.statusText, false);
                     });
                 }
                 $q.all(promises).then(function(personDataArray) {
@@ -117,8 +99,10 @@ angular.module('publication')
                     //add to results
                     $scope.add($scope.foundPublications, publication);
                 }, function(reason) {
-                    $scope.showSimpleToast(reason);
+                    ToastService.showToast(reason, true);
                 });
+
+            })(publication);
             }
         }
     };
@@ -143,7 +127,9 @@ angular.module('publication')
             }, function(data) {
                 $scope.HandleExternData(data);
             }, function(data) { //error from server
-                $scope.showSimpleToast('Could not get a result: ' + keyword + ' :' + data);
+                $translate('COULD_NOT_GET_A_RESULT').then(function(translated) {
+                    ToastService.showToast(translated + ': ' + keyword + ' :' + data.status, true);
+                });
             });
         };
 
@@ -157,7 +143,9 @@ angular.module('publication')
                 webSearch();
 
             }, function(data) {
-                $scope.showSimpleToast('External search: ' + data.statusText);
+                $translate('ERROR').then(function(translated) {
+                    ToastService.showToast(translated + ': ' + data.statusText, true);
+                });
             });
         } else {
             webSearch();
@@ -172,7 +160,9 @@ angular.module('publication')
         Publication.search({q: query}, function(data) {
             $scope.handleData(data.publications);
         }, function(data) { //error from server
-            $scope.showSimpleToast('Could not get a result: ' + keyword + ' :' + data.status);
+            $translate('COULD_NOT_GET_A_RESULT').then(function(translated) {
+                ToastService.showToast(translated + ': ' + keyword + ' :' + data.status, true);
+            });
         });
     };
 

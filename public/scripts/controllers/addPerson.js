@@ -2,7 +2,7 @@
 
 angular.module('person')
 
-.controller('addPersonController', function($scope, $mdToast, Person, PersonState, Affiliation) {
+.controller('addPersonController', function($scope, Person, PersonState, Affiliation, $translate, ToastService) {
     $scope.person = PersonState.person;
     $scope.persons = [];
     $scope.person.profileImageSrc = '';
@@ -14,12 +14,12 @@ angular.module('person')
     $scope.errorMessage = '';
 
     $scope.$watch('person.firstName', function () {
-        $scope.searchPersons($scope.person.firstName, $scope.person.lastName); 
+        $scope.searchPersons($scope.person.firstName, $scope.person.lastName);
     });
     $scope.$watch('person.lastName', function () {
-        $scope.searchPersons($scope.person.firstName, $scope.person.lastName); 
+        $scope.searchPersons($scope.person.firstName, $scope.person.lastName);
     });
-    $scope.$watch('selectedAffiliation', function() {$scope.addAffiliation($scope.selectedAffiliation)});
+    $scope.$watch('selectedAffiliation', function() {$scope.addAffiliation($scope.selectedAffiliation);});
 
     /**
     * Load image to show preview of profile image to upload and use
@@ -46,11 +46,11 @@ angular.module('person')
         $scope.person.id = undefined;
         $scope.persons = []; //Reset found persons list
         //Don't search if first or last name is too short
-        if (!firstName || 
-            !lastName || 
-            firstName.length < 3 || 
+        if (!firstName ||
+            !lastName ||
+            firstName.length < 3 ||
             lastName.length < 3) {
-            return; 
+            return;
         }
         Person.query({firstName: firstName, lastName: lastName}, function(data) {
             $scope.persons = data.persons;
@@ -75,7 +75,7 @@ angular.module('person')
     $scope.postAffiliation = function(name) {
         var toPost = {};
         toPost.name = name;
-        if($scope.affiliationsParent != '') {
+        if($scope.affiliationsParent !== '') {
             toPost.parent = $scope.affiliationsParent;
         }
         Affiliation.save(toPost, function(data) {
@@ -83,13 +83,8 @@ angular.module('person')
             console.log('posted :' + JSON.stringify(toPost));
             $scope.addAffiliation(toPost);
         }, function(data) {
-            $mdToast.show({
-                controller: 'ToastCtrl',
-                templateUrl: '../views/feedback-toast.html',
-                hideDelay: 6000,
-                position: 'top right',
-                locals: {text: 'Error: ' + data.error,
-                         error: true}
+            $translate('ERROR').then(function(translated) {
+                ToastService.showToast(translated + ': ' + data.error, true);
             });
         });
     };

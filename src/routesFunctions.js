@@ -14,7 +14,11 @@
  var linker = require('./linker.js');
  var imageSaver = require('./imagesaver.js');
  var filehandler = require('./filehandler.js');
+<<<<<<< HEAD
  var references = require('./references.js');
+=======
+ var Ranking = require('./ranking.js');
+>>>>>>> 775591c8477799ff35ef2660a100313f8159525e
 
  //For login
  var jwt = require('jsonwebtoken');
@@ -38,14 +42,20 @@ var getMultiple = function(req, res, repr, name) {
 
 };
 //need to add authentification options
-var getSingle = function(req, res, repr, fct) {
+var getSingle = function(req, res, repr, fct, rank) {
 	if(fct === undefined) {
 		fct = function(results) {
 			if(results[0] === undefined) {
 				res.status(404).end();
 			}
 			else {
-				res.json(results[0]);
+				if(rank){
+					Ranking.calculateRank(results[0],repr,function(rank){
+					results[0].rank = rank;
+					res.json(results[0]);
+					});
+				}
+				else res.json(results[0]);
 			}
 		};
 	}
@@ -66,7 +76,7 @@ var putSingle = function(req, res, repr) {
 
 var deleteSingle = function(req, res, repr) {
 	DBManager.delete({id: req.params.id}, repr, function() {
-		res.sendStatus(200);
+		res.status(200).end();
 	});
 };
 
@@ -152,7 +162,7 @@ module.exports = {
 	},
 
 	getPerson: function(req, res) {
-		getSingle(req, res, linker.personRepr);
+		getSingle(req, res, linker.personRepr, undefined, true);
 	},
 
 	getPersonPublications: function(req, res) {
@@ -199,17 +209,22 @@ module.exports = {
 	getPublication: function(req, res) {
 		getSingle(req, res, linker.journalPublicationRepr, function(jp) {
 			if(jp[0] === undefined) {
-				getSingle(req, res, linker.proceedingPublicationRepr);
+				getSingle(req, res, linker.proceedingPublicationRepr, undefined, true);
 			}
 			else {
-				res.json(jp[0]);
+				Ranking.calculateRank(jp[0],linker.journalPublicationRepr,function(rank){
+					jp[0].rank=rank;
+					res.json(jp[0]);
+				});
+
 			}
-		});
+		},true);
 	},
 	deletePublication: function(req, res) {
 		deleteSingle(req, res, linker.publicationRepr);
 	},
 
+<<<<<<< HEAD
 	postPublication :function(req, res) {
         var refArray = references.link(req);
         var data = {references: []};
@@ -219,6 +234,12 @@ module.exports = {
         req.references = data.references;
         console.log(JSON.stringify(req));
 		res.status(501).end();
+=======
+	postPublication: function(req, res) {
+		if (req.body.type === 'Journal') postSingle(req, res, linker.journalPublicationRepr);
+		else if(req.body.type === 'Proceeding') postSingle(req, res, linker.proceedingPublicationRepr);
+		else req.status(401).json({error:'Wrong type' + req.body.type});
+>>>>>>> 775591c8477799ff35ef2660a100313f8159525e
 	},
 
 	getPublicationAuthors: function(req, res) {
