@@ -10,32 +10,32 @@ describe('Discipline test', function() {
 	var fetched = new Discipline({name: 'Computer Science'}).fetchAll();
 	var toAdd = new Discipline({name: 'testDiscipline'});
 
-	it('should create Discipline from JSON', function() {
-		_.isEqual(fromJSON.name, 'discipline').should.be.true;
-		_.isEqual(fromJSON.q, 'search').should.be.true;
+	it('should create Discipline from JSON', function() { 
+		fromJSON.should.have.property('name', 'discipline');
+		fromJSON.should.have.property('q', 'search');
 	});
 	it('should get Discipline from ID', function(done) {
 		fromID.then(function(discipline) {
-			_.isEqual(discipline.id, 2).should.be.true;
-			_.isEqual(discipline.name, 'Operating systems').should.be.true;
-			_.isEqual(discipline.parent, 1).should.be.true;
+			discipline.should.have.property('id', 2);
+			discipline.should.have.property('name', 'Operating systems');
+			discipline.should.have.property('parent', 1);
 			done();
 		});
 	});
 	it('should fetch all corresponding Disciplines', function(done) {
 		fetched.then(function(disciplines) {
-			_.isEqual(disciplines.length, 1).should.be.true;
+			disciplines.length.should.be.equal(1);
 			done();
 		});
 		
 	});
 	it('should add and delete Discipline', function(done) {
 		toAdd.save().then(function(discipline) {
-			_.isEqual(discipline.id === undefined, false).should.be.true;
+			discipline.should.not.have.property('id',undefined);
 			return discipline.destroy();
 		})
 		.then(function(discipline) {
-			_.isEqual(discipline.id === undefined, true).should.be.true;
+			discipline.should.have.property('id',undefined);
 			done();
 		});
 		

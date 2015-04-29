@@ -1,7 +1,7 @@
 'use strict';
 var should = require('should');
 var User = require('./user_test.js');
-var server = require('../../src/routesFunctions.js');//Every method is still in routes
+var server = require('../../src/communication/routesFunctions.js');//Every method is still in routes
 var Client = require('mariasql');
 var c = new Client();
 var configuration = require('../../config.json')

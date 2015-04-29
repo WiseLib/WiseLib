@@ -11,31 +11,31 @@ describe('Journal test', function() {
 	var toAdd = new Journal({name: 'testJournal'});
 
 	it('should create Journal from JSON', function() {
-		_.isEqual(fromJSON.name, 'journal').should.be.true;
-		_.isEqual(fromJSON.q, 'search').should.be.true;
-		_.isEqual(fromJSON.rank, 12.076).should.be.true;
+		fromJSON.should.have.property('name', 'journal');
+		fromJSON.should.have.property('q', 'search');
+		fromJSON.should.have.property('rank', 12.076);
 	});
 	it('should get Journal from ID', function(done) {
 		fromID.then(function(journal) {
-			_.isEqual(journal.id, 7).should.be.true;
-			_.isEqual(journal.rank, 12.076).should.be.true;
+			journal.should.have.property('id', 7);
+			journal.should.have.property('rank', 12.076);
 			done();
 		});
 	});
 	it('should fetch all corresponding Journals', function(done) {
 		fetched.then(function(journals) {
-			_.isEqual(journals.length, 1).should.be.true;
+			journals.length.should.be.equal(1);
 			done();
 		});
 		
 	});
 	it('should add and delete Journal', function(done) {
 		toAdd.save().then(function(journal) {
-			_.isEqual(journal.id === undefined, false).should.be.true;
+			journal.should.not.have.property('id',undefined);
 			return journal.destroy();
 		})
 		.then(function(journal) {
-			_.isEqual(journal.id === undefined, true).should.be.true;
+			journal.should.have.property('id',undefined);
 			done();
 		});
 		
