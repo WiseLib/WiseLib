@@ -8,7 +8,7 @@ var DBManager = require('./dbmanager.js');
  */
 var SearchAble = function(arg) {
 	WriteAble.call(this, arg);
-}
+};
 
 SearchAble.prototype = Object.create(WriteAble.prototype);
 SearchAble.prototype.variables = ['q'];

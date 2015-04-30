@@ -9,7 +9,7 @@ var PersonRepr = require('../database/linker.js').personRepr;
  */
 var Person = function(arg) {
 	RankAble.call(this, arg);
-}
+};
 //needed to avoid circular dependency between Person and Publication
 module.exports = Person;
 var Publication = require('./publication.js');
@@ -46,8 +46,32 @@ Person.prototype.calculateRank = function() {
 			return person;
 		});
 	}
-	return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve) {
 		resolve(person);
-	})
+	});
+};
+
+Person.prototype.getContacts = function() {
+	var person = this;
+var publications = new Publication({authors: [{id: this.id}]})
+						.fetchAll()
+						.then(function(publications) {
+							return publications;
+						});
+
+var persons = Promise.all(publications).then(function(publications) {
+	var authors = [];
+	publications.forEach(function(publication) {
+		publication.authors.forEach(function(author) {
+			if(author.id !== person.id)
+				authors.push(new Person(author).fetch().then(function(result) {
+					return result;
+				}));
+		});
+	});
+	return authors;
+});
+
+return Promise.all(persons).then(function(results) {return results;});
 };
 Person.prototype.constructor = Person;

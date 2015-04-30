@@ -28,8 +28,8 @@ var getMultiple = function(req, res, coreClass, name) {
 		result[name]= instances;
 		res.json(result);
 	});
-
 };
+
 //need to add authentification options
 var getSingle = function(req, res, coreClass) {
 	new coreClass(req.params.id).fetch()
@@ -48,6 +48,7 @@ var getSingle = function(req, res, coreClass) {
 		console.log(id);
 	});
 };
+
 //need to add authentification options
 var postSingle = function(req, res, coreClass) {
 	new coreClass(req.body).save()
@@ -55,6 +56,7 @@ var postSingle = function(req, res, coreClass) {
 		res.status(201).json({id: instance.id});
 	});
 };
+
 //need to add authentification options
 var putSingle = function(req, res, coreClass) {
 	new coreClass(req.body).save()
@@ -158,6 +160,13 @@ module.exports = {
 	getPersonPublications: function(req, res) {
 		req.query.authors = [{id:req.params.id}];
 		getMultiple(req, res, core.Publication, 'publications');
+	},
+
+	getPersonContacts: function(req, res) {
+		new core.Person(req.params.id).getContacts()
+		.then(function(persons) {
+			res.json({persons: persons});
+		});
 	},
 
 	postPerson: function(req, res) {

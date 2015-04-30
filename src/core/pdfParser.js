@@ -2,7 +2,6 @@
 var pdfExtract = require('pdf-extract');
 var Promise = require('bluebird');
 var Parser = require('./parser.js');
-var Publication = require('./publication.js');
 
 /* Extract data from a pdf containing a publication
  * Extracted data : title, authors, numberOfPages
