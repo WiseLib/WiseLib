@@ -8,7 +8,7 @@
  * Licensed under the GPL-2.0 license.
  */
 
- var config = require('./config.js');
+ var config = require('../config.js');
  var routeFunctions = require('./routesFunctions.js');
 var ejwt = require('express-jwt');
 
@@ -96,6 +96,6 @@ module.exports = function(app) {
 
     app.route('*')
     .get(function(req, res) {
-        res.sendFile('index.html', {root: __dirname + '/../public/'});
+        res.sendFile('index.html', {root: __dirname + '/../../public/'});
     });
 };

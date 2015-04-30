@@ -1,7 +1,7 @@
 'use strict';
 var should = require('should');
 var journal = require('./journal_test.js');
-var server = require('../../src/routesFunctions.js');
+var server = require('../../src/communication/routesFunctions.js');
 
 /**
  * This test checks the getJournals method, a function that return a list, in JSON format, of all journals present in the database.

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('user', ['affiliation', 'ngMaterial','ngMessages'])
+angular.module('user', ['affiliation', 'ngMaterial','ngMessages', 'ngStorage'])
 
 .controller('uploadUserController', function ($http, Page) {
     Page.setTitle('Upload user');

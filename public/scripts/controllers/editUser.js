@@ -2,7 +2,7 @@
 
 angular.module('user')
 
-.controller('updateUserController', function($scope, $window, $location, $translate, Page, $mdToast, AuthenticationService, User, Person) {
+.controller('updateUserController', function($scope, $location, $translate, Page, AuthenticationService, User, Person, TokenService, ToastService) {
     $translate('UPDATE_PROFILE').then(function(translated) {
     Page.setTitle(translated);
   });
@@ -13,30 +13,16 @@ angular.module('user')
    * Sends a request to the server to register a user using form input
    * @return {None}
    */
-    $scope.update = function (service) {
-        service.$put(
+    $scope.update = function (service, json) {
+        service.put(json,
         function() { //Success
             $translate('SAVED_CHANGES').then(function(translated) {
-                $mdToast.show({
-                    controller: 'ToastCtrl',
-                    templateUrl: '../views/feedback-toast.html',
-                    hideDelay: 6000,
-                    position: 'top right',
-                    locals: {text: translated,
-                             error: false}
-                });
+                ToastService.showToast(translated, false);
             });
         },
         function(data) { //Error
             $translate('ERROR').then(function(translated) {
-                $mdToast.show({
-                    controller: 'ToastCtrl',
-                    templateUrl: '../views/feedback-toast.html',
-                    hideDelay: 6000,
-                    position: 'top right',
-                    locals: {text: translated + ': ' + data.error,
-                             error: true}
-                });
+                ToastService.showToast(translated + ': ' + data.error, true);
             });
         });
     };
@@ -51,15 +37,13 @@ angular.module('user')
     }
 
     $scope.updateUser = function() {
-        var token = $window.sessionStorage.token;
-        var user = JSON.parse(atob(token.split('.')[1]));
+        var user = TokenService.getUser();
         $scope.userEditForm.id = user.id;
-        $scope.update(new User(filterEmpty($scope.userEditForm)));
+        $scope.update(User, filterEmpty($scope.userEditForm));
     };
     $scope.updatePerson = function() {
-        var token = $window.sessionStorage.token;
-        var user = JSON.parse(atob(token.split('.')[1]));
+        var user = TokenService.getUser();
         $scope.personEditForm.id = user.person;
-        $scope.update(new Person(filterEmpty($scope.personEditForm)));
+        $scope.update(Person, filterEmpty($scope.personEditForm));
     };
 });
