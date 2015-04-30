@@ -12,7 +12,7 @@ var express = require('express');
 var multer  = require('multer');
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
-var routes = require('./routes');
+var routes = require('./communication/routes.js');
 
 module.exports = function(app) {
     // log every request to the console

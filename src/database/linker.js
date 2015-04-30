@@ -1,6 +1,6 @@
 'use strict';
 var _ = require('lodash');
-var config = require('./config.js');
+var config = require('../config.js');
 config = config.database;
 
 var knex = require('knex')({
@@ -492,7 +492,7 @@ var JournalPublication = bookshelf.Model.extend({
 });
 journalPublicationRepr.model = JournalPublication;
 journalPublicationRepr.relations = ['journal'];
-journalPublicationRepr.super = publicationRepr;
+//journalPublicationRepr.super = publicationRepr;
 //proceedingPublication
 var proceedingPublicationRepr = new Representation();
 proceedingPublicationRepr.id = {
@@ -515,7 +515,7 @@ var ProceedingPublication = bookshelf.Model.extend({
 });
 proceedingPublicationRepr.model = ProceedingPublication;
 proceedingPublicationRepr.relations = ['proceeding'];
-proceedingPublicationRepr.super = publicationRepr;
+//proceedingPublicationRepr.super = publicationRepr;
 
 module.exports.searchKey = searchKey;
 module.exports.affiliationRepr = affiliationRepr;

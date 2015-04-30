@@ -1,7 +1,7 @@
 'use strict';
 var should = require('should');
 var Person = require('./person_test.js');
-var server = require('../../src/routesFunctions.js');
+var server = require('../../src/communication/routesFunctions.js');
 var Client = require('mariasql');
 
 
