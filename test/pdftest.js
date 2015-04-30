@@ -1,7 +1,7 @@
 'use strict';
 var should = require('should');
-var pdf = require ('../src/pdf_analyse.js');
-var pdflist = ['./pdfs/test2.pdf'];//,'./pdfs/test3.pdf','./pdfs/test4.pdf','./pdfs/test5.pdf','./pdfs/test6.pdf','./pdfs/test7.pdf','./pdfs/test8.pdf'];
+var pdf = require ('../src/core/pdfParser.js');
+var pdflist = ['./test/pdfs/test2.pdf'];//,'./pdfs/test3.pdf','./pdfs/test4.pdf','./pdfs/test5.pdf','./pdfs/test6.pdf','./pdfs/test7.pdf','./pdfs/test8.pdf'];
 var options = {
 	type: 'text'
 };
@@ -12,7 +12,8 @@ function doTest(i){//separate function because mocha closes on the 'i' variable
 return it('should perform a correct analysis of pdf ' + i,function(done){
 
 	var path =  pdflist[i];
-	pdf.analysePdf(path,function(result){
+	var newPdf = new pdf(path);
+	newPdf.extract().then(function(result){
 
 		if(LOG){
 			console.log('\n' + 'Pdf: ' + result[3]);

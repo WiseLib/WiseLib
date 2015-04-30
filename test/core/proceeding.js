@@ -13,31 +13,31 @@ describe('Proceeding test', function() {
 	var toAdd = new Proceeding({name: 'testProceeding'});
 
 	it('should create Proceeding from JSON', function() {
-		_.isEqual(fromJSON.name, 'proceeding').should.be.true;
-		_.isEqual(fromJSON.q, 'search').should.be.true;
-		_.isEqual(fromJSON.rank, 12.076).should.be.true;
+		fromJSON.should.have.property('name', 'proceeding');
+		fromJSON.should.have.property('q', 'search');
+		fromJSON.should.have.property('rank', 12.076);
 	});
 	it('should get Proceeding from ID', function(done) {
 		fromID.then(function(proceeding) {
-			_.isEqual(proceeding.id, 1).should.be.true;
-			_.isEqual(proceeding.rank, 2.954).should.be.true;
+			proceeding.should.have.property('id', 1);
+			proceeding.should.have.property('rank', 2.954);
 			done();
 		});
 	});
 	it('should fetch all corresponding Proceedings', function(done) {
 		fetched.then(function(proceedings) {
-			_.isEqual(proceedings.length, 2).should.be.true;
+			proceedings.length.should.be.equal(2);
 			done();
 		});
 		
 	});
 	it('should add and delete Proceeding', function(done) {
 		toAdd.save().then(function(proceeding) {
-			_.isEqual(proceeding.id === undefined, false).should.be.true;
+			proceeding.should.not.have.property('id',undefined);
 			return proceeding.destroy();
 		})
 		.then(function(proceeding) {
-			_.isEqual(proceeding.id === undefined, true).should.be.true;
+			proceeding.should.have.property('id',undefined);
 			done();
 		});
 		
