@@ -5,7 +5,8 @@ angular.module('user')
 .factory('User', function($resource) {
     return $resource('/users/:id.json', {id:'@id'}, {
         get: {method: 'GET'},
-        put: {method: 'PUT'}
+        put: {method: 'PUT'},
+        library: {method: 'GET', url:'/users/:id/library.json'}
     });
 })
 

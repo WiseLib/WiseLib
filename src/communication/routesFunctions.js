@@ -184,7 +184,17 @@ module.exports = {
 	},
 
 	getUserLibrary: function(req, res) {
-		getMultiple(req, res, core.Publication, 'publications');
+		new core.User(req.params.id).fetch()
+		.then(function(instance) {
+			return Promise.all(instance.library.map(function(pub) {
+				return new core.Publication(pub).fetch();
+			}));
+		})
+		.then(function(instances) {
+			var result={};
+			result['publications']= instances;
+			res.json(result);
+		});
 	},
 
 	getPublications :function(req, res) {

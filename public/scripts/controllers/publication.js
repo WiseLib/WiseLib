@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication', ['ngMaterial', 'ngAnimate', 'journal', 'user', 'proceeding', 'ngMessages']);
 
-module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication, Person, User, AuthenticationService) {
+module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication, Person, User, AuthenticationService, TokenService) {
     $translate('PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
     });
@@ -13,14 +13,13 @@ module.controller('publicationController', function($scope, $window, $routeParam
     $scope.authenticatedUser = undefined;
 
     if(AuthenticationService.isAuthenticated) {
-        var token = $window.sessionStorage.token;
-        var user = JSON.parse(atob(token.split('.')[1]));
+        var user = TokenService.getUser();
         $scope.authenticatedUser = user;
     }
 
     $scope.isInLibrary = function(publication) {
         var inLibrary = false;
-        if($scope.authenticatedUser) {
+        if($scope.authenticatedUser && publication) {
             inLibrary = $scope.authenticatedUser.library.indexOf({id:publication.id}) > -1;
         }
         return inLibrary;

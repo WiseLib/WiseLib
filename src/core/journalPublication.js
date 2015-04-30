@@ -45,8 +45,11 @@ JournalPublication.prototype.fetch = function() {
 };
 JournalPublication.prototype.fetchAll = function() {
 	var journalPublication = this;
+	console.log('jp fetchAll');
+	console.log(journalPublication);
 	var promise = Publication.prototype.fetchAll.call(journalPublication)
 	.then(function(publications) {
+		console.log(publications);
 		var results = [];
 		publications.forEach(function(publication) {
 			results.push(DBManager.get(publication)

@@ -359,7 +359,7 @@ var User = bookshelf.Model.extend({
         return this.belongsTo(Person, 'person_id');
     },
     library: function() {
-        return this.belongsToMany(Publication, 'publication_in_library', 'publication_id', 'user_id');
+        return this.belongsToMany(Publication, 'publication_in_library', 'user_id', 'publication_id');
     },
     representation: userRepr
 });
