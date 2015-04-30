@@ -53,7 +53,7 @@ Person.prototype.calculateRank = function() {
 
 Person.prototype.getContacts = function() {
 	var person = this;
-	var publications = new Publication({authors: [{id: this.id}]}).fetchAll()
+	var contacts = new Publication({authors: [{id: this.id}]}).fetchAll()
 	.then(function(publications) {
 		return Promise.all(publications);
 	})
@@ -71,5 +71,6 @@ Person.prototype.getContacts = function() {
 	.then(function(persons) {
 		return persons;
 	});
+	return contacts;
 };
 Person.prototype.constructor = Person;
