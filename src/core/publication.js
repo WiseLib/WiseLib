@@ -67,7 +67,6 @@ Publication.prototype.fetchAll = function() {
 	var rankable = this;
 	return DBManager.get(rankable, Publication.prototype.representation)
 	.then(function(res) {
-		console.log(res);
 		return Promise.all(res.map(function(r) {
 			return new rankable.constructor(r);
 		}));
