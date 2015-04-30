@@ -53,25 +53,23 @@ Person.prototype.calculateRank = function() {
 
 Person.prototype.getContacts = function() {
 	var person = this;
-var publications = new Publication({authors: [{id: this.id}]})
-						.fetchAll()
-						.then(function(publications) {
-							return publications;
-						});
-
-var persons = Promise.all(publications).then(function(publications) {
-	var authors = [];
-	publications.forEach(function(publication) {
-		publication.authors.forEach(function(author) {
-			if(author.id !== person.id)
-				authors.push(new Person(author).fetch().then(function(result) {
-					return result;
-				}));
+	var publications = new Publication({authors: [{id: this.id}]}).fetchAll()
+	.then(function(publications) {
+		return Promise.all(publications);
+	})
+	.then(function(publications) {
+		var authors = [];
+		publications.forEach(function(publication) {
+			publication.authors.forEach(function(author) {
+				if(author.id !== person.id) {
+					authors.push(new Person(author).fetch());
+				}
+			});
 		});
+		return Promise.all(authors);
+	})
+	.then(function(persons) {
+		return persons;
 	});
-	return authors;
-});
-
-return Promise.all(persons).then(function(results) {return results;});
 };
 Person.prototype.constructor = Person;
