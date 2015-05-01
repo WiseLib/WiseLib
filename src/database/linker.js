@@ -248,7 +248,6 @@ Representation.prototype.toQuery = function(jsonObj) {
         query = repr.filterRelations(jsonObj, query);
         query = repr.searchFields(jsonObj, query);
         query = repr.searchRelations(jsonObj, query);
-        //console.log(query.toString());
     };
     return model.query(queryFunction);
 };
@@ -335,7 +334,7 @@ var Person = bookshelf.Model.extend({
     representation: personRepr
 });
 personRepr[searchKey] = [personRepr.firstName, personRepr.lastName];
-personRepr.relationSearch = ['publications'];
+personRepr.relationSearch = ['publications', 'affiliation'];
 personRepr.model = Person;
 personRepr.relations = ['publications', 'affiliation', 'disciplines'];
 

@@ -1,4 +1,5 @@
 'use strict';
+var _ = require('lodash');
 var Promise = require('bluebird');
 var RankAble = require('./rankable.js');
 var PersonRepr = require('../database/linker.js').personRepr;
@@ -15,7 +16,7 @@ module.exports = Person;
 var Publication = require('./publication.js');
 
 Person.prototype = Object.create(RankAble.prototype);
-Person.prototype.variables = ['firstName', 'lastName', 'affiliation', 'publications'];
+Person.prototype.variables = ['firstName', 'lastName', 'affiliation', 'publications', 'picture'];
 Person.prototype.variables.push.apply(Person.prototype.variables, RankAble.prototype.variables);
 Person.prototype.representation = PersonRepr;
 //gemiddelde aantal publicaties (per jaar) * (1 + publicaties dit jaar)
@@ -53,23 +54,37 @@ Person.prototype.calculateRank = function() {
 
 Person.prototype.getContacts = function() {
 	var person = this;
-	var contacts = new Publication({authors: [{id: this.id}]}).fetchAll()
+	var contacts = new Person(person.id).fetch().then(function(p) {
+		person = p;
+		return new Publication({authors: [{id: person.id}]}).fetchAll();
+	})
 	.then(function(publications) {
 		return Promise.all(publications);
 	})
 	.then(function(publications) {
+		var addedIds = [];
 		var authors = [];
 		publications.forEach(function(publication) {
 			publication.authors.forEach(function(author) {
-				if(author.id !== person.id) {
+				if(author.id !== person.id && !_.contains(addedIds, author.id)) { //Only fetch other persons and persons that aren't in the addedIds array yet
 					authors.push(new Person(author).fetch());
+					addedIds.push(author.id);
 				}
 			});
 		});
 		return Promise.all(authors);
 	})
-	.then(function(persons) {
-		return persons;
+	.then(function(coWriters) {
+		if(person.affiliation) {
+			return new Person({affiliation: person.affiliation}).fetchAll().then(function(persons) {
+				return Promise.join(persons, coWriters, function(persons, coWriters){return [persons, coWriters];});
+			});
+		} else {
+			return Promise.all(coWriters);
+		}
+	})
+	.then(function(total) {
+		return _.reject(_.uniq(_.flatten(total), function(person) {return person.id;}), {id: person.id}); //Make 1 array of 2, remove duplicates and remove person of which to get the contacts
 	});
 	return contacts;
 };
