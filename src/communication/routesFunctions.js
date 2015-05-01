@@ -193,7 +193,28 @@ module.exports = {
 	},
 
 	putUser: function(req, res) {
-		putSingle(req, res, core.User);
+		new core.User(req.body).save()
+		.then(function(instance) {
+			return new core.User(instance.id).fetch();
+		})
+		.then(function(instance) {
+			var token = jwt.sign(instance, config.secretToken, { expiresInMinutes: 60 });
+			res.status(200).json({token: token});
+		});
+	},
+
+	getUserLibrary: function(req, res) {
+		new core.User(req.params.id).fetch()
+		.then(function(instance) {
+			return Promise.all(instance.library.map(function(pub) {
+				return new core.Publication(pub).fetch();
+			}));
+		})
+		.then(function(instances) {
+			var result={};
+			result['publications']= instances;
+			res.json(result);
+		});
 	},
 
 	getPublications :function(req, res) {

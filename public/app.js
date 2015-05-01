@@ -37,6 +37,10 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
         templateUrl: 'views/myPublications.html',
         controller: 'myPublicationsController'
     })
+    .when('/library', {
+        templateUrl: 'views/library.html',
+        controller: 'myLibraryController'
+    })
     .when('/publications/:id', {
         templateUrl: 'views/publication.html',
         controller: 'publicationController'

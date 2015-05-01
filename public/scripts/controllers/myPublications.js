@@ -25,8 +25,8 @@ angular.module('publication')
 
     $scope.deletePublication = function(pub) {
         var confirm;
-      $translate(['REMOVE_PUBLICATION_CONFIRM_TITLE', 'CANT_UNDO', 'REMOVE_PUBLICATION_DIALOG', 'REMOVE', 'CANCEL']).then(function(translations) {
-          confirm = $mdDialog.confirm()
+        $translate(['REMOVE_PUBLICATION_CONFIRM_TITLE', 'CANT_UNDO', 'REMOVE_PUBLICATION_DIALOG', 'REMOVE', 'CANCEL']).then(function(translations) {
+            confirm = $mdDialog.confirm()
             .title(translations.REMOVE_PUBLICATION_CONFIRM_TITLE)
             .content(translations.CANT_UNDO)
             .ariaLabel(translations.REMOVE_PUBLICATION_DIALOG)
@@ -54,7 +54,4 @@ angular.module('publication')
       console.log('Clicked cancel!');
     });
     };
-
-    // $scope.publications = [{title: 'Test', publishedInYear: 2014, nrOfPages: 23},
-    //                      {title: 'Andere test', publishedInYear: 2015, nrOfPages: 17}];
 });
