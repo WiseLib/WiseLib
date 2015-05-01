@@ -1,7 +1,5 @@
 'use strict';
-var linker = require('./linker.js');
 var _ = require('lodash');
-var Promise = require('bluebird');
 /**
  * The Database manager. This manager communicates with the database via a config object.
  * For each class of the core module, the database has methods to get/put/post/delete objects of the core module.
@@ -13,9 +11,9 @@ var Promise = require('bluebird');
  *
  * @constructor
  */
-var DBManager = function() {};
+ var DBManager = function() {};
 
-DBManager.prototype.post = function(writeable, repr) {
+ DBManager.prototype.post = function(writeable, repr) {
     var representation;
     if(repr) {
         representation = repr;
@@ -71,7 +69,7 @@ DBManager.prototype.delete = function(writeable, repr) {
         representation = writeable.representation;
     }
     var toDelete = representation.toModel(writeable);
-    return toDelete.destroy().then(function(model) {
+    return toDelete.destroy().then(function() {
         return;
     });
 };

@@ -457,11 +457,11 @@ var Publication = bookshelf.Model.extend({
         return this.belongsToMany(Person, 'publication_edited_by_person', 'publication_id', 'person_id');
     },
     referencedPublications: function() {
-       return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
-    },
+     return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
+ },
 
 
-    representation: publicationRepr
+ representation: publicationRepr
 });
 publicationRepr[searchKey] = [publicationRepr.title];
 publicationRepr.relationSearch = ['authors'];

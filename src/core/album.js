@@ -7,7 +7,7 @@ var RankAble = require('./rankable.js');
  */
 var Album = function(arg) {
 	RankAble.call(this, arg);
-}
+};
 
 Album.prototype = Object.create(RankAble.prototype);
 Album.prototype.variables = ['name', 'disciplines'];

@@ -1,38 +1,71 @@
 'use strict';
 
 /*
- * server
- * https://github.com/WiseLib/server
- *
- * Copyright (c) 2014 WiseLib
- * Licensed under the GPL-2.0 license.
- */
+* server
+* https://github.com/WiseLib/server
+*
+* Copyright (c) 2014 WiseLib
+* Licensed under the GPL-2.0 license.
+*/
 
  //var validator = require('./validator.js'); //Not used yet
- var Promise = require('bluebird');
- var config = require('../config.js');
- var core = require('../core/exports.js');
+var Promise = require('bluebird');
+var config = require('../config.js');
+var core = require('../core/exports.js');
 
- //For login
- var jwt = require('jsonwebtoken');
+//For login
+var jwt = require('jsonwebtoken');
 
 // TODO: split this module up into multiple controllers
 
-var splitSign = '|';
+
 //need to add authentification options
-var getMultiple = function(req, res, coreClass, name) {
+var getMultiple = function(req, res, CoreClass, name) {
 	var params = req.query;
-	new coreClass(params).fetchAll()
+	new CoreClass(params).fetchAll()
 	.then(function(instances) {
-		var result={};
-		result[name]= instances;
+		var result = {};
+		result[name] = instances;
 		res.json(result);
 	});
 };
 
+/**
+ * sign used to split Arrays in the splitInArray function
+ * @type {String}
+ */
+var splitSign = '|';
+/**
+ * Splits param into an array and assign object with id to each element in array
+ * @param  {String} param String to split
+ * @return {Array}       Modified array
+ */
+var splitInArray = function(param) {
+	var array = param.split(splitSign);
+	for(var i in array) {
+		array[i] = {id:array[i]};
+	}
+	return array;
+};
+
+/**
+ * Splits each name string in query and reassigns it in the query
+ * @param  {Object} query Holds names keys and values
+ * @param  {Array} names Keys in query for which to split the string
+ * @return {Object}       Modified query
+ */
+var processQueryArrays = function(query, names) {
+	names.forEach(function(name) {
+		if(query[name] !== undefined) {
+			query[name] = splitInArray(query[name]);
+		}
+	});
+	return query;
+};
+
 //need to add authentification options
-var getSingle = function(req, res, coreClass) {
-	new coreClass(req.params.id).fetch()
+var getSingle = function(req, res, CoreClass) {
+	new CoreClass(req.params.id).fetch()
 	.then(function(instance) {
 		if(instance instanceof core.RankAble) {
 			return instance.calculateRank();
@@ -50,56 +83,42 @@ var getSingle = function(req, res, coreClass) {
 };
 
 //need to add authentification options
-var postSingle = function(req, res, coreClass) {
-	new coreClass(req.body).save()
+var postSingle = function(req, res, CoreClass) {
+	new CoreClass(req.body).save()
 	.then(function(instance) {
 		res.status(201).json({id: instance.id});
 	});
 };
 
 //need to add authentification options
-var putSingle = function(req, res, coreClass) {
-	new coreClass(req.body).save()
+var putSingle = function(req, res, CoreClass) {
+	new CoreClass(req.body).save()
 	.then(function(instance) {
 		res.status(200).json({id: instance.id});
 	});
 };
 
-var deleteSingle = function(req, res, coreClass) {
-	new coreClass(req.params.id).destroy()
-	.then(function(instance) {
-		res.status(200).end();
-	});
-};
-
-var splitInArray = function(param) {
-	var array = param.split(splitSign);
-	for(var i in array) {
-		array[i] = {id:array[i]};
-	}
-	return array;
-};
+//Isn't used
+// var deleteSingle = function(req, res, CoreClass) {
+// 	new CoreClass(req.params.id).destroy()
+// 	.then(function() {
+// 		res.status(200).end();
+// 	});
+// };
 
 module.exports = {
 
 	getDisciplines: function(req, res) {
-		if(req.query.journals !== undefined) {
-			req.query.journals = splitInArray(req.query.journals);
-		}
-		if(req.query.proceedings !== undefined) {
-			req.query.proceedings = splitInArray(req.query.proceedings);
-		}
+		processQueryArrays(req.query, ['journals', 'proceedings']);
 		getMultiple(req, res, core.Discipline, 'disciplines');
 	},
 
-	getDiscipline : function(req, res) {
+	getDiscipline: function(req, res) {
 		getSingle(req, res, core.Discipline);
 	},
 
-	getJournals :function(req, res) {
-		if(req.query.disciplines !== undefined) {
-			req.query.disciplines = splitInArray(req.query.disciplines);
-		}
+	getJournals: function(req, res) {
+		processQueryArrays(req.query, ['disciplines']);
 		getMultiple(req, res, core.Journal, 'journals');
 	},
 
@@ -109,16 +128,12 @@ module.exports = {
 
 	getJournalDisciplines: function(req, res) {
 		req.query.journals = [{id:req.params.id}];
-		if(req.query.proceedings !== undefined) {
-			req.query.proceedings = splitInArray(req.query.proceedings);
-		}
+		processQueryArrays(req.query, ['proceedings']);
 		getMultiple(req, res, core.Discipline, 'disciplines');
 	},
 
 	getProceedings: function(req, res) {
-		if(req.query.disciplines !== undefined) {
-			req.query.disciplines = splitInArray(req.query.disciplines);
-		}
+		processQueryArrays(req.query, ['disciplines']);
 		getMultiple(req, res, core.Proceeding, 'proceedings');
 	},
 
@@ -126,11 +141,9 @@ module.exports = {
 		getSingle(req, res, core.Proceeding);
 	},
 
-	getProceedingDisciplines :function(req, res) {
+	getProceedingDisciplines: function(req, res) {
 		req.query.proceedings = [{id:req.params.id}];
-		if(req.query.journals !== undefined) {
-			req.query.journals = splitInArray(req.query.journals);
-		}
+		processQueryArrays(req.query, ['journals']);
 		getMultiple(req, res, core.Discipline, 'disciplines');
 	},
 
@@ -192,10 +205,8 @@ module.exports = {
 		putSingle(req, res, core.User);
 	},
 
-	getPublications :function(req, res) {
-		if(req.query.authors !== undefined) {
-			req.query.authors = splitInArray(req.query.authors);
-		}
+	getPublications: function(req, res) {
+		processQueryArrays(req.query, ['authors']);
 		var params = req.query;
 		var jp = new core.JournalPublication(params).fetchAll();
 		var pp = new core.ProceedingPublication(params).fetchAll();
@@ -229,13 +240,13 @@ module.exports = {
 	},
 	deletePublication: function(req, res) {
 		new core.JournalPublication(req.params.id).fetch()
-		.catch(function(id) {
+		.catch(function() {
 			return new core.ProceedingPublication(req.params.id).fetch();
 		})
 		.then(function(instance) {
 			return instance.destroy();
 		})
-		.then(function(instance) {
+		.then(function() {
 			res.status(200).end();
 		});
 	},

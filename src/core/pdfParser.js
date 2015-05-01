@@ -1,6 +1,6 @@
 'use strict';
-var pdfExtract = require('pdf-extract');
 var Promise = require('bluebird');
+var pdfExtract = require('pdf-extract');
 var Parser = require('./parser.js');
 
 /* Extract data from a pdf containing a publication
