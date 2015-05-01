@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication', ['ngMaterial', 'ngAnimate', 'journal', 'user', 'proceeding', 'ngMessages']);
 
-module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication, Person, User, AuthenticationService, TokenService) {
+module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication, Person, User, AuthenticationService, TokenService,ToastService) {
     $translate('PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
     });
@@ -34,7 +34,7 @@ module.controller('publicationController', function($scope, $window, $routeParam
             User.put(userAddPublication, function(resource) {
                 TokenService.setToken(resource.token);
                 $scope.authenticatedUser = TokenService.getUser();
-                console.log('added to library');
+                $translate('ADDED_TO_LIBRARY').then(function(translated){ToastService.showToast(translated);})
             }, function(errorData) {
                 console.log(errorData.error);
             });
@@ -72,11 +72,13 @@ module.controller('publicationController', function($scope, $window, $routeParam
             }
         }
 
-        for (i = pub.editors.length - 1; i >= 0; i--) {
-            var id = pub.editors[i].id;
-            $scope.editors.push(id);
-            if(!$scope.persons[id]) {
-                getPerson(id);
+        if(pub.editors !== undefined){
+            for (i = pub.editors.length - 1; i >= 0; i--) {
+               var id = pub.editors[i].id;
+                $scope.editors.push(id);
+               if(!$scope.persons[id]) {
+                    getPerson(id);
+                }
             }
         }
 
@@ -87,8 +89,10 @@ module.controller('publicationController', function($scope, $window, $routeParam
                 console.log('error: ' + data.error);
             });
         }
-        for (i = pub.referencedPublications.length - 1; i >= 0; i--) {
-            getPublication(pub.referencedPublications[i].id);
+        if(pub.editors !== undefined){
+            for (i = pub.referencedPublications.length - 1; i >= 0; i--) {
+             getPublication(pub.referencedPublications[i].id);
+            }
         }
     }, function(data) {
         console.log('Error getting publication: ' + JSON.stringify(data));
