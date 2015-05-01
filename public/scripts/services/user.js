@@ -36,6 +36,19 @@ angular.module('user')
             var token = this.getToken();
             return JSON.parse(atob(token.split('.')[1]));
         },
+        setUser: function(newUser) {
+            var token = this.getToken();
+            var parts = token.split('.');
+            var user = JSON.parse(atob(parts[1]));
+            for (var property in newUser) {
+                if(newUser.hasOwnProperty(property)) {
+                    user[property] = newUser[property];
+                }
+            }
+            parts[1] = btoa(JSON.stringify(user));
+            token = parts.join('.');
+            this.setToken(token);
+        },
         setToken: function(token) {
             $localStorage.token = token;
         },
