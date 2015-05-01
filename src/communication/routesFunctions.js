@@ -180,7 +180,14 @@ module.exports = {
 	},
 
 	putUser: function(req, res) {
-		putSingle(req, res, core.User);
+		new core.User(req.body).save()
+		.then(function(instance) {
+			return new core.User(instance.id).fetch();
+		})
+		.then(function(instance) {
+			var token = jwt.sign(instance, config.secretToken, { expiresInMinutes: 60 });
+			res.status(200).json({token: token});
+		});
 	},
 
 	getUserLibrary: function(req, res) {

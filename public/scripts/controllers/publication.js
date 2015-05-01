@@ -22,14 +22,17 @@ module.controller('publicationController', function($scope, $window, $routeParam
         if($scope.authenticatedUser && publication) {
             inLibrary = $scope.authenticatedUser.library.indexOf({id:publication.id}) > -1;
         }
+        console.log(inLibrary);
         return inLibrary;
     };
 
     $scope.addToLibrary = function(publication) {
         if(!$scope.isInLibrary()) {
-            var userAddPublication = {id: user.id, library: user.library};
+            var userAddPublication = {id: $scope.authenticatedUser.id, library: $scope.authenticatedUser.library};
             userAddPublication.library.push({id:publication.id});
-            User.put(userAddPublication, function() {
+            User.put(userAddPublication, function(resource) {
+                TokenService.setToken(resource.token);
+                $scope.authenticatedUser = TokenService.getUser();
                 console.log('added to library');
             }, function(errorData) {
                 console.log(errorData.error);

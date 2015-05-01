@@ -150,7 +150,6 @@ Representation.prototype.toModel = function(jsonObj) {
         if(_.isEqual(relation.relatedData.type, 'belongsToMany')) {
             if(model.id !== undefined) {
                 relation.detach();
-                console.log(queryRelations[i]);
                 relation.attach(queryRelations[i]);
             }
         }

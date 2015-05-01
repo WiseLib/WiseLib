@@ -10,18 +10,21 @@ angular.module('publication')
     $scope.showLoading = true;
     $scope.user = TokenService.getUser();
 
-    User.library({id: $scope.user.id}, function(data) {
-        $scope.showLoading = false;
-        if(data.publications.length > 0) {
-            $scope.publications = data.publications;
-        } else {
-            $translate('NO_PUBLICATIONS_FOUND').then(function(translated) {
-                $scope.error = translated;
+    $scope.getLibrary = function(user) {
+        User.library({id: user.id}, function(data) {
+            $scope.showLoading = false;
+            if(data.publications.length > 0) {
+                $scope.publications = data.publications;
+            } else {
+                $translate('NO_PUBLICATIONS_FOUND').then(function(translated) {
+                    $scope.error = translated;
+            });
+            }
+        }, function(error) {
+            $scope.error = error.status + ' ' + error.statusText;
         });
-        }
-    }, function(error) {
-        $scope.error = error.status + ' ' + error.statusText;
-    });
+    };
+    $scope.getLibrary($scope.user);
 
     $scope.deletePublication = function(pub) {
         $translate(['REMOVE_PUBLICATION_CONFIRM_TITLE', 'CANT_UNDO', 'REMOVE_PUBLICATION_DIALOG', 'REMOVE', 'CANCEL'])
@@ -45,7 +48,9 @@ angular.module('publication')
                 }
             }
             var user = {id: $scope.user.id, library: $scope.user.library};
-            User.put(user, function() {
+            User.put(user, function(resource) {
+                TokenService.setToken(resource.token);
+                $scope.user = TokenService.getUser();
                 //Remove publication from list
                 $scope.publications.splice(removeIndex,1);
                 $translate('SUCCESFULLY_REMOVED_PUBLICATION').then(function(translated) {
