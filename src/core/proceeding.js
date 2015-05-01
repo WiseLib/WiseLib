@@ -8,7 +8,7 @@ var ProceedingRepr = require('../database/linker.js').proceedingRepr;
  */
 var Proceeding = function(arg) {
 	Album.call(this, arg);
-}
+};
 
 Proceeding.prototype = Object.create(Album.prototype);
 Proceeding.prototype.representation = ProceedingRepr;

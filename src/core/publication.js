@@ -10,7 +10,7 @@ var DBManager = require('../database/dbmanager.js');
  */
 var Publication = function(arg) {
 	RankAble.call(this, arg);
-}
+};
 //needed to avoid circular dependency between Person and Publication
 module.exports = Publication;
 var Person = require('./person.js');
