@@ -12,11 +12,10 @@
 var Promise = require('bluebird');
 var config = require('../config.js');
 var core = require('../core/exports.js');
+var crypto = require('crypto');
 
 //For login
 var jwt = require('jsonwebtoken');
-
-// TODO: split this module up into multiple controllers
 
 
 //need to add authentification options
@@ -258,9 +257,9 @@ module.exports = {
 		if(email === '' || password === '') {
 			res.sendStatus(401);
 		}
-		new core.User({email: email, password: password}).fetchAll()
+		new core.User({email: email}).fetchAll()
 		.then(function(users) {
-			if(users.length === 1) {
+			if(users.length === 1 && crypto.createHash('sha1').update(password).digest('hex') === users[0].password) {
 				var token = jwt.sign(users[0], config.secretToken, { expiresInMinutes: 60 });
 				res.json({token: token});
 			} else {

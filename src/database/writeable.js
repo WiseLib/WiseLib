@@ -116,9 +116,9 @@ WriteAble.prototype.saveWithRepresentation = function(representation) {
  * @return Promise<this> a Promise containing the updated writeable
  * @public
  */
-WriteAble.prototype.save = function() {
-	return this.saveWithRepresentation(this.representation);
-};
+//WriteAble.prototype.save = function() {
+//	return this.saveWithRepresentation(this.representation);
+//};
 /* remove current writeable to database.
  * @required id
  * @param representation (Representation) a custom representation that the DBManager will use
