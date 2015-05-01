@@ -230,7 +230,7 @@ Representation.prototype.searchRelations = function(jsonObj, query, superQuery) 
             var relationModel = new Relation();
             //search on relation fields
             jsonObj = {q:jsonObj.q.split('@')[0]};
-            var relationSearch = relationModel.representation.formatSearch(jsonObj);
+            //var relationSearch = relationModel.representation.formatSearch(jsonObj);
             var subquery = relationModel.representation.searchFields(jsonObj, relationModel.query()).select('id');
             query = query.orWhere(otherKey, 'in', subquery);
         }

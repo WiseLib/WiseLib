@@ -1,23 +1,23 @@
 'use strict';
 var Promise = require('bluebird');
-var RankAble = require('./rankable.js');
+var Rankable = require('./rankable.js');
 var PublicationRepr = require('../database/linker.js').publicationRepr;
 var DBManager = require('../database/dbmanager.js');
 
 /* A publication written by a number of persons
- * @superclass RankAble
+ * @superclass Rankable
  * @constructor
  */
 var Publication = function(arg) {
-	RankAble.call(this, arg);
+	Rankable.call(this, arg);
 };
 //needed to avoid circular dependency between Person and Publication
 module.exports = Publication;
 var Person = require('./person.js');
 
-Publication.prototype = Object.create(RankAble.prototype);
+Publication.prototype = Object.create(Rankable.prototype);
 Publication.prototype.variables = ['title', 'type', 'numberOfPages', 'year', 'url', 'abstract', 'authors', 'references'];
-Publication.prototype.variables.push.apply(Publication.prototype.variables, RankAble.prototype.variables);
+Publication.prototype.variables.push.apply(Publication.prototype.variables, Rankable.prototype.variables);
 Publication.prototype.representation = PublicationRepr;
 Publication.prototype.calculateRank = function() {
 	var numberOfCitations = 0;

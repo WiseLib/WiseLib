@@ -2,15 +2,15 @@
 var Promise = require('bluebird');
 var DBManager = require('./dbmanager.js');
 
-/* WriteAble : provides interaction with database, must subclass this to communicate with it
+/* Writeable : provides interaction with database, must subclass this to communicate with it
  * (see fetch, fetchAll, save, destroy)
- * @params arg (number) : the id of the new WriteAble
- * @params arg (string) : string with id of the new WriteAble
- * @params arg (json) : contains initial values of WriteAble variables (not necessarily all of them)
+ * @params arg (number) : the id of the new Writeable
+ * @params arg (string) : string with id of the new Writeable
+ * @params arg (json) : contains initial values of Writeable variables (not necessarily all of them)
  * @throw TypeError argument is invalid
  * @abstract, @constructor
  */
-var WriteAble = function(arg) {
+var Writeable = function(arg) {
 	if(typeof(arg) === 'number') {
 		this.initJSON({id:arg});
 	}
@@ -28,19 +28,19 @@ var WriteAble = function(arg) {
 		throw new TypeError('invalid argument : ' + arg + ' is a ' + typeof(arg));
 	}
 };
-/* Supported variables of WriteAble
+/* Supported variables of Writeable
  * @protected
  */
-WriteAble.prototype.variables = ['id'];
-/* Database Representation of WriteAble
+Writeable.prototype.variables = ['id'];
+/* Database Representation of Writeable
  * @abstract, @protected
  */
-WriteAble.prototype.representation = undefined;
+Writeable.prototype.representation = undefined;
 /* Assign given values to variables
  * @param vars (json) contains variables with values to set
  * @protected
  */
-WriteAble.prototype.assignVariables = function (vars) {
+Writeable.prototype.assignVariables = function (vars) {
     for (var v in this.variables) {
     	var assign = vars[this.variables[v]];
     	if(assign) {
@@ -52,7 +52,7 @@ WriteAble.prototype.assignVariables = function (vars) {
  * @param json (json) contains variables to initialize
  * @protected
  */
-WriteAble.prototype.initJSON = function(json) {
+Writeable.prototype.initJSON = function(json) {
 	this.assignVariables(json);
 };
 /* fetch data from database, update this writeable accordingly
@@ -60,7 +60,7 @@ WriteAble.prototype.initJSON = function(json) {
  * @return Promise<this> a Promise containing the updated writeable
  * @public
  */
-WriteAble.prototype.fetch = function() {
+Writeable.prototype.fetch = function() {
 	var writeable = this;
 	if(!writeable.id) {
 		return Promise.reject(writeable);
@@ -77,10 +77,10 @@ WriteAble.prototype.fetch = function() {
 	});
 };
 /* fetch data from database, according to this writeable's variable values
- * @return Promise<Array<WriteAble>> a Promise containing an array with all writeables corresponding to this writable
+ * @return Promise<Array<Writeable>> a Promise containing an array with all writeables corresponding to this writable
  * @public
  */
-WriteAble.prototype.fetchAll = function() {
+Writeable.prototype.fetchAll = function() {
 	var writeable = this;
 	return DBManager.get(writeable)
 	.then(function(res) {
@@ -96,7 +96,7 @@ WriteAble.prototype.fetchAll = function() {
  * @return Promise<this> a Promise containing the updated writeable
  * @protected
  */
-WriteAble.prototype.saveWithRepresentation = function(representation) {
+Writeable.prototype.saveWithRepresentation = function(representation) {
 	var writeable = this;
 	if(writeable.id) {
 		return DBManager.put(writeable, representation)
@@ -116,7 +116,7 @@ WriteAble.prototype.saveWithRepresentation = function(representation) {
  * @return Promise<this> a Promise containing the updated writeable
  * @public
  */
-WriteAble.prototype.save = function() {
+Writeable.prototype.save = function() {
 	return this.saveWithRepresentation(this.representation);
 };
 /* remove current writeable to database.
@@ -125,7 +125,7 @@ WriteAble.prototype.save = function() {
  * @return Promise<this> a Promise containing the updated writeable
  * @protected
  */
-WriteAble.prototype.destroyWithRepresentation = function(representation) {
+Writeable.prototype.destroyWithRepresentation = function(representation) {
 	var writeable = this;
 	if(!writeable.id) {
 		return Promise.reject(writeable.id);
@@ -143,7 +143,7 @@ WriteAble.prototype.destroyWithRepresentation = function(representation) {
  * @return Promise<this> a Promise containing the updated writeable
  * @public
  */
-WriteAble.prototype.destroy = function() {
+Writeable.prototype.destroy = function() {
 	return this.destroyWithRepresentation(this.representation);
 };
-module.exports = WriteAble;
+module.exports = Writeable;

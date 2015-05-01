@@ -1,23 +1,23 @@
 'use strict';
 var _ = require('lodash');
 var Promise = require('bluebird');
-var RankAble = require('./rankable.js');
+var Rankable = require('./rankable.js');
 var PersonRepr = require('../database/linker.js').personRepr;
 
 /* A person linked to an affiliation, and writing publications
- * @superclass RankAble
+ * @superclass Rankable
  * @constructor
  */
 var Person = function(arg) {
-	RankAble.call(this, arg);
+	Rankable.call(this, arg);
 };
 //needed to avoid circular dependency between Person and Publication
 module.exports = Person;
 var Publication = require('./publication.js');
 
-Person.prototype = Object.create(RankAble.prototype);
+Person.prototype = Object.create(Rankable.prototype);
 Person.prototype.variables = ['firstName', 'lastName', 'affiliation', 'publications', 'picture'];
-Person.prototype.variables.push.apply(Person.prototype.variables, RankAble.prototype.variables);
+Person.prototype.variables.push.apply(Person.prototype.variables, Rankable.prototype.variables);
 Person.prototype.representation = PersonRepr;
 //gemiddelde aantal publicaties (per jaar) * (1 + publicaties dit jaar)
 Person.prototype.calculateRank = function() {

@@ -21,6 +21,7 @@
 	"CITY": "City",
 	"CLOSE": "Close",
 	"CONFERENCE": "Conference",
+	"CONTACT_PERSONS": "Contact persons",
 	"COULD_NOT_ADD_PERSON": "Could not add person",
 	"COULD_NOT_GET_A_RESULT": "Could not get a result",
 	"EDITORS": "Editors",
@@ -112,6 +113,5 @@
 	"WELCOME_SUB": "A browsable research database",
 	"WISELIB_DESCR": "WiseLib lets you share your papers and search through papers shared by others colleagues.",
 	"YEAR": "Year",
-	"YEAR_OF_PUBLISHING": "Year of publishing",
-	"CONTACT_PERSONS": "Contact persons"
+	"YEAR_OF_PUBLISHING": "Year of publishing"
 }

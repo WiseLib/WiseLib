@@ -67,7 +67,7 @@ var processQueryArrays = function(query, names) {
 var getSingle = function(req, res, CoreClass) {
 	new CoreClass(req.params.id).fetch()
 	.then(function(instance) {
-		if(instance instanceof core.RankAble) {
+		if(instance instanceof core.Rankable) {
 			return instance.calculateRank();
 		}
 		else {
