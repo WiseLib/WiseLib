@@ -72,6 +72,10 @@ personmin a {
 	padding-left: 40px;
 }
 
+.paddedbutton {
+	margin-top:10px;
+}
+
 .persons-list .md-item-text.compact {
 	padding-top: 8px;
 	padding-bottom: 8px;

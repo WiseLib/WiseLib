@@ -202,7 +202,28 @@ module.exports = {
 	},
 
 	putUser: function(req, res) {
-		putSingle(req, res, core.User);
+		new core.User(req.body).save()
+		.then(function(instance) {
+			return new core.User(instance.id).fetch();
+		})
+		.then(function(instance) {
+			var token = jwt.sign(instance, config.secretToken, { expiresInMinutes: 60 });
+			res.status(200).json({token: token});
+		});
+	},
+
+	getUserLibrary: function(req, res) {
+		new core.User(req.params.id).fetch()
+		.then(function(instance) {
+			return Promise.all(instance.library.map(function(pub) {
+				return new core.Publication(pub).fetch();
+			}));
+		})
+		.then(function(instances) {
+			var result = {};
+			result.publications = instances;
+			res.json(result);
+		});
 	},
 
 	getPublications: function(req, res) {
@@ -212,8 +233,8 @@ module.exports = {
 		var pp = new core.ProceedingPublication(params).fetchAll();
 		Promise.all([jp, pp])
 		.then(function(p) {
-			var result={};
-			result.publications= p[0].concat(p[1]);
+			var result = {};
+			result.publications = p[0].concat(p[1]);
 			res.json(result);
 		});
 	},
@@ -238,6 +259,7 @@ module.exports = {
 			res.json(instance);
 		});
 	},
+
 	deletePublication: function(req, res) {
 		new core.JournalPublication(req.params.id).fetch()
 		.catch(function() {
@@ -261,6 +283,7 @@ module.exports = {
 		req.query.publications = [{id:req.params.id}];
 		getMultiple(req, res, core.Person, 'persons');
 	},
+
 	login: function(req, res) {
 		var email = req.body.email;
 		var password = req.body.password;
