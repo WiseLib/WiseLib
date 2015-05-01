@@ -149,6 +149,8 @@ Representation.prototype.toModel = function(jsonObj) {
         //also, in bookshelf, attach only works when id is known
         if(_.isEqual(relation.relatedData.type, 'belongsToMany')) {
             if(model.id !== undefined) {
+                relation.detach();
+                console.log(queryRelations[i]);
                 relation.attach(queryRelations[i]);
             }
         }
@@ -164,7 +166,7 @@ Representation.prototype.filterFields = function(jsonObj, query) {
     return query.where(queryParams);
 };
 
-Representation.prototype.filterRelations = function(jsonObj, query) {
+Representation.prototype.filterRelations = function(jsonObj, query, superQuery) {
     var queryRelations = this.formatRelations(jsonObj);
     var model = new this.model();
     //for each given relation in filter
@@ -177,7 +179,7 @@ Representation.prototype.filterRelations = function(jsonObj, query) {
             //make a join with the table
             foreignKey = relData.joinTableName+'.'+foreignKey;
             var otherKey = relData.joinTableName+'.'+relData.otherKey;
-            query.innerJoin(relData.joinTableName, foreignKey, relData.targetIdAttribute);
+            superQuery.innerJoin(relData.joinTableName, foreignKey, relData.targetIdAttribute);
             _.forEach(queryRelations[i], function(rel) {
                 //filter on foreign keys
                 var w = {};
@@ -202,17 +204,16 @@ Representation.prototype.searchFields = function(jsonObj, query) {
     var searchParams = this.formatSearch(jsonObj);
     if(searchParams.length > 0) {
         var p = searchParams[0];
-        query = query.andWhere(p.key, 'like', p.value);
+        query.andWhere(p.key, 'like', p.value);
         for(var i=1; i < searchParams.length; i++) {
             p = searchParams[i];
-            query = query.orWhere(p.key, 'like', p.value);
+            query.orWhere(p.key, 'like', p.value);
         }
     }
-
     return query;
 };
 //TODO
-Representation.prototype.searchRelations = function(jsonObj, query) {
+Representation.prototype.searchRelations = function(jsonObj, query, superQuery) {
     var searchRelations = this.formatSearchRelations(jsonObj);
     var model = new this.model();
     //for all searchable relations
@@ -224,7 +225,7 @@ Representation.prototype.searchRelations = function(jsonObj, query) {
             //make necessary joins with the relation table
             var foreignKey = relatedData.joinTableName+'.'+relatedData.foreignKey;
             var otherKey = relatedData.joinTableName+'.'+relatedData.otherKey;
-            query.innerJoin(relatedData.joinTableName, foreignKey, model.idAttribute);
+            superQuery.innerJoin(relatedData.joinTableName, foreignKey, model.idAttribute);
             //get relation model
             var Relation = relatedData.target;
             var relationModel = new Relation();
@@ -244,11 +245,20 @@ Representation.prototype.toQuery = function(jsonObj) {
     var model = new this.model(queryParams);
     var repr = this;
     var queryFunction = function(db) {
-        var query = repr.filterFields(jsonObj, db);
-        query = repr.filterRelations(jsonObj, query);
-        query = repr.searchFields(jsonObj, query);
-        query = repr.searchRelations(jsonObj, query);
-        //console.log(query.toString());
+        var l = jsonObj.q ? 2 : 1;
+        if(Object.keys(jsonObj).length >= l) {
+            db.where(function() {
+                repr.filterFields(jsonObj, this);
+                repr.filterRelations(jsonObj, this, db);
+            });
+        }
+        if(jsonObj.q) {
+            db.andWhere(function() {
+                repr.searchFields(jsonObj, this);
+                repr.searchRelations(jsonObj, this, db);
+            });
+        }
+        db.toString();
     };
     return model.query(queryFunction);
 };
