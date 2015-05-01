@@ -53,11 +53,13 @@
 	        </div>
 	        <div role="tabpanel" id="tab3-content" aria-labelledby="tab3" ng-switch-when="2">
 	        	<md-list class="persons-list">
-					 <md-list-item class="md-2-line contact-item" ng-repeat="contact in contacts">
-        				<img ng-src="{{contact.picture || '/assets/dummy.jpg'}}" class="md-avatar" alt="{{contact.firstName}} {{contact.lastName}}" />
-        				<div class="md-list-item-text compact">
-          					<h3>{{contact.firstName}} {{contact.lastName}}</h3>
-        				</div>
+					<md-list-item class="md-2-line contact-item" ng-repeat="contact in contacts">
+					 	<a ng-href="/persons/{{contact.id}}">
+        					<img ng-src="{{contact.picture || '/assets/dummy.jpg'}}" class="md-avatar" alt="{{contact.firstName}} {{contact.lastName}}" />
+        					<div class="md-list-item-text compact">
+          						<h3>{{contact.firstName}} {{contact.lastName}}</h3>
+        					</div>
+        				</a>
       				</md-list-item>
 				</md-list>
 	        </div>

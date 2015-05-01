@@ -134,7 +134,7 @@ personmin a {
 	flex: 1;
 	padding-top: 19px;
 }
-.persons-list .contact-item {
+.persons-list .contact-item a {
 	display: -webkit-flex;
 	display: -ms-flexbox;
 	display: flex;
