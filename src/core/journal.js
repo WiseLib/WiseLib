@@ -7,7 +7,7 @@ var JournalRepr = require('../database/linker.js').journalRepr;
  */
 var Journal = function(arg) {
 	Album.call(this, arg);
-}
+};
 
 Journal.prototype = Object.create(Album.prototype);
 Journal.prototype.representation = JournalRepr;

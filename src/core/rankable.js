@@ -1,6 +1,5 @@
 'use strict';
 var Promise = require('bluebird');
-var DBManager = require('../database/dbmanager.js');
 var SearchAble = require('../database/searchable.js');
 
 /* Rankable : has 'rank' variable that can be calculated

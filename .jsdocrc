@@ -7,9 +7,9 @@
   },
   "plugins": [ "plugins/markdown" ],
   "templates": {
-    "systemName"            : "WiseLib Server",
+    "systemName"            : "WiseLib",
     "footer"                : "Vrije Universiteit Brussel",
-    "copyright"             :  "© 2014 WiseLib",
+    "copyright"             :  "© 2015 WiseLib",
     "navType"               : "vertical",
     "theme"                 : "readable",
     "linenums"              : true,

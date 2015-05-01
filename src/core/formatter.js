@@ -6,11 +6,11 @@
  * @constructor
  */
 var Formatter = function(base64) {
-	if(typeof(arg) === 'string') {
+	if(typeof(base64) === 'string') {
 		this.base64 = base64;
 	}
 	else {
-		throw new TypeError('invalid argument : ' + arg + ' is a ' + typeof(arg));
+		throw new TypeError('invalid argument : ' + base64 + ' is a ' + typeof(base64));
 	}
 };
 /* Decode base64 image and save to disk
