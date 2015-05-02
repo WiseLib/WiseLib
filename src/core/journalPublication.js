@@ -6,14 +6,14 @@ var DBManager = require('../database/dbmanager.js');
 var JournalPublicationRepr = require('../database/linker.js').journalPublicationRepr;
 
 /* A publication that is pubished in a Journal
- * the 'type' is always 'Journal' 
+ * the 'type' is always 'Journal'
  * @superclass Publication
  * @constructor
  */
 var JournalPublication = function(arg) {
 	Publication.call(this, arg);
 	this.assignVariables({type: 'Journal'});
-}
+};
 
 JournalPublication.prototype = Object.create(Publication.prototype);
 JournalPublication.prototype.variables = ['journal', 'volume', 'number'];
@@ -71,7 +71,7 @@ JournalPublication.prototype.save = function() {
 	.then(function(publication) {
 		return save(journalPublication);
 	})
-	.then(function(id) {
+	.then(function() {
 		return journalPublication;
 	});
 };

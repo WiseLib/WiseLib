@@ -11,31 +11,31 @@ describe('Affiliation test', function() {
 	var toAdd = new Affiliation({name: 'testAffiliation'});
 
 	it('should create Affiliation from JSON', function() {
-		_.isEqual(fromJSON.name, 'affiliation').should.be.true;
-		_.isEqual(fromJSON.q, 'search').should.be.true;
+		fromJSON.should.have.property('name','affiliation');
+		fromJSON.should.have.property('q','search');
 	});
 	it('should get Affiliation from ID', function(done) {
 		fromID.then(function(affiliation) {
-			_.isEqual(affiliation.id, 2).should.be.true;
-			_.isEqual(affiliation.name, 'Wetenschappen en Bio-ingenieurswetenschappen').should.be.true;
-			_.isEqual(affiliation.parent, 1).should.be.true;
+			affiliation.should.have.property('id', 2);
+			affiliation.should.have.property('name', 'Wetenschappen en Bio-ingenieurswetenschappen');
+			affiliation.should.have.property('parent', 1);
 			done();
 		});
 	});
 	it('should fetch all corresponding Affiliations', function(done) {
 		fetched.then(function(affiliations) {
-			_.isEqual(affiliations.length, 1).should.be.true;
+			affiliations.length.should.be.equal(1);
 			done();
 		});
 		
 	});
 	it('should add and delete Affiliation', function(done) {
 		toAdd.save().then(function(affiliation) {
-			_.isEqual(affiliation.id === undefined, false).should.be.true;
+			affiliation.should.not.have.property('id',undefined);
 			return affiliation.destroy();
 		})
 		.then(function(affiliation) {
-			_.isEqual(affiliation.id === undefined, true).should.be.true;
+			affiliation.should.have.property('id',undefined);
 			done();
 		});
 		
