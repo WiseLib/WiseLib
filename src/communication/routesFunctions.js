@@ -217,6 +217,10 @@ module.exports = {
 		});
 	},
 
+	getUnknownPublications :function(req, res) {
+		getMultiple(req, res, core.UnknownPublication, 'publications');
+	},
+
 	getPublications :function(req, res) {
 		processQueryArrays(req.query, ['authors']);
 		var params = req.query;
@@ -233,7 +237,10 @@ module.exports = {
 	getPublication: function(req, res) {
 		new core.Publication(req.params.id).fetch()
 		.then(function(instance) {
-			if(instance.type === 'Journal') {
+			if(instance == undefined){
+				throw new Error("not found");
+			}
+			else if(instance.type === 'Journal') {
 				return new core.JournalPublication(req.params.id).fetch();
 			}
 			else if(instance.type === 'Proceeding') {
@@ -248,7 +255,10 @@ module.exports = {
 		})
 		.then(function(instance) {
 			res.json(instance);
-		});
+		})
+		.catch(function(){
+			res.status(404).end();
+		})
 	},
 	deletePublication: function(req, res) {
 		new core.JournalPublication(req.params.id).fetch()

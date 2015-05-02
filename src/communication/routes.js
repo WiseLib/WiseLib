@@ -74,6 +74,9 @@ module.exports = function(app) {
     app.route('/users/:id/library.json')
     .get(routeFunctions.getUserLibrary);
 
+    app.route('/unknownpublications.json')
+    .get(routeFunctions.getUnknownPublications)    
+
     app.route('/publications.json')
     .get(routeFunctions.getPublications)
     .post(auth, routeFunctions.postPublication);
