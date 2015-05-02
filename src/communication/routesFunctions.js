@@ -67,7 +67,7 @@ var processQueryArrays = function(query, names) {
 var getSingle = function(req, res, CoreClass) {
 	new CoreClass(req.params.id).fetch()
 	.then(function(instance) {
-		if(instance instanceof core.RankAble) {
+		if(instance instanceof core.Rankable) {
 			return instance.calculateRank();
 		}
 		else {
@@ -81,6 +81,7 @@ var getSingle = function(req, res, CoreClass) {
 		console.log(id);
 	});
 };
+
 //need to add authentification options
 var postSingle = function(req, res, CoreClass) {
 	new CoreClass(req.body).save()
@@ -88,6 +89,7 @@ var postSingle = function(req, res, CoreClass) {
 		res.status(201).json({id: instance.id});
 	});
 };
+
 //need to add authentification options
 var putSingle = function(req, res, CoreClass) {
 	new CoreClass(req.body).save()
@@ -111,11 +113,11 @@ module.exports = {
 		getMultiple(req, res, core.Discipline, 'disciplines');
 	},
 
-	getDiscipline : function(req, res) {
+	getDiscipline: function(req, res) {
 		getSingle(req, res, core.Discipline);
 	},
 
-	getJournals :function(req, res) {
+	getJournals: function(req, res) {
 		processQueryArrays(req.query, ['disciplines']);
 		getMultiple(req, res, core.Journal, 'journals');
 	},
@@ -139,7 +141,7 @@ module.exports = {
 		getSingle(req, res, core.Proceeding);
 	},
 
-	getProceedingDisciplines :function(req, res) {
+	getProceedingDisciplines: function(req, res) {
 		req.query.proceedings = [{id:req.params.id}];
 		processQueryArrays(req.query, ['journals']);
 		getMultiple(req, res, core.Discipline, 'disciplines');
@@ -171,6 +173,13 @@ module.exports = {
 	getPersonPublications: function(req, res) {
 		req.query.authors = [{id:req.params.id}];
 		getMultiple(req, res, core.Publication, 'publications');
+	},
+
+	getPersonContacts: function(req, res) {
+		new core.Person(req.params.id).getContacts()
+		.then(function(persons) {
+			res.json({persons: persons});
+		});
 	},
 
 	postPerson: function(req, res) {
@@ -211,21 +220,21 @@ module.exports = {
 			}));
 		})
 		.then(function(instances) {
-			var result={};
-			result['publications']= instances;
+			var result = {};
+			result.publications = instances;
 			res.json(result);
 		});
 	},
 
-	getPublications :function(req, res) {
+	getPublications: function(req, res) {
 		processQueryArrays(req.query, ['authors']);
 		var params = req.query;
 		var jp = new core.JournalPublication(params).fetchAll();
 		var pp = new core.ProceedingPublication(params).fetchAll();
 		Promise.all([jp, pp])
 		.then(function(p) {
-			var result={};
-			result.publications= p[0].concat(p[1]);
+			var result = {};
+			result.publications = p[0].concat(p[1]);
 			res.json(result);
 		});
 	},
@@ -250,6 +259,7 @@ module.exports = {
 			res.json(instance);
 		});
 	},
+
 	deletePublication: function(req, res) {
 		new core.JournalPublication(req.params.id).fetch()
 		.catch(function() {
@@ -273,6 +283,7 @@ module.exports = {
 		req.query.publications = [{id:req.params.id}];
 		getMultiple(req, res, core.Person, 'persons');
 	},
+
 	login: function(req, res) {
 		var email = req.body.email;
 		var password = req.body.password;

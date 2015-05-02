@@ -34,7 +34,7 @@ module.controller('publicationController', function($scope, $window, $routeParam
             User.put(userAddPublication, function(resource) {
                 TokenService.setToken(resource.token);
                 $scope.authenticatedUser = TokenService.getUser();
-                $translate('ADDED_TO_LIBRARY').then(function(translated){ToastService.showToast(translated);})
+                $translate('ADDED_TO_LIBRARY').then(function(translated){ToastService.showToast(translated);});
             }, function(errorData) {
                 console.log(errorData.error);
             });

@@ -1,18 +1,18 @@
 'use strict';
 var Promise = require('bluebird');
-var WriteAble = require('./writeable.js');
+var Writeable = require('./writeable.js');
 var DBManager = require('./dbmanager.js');
 
 /* Allow searching in database (using the 'q' variable)
- * @superclass WriteAble
+ * @superclass Writeable
  */
-var SearchAble = function(arg) {
-	WriteAble.call(this, arg);
-}
+var Searchable = function(arg) {
+	Writeable.call(this, arg);
+};
 
-SearchAble.prototype = Object.create(WriteAble.prototype);
-SearchAble.prototype.variables = ['q'];
-SearchAble.prototype.variables.push.apply(SearchAble.prototype.variables, WriteAble.prototype.variables);
-SearchAble.prototype.constructor = SearchAble;
+Searchable.prototype = Object.create(Writeable.prototype);
+Searchable.prototype.variables = ['q'];
+Searchable.prototype.variables.push.apply(Searchable.prototype.variables, Writeable.prototype.variables);
+Searchable.prototype.constructor = Searchable;
 
-module.exports = SearchAble;
+module.exports = Searchable;
