@@ -458,8 +458,11 @@ var Publication = bookshelf.Model.extend({
     editors: function() {
         return this.belongsToMany(Person, 'publication_edited_by_person', 'publication_id', 'person_id');
     },
-    referencedPublications: function() {
+    references: function() {
        return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
+   },
+   unknownReferences: function() {
+       return this.hasMany(UnknownPublication, 'referenced_by_id');
    },
     /*unknownAuthors: function() {
         return this.belongsToMany(UnknownPersonPublication, 'publication_with_unknown_person', 'publication_id', 'author_first_name', 'author_last_name');
@@ -471,7 +474,7 @@ var Publication = bookshelf.Model.extend({
 publicationRepr[searchKey] = [publicationRepr.title];
 publicationRepr.relationSearch = ['authors'];
 publicationRepr.model = Publication;
-publicationRepr.relations = ['uploader', 'authors', 'editors', 'referencedPublications'];
+publicationRepr.relations = ['uploader', 'authors', 'editors', 'references', 'unknownReferences'];
 
 //journalPublication
 var journalPublicationRepr = new Representation();
@@ -523,26 +526,31 @@ proceedingPublicationRepr.relations = ['proceeding'];
 
 
 // unknownPersonPublication
-var UnknownPersonPublication = bookshelf.Model.extend({
-    tableName: 'publication_with_unknown_person',
-    super: function(){
-        return this.belongsTo(Publication, 'id');
-    }
-});
-var unknownPersonPublicationRepr = new Representation();
-unknownPersonPublicationRepr.id = {
-    fieldName: 'publication_id',
+
+var unknownPublicationRepr = new Representation();
+unknownPublicationRepr.id = {
+    fieldName: 'id',
     name: 'id'
 };
-unknownPersonPublicationRepr.firstNameAuthor = {
-    fieldName: 'author_first_name',
-    name: 'firstNameAuthor'
+unknownPublicationRepr.title = {
+    fieldName: 'title',
+    name: 'title'
 };
-unknownPersonPublicationRepr.lastNameAuthor = {
-    fieldName: 'author_last_name',
-    name: 'lastNameAuthor'
+unknownPublicationRepr.authors = {
+    fieldName: 'authors',
+    name: 'authors'
 };
-unknownPersonPublicationRepr.model = UnknownPersonPublication;
+var UnknownPublication = bookshelf.Model.extend({
+    tableName: 'unknown_publication',
+    reference: function() {
+        return this.belongsTo(Publication, 'referenced_by_id');
+    },
+    representation: unknownPublicationRepr
+});
+unknownPublicationRepr.model = UnknownPublication;
+unknownPublicationRepr.relations = ['reference'];
+unknownPublicationRepr[searchKey] = [unknownPublicationRepr.title];
+
 
 module.exports.searchKey = searchKey;
 module.exports.affiliationRepr = affiliationRepr;
@@ -556,4 +564,4 @@ module.exports.proceedingRepr = proceedingRepr;
 module.exports.publicationRepr = publicationRepr;
 module.exports.journalPublicationRepr = journalPublicationRepr;
 module.exports.proceedingPublicationRepr = proceedingPublicationRepr;
-module.exports.unknownPersonPublicationRepr = unknownPersonPublicationRepr;
+module.exports.unknownPublicationRepr = unknownPublicationRepr;

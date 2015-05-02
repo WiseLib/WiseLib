@@ -16,7 +16,7 @@ module.exports = Publication;
 var Person = require('./person.js');
 
 Publication.prototype = Object.create(RankAble.prototype);
-Publication.prototype.variables = ['title', 'type', 'numberOfPages', 'year', 'url', 'abstract', 'authors', 'references'];
+Publication.prototype.variables = ['title', 'type', 'numberOfPages', 'year', 'url', 'abstract', 'authors', 'references', 'unknownReferences'];
 Publication.prototype.variables.push.apply(Publication.prototype.variables, RankAble.prototype.variables);
 Publication.prototype.representation = PublicationRepr;
 Publication.prototype.calculateRank = function() {
