@@ -12,10 +12,8 @@ var JournalPublicationRepr = require('../database/linker.js')
  * @constructor
  */
 var JournalPublication = function(arg) {
+	this.assignVariables({type: 'Journal'});
 	Publication.call(this, arg);
-	this.assignVariables({
-		type: 'Journal'
-	});
 };
 
 JournalPublication.prototype = Object.create(Publication.prototype);
@@ -48,25 +46,55 @@ JournalPublication.prototype.fetch = function() {
 		});
 };
 JournalPublication.prototype.fetchAll = function() {
-	var journalPublication = this;
-	var promise = Publication.prototype.fetchAll.call(journalPublication)
-		.then(function(publications) {
-			var results = [];
-			publications.forEach(function(publication) {
-				results.push(DBManager.get(publication)
-					.then(function(res) {
-						return res[0];
-					})
-					.then(function(jpJson) {
-						var jp = new journalPublication.constructor(jpJson);
-						jp.assignVariables(publication);
-						return jp.calculateRank();
-					}));
+	var jp = this;
+	//db will only search on Representation.relationSearch and Representation[searchKey]
+	var publication = new Publication(jp);
+	var journalPublication = new jp.constructor(jp);
+	var filter = JournalPublication.prototype.representation[jp.searchKey]
+	.concat(JournalPublication.prototype.representation.relationSearch);
+	//make sure no other tags are specified
+	journalPublication.removeInvalidTags(filter);
+	var common = publication.hasVariables(['type', publication.searchKey]) ||
+	             journalPublication.hasVariables(['type', journalPublication.searchKey]);
+	var all = publication.q && journalPublication.q;
+	var dbp = DBManager.get(publication);
+	var dbjp = DBManager.get(journalPublication);
+	return Promise.all([dbp, dbjp])
+	.then(function(types) {
+		var results = {};
+		var publications = [];
+		types[0].forEach(function(publication) {
+			results[publication.id] = publication;
+		});
+		types[1].forEach(function(publication) {
+			var p = results[publication.id];
+			results[publication.id] = undefined;
+			//if results were found in both lists, add them to results
+			if(p) {
+				var pub = new jp.constructor(p);
+				pub.assignVariables(publication);
+				publications.push(pub);
+			}
+			//if results were only found in second list, only add them if :
+			//* there were no filters in the fetch
+			//* both lists had a valid search variable
+			else if(!common && all) {
+				publications.push(new Publication(publication.id).fetch()
+				.then(function(instance) {
+					var pub = new jp.constructor(instance);
+					pub.assignVariables(publication);
+					return pub;
+				}));
+			}
+		});
+		//add results found only in first list, if same conditions are true as previous comment
+		if(!common && all) {
+			Object.keys(results).forEach(function(id) {
+				publications.push(new jp.constructor(id).fetch());
 			});
-			return results;
-		})
-		.all();
-	return promise;
+		}
+		return Promise.all(publications);
+	});
 };
 JournalPublication.prototype.save = function() {
 	var journalPublication = this;

@@ -33,19 +33,19 @@ Representation.prototype.format = function(json) {
 };
 Representation.prototype.formatRelations = function(json) {
     var queryParams = {};
-    for(var i=0; i < this.relations.length; i++) {
-        var relation = json[this.relations[i]];
+    this.relations.forEach(function(relationsItem) {
+        var relation = json[relationsItem];
         if(relation !== undefined) {
             //assumes all objects are given by id (and called 'id')
             if(_.isArray(relation)) {
-                queryParams[this.relations[i]] = _.map(relation, function(rel) {return rel.id;});
+                queryParams[relationsItem] = _.map(relation, function(rel) {return rel.id;});
             }
             else {
-                queryParams[this.relations[i]] = _.isEqual(relation, '') ? null : relation;
+                queryParams[relationsItem] = _.isEqual(relation, '') ? null : relation;
             }
-            //queryParams[this.relations[i]] = _.isArray(relation) ? _.map(relation, function(rel) {return rel.id;}) : relation;
+            //queryParams[relationsItem] = _.isArray(relation) ? _.map(relation, function(rel) {return rel.id;}) : relation;
         }
-    }
+    });
     return queryParams;
 };
 Representation.prototype.formatSearch = function(json) {
@@ -122,19 +122,19 @@ Representation.prototype.parse = function(toParse) {
             json[this[variable].name] = toParse[this[variable].fieldName];
         }
     }
-    for(var i=0; i < this.relations.length; i++) {
-        var relation = toParse[this.relations[i]];
+    this.relations.forEach(function(relationsItem) {
+        var relation = toParse[relationsItem];
         if(relation !== undefined) {
             //assumes all table id's are named 'id'
             //note : for non-array, should return relation.id, but returning {id: relation.id} because used in jsonManager
             if(_.isArray(relation)) {
-                json[this.relations[i]] = _.map(relation, function(rel) {return {id:rel.id};});
+                json[relationsItem] = _.map(relation, function(rel) {return {id:rel.id};});
             }
             else {
-                json[this.relations[i]] = relation.id;
+                json[relationsItem] = relation.id;
             }
         }
-    }
+    });
 
     return json;
 };
@@ -204,10 +204,9 @@ Representation.prototype.searchFields = function(jsonObj, query) {
     if(searchParams.length > 0) {
         var p = searchParams[0];
         query.andWhere(p.key, 'like', p.value);
-        for(var i=1; i < searchParams.length; i++) {
-            p = searchParams[i];
+        searchParams.forEach(function(p) {
             query.orWhere(p.key, 'like', p.value);
-        }
+        });
     }
     return query;
 };
@@ -216,37 +215,40 @@ Representation.prototype.searchRelations = function(jsonObj, query, superQuery) 
     var searchRelations = this.formatSearchRelations(jsonObj);
     var model = new this.model();
     //for all searchable relations
-    for(var i in searchRelations) {
+    searchRelations.forEach(function(searchRelation) {
         //only search on relations that have not already been filtered
-        if(jsonObj[searchRelations[i].key] === undefined) {
+        if(jsonObj[searchRelation.key] === undefined) {
             //find the model of the relation
-            var relatedData = model.related(searchRelations[i].key).relatedData;
-            //make necessary joins with the relation table
-            var foreignKey = relatedData.joinTableName+'.'+relatedData.foreignKey;
-            var otherKey = relatedData.joinTableName+'.'+relatedData.otherKey;
-            superQuery.innerJoin(relatedData.joinTableName, foreignKey, model.idAttribute);
+            var relatedData = model.related(searchRelation.key).relatedData;
+            var otherKey = relatedData.foreignKey;
+            //need an inner join
+            if(_.isEqual(relatedData.type, 'belongsToMany')) {
+                //make necessary joins with the relation table
+                var foreignKey = relatedData.joinTableName+'.'+relatedData.foreignKey;
+                otherKey = relatedData.joinTableName+'.'+relatedData.otherKey;
+                superQuery.innerJoin(relatedData.joinTableName, foreignKey, model.idAttribute);
+            }
             //get relation model
             var Relation = relatedData.target;
             var relationModel = new Relation();
             //search on relation fields
             jsonObj = {q:jsonObj.q.split('@')[0]};
-            var relationSearch = relationModel.representation.formatSearch(jsonObj);
+            //var relationSearch = relationModel.representation.formatSearch(jsonObj);
             var subquery = relationModel.representation.searchFields(jsonObj, relationModel.query()).select('id');
             query = query.orWhere(otherKey, 'in', subquery);
         }
-
-    }
-
+    });
     return query;
 };
 
 Representation.prototype.toQuery = function(jsonObj) {
     var queryParams = this.format(jsonObj);
+    var relationParams = this.formatRelations(jsonObj);
     var model = new this.model(queryParams);
     var repr = this;
     var queryFunction = function(db) {
         var l = jsonObj.q ? 2 : 1;
-        if(Object.keys(jsonObj).length >= l) {
+        if(Object.keys(queryParams).length + Object.keys(relationParams).length >= l) {
             db.where(function() {
                 repr.filterFields(jsonObj, this);
                 repr.filterRelations(jsonObj, this, db);
@@ -345,7 +347,7 @@ var Person = bookshelf.Model.extend({
     representation: personRepr
 });
 personRepr[searchKey] = [personRepr.firstName, personRepr.lastName];
-personRepr.relationSearch = ['publications'];
+personRepr.relationSearch = ['publications', 'affiliation'];
 personRepr.model = Person;
 personRepr.relations = ['publications', 'affiliation', 'disciplines'];
 
@@ -506,6 +508,8 @@ var JournalPublication = bookshelf.Model.extend({
     },
     representation: journalPublicationRepr
 });
+journalPublicationRepr[searchKey] = [];
+journalPublicationRepr.relationSearch = ['journal'];
 journalPublicationRepr.model = JournalPublication;
 journalPublicationRepr.relations = ['journal'];
 //journalPublicationRepr.super = publicationRepr;

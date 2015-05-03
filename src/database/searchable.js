@@ -1,18 +1,44 @@
 'use strict';
 var Promise = require('bluebird');
-var WriteAble = require('./writeable.js');
+var Writeable = require('./writeable.js');
 var DBManager = require('./dbmanager.js');
 
 /* Allow searching in database (using the 'q' variable)
- * @superclass WriteAble
+ * @superclass Writeable
  */
-var SearchAble = function(arg) {
-	WriteAble.call(this, arg);
-}
+var Searchable = function(arg) {
+	Writeable.call(this, arg);
+	this.removeInvalidTags();
+};
 
-SearchAble.prototype = Object.create(WriteAble.prototype);
-SearchAble.prototype.variables = ['q'];
-SearchAble.prototype.variables.push.apply(SearchAble.prototype.variables, WriteAble.prototype.variables);
-SearchAble.prototype.constructor = SearchAble;
+Searchable.prototype = Object.create(Writeable.prototype);
+Searchable.prototype.searchKey = 'q';
+Searchable.prototype.variables = [Searchable.prototype.searchKey];
+Searchable.prototype.variables.push.apply(Searchable.prototype.variables, Writeable.prototype.variables);
+Searchable.prototype.tagCharacter = '@';
+Searchable.prototype.removeInvalidTags = function(filter) {
+	if(!filter) {
+		filter = this.variables;
+	}
+	if(this.q) {
+		var tags = this.q.split(this.tagCharacter);
+		var validQ = tags[0];
+		tags.shift();
+		//remove q if there are tags and all tags are invalid
+		var remove = tags.length > 0;
+		for(var i in tags) {
+			var valid = filter.indexOf(tags[i]) > -1;
+			remove = remove && !valid;
+			if(valid) {
+				validQ = validQ.concat(this.tagCharacter + tags[i]);
+			}
+		}
+		if(remove) {
+			validQ = undefined
+		}
+		this.q = validQ;
+	}
+};
+Searchable.prototype.constructor = Searchable;
 
-module.exports = SearchAble;
+module.exports = Searchable;

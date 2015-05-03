@@ -1,17 +1,17 @@
 'use strict';
-var RankAble = require('./rankable.js');
+var Rankable = require('./rankable.js');
 
 /* Album : a collection of publications, specialized in specific disciplines
- * @superclass RankAble
+ * @superclass Rankable
  * @constructor
  */
 var Album = function(arg) {
-	RankAble.call(this, arg);
+	Rankable.call(this, arg);
 };
 
-Album.prototype = Object.create(RankAble.prototype);
+Album.prototype = Object.create(Rankable.prototype);
 Album.prototype.variables = ['name', 'disciplines'];
-Album.prototype.variables.push.apply(Album.prototype.variables, RankAble.prototype.variables);
+Album.prototype.variables.push.apply(Album.prototype.variables, Rankable.prototype.variables);
 Album.prototype.calculateRank = function() {
 	return this;
 };

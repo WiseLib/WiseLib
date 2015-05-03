@@ -5,7 +5,8 @@ angular.module('person')
 	return $resource('/persons/:id.json', {id:'@id'}, {
 		query: { method: 'GET', isArray: false , url: '/persons.json'},
 		put: {method: 'PUT'},
-		publications: {method: 'GET', url:'/persons/:id/publications.json'}
+		publications: {method: 'GET', url:'/persons/:id/publications.json'},
+		contacts: {method: 'GET', url: '/persons/:id/contacts.json'}
 	});
 })
 .service('PersonState', function() {
