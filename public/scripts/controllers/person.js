@@ -31,7 +31,8 @@ module.controller('personController', function($scope, $routeParams, $translate,
 			});
 		}
 
-		for(var i in person.disciplines) searchDiscipline(person.disciplines[i].id);
+	person.disciplines.forEach(function(discipline) {searchDiscipline(discipline.id);});
+
 	Person.contacts({id: person.id}, function(data) {
 		$scope.contacts = data.persons;
 	}, function(data) {

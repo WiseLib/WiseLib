@@ -20,9 +20,9 @@ module.controller('publicationController', function($scope, $window, $routeParam
     $scope.isInLibrary = function(publication) {
         var inLibrary = false;
         if($scope.authenticatedUser && publication) {
-            for(var i in $scope.authenticatedUser.library) {
-                inLibrary = inLibrary || $scope.authenticatedUser.library[i].id === publication.id;
-            }
+            $scope.authenticatedUser.library.forEach(function(libraryPublication) {
+                inLibrary = inLibrary || libraryPublication.id === publication.id;
+            });
         }
         return inLibrary;
     };
