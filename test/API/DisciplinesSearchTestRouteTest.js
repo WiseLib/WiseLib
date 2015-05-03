@@ -1,7 +1,8 @@
 'use strict';
 var should = require('should');
 var discipline = require('./discipline_test.js');
-var server = require('../../src/routesFunctions.js');
+var server = require('../../src/communication/routesFunctions.js');
+var Client = require('mariasql');
 
 /**
  * These tests check the Disicipline routes, functions which returns a list, in JSON format, of disciplines defined in the database.

@@ -1,9 +1,8 @@
 'use strict';
 var module = angular.module('publication');
 
-module.controller('uploadPublicationController', function($scope, $window, $http, $translate,$location,Page, $mdToast, Person, PersonState, Journal, Proceeding,Publication) {
-    var token = $window.sessionStorage.token;
-    var user = JSON.parse(atob(token.split('.')[1]));
+module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, Person, PersonState, Journal, Proceeding, Publication, TokenService, ToastService) {
+    var user = TokenService.getUser();
 
     $translate('UPLOAD_PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
@@ -99,15 +98,6 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         }
     };
 
-    $scope.showSimpleToast = function(text) {
-        $mdToast.show(
-          $mdToast.simple()
-          .content(text)
-          .position('top right')
-          .hideDelay(3000)
-          );
-    };
-
     $scope.uploadpdf = function(files){
 
         var fd = new FormData();
@@ -139,7 +129,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         }).
         error(function(data, status, headers, config) {
             $translate('UPLOADED_FILE_NOT_PDF').then(function(translated) {
-                $scope.showSimpleToast(translated);
+                ToastService.showToast(translated, true);
             });
         });
     };
@@ -169,7 +159,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
         }).
         error(function(data, status, headers, config) {
             $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
-                $scope.showSimpleToast(translated);
+                ToastService.showToast(translated, true);
             });
         });
     };
@@ -200,9 +190,20 @@ module.controller('uploadPublicationController', function($scope, $window, $http
                 $location.path('/mypublications');
             },function(data){
                 $translate('ERROR').then(function(translated) {
-                $scope.showSimpleToast(translated + ': ' + data.status);
+                ToastService.showToast(translated + ': ' + data.status, true);
                 });
             });
+<<<<<<< HEAD
+=======
+
+        /*  $http.post('users/'+user.id+'/publications.json', toPost)
+            .success(function(data, status, headers, config) {
+                $location.path('/mypublications')
+            })
+            .error(function(data, status, headers, config) {
+                ToastService.showToast("Something went wrong:" + status, true);
+            });*/
+>>>>>>> master
         }
 
         var toPost = {};
@@ -238,7 +239,7 @@ module.controller('uploadPublicationController', function($scope, $window, $http
 
             else{
                 Person.save(author,function(person){
-                    toPost.authors.push(person.id);
+                    toPost.authors.push({id:person.id});
                     if(toPost.authors.length === $scope.authors.length)upload();
                 });
             }

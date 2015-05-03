@@ -5,7 +5,8 @@ angular.module('user')
 .factory('User', function($resource) {
     return $resource('/users/:id.json', {id:'@id'}, {
         get: {method: 'GET'},
-        put: {method: 'PUT'}
+        put: {method: 'PUT'},
+        library: {method: 'GET', url:'/users/:id/library.json'}
     });
 })
 
@@ -26,12 +27,51 @@ angular.module('user')
     };
 })
 
-.factory('TokenInterceptor', function ($q, $window, $location, AuthenticationService) {
+.factory('TokenService', function($localStorage) {
     return {
-        request: function (config) {
+        getToken: function() {
+            return $localStorage.token;
+        },
+        getUser: function() {
+            var token = this.getToken();
+            return JSON.parse(atob(token.split('.')[1]));
+        },
+        setUser: function(newUser) {
+            var token = this.getToken();
+            var parts = token.split('.');
+            var user = JSON.parse(atob(parts[1]));
+            for (var property in newUser) {
+                if(newUser.hasOwnProperty(property)) {
+                    user[property] = newUser[property];
+                }
+            }
+            parts[1] = btoa(JSON.stringify(user));
+            token = parts.join('.');
+            this.setToken(token);
+        },
+        setToken: function(token) {
+            $localStorage.token = token;
+        },
+        deleteToken: function() {
+            delete $localStorage.token;
+            return true;
+        },
+    };
+})
+
+.factory('TokenInterceptor', function($q, $location, TokenService, AuthenticationService) {
+    return {
+        request: function(config) {
             config.headers = config.headers || {};
-            if ($window.sessionStorage.token) {
-                config.headers.Authorization = 'Bearer ' + $window.sessionStorage.token;
+            var token = TokenService.getToken();
+            if (token) {
+                var time = (new Date).getTime() / 1000;
+                if(TokenService.getUser().exp > time) { //Check if token isn't expired (=useless) yet
+                    config.headers.Authorization = 'Bearer ' + token;
+                } else {
+                    TokenService.deleteToken();
+                    AuthenticationService.isAuthenticated = false;
+                }
             }
             return config;
         },
@@ -41,8 +81,8 @@ angular.module('user')
         },
 
         /* Set Authentication.isAuthenticated to true if 200 received */
-        response: function (response) {
-            if (response !== null && response.status === 200 && $window.sessionStorage.token && !AuthenticationService.isAuthenticated) {
+        response: function(response) {
+            if (response !== null && response.status === 200 && TokenService.getToken() && !AuthenticationService.isAuthenticated) {
                 AuthenticationService.isAuthenticated = true;
             }
             return response || $q.when(response);
@@ -50,8 +90,12 @@ angular.module('user')
 
         /* Revoke client authentication if 401 is received */
         responseError: function(rejection) {
-            if (rejection !== null && rejection.status === 401 && ($window.sessionStorage.token || AuthenticationService.isAuthenticated)) {
-                delete $window.sessionStorage.token;
+            var r = new RegExp('^(?:[a-z]+:)?//', 'i');
+            if(r.test(rejection.config.url)) { //Url's starting with http:// for example are extern and are unrelated to authorization with our server
+                return $q.reject(rejection);
+            }
+            if (rejection !== null && rejection.status === 401 && (TokenService.getToken() || AuthenticationService.isAuthenticated)) {
+                TokenService.deleteToken();
                 AuthenticationService.isAuthenticated = false;
                 $location.path('/login');
             }

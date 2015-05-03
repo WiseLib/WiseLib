@@ -1,12 +1,12 @@
 .profile-image {
-    max-height: 20px;
-    max-width: 20px;
-    margin-right: 4px;
+	max-height: 20px;
+	max-width: 20px;
+	margin-right: 4px;
 }
 
 .profile-image-big {
 	width: 100px;
-	border-radius: 50px;
+	border-radius: 50%;
 }
 
 a {
@@ -63,11 +63,90 @@ personmin a {
 
 .ac-disc-list {
 	margin-top: 0px;
-  	padding-left: 0;
-  	list-style-position: inside;
+	padding-left: 0;
+	list-style-position: inside;
 }
 
 .md-toolbar-tools {
 	margin-top: -2px;
 	padding-left: 40px;
+}
+
+.paddedbutton {
+	margin-top:10px;
+}
+
+.persons-list .md-item-text.compact {
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+.persons-list .contact-item {
+	box-sizing: border-box;
+}
+.persons-list .contact-item .md-list-item-text {
+	padding: 14px 0;
+}
+.persons-list .contact-item .md-list-item-text h3 {
+	margin: 0 !important;
+	padding: 0;
+	line-height: 1.2em !important;
+}
+.persons-list .contact-item .md-list-item-text h3, .persons-list .contact-item .md-list-item-text p {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+@media (min-width: 900px) {
+	.persons-list .contact-item {
+		float: left;
+		width: 33%;
+	}
+}
+.persons-list md-contact-chips {
+	margin-bottom: 1rem;
+}
+.persons-list .md-chips {
+	padding: 0.5rem 0 0.8rem;
+}
+.persons-list .fixedRows {
+	height: 250px;
+	overflow: hidden;
+}
+.persons-list .contact-item .md-avatar {
+	width: 40px;
+	height: 40px;
+	margin-top: 8px;
+	margin-bottom: 8px;
+	margin-right: 16px;
+	border-radius: 50%;
+	box-sizing: content-box;
+}
+.persons-list .contact-item .md-list-item-text h3 {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	margin: 0 !important;
+	padding: 0;
+	line-height: 1.2em !important;
+	font-size: 16px;
+	font-weight: 400;
+	letter-spacing: 0.01em;
+}
+.persons-list .contact-item .md-list-item-text {
+	-webkit-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	padding-top: 19px;
+}
+.persons-list .contact-item a {
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-justify-content: flex-start;
+	-ms-flex-pack: start;
+	justify-content: flex-start;
+	-webkit-align-items: center;
+	-ms-flex-align: center;
+	align-items: center;
+	min-height: 48px;
 }

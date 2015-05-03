@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('person', ['ngMaterial', 'ngMessages', 'affiliation', 'discipline','ngResource']);
 
-module.controller('personController', function($scope,$window, $routeParams, $translate, Page, Person, Affiliation, Discipline) {
+module.controller('personController', function($scope, $routeParams, $translate, Page, Person, Affiliation, Discipline) {
 	$translate('PERSON').then(function(translated) {
         Page.setTitle(translated);
     });
@@ -16,7 +16,9 @@ module.controller('personController', function($scope,$window, $routeParams, $tr
 		});
     }
 	$scope.disciplines = [];
+	$scope.contacts = [];
 	Person.get({id: $routeParams.id}, function(person) {
+		console.log(person);
 		$scope.person = person;
 		var affiliationId = person.affiliation;
 		$scope.person.affiliation='';
@@ -30,6 +32,12 @@ module.controller('personController', function($scope,$window, $routeParams, $tr
 		}
 
 		for(var i in person.disciplines) searchDiscipline(person.disciplines[i].id);
+	Person.contacts({id: person.id}, function(data) {
+		$scope.contacts = data.persons;
+	}, function(data) {
+		$scope.error = data.error;
+		console.log('error: ' + JSON.stringify(data.error));
+	});
 
 	}, function(data) {
 		$scope.error = data.error;

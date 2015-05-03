@@ -57,7 +57,11 @@
     height: 40px;
     font-size: 13px;
     line-height: 24px;
+<<<<<<< HEAD
     overflow:hidden;
+=======
+    overflow: hidden;
+>>>>>>> master
   }
 
   md-sidenav {
