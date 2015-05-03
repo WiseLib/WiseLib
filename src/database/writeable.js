@@ -55,6 +55,18 @@ Writeable.prototype.assignVariables = function (vars) {
 Writeable.prototype.initJSON = function(json) {
 	this.assignVariables(json);
 };
+
+Writeable.prototype.hasVariables = function(ignore) {
+	var w = this;
+	var res = false;
+	this.variables.forEach(function(v) {
+		var inIgnore = ignore && ignore.indexOf(v) >= 0;
+		if(!inIgnore && w[v]) {
+			res = true;
+		}
+	});
+	return res;
+};
 /* fetch data from database, update this writeable accordingly
  * @required id
  * @return Promise<this> a Promise containing the updated writeable

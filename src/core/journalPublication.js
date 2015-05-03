@@ -52,14 +52,13 @@ JournalPublication.prototype.fetchAll = function() {
 	.concat(JournalPublication.prototype.representation.relationSearch);
 	//make sure no other tags are specified
 	journalPublication.removeInvalidTags(filter);
-	console.log(publication);
-	console.log(journalPublication);
+	var common = publication.hasVariables(['type', publication.searchKey]) ||
+	             journalPublication.hasVariables(['type', journalPublication.searchKey]);
+	var all = publication.q && journalPublication.q;
 	var dbp = DBManager.get(publication);
 	var dbjp = DBManager.get(journalPublication);
 	return Promise.all([dbp, dbjp])
 	.then(function(types) {
-		console.log(types[0]);
-		console.log(types[1]);
 		var results = {};
 		var publications = [];
 		types[0].forEach(function(publication) {
@@ -67,13 +66,32 @@ JournalPublication.prototype.fetchAll = function() {
 		});
 		types[1].forEach(function(publication) {
 			var p = results[publication.id];
+			results[publication.id] = undefined;
+			//if results were found in both lists, add them to results
 			if(p) {
 				var pub = new jp.constructor(p);
 				pub.assignVariables(publication);
 				publications.push(pub);
 			}
+			//if results were only found in second list, only add them if :
+			//* there were no filters in the fetch
+			//* both lists had a valid search variable
+			else if(!common && all) {
+				publications.push(new Publication(publication.id).fetch()
+				.then(function(instance) {
+					var pub = new jp.constructor(instance);
+					pub.assignVariables(publication);
+					return pub;
+				}));
+			}
 		});
-		return publications;
+		//add results found only in first list, if same conditions are true as previous comment
+		if(!common && all) {
+			Object.keys(results).forEach(function(id) {
+				publications.push(new JournalPublication(id).fetch());
+			});
+		}
+		return Promise.all(publications);
 	});
 };
 JournalPublication.prototype.save = function() {

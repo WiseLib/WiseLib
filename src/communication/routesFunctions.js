@@ -230,8 +230,7 @@ module.exports = {
 		processQueryArrays(req.query, ['authors']);
 		var params = req.query;
 		var jp = new core.JournalPublication(params).fetchAll();
-		//var pp = new core.ProceedingPublication(params).fetchAll();
-		var pp = [];
+		var pp = new core.ProceedingPublication(params).fetchAll();
 		Promise.all([jp, pp])
 		.then(function(p) {
 			var result = {};
@@ -241,25 +240,6 @@ module.exports = {
 	},
 
 	getPublication: function(req, res) {
-		new core.Publication({ id: 12,
-  title: 'Using test PDF in Wiselib',
-  type: 'Journal',
-  numberOfPages: 1,
-  year: 2015,
-  url: 'uploads/5bca87077ba9186e8469938578ea5381.pdf',
-  abstract: 'This is a test pdf',
-  authors: [],
-  uploader: 3,
-  references: [ { id: 13 } ],
-  unknownReferences: [ { id: 21 } ] }).fetch()
-		.then(function(instance) {
-			instance.references = [ { id: 13 }, { id: 61 } ];
-			return instance.save();
-		})
-		.then(function(instance) {
-			console.log(instance);
-			return instance;
-		});
 		new core.Publication(req.params.id).fetch()
 		.then(function(instance) {
 			if(instance.type === 'Journal') {
