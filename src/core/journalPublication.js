@@ -11,8 +11,8 @@ var JournalPublicationRepr = require('../database/linker.js').journalPublication
  * @constructor
  */
 var JournalPublication = function(arg) {
-	Publication.call(this, arg);
 	this.assignVariables({type: 'Journal'});
+	Publication.call(this, arg);
 };
 
 JournalPublication.prototype = Object.create(Publication.prototype);
@@ -44,25 +44,37 @@ JournalPublication.prototype.fetch = function() {
 	});
 };
 JournalPublication.prototype.fetchAll = function() {
-	var journalPublication = this;
-	var promise = Publication.prototype.fetchAll.call(journalPublication)
-	.then(function(publications) {
-		var results = [];
-		publications.forEach(function(publication) {
-			results.push(DBManager.get(publication)
-				.then(function(res) {
-					return res[0];
-				})
-				.then(function(jpJson) {
-					var jp = new journalPublication.constructor(jpJson);
-					jp.assignVariables(publication);
-					return jp.calculateRank();
-				}));
+	var jp = this;
+	//db will only search on Representation.relationSearch and Representation[searchKey]
+	var publication = new Publication(jp);
+	var journalPublication = new JournalPublication(jp);
+	var filter = JournalPublication.prototype.representation[jp.searchKey]
+	.concat(JournalPublication.prototype.representation.relationSearch);
+	//make sure no other tags are specified
+	journalPublication.removeInvalidTags(filter);
+	console.log(publication);
+	console.log(journalPublication);
+	var dbp = DBManager.get(publication);
+	var dbjp = DBManager.get(journalPublication);
+	return Promise.all([dbp, dbjp])
+	.then(function(types) {
+		console.log(types[0]);
+		console.log(types[1]);
+		var results = {};
+		var publications = [];
+		types[0].forEach(function(publication) {
+			results[publication.id] = publication;
 		});
-		return results;
-	})
-	.all();
-	return promise;
+		types[1].forEach(function(publication) {
+			var p = results[publication.id];
+			if(p) {
+				var pub = new jp.constructor(p);
+				pub.assignVariables(publication);
+				publications.push(pub);
+			}
+		});
+		return publications;
+	});
 };
 JournalPublication.prototype.save = function() {
 	var journalPublication = this;

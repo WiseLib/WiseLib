@@ -221,10 +221,14 @@ Representation.prototype.searchRelations = function(jsonObj, query, superQuery) 
         if(jsonObj[searchRelations[i].key] === undefined) {
             //find the model of the relation
             var relatedData = model.related(searchRelations[i].key).relatedData;
-            //make necessary joins with the relation table
-            var foreignKey = relatedData.joinTableName+'.'+relatedData.foreignKey;
-            var otherKey = relatedData.joinTableName+'.'+relatedData.otherKey;
-            superQuery.innerJoin(relatedData.joinTableName, foreignKey, model.idAttribute);
+            var otherKey = relatedData.foreignKey;
+            //need an inner join
+            if(_.isEqual(relatedData.type, 'belongsToMany')) {
+                //make necessary joins with the relation table
+                var foreignKey = relatedData.joinTableName+'.'+relatedData.foreignKey;
+                otherKey = relatedData.joinTableName+'.'+relatedData.otherKey;
+                superQuery.innerJoin(relatedData.joinTableName, foreignKey, model.idAttribute);
+            }
             //get relation model
             var Relation = relatedData.target;
             var relationModel = new Relation();
@@ -234,18 +238,18 @@ Representation.prototype.searchRelations = function(jsonObj, query, superQuery) 
             var subquery = relationModel.representation.searchFields(jsonObj, relationModel.query()).select('id');
             query = query.orWhere(otherKey, 'in', subquery);
         }
-
     }
     return query;
 };
 
 Representation.prototype.toQuery = function(jsonObj) {
     var queryParams = this.format(jsonObj);
+    var relationParams = this.formatRelations(jsonObj);
     var model = new this.model(queryParams);
     var repr = this;
     var queryFunction = function(db) {
         var l = jsonObj.q ? 2 : 1;
-        if(Object.keys(jsonObj).length >= l) {
+        if(Object.keys(queryParams).length + Object.keys(relationParams).length >= l) {
             db.where(function() {
                 repr.filterFields(jsonObj, this);
                 repr.filterRelations(jsonObj, this, db);
@@ -503,6 +507,8 @@ var JournalPublication = bookshelf.Model.extend({
     },
     representation: journalPublicationRepr
 });
+journalPublicationRepr[searchKey] = [];
+journalPublicationRepr.relationSearch = ['journal'];
 journalPublicationRepr.model = JournalPublication;
 journalPublicationRepr.relations = ['journal'];
 //journalPublicationRepr.super = publicationRepr;
