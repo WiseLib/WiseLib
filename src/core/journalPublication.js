@@ -47,7 +47,7 @@ JournalPublication.prototype.fetchAll = function() {
 	var jp = this;
 	//db will only search on Representation.relationSearch and Representation[searchKey]
 	var publication = new Publication(jp);
-	var journalPublication = new JournalPublication(jp);
+	var journalPublication = new jp.constructor(jp);
 	var filter = JournalPublication.prototype.representation[jp.searchKey]
 	.concat(JournalPublication.prototype.representation.relationSearch);
 	//make sure no other tags are specified
@@ -88,7 +88,7 @@ JournalPublication.prototype.fetchAll = function() {
 		//add results found only in first list, if same conditions are true as previous comment
 		if(!common && all) {
 			Object.keys(results).forEach(function(id) {
-				publications.push(new JournalPublication(id).fetch());
+				publications.push(new jp.constructor(id).fetch());
 			});
 		}
 		return Promise.all(publications);
