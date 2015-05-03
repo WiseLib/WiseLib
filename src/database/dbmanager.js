@@ -22,8 +22,10 @@ var _ = require('lodash');
         representation = writeable.representation;
     }
     var toPost = representation.toModel(writeable);
-    return toPost.save({}, {method: 'insert'}).then(function(model) {
-        return model.id;
+    return toPost.save({}, {method: 'insert'})
+    .then(function(model) {
+        writeable.id = model.id;
+        return DBManager.prototype.put(writeable, repr);
     });
 };
 

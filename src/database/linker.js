@@ -473,17 +473,13 @@ var Publication = bookshelf.Model.extend({
     },
     references: function() {
        return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
-   },
-   unknownReferences: function() {
+    },
+    unknownReferences: function() {
        return this.hasMany(UnknownPublication, 'referenced_by_id');
-   },
-    /*unknownAuthors: function() {
-        return this.belongsToMany(UnknownPersonPublication, 'publication_with_unknown_person', 'publication_id', 'author_first_name', 'author_last_name');
-    },*/
-
-
- representation: publicationRepr
+    },
+    representation: publicationRepr
 });
+
 publicationRepr[searchKey] = [publicationRepr.title];
 publicationRepr.relationSearch = ['authors'];
 publicationRepr.model = Publication;

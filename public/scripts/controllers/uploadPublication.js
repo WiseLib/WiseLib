@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication');
 
-module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, Person, PersonState, Journal, Proceeding, Publication, TokenService, ToastService) {
+module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, Person, PersonState, Journal, Proceeding, Publication, UnknownPublication, TokenService, ToastService) {
     var user = TokenService.getUser();
 
     $translate('UPLOAD_PUBLICATION').then(function(translated) {
@@ -11,10 +11,25 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     $scope.pdfAuthors =[];
     $scope.disciplines = [];
     $scope.references = [];
+    $scope.unknownpublications=[];
     $scope.JSONreferences = [];
     $scope.searchJournal;
     $scope.searchProceeding;
     $scope.PersonState = PersonState;
+
+    $scope.$watch('title', function () {
+        $scope.searchUnknownPublications($scope.title);
+    });
+
+    $scope.searchUnknownPublications = function(title){
+        if(title == undefined || title.length < 4){
+            $scope.unknownpublications=[];
+            return;}
+        UnknownPublication.search({q:title},function(data){
+            $scope.unknownpublications = data.publications;
+            console.log('got:' + data)
+        },function(data){})
+    }
 
     var lastSearch;
     var persons = [];
@@ -190,14 +205,6 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 ToastService.showToast(translated + ': ' + data.status, true);
                 });
             });
-
-        /*  $http.post('users/'+user.id+'/publications.json', toPost)
-            .success(function(data, status, headers, config) {
-                $location.path('/mypublications')
-            })
-            .error(function(data, status, headers, config) {
-                ToastService.showToast("Something went wrong:" + status, true);
-            });*/
         }
 
         var toPost = {};
@@ -222,6 +229,16 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
 
         toPost.uploader = user.id;
         toPost.authors=[];
+
+        toPost.UnknownPublicationsToDelete=[];
+
+        for (var i = 0; i < $scope.unknownpublications.length; i++) {
+            var pub= $scope.unknownpublications[i];
+            if(pub.status == undefined || pub.status==false)continue;
+            else{
+                toPost.UnknownPublicationsToDelete.push(pub);
+            }
+        };
 
         for (var i = 0; i < $scope.authors.length; i++) {
             var author = $scope.authors[i];
