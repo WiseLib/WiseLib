@@ -97,9 +97,9 @@ Writeable.prototype.fetchAll = function() {
 	return DBManager.get(writeable)
 	.then(function(res) {
 		var writeables = [];
-		for(var i in res) {
-			writeables.push(new writeable.constructor(res[i]));
-		}
+		res.forEach(function(item) {
+			writeables.push(new writeable.constructor(item));
+		});
 		return writeables;
 	});
 };
@@ -112,7 +112,7 @@ Writeable.prototype.saveWithRepresentation = function(representation) {
 	var writeable = this;
 	if(writeable.id) {
 		return DBManager.put(writeable, representation)
-		.then(function(id) {
+		.then(function() {
 			return writeable;
 		});
 	}

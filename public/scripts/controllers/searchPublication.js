@@ -53,9 +53,7 @@ angular.module('publication')
 
     $scope.handleData = function(data) {
         if(data) {
-            for(var i = 0; i < data.length; i++) {
-                var publication = data[i];
-
+            data.forEach(function(publication) {
                 (function(publication){//This is neccessary otherwise only last publication wil be added!!
                 var promises = [];
                 //get uploader person
@@ -103,7 +101,7 @@ angular.module('publication')
                 });
 
             })(publication);
-            }
+            });
         }
     };
 
