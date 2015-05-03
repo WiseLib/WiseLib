@@ -1,13 +1,7 @@
 'use strict';
 var Promise = require('bluebird');
-<<<<<<< HEAD
-var RankAble = require('./rankable.js');
-var PublicationRepr = require('../database/linker.js')
-	.publicationRepr;
-=======
 var Rankable = require('./rankable.js');
 var PublicationRepr = require('../database/linker.js').publicationRepr;
->>>>>>> master
 var DBManager = require('../database/dbmanager.js');
 var core = require('../core/exports.js');
 
@@ -22,9 +16,9 @@ var Publication = function(arg) {
 module.exports = Publication;
 var Person = require('./person.js');
 
-Publication.prototype = Object.create(RankAble.prototype);
+Publication.prototype = Object.create(Rankable.prototype);
 Publication.prototype.variables = ['title', 'type', 'numberOfPages', 'year', 'url', 'abstract', 'authors','uploader','references', 'unknownReferences', 'UnknownPublicationsToDelete'];
-Publication.prototype.variables.push.apply(Publication.prototype.variables, RankAble.prototype.variables);
+Publication.prototype.variables.push.apply(Publication.prototype.variables, Rankable.prototype.variables);
 Publication.prototype.representation = PublicationRepr;
 Publication.prototype.calculateRank = function() {
 	var numberOfCitations = 0;

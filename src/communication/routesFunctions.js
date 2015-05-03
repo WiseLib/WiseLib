@@ -267,7 +267,7 @@ module.exports = {
 		})
 		.catch(function(){
 			res.status(404).end();
-		})
+		});
 	},
 
 	deletePublication: function(req, res) {
