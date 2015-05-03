@@ -33,7 +33,7 @@ function fakerequest(param){
 
 	this.body = this;
 
-	this.query= new Object;
+	this.query=param;
 
 }
 

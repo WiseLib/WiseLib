@@ -193,17 +193,6 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 ToastService.showToast(translated + ': ' + data.status, true);
                 });
             });
-<<<<<<< HEAD
-=======
-
-        /*  $http.post('users/'+user.id+'/publications.json', toPost)
-            .success(function(data, status, headers, config) {
-                $location.path('/mypublications')
-            })
-            .error(function(data, status, headers, config) {
-                ToastService.showToast("Something went wrong:" + status, true);
-            });*/
->>>>>>> master
         }
 
         var toPost = {};

@@ -2,7 +2,7 @@
 
 angular.module('user')
 
-.controller('updateUserController', function($scope, $location, $translate, Page, AuthenticationService, User, Person, TokenService, ToastService) {
+.controller('updateUserController', function($scope, $location, $translate, Page, AuthenticationService, User,Person, TokenService, ToastService) {
     $translate('UPDATE_PROFILE').then(function(translated) {
     Page.setTitle(translated);
   });

@@ -15,23 +15,16 @@ describe('TESTNAME',function(){
     		$controller = _$controller_;
   		}));
 
-		beforeEach(inject(function ($controller,$rootScope,$httpBackend,$location,_Person_,_PersonState_,_Affiliation_) {
+		beforeEach(inject(function ($controller,$rootScope,$httpBackend,$location) {
 			$scope = $rootScope.$new();
 			httpBackend = $httpBackend;
 			location = $location;
-			mdToast= {result:'',show:function(data){this.result=data.locals;}};
 
 			controller = $controller('CONTROLLERNAMEHERE', {
 				Page: Page,
 				$scope: $scope,
-				$mdToast: mdToast
 			});
 				
-			$mdToast= mdToast;
-			Person=_Person_;
-			PersonState=_PersonState_;
-			Affiliation=_Affiliation_
-			
 		}));
 
 		describe('',function(){

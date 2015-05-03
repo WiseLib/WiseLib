@@ -127,8 +127,9 @@ module.exports = {
 	},
 
 	getJournalDisciplines: function(req, res) {
-		req.query.journals = [{id:req.params.id}];
-		processQueryArrays(req.query, ['proceedings']);
+		req.query.journals = {id:req.params.id};
+		//processQueryArrays(req.query, ['journals']);
+		console.log(req.query)
 		getMultiple(req, res, core.Discipline, 'disciplines');
 	},
 
@@ -142,8 +143,8 @@ module.exports = {
 	},
 
 	getProceedingDisciplines: function(req, res) {
-		req.query.proceedings = [{id:req.params.id}];
-		processQueryArrays(req.query, ['journals']);
+		req.query.proceedings = {id:req.params.id};
+		//processQueryArrays(req.query, ['proceedings']);
 		getMultiple(req, res, core.Discipline, 'disciplines');
 	},
 
@@ -230,7 +231,7 @@ module.exports = {
 		processQueryArrays(req.query, ['authors']);
 		var params = req.query;
 		var jp = new core.JournalPublication(params).fetchAll();
-		var pp = new core.ProceedingPublication(params).fetchAll();
+		var pp = [];//new core.ProceedingPublication(params).fetchAll();
 		Promise.all([jp, pp])
 		.then(function(p) {
 			var result = {};

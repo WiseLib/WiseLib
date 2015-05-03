@@ -2,7 +2,7 @@
 var should = require('should');
 var Person = require('./person_test.js');
 var Publication = require('./publication_test.js');
-var server = require('../../src/routesFunctions.js');
+var server = require('../../src/communication/routesFunctions.js');
 
 
 /**
@@ -83,8 +83,8 @@ describe('Search person by id', function() {
 			it('should hold the correct persons', function() {
 				result = result.getresponse()[0];
 				result.should.be.an.object;
-				result.should.have.property('id', 5);
-				result.should.have.property('title', 'Second test')
+				result.should.have.property('id', 10);
+				result.should.have.property('title', 'The Impact of If-Conversion and Branch Prediction on Program Exe')
 			});
 		});
 	});

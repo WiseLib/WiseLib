@@ -2,7 +2,7 @@
 'use strict';
 var should = require('should');
 var affiliation = require('./affiliation_test.js')
-var server = require('../../src/routesFunctions.js');
+var server = require('../../src/communication/routesFunctions.js');
 
 /**
  * These tests check the affiliation routes, a function which returns a list, in JSON format, of affiliations defined in the database.
@@ -37,7 +37,7 @@ describe ('Retrieve list of affiliations from server database',function(){
 				result.should.be.an.object;
 				var resultLength = result.length;
 				resultLength.should.be.greaterThan(0);
-				resultLength.should.be.equal(6);
+				resultLength.should.be.equal(8);
 			});
 		});
 	});

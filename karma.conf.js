@@ -32,6 +32,7 @@ module.exports = function(config) {
       'test/angular/angular-messages.js',
       'test/angular/angular-resource.js',
       'test/angular/angular-translate.js',
+      'test/angular/angular-storage.js',
       'test/angular/angular-translate-loader-static-files.js',
       'test/angular/angular-translate-storage-cookie.js',
       'test/angular/angular-translate-storage-local.js',
@@ -45,7 +46,9 @@ module.exports = function(config) {
       'public/scripts/services/*.js',
 
       //'test/ClientTests/addUsertest.js'
-      'test/ClientTests/addPersonTest.js'
+      //'test/ClientTests/addPersonTest.js'
+      //'test/ClientTests/editUserTest.js'
+      'test/ClientTests/loginUserTest.js'
     ],
 
 
@@ -66,7 +69,7 @@ module.exports = function(config) {
     reporters: ['progress','html'],
 
     htmlReporter: {
-      outputDir: './test/units.html'
+      outputDir: './units.html'
     },
 
     // web server port

@@ -1,11 +1,6 @@
 'use strict';
-<<<<<<< HEAD
-//var module = angular.module('publication', ['ngMaterial', 'ngAnimate',  'ngMessages']);
-var module = angular.module('publication', ['ngMaterial', 'ngAnimate','journal', 'proceeding','ngMessages']);
 
-=======
 var module = angular.module('publication', ['ngMaterial', 'ngAnimate', 'journal', 'user', 'proceeding', 'ngMessages']);
->>>>>>> master
 
 module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication, Person, User, AuthenticationService, TokenService,ToastService) {
     $translate('PUBLICATION').then(function(translated) {

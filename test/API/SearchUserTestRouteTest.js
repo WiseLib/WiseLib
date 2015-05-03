@@ -1,7 +1,7 @@
 'use strict';
 var should = require('should');
 var User = require('./user_test.js');
-var server = require('../../src/routesFunctions.js');
+var server = require('../../src/communication/routesFunctions.js');
 
 /**
  * This test checks the getUser(s) method, a function that searches a user given a first and last name.
