@@ -89,9 +89,9 @@ module.controller('publicationController', function($scope, $window, $routeParam
                 console.log('error: ' + data.error);
             });
         }
-        if(pub.editors !== undefined){
-            for (i = pub.referencedPublications.length - 1; i >= 0; i--) {
-             getPublication(pub.referencedPublications[i].id);
+        if(pub.references !== undefined){
+            for (i = pub.references.length - 1; i >= 0; i--) {
+             getPublication(pub.references[i].id);
             }
         }
     }, function(data) {

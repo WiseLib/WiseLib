@@ -18,7 +18,7 @@ module.exports = Publication;
 var Person = require('./person.js');
 
 Publication.prototype = Object.create(RankAble.prototype);
-Publication.prototype.variables = ['title', 'type', 'numberOfPages', 'year', 'url', 'abstract', 'authors', 'references', 'unknownReferences', 'UnknownPublicationsToDelete'];
+Publication.prototype.variables = ['title', 'type', 'numberOfPages', 'year', 'url', 'abstract', 'authors','uploader','references', 'unknownReferences', 'UnknownPublicationsToDelete'];
 Publication.prototype.variables.push.apply(Publication.prototype.variables, RankAble.prototype.variables);
 Publication.prototype.representation = PublicationRepr;
 Publication.prototype.calculateRank = function() {
@@ -89,7 +89,7 @@ Publication.prototype.fetchAll = function() {
 Publication.prototype.save = function() {
 
 	var UnknownPublications = this.UnknownPublicationsToDelete;
-	delete this.UnknownPublicationsToDelete;
+	delete this.UnknownPublicationsToDelete;//Just a precaution so save doesn't complain about unknown field
 
 	return this.saveWithRepresentation(Publication.prototype.representation)
 	.then(function(publication) {
@@ -106,10 +106,10 @@ Publication.prototype.save = function() {
 					var referencingId = UnknownPublications[i].reference;
 
 					new core.Publication(referencingId).fetch()
-						.then(function(instance) {
+					.then(function(instance) {
 							instance.references.push({id:newId});
 							instance.save();
-						});
+					});
 
 					new core.UnknownPublication({id:UnknownPublications[i].id}).fetchAll()
 					.then(function(UnknownPub){

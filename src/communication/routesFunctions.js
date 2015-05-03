@@ -225,7 +225,7 @@ module.exports = {
 		processQueryArrays(req.query, ['authors']);
 		var params = req.query;
 		var jp = new core.JournalPublication(params).fetchAll();
-		var pp = new core.ProceedingPublication(params).fetchAll();
+		var pp = [];//new core.ProceedingPublication(params).fetchAll();
 		Promise.all([jp, pp])
 		.then(function(p) {
 			var result={};
