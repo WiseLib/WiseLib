@@ -471,7 +471,6 @@ var Publication = bookshelf.Model.extend({
     editors: function() {
         return this.belongsToMany(Person, 'publication_edited_by_person', 'publication_id', 'person_id');
     },
-<<<<<<< HEAD
     references: function() {
        return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
    },
@@ -481,11 +480,6 @@ var Publication = bookshelf.Model.extend({
     /*unknownAuthors: function() {
         return this.belongsToMany(UnknownPersonPublication, 'publication_with_unknown_person', 'publication_id', 'author_first_name', 'author_last_name');
     },*/
-=======
-    referencedPublications: function() {
-     return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
- },
->>>>>>> 3e8b329754a5adcea8350a151da6e1f24e6c131d
 
 
  representation: publicationRepr
