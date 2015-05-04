@@ -153,7 +153,7 @@ Representation.prototype.toModel = function(jsonObj) {
                 relation.attach(queryRelations[i]);
             }
         }
-        else {
+        else if(_.isEqual(relation.relatedData.type, 'belongsTo')) {
             model.set(relation.relatedData.foreignKey, queryRelations[i]);
         }
     }

@@ -63,16 +63,35 @@
 		<iframe ng-src="{{publication.url}}" class="pdf-viewer" frameborder="0"></iframe>
 		</div>
 		<div role="tabpanel" id="tab3-content" aria-labelledby="tab3" ng-switch-when="2" md-swipe-right="incrementSelectedIndex(-1)" md-swipe-left="incrementSelectedIndex(1)">
-			<md-list class="publications-list">
-				<md-item ng-repeat="publication in publications">
-					<md-item-content>
-						<div class="md-tile-content">
-							<publicationmin publication="publication"></publicationmin>
-						</div>
-					</md-item-content>
-					<md-divider md-inset ng-if="!$last"></md-divider>
-				</md-item>
-			</md-list>
+			<div ng-show="referencedPublications.length == 0 && referencedUnknownPublications.length == 0">
+				<h4>{{'NO_REFERENCES' | translate}}
+			</div>
+			<div ng-show="referencedPublications.length > 0">
+				<h4>{{'PUBLICATIONS_IN_DATABASE' | translate}}</h4>
+				<md-list class="publications-list">
+					<md-item ng-repeat="publication in referencedPublications">
+						<md-item-content>
+							<div class="md-tile-content">
+								<publicationmin publication="publication"></publicationmin>
+							</div>
+						</md-item-content>
+						<md-divider md-inset ng-if="!$last"></md-divider>
+					</md-item>
+				</md-list>
+			</div>
+			<div ng-show="referencedUnknownPublications.length > 0">
+				<h4>{{'UNKNOWN_PUBLICATIONS' | translate}}</h4>
+				<md-list class="publications-list">
+					<md-item ng-repeat="publication in referencedUnknownPublications">
+						<md-item-content>
+							<div class="md-tile-content">
+								{{publication.title + " by " + publication.authors}}
+							</div>
+						</md-item-content>
+						<md-divider md-inset ng-if="!$last"></md-divider>
+					</md-item>
+				</md-list>
+			</div>
 		</div>
 	</ng-switch>
 </md-content>
