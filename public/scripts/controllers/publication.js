@@ -21,10 +21,10 @@ module.controller('publicationController', function($scope, $window, $routeParam
 
     $scope.isInLibrary = function(publication) {
         var inLibrary = false;
-        if ($scope.authenticatedUser && publication) {
-            for (var i in $scope.authenticatedUser.library) {
-                inLibrary = inLibrary || $scope.authenticatedUser.library[i].id === publication.id;
-            }
+        if($scope.authenticatedUser && publication) {
+            $scope.authenticatedUser.library.forEach(function(libraryPublication) {
+                inLibrary = inLibrary || libraryPublication.id === publication.id;
+            });
         }
         return inLibrary;
     };
@@ -41,10 +41,7 @@ module.controller('publicationController', function($scope, $window, $routeParam
             User.put(userAddPublication, function(resource) {
                 TokenService.setToken(resource.token);
                 $scope.authenticatedUser = TokenService.getUser();
-                $translate('ADDED_TO_LIBRARY')
-                    .then(function(translated) {
-                        ToastService.showToast(translated);
-                    })
+                $translate('ADDED_TO_LIBRARY').then(function(translated){ToastService.showToast(translated);});
             }, function(errorData) {
                 console.log(errorData.error);
             });

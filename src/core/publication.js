@@ -1,17 +1,16 @@
 'use strict';
 var Promise = require('bluebird');
 var Rankable = require('./rankable.js');
-var PublicationRepr = require('../database/linker.js')
-	.publicationRepr;
+var PublicationRepr = require('../database/linker.js').publicationRepr;
 var DBManager = require('../database/dbmanager.js');
 var core = require('../core/exports.js');
 
 /* A publication written by a number of persons
- * @superclass RankAble
+ * @superclass Rankable
  * @constructor
  */
 var Publication = function(arg) {
-	RankAble.call(this, arg);
+	Rankable.call(this, arg);
 };
 //needed to avoid circular dependency between Person and Publication
 module.exports = Publication;

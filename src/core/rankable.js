@@ -1,32 +1,32 @@
 'use strict';
 var Promise = require('bluebird');
-var SearchAble = require('../database/searchable.js');
+var Searchable = require('../database/searchable.js');
 
 /* Rankable : has 'rank' variable that can be calculated
  * (see calculateRank)
- * @superclass SearchAble
+ * @superclass Searchable
  * @constructor
  */
-var RankAble = function(arg) {
-	SearchAble.call(this, arg);
+var Rankable = function(arg) {
+	Searchable.call(this, arg);
 };
 
-RankAble.prototype = Object.create(SearchAble.prototype);
-RankAble.prototype.variables = ['rank'];
-RankAble.prototype.variables.push.apply(RankAble.prototype.variables, SearchAble.prototype.variables);
+Rankable.prototype = Object.create(Searchable.prototype);
+Rankable.prototype.variables = ['rank'];
+Rankable.prototype.variables.push.apply(Rankable.prototype.variables, Searchable.prototype.variables);
 /* Calculates the rank of this rankable
  * @return Promise<this> a Promise containing the updated rankable
  * @abstract, @public
  */
-RankAble.prototype.calculateRank = function() {
+Rankable.prototype.calculateRank = function() {
 	throw new Error('not implemented');
 };
 /* all found results will have their rank calculated an be sorted accordingly
- * @see SearchAble.fetchAll
+ * @see Searchable.fetchAll
  */
-RankAble.prototype.fetchAll = function() {
+Rankable.prototype.fetchAll = function() {
 	var rankable = this;
-	return SearchAble.prototype.fetchAll.call(rankable)
+	return Searchable.prototype.fetchAll.call(rankable)
 	.then(function(rankables) {
 		return Promise.all(rankables.map(function(r) {
 			return r.calculateRank();
@@ -44,6 +44,6 @@ RankAble.prototype.fetchAll = function() {
 		return rankables;
 	});
 };
-RankAble.prototype.constructor = RankAble;
+Rankable.prototype.constructor = Rankable;
 
-module.exports = RankAble;
+module.exports = Rankable;
