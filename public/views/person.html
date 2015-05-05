@@ -39,7 +39,8 @@
 	        </div>
 			<div role="tabpanel" id="tab2-content" aria-labelledby="tab2" ng-switch-when="1">
 	             <h2>{{'PUBLICATIONS_WRITTEN_BY' | translate}} {{person.firstName}}</h2>
-				<md-progress-circular md-mode="indeterminate" ng-if="!publications.length && !error"></md-progress-circular>
+	             <md-toolbar class="md-accent" ng-if="PubError">{{'ERROR' | translate}}: {{PubError}}</md-toolbar>
+				<md-progress-circular md-mode="indeterminate" ng-if="!publications.length && !PubError"></md-progress-circular>
 				<md-list class="publications-list">
 					<md-item ng-repeat="publication in publications">
 						<md-item-content>

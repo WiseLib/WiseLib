@@ -21,6 +21,13 @@ Publication.prototype.variables = ['title', 'type', 'numberOfPages', 'year', 'ur
 Publication.prototype.variables.push.apply(Publication.prototype.variables, Rankable.prototype.variables);
 Publication.prototype.representation = PublicationRepr;
 Publication.prototype.calculateRank = function() {
+
+	/*
+		Journal/Conference = ligt vast (in database)
+		Persoon = combinatie van aantal gepubliceerde publicaties en publicaties per jaar
+		Publicatie = combinatie van rank van auteurs, aantal citaties en rank van Journal/Conference
+	 */
+	
 	var numberOfCitations = 0;
 	if (this.references) {
 		numberOfCitations = this.references.length;

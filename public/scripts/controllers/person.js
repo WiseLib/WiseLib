@@ -23,15 +23,7 @@ module.controller('personController', function($scope, $routeParams, $translate,
 		var affiliationId = person.affiliation;
 		$scope.person.affiliation='';
 		getFullAffiliation(affiliationId);
-		function searchDiscipline(id) {
-			Discipline.get({id: id}, function(d) {
-				$scope.disciplines.push(d.name);
-			}, function(data) {
-				console.log('error: ' + data.error);
-			});
-		}
 
-	person.disciplines.forEach(function(discipline) {searchDiscipline(discipline.id);});
 
 	Person.contacts({id: person.id}, function(data) {
 		$scope.contacts = data.persons;
@@ -45,8 +37,13 @@ module.controller('personController', function($scope, $routeParams, $translate,
 		console.log('error: ' + JSON.stringify(data.error));
 	});
 
+	$scope.PubError = null; 
 	Person.publications({id: $routeParams.id}, function(data) {
 			$scope.publications = data.publications;
+			if(data.publications.length == 0){
+				 $translate('NO_PUBLICATIONS_FOUND').then(function(translated) {
+                	$scope.PubError = translated;})
+			}
 		}, function(data) {
 			$scope.error = data.error;
 			console.log('got error: ' + JSON.stringify(data.error));
