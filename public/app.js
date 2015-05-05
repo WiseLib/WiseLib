@@ -31,7 +31,8 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
     })
     .when('/search', {
         templateUrl: 'views/search.html',
-        controller: 'searchPublicationController'
+        controller: 'searchPublicationController',
+        reloadOnSearch: false
     })
     .when('/mypublications', {
         templateUrl: 'views/myPublications.html',
