@@ -20,7 +20,7 @@ angular.module('publication')
         });
         }
     }, function(error) {
-        $scope.error = error.status + ' ' + error.statusText;
+        $scope.error = error.status + ' ' + error.text;
     });
 
     $scope.deletePublication = function(pub) {
@@ -47,7 +47,7 @@ angular.module('publication')
 
       }, function(data) {
         $translate('ERROR_REMOVING_PUBLICATION').then(function(translated) {
-            ToastService.showToast(translated + ': ' + data.error, true);
+            ToastService.showToast(translated + ': ' + data.text, true);
         });
       });
     }, function() {

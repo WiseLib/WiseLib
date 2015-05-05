@@ -54,13 +54,13 @@ angular.module('person')
         }
         Person.query({firstName: firstName, lastName: lastName}, function(data) {
             $scope.persons = data.persons;
-        }, function(error) {console.log('error! ' + error); });
+        }, function(data) {console.log('error! ' + data.statusText); });
     };
 
     $scope.searchAffiliations = function(id) {
         Affiliation.query({parent: id}, function(data) {
             $scope.choiceAffiliations = data.affiliations;
-        }, function(error) {console.log('error! ' + error); });
+        }, function(data) {console.log('error! ' + data.statusText); });
     };
     $scope.filterAffiliations = function(name) {
         var affs = $scope.choiceAffiliations;
@@ -84,7 +84,7 @@ angular.module('person')
             $scope.addAffiliation(toPost);
         }, function(data) {
             $translate('ERROR').then(function(translated) {
-                ToastService.showToast(translated + ': ' + data.error, true);
+                ToastService.showToast(translated + ': ' + data.statusText, true);
             });
         });
     };

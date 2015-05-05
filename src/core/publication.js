@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var Rankable = require('./rankable.js');
 var PublicationRepr = require('../database/linker.js').publicationRepr;
 var DBManager = require('../database/dbmanager.js');
+var errors = require('./errors.js');
 
 /* A publication written by a number of persons
  * @superclass Rankable
@@ -50,7 +51,7 @@ Publication.prototype.calculateRank = function() {
 Publication.prototype.fetch = function() {
 	var writeable = this;
 	if(!writeable.id) {
-		return Promise.reject(writeable);
+		return Promise.reject(new Error('Object to fetch has no id'));
 	}
 	return DBManager.get(this, Publication.prototype.representation)
 	.then(function(res) {
@@ -59,7 +60,7 @@ Publication.prototype.fetch = function() {
 			return writeable;
 		}
 		else {
-			Promise.reject(writeable.id);
+			throw new errors.NotFoundError('Publication');
 		}
 	});
 };

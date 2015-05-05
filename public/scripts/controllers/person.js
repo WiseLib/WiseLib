@@ -13,6 +13,10 @@ module.controller('personController', function($scope, $routeParams, $translate,
     			getFullAffiliation(affiliation.parent);
     		}
 			else $scope.person.affiliation += ' ' + affiliation.name;
+		}, function(data) {
+			$translate('ERROR').then(function(translated) {
+                $scope.error = translated + ': ' + data.statusText;
+            });
 		});
     }
 	$scope.disciplines = [];
@@ -27,7 +31,9 @@ module.controller('personController', function($scope, $routeParams, $translate,
 			Discipline.get({id: id}, function(d) {
 				$scope.disciplines.push(d.name);
 			}, function(data) {
-				console.log('error: ' + data.error);
+				$translate('ERROR').then(function(translated) {
+                	$scope.error = translated + ': ' + data.statusText;
+            	});
 			});
 		}
 
@@ -36,19 +42,22 @@ module.controller('personController', function($scope, $routeParams, $translate,
 	Person.contacts({id: person.id}, function(data) {
 		$scope.contacts = data.persons;
 	}, function(data) {
-		$scope.error = data.error;
-		console.log('error: ' + JSON.stringify(data.error));
+		$translate('ERROR').then(function(translated) {
+            $scope.error = translated + ': ' + data.statusText;
+        });
 	});
 
 	}, function(data) {
-		$scope.error = data.error;
-		console.log('error: ' + JSON.stringify(data.error));
+		$translate('ERROR').then(function(translated) {
+            $scope.error = translated + ': ' + data.statusText;
+        });
 	});
 
 	Person.publications({id: $routeParams.id}, function(data) {
 			$scope.publications = data.publications;
 		}, function(data) {
-			$scope.error = data.error;
-			console.log('got error: ' + JSON.stringify(data.error));
+			$translate('ERROR').then(function(translated) {
+                $scope.error = translated + ': ' + data.statusText;
+            });
 		});
 });

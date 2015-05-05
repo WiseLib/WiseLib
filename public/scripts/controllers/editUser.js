@@ -22,7 +22,7 @@ angular.module('user')
         },
         function(data) { //Error
             $translate('ERROR').then(function(translated) {
-                ToastService.showToast(translated + ': ' + data.error, true);
+                ToastService.showToast(translated + ': ' + data.statusText, true);
             });
         });
     };
