@@ -203,8 +203,7 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 var index;
                 for(index = 0; index < $scope.unknownreferences.length; index++) {
                     $scope.unknownreferences[index].reference = data.id;
-                    console.log('UNKNOWN REFERENCE: ' + JSON.stringify($scope.unknownreferences[index]));
-                    UnknownPublication.save(JSON.stringify($scope.unknownreferences[index]), function(data) {console.log('UNKNOWN_REFERENCE_ADDED: ' + data.id)});
+                    UnknownPublication.save(JSON.stringify($scope.unknownreferences[index]), function(data) {});
                 }
                 $location.path('/mypublications');
             },function(data){
