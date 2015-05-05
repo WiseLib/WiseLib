@@ -247,8 +247,7 @@ Representation.prototype.toQuery = function(jsonObj) {
     var model = new this.model(queryParams);
     var repr = this;
     var queryFunction = function(db) {
-        var l = jsonObj.q ? 2 : 1;
-        if(Object.keys(queryParams).length + Object.keys(relationParams).length >= l) {
+        if(Object.keys(queryParams).length + Object.keys(relationParams).length >= 1) {
             db.where(function() {
                 repr.filterFields(jsonObj, this);
                 repr.filterRelations(jsonObj, this, db);
