@@ -230,6 +230,10 @@ module.exports = {
 		getMultiple(req, res, core.UnknownPublication, 'publications');
 	},
 
+	postUnknownPublications: function(req, res){
+		postSingle(req, res, core.UnknownPublication);
+	},
+
 	getPublications :function(req, res) {
 		processQueryArrays(req.query, ['authors']);
 		var params = req.query;

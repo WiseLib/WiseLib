@@ -78,7 +78,8 @@ module.exports = function(app) {
     .get(routeFunctions.getUserLibrary);
 
     app.route('/unknownpublications.json')
-    .get(routeFunctions.getUnknownPublications)    
+    .get(routeFunctions.getUnknownPublications)
+    .post(auth, routeFunctions.postUnknownPublications); 
 
     app.route('/publications.json')
     .get(routeFunctions.getPublications)

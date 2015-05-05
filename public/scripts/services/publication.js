@@ -9,8 +9,8 @@ angular.module('publication')
 })
 
 .factory('UnknownPublication', function($resource) {
-	return $resource('/unknownpublications.json?q=:q', {q:'@q'}, {
-		search: { method: 'GET', isArray: false}
+	return $resource('/unknownpublications/:id.json', {id:'@id'}, {
+		search: { method: 'GET', isArray: false, url: '/unknownpublications.json/?q=:q', params: {q: '@q'}}
 	});
 })
 

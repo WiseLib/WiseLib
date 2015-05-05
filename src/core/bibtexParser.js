@@ -4,14 +4,20 @@ var fs = require('fs')
 var Parser = require('./parser.js');
 var DBManager = require('../database/dbmanager.js')
 var Publication = require('./publication.js');
-var unknownPublication = require('./unknownPublication.js');
 var bibtexParse = require('bibtex-parse-js');
+
+/**
+ * BibtexParser: a class that is used to get the right information from a bibtexfile.
+ * @superclass: parser
+ * @constructor
+ */
 
 var BibtexParser = function(path) {
 	Parser.call(this, path);
 };
 
 BibtexParser.prototype = Object.create(Parser.prototype);
+
 BibtexParser.prototype.extract = function() {
 	var promise = BibtexParser.prototype.getBibtexData(this)
 		.then(function(res) {
@@ -20,11 +26,11 @@ BibtexParser.prototype.extract = function() {
 		.then(function(res) {
 			return new Promise(function(resolve, reject) {
 				resolve(res);
-			})
-		})
-		return promise;
-//	return new Promise(function() {return dividedReferences});
+			});
+		});
+	return promise;
 };
+
 BibtexParser.prototype.isSupported = function(mimetype) {
 	return mimetype === 'text/x-bibtex';
 };
@@ -40,7 +46,7 @@ BibtexParser.prototype.getBibtexData = function(obj) {
 		});
 	});
 	return promise
-}
+};
 
 BibtexParser.prototype.makeSimplifiedReferences = function(references){
 	var simplifiedReferences = [];
@@ -51,7 +57,8 @@ BibtexParser.prototype.makeSimplifiedReferences = function(references){
 		simplifiedReferences.push(reference);
 	}
 	return simplifiedReferences;
-}
+};
+
 BibtexParser.prototype.checkReferences = function(references){
 	references = BibtexParser.prototype.makeSimplifiedReferences(references);
 	var knownReferences = [];
@@ -81,7 +88,7 @@ BibtexParser.prototype.checkReferences = function(references){
 			resolve(jsonObj);
 		});
 	});
-}
+};
 
 BibtexParser.prototype.constructor = BibtexParser;
 

@@ -12,7 +12,8 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     $scope.disciplines = [];
     $scope.references = [];
     $scope.unknownpublications=[];
-    $scope.JSONreferences = [];
+    $scope.unknownreferences = [];
+    $scope.knownreferences = [];
     $scope.searchJournal;
     $scope.searchProceeding;
     $scope.PersonState = PersonState;
@@ -159,15 +160,16 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         success(function(data, status, headers, config) {
 
             var index;
-            $scope.JSONreferences=[];
-            $scope.references=[];
-            for (index = 0; index < data.length; ++index) {
-                var reference = data[index];
-                $scope.add($scope.JSONreferences,reference);
-
-                var title = reference.entryTags.title;
-                $scope.add($scope.references,title);
-            }
+            $scope.knownreferences=[];
+            $scope.unknownreferences=[];
+            for (index = 0; index < data.references.length; index++) {
+                var knownreference = data.references[index];
+                $scope.add($scope.knownreferences,knownreference);
+            };
+            for (index = 0; index < data.unknownReferences.length; index++) {
+                var unknownreference = data.unknownReferences[index];
+                $scope.add($scope.unknownreferences, unknownreference);
+            };
         }).
         error(function(data, status, headers, config) {
             $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
@@ -197,8 +199,13 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
 
         function upload(){
             console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
-
             Publication.save(JSON.stringify(toPost),function(data){
+                var index;
+                for(index = 0; index < $scope.unknownreferences.length; index++) {
+                    $scope.unknownreferences[index].reference = data.id;
+                    console.log('UNKNOWN REFERENCE: ' + JSON.stringify($scope.unknownreferences[index]));
+                    UnknownPublication.save(JSON.stringify($scope.unknownreferences[index]), function(data) {console.log('UNKNOWN_REFERENCE_ADDED: ' + data.id)});
+                }
                 $location.path('/mypublications');
             },function(data){
                 $translate('ERROR').then(function(translated) {
@@ -213,7 +220,7 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         toPost.year = $scope.year;
         toPost.url = $scope.url;
         toPost.abstract = $scope.abstract;
-        toPost.references = $scope.JSONreferences;
+        toPost.references = $scope.knownreferences;
         toPost.type = $scope.type;
         if ($scope.type === 'Journal') {
             toPost.journal = $scope.journal.id;
