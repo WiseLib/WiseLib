@@ -16,10 +16,15 @@ module.exports = Person;
 var Publication = require('./publication.js');
 
 Person.prototype = Object.create(Rankable.prototype);
-Person.prototype.variables = ['firstName', 'lastName', 'affiliation', 'publications', 'picture'];
+Person.prototype.variables = ['firstName', 'lastName', 'affiliation', 'publications', 'picture', 'disciplines'];
 Person.prototype.variables.push.apply(Person.prototype.variables, Rankable.prototype.variables);
 Person.prototype.representation = PersonRepr;
-//gemiddelde aantal publicaties (per jaar) * (1 + publicaties dit jaar)
+
+/**
+ * Calculates the rank of this person with the following formula: average amount of publications (per year) * (1 + publications this year)
+ * @return {Promise} A promise of a person object, extended with a rank property.
+ * @implements {Rankable}
+ */
 Person.prototype.calculateRank = function() {
 	var person = this;
 	if(!this.publications) {
@@ -38,12 +43,11 @@ Person.prototype.calculateRank = function() {
 		});
 		return Promise.all(yearsPromise).then(function(years) {
 			years.sort();
-
 			var yearsOfWriting = years[years.length - 1] - years[0];
 			var date = new Date();
 			var thisYearIndex = years.indexOf(date.getFullYear());
 			var publicationsThisYear = years.length - thisYearIndex;
-			person.rank = (person.publications.length / (yearsOfWriting + 1)) * (1 + publicationsThisYear); // years + 1 because of terrible test data --> /0 errors
+			person.rank = (person.publications.length / (yearsOfWriting + 1)) * (1 + publicationsThisYear);
 			return person;
 		});
 	}
@@ -52,6 +56,10 @@ Person.prototype.calculateRank = function() {
 	});
 };
 
+/**
+ * [getContacts description]
+ * @return {[type]} [description]
+ */
 Person.prototype.getContacts = function() {
 	var person = this;
 	var contacts = new Person(person.id).fetch().then(function(p) {

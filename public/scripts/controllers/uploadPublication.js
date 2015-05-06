@@ -1,7 +1,7 @@
 'use strict';
 var module = angular.module('publication');
 
-module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, Person, PersonState, Journal, Proceeding, Publication, TokenService, ToastService) {
+module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, Person, PersonState, Journal, Proceeding, Publication, UnknownPublication, TokenService, ToastService) {
     var user = TokenService.getUser();
 
     $translate('UPLOAD_PUBLICATION').then(function(translated) {
@@ -11,10 +11,26 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     $scope.pdfAuthors =[];
     $scope.disciplines = [];
     $scope.references = [];
-    $scope.JSONreferences = [];
+    $scope.unknownpublications=[];
+    $scope.unknownreferences = [];
+    $scope.knownreferences = [];
     $scope.searchJournal;
     $scope.searchProceeding;
     $scope.PersonState = PersonState;
+
+    $scope.$watch('title', function () {
+        $scope.searchUnknownPublications($scope.title);
+    });
+
+    $scope.searchUnknownPublications = function(title){
+        if(title == undefined || title.length < 4){
+            $scope.unknownpublications=[];
+            return;}
+        UnknownPublication.search({q:title},function(data){
+            $scope.unknownpublications = data.publications;
+            console.log('got:' + data)
+        },function(data){})
+    }
 
     var lastSearch;
     var persons = [];
@@ -147,15 +163,16 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         success(function(data, status, headers, config) {
 
             var index;
-            $scope.JSONreferences=[];
-            $scope.references=[];
-            for (index = 0; index < data.length; ++index) {
-                var reference = data[index];
-                $scope.add($scope.JSONreferences,reference);
-
-                var title = reference.entryTags.title;
-                $scope.add($scope.references,title);
-            }
+            $scope.knownreferences=[];
+            $scope.unknownreferences=[];
+            for (index = 0; index < data.references.length; index++) {
+                var knownreference = data.references[index];
+                $scope.add($scope.knownreferences,knownreference);
+            };
+            for (index = 0; index < data.unknownReferences.length; index++) {
+                var unknownreference = data.unknownReferences[index];
+                $scope.add($scope.unknownreferences, unknownreference);
+            };
         }).
         error(function(data, status, headers, config) {
             $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
@@ -185,8 +202,12 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
 
         function upload(){
             console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
-
             Publication.save(JSON.stringify(toPost),function(data){
+                var index;
+                for(index = 0; index < $scope.unknownreferences.length; index++) {
+                    $scope.unknownreferences[index].reference = data.id;
+                    UnknownPublication.save(JSON.stringify($scope.unknownreferences[index]), function(data) {});
+                }
                 $location.path('/mypublications');
             },function(data){
                 $translate('ERROR').then(function(translated) {
@@ -201,7 +222,7 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         toPost.year = $scope.year;
         toPost.url = $scope.url;
         toPost.abstract = $scope.abstract;
-        toPost.references = $scope.JSONreferences;
+        toPost.references = $scope.knownreferences;
         toPost.type = $scope.type;
         if ($scope.type === 'Journal') {
             toPost.journal = $scope.journal.id;
@@ -218,6 +239,16 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         toPost.uploader = user.id;
         toPost.authors=[];
 
+        toPost.UnknownPublicationsToDelete=[];
+
+        for (var i = 0; i < $scope.unknownpublications.length; i++) {
+            var pub= $scope.unknownpublications[i];
+            if(pub.status == undefined || pub.status==false)continue;
+            else{
+                toPost.UnknownPublicationsToDelete.push(pub);
+            }
+        };
+
         for (var i = 0; i < $scope.authors.length; i++) {
             var author = $scope.authors[i];
 
@@ -233,5 +264,6 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 });
             }
         }
+
     };
 });

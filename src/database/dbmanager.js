@@ -1,15 +1,8 @@
 'use strict';
 var _ = require('lodash');
+
 /**
- * The Database manager. This manager communicates with the database via a config object.
- * For each class of the core module, the database has methods to get/put/post/delete objects of the core module.
- * @param {object} config - The config file needed to connect to the database.
- * @config {string} host - The name of the database's host
- * @config {string} database - The name of the database
- * @config {string} user - The user which will connect to the database
- * @config {string} password - The user's password
- *
- * @constructor
+ * [DBManager description]
  */
  var DBManager = function() {};
 
@@ -22,8 +15,10 @@ var _ = require('lodash');
         representation = writeable.representation;
     }
     var toPost = representation.toModel(writeable);
-    return toPost.save({}, {method: 'insert'}).then(function(model) {
-        return model.id;
+    return toPost.save({}, {method: 'insert'})
+    .then(function(model) {
+        writeable.id = model.id;
+        return DBManager.prototype.put(writeable, repr);
     });
 };
 

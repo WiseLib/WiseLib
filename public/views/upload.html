@@ -13,11 +13,21 @@
             <h4>{{'PUBLICATION_INFORMATION' | translate}}</h4>
             <md-input-container>
                 <label>{{'TITLE' | translate}}</label>
-                <input type="text" ng-model="title" name="title" required>
+                <input id="title" type="text" ng-model="title" name="title" required>
                 <div ng-messages="PublicationInfoForm.title.$error">
                     <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
                 </div>
             </md-input-container>
+            <div>
+            <div ng-show="unknownpublications.length > 0">
+                <label ng-show="unknownpublication == undefined">These publications are already a reference in the database, please choose the publications you are trying to upload </label>
+                
+                <label id="unknownpublicationlist" ng-repeat="p in unknownpublications">
+                    <md-checkbox class="md-no-ink"value="p.title" ng-model="p.status"> {{p.title + ' by ' + p.authors}}</md-checkbox>
+                </label>
+
+            </div>
+            </div>
             <md-input-container>
                 <label>{{'YEAR' | translate}}</label>
                 <input id="year" type="number" name="year" ng-model="year" required>
@@ -137,7 +147,7 @@
 
     <form id="ReferenceInfo" role="form" class="form-horizontal" name="ReferenceForm">
         <div class="uploadfield">
-            <span class="label">{{'ADD_REFERENCES_OR_UPLOAD_BIBTEX' | translate}}</span>
+            <span class="label">{{'UPLOAD_BIBTEX' | translate}}</span>
             <md-button type="button" class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadbib').click();">
                 <md-icon md-svg-src='/assets/upload.svg'></md-icon>
                 <md-tooltip>{{'UPLOAD_BIBTEX_FILE' | translate}}</md-tooltip>
@@ -145,26 +155,11 @@
         </div>
         <input ng-hide="true" id="uploadbib" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadbibtex(this.files)" />
 
-        <div layout layout-sm="column" layout-wrap class="form-block">
-            <h4>{{'REFERENCES' | translate}}</h4>
-            <md-input-container>
-                <label>{{'REFERENCES' | translate}}</label>
-                <input id="reference" type="text" class="form-control" ng-model="possiblereference" label="Reference">
-            </md-input-container>
-            <md-button type="button" class="btn btn-primary" ng-click="add(references, possiblereference)">{{'ADD' | translate}}</md-button>
-            <h4 ng-show="references.length > 0">{{'SELECTED_REFERENCES' | translate}}</h4>
-            <ul class="choices chosen">
-                <li ng-repeat="reference in references">
-                    <p style="postion:relative" ng-click="remove(references, reference)">{{reference}}</p>
-                    <div id="overlay">{{'REMOVE' | translate}}</div>
-                </li>
-            </ul>
-        </div>
+    </form>
 
-        <md-button type="button" class="md-raised md-primary reserve-tooltip-space" ng-disabled="(PublicationInfoForm.$invalid && !localfile) ||JournalConferenceForm.$invalid || authors.length < 1" ng-click="post()">
+        <md-button type="button" class="md-raised md-primary reserve-tooltip-space" ng-disable="(PublicationInfoForm.$invalid && !localfile) ||JournalConferenceForm.$invalid || authors.length < 1" ng-click="post()">
             <!-- md-direction doesn't work in this version of angular-material. Temporary fix in the css file -->
             <md-tooltip md-direction="top">{{'UPLOAD_YOUR_PUBLICATION' | translate}}</md-tooltip>
             {{'SEND' | translate}}
         </md-button>
-    </form>
 </md-content>

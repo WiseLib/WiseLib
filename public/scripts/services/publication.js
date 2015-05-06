@@ -9,6 +9,15 @@ angular.module('publication')
 	});
 })
 
+.factory('UnknownPublication', function($resource) {
+	return $resource('/unknownpublications.json?q=:q', {q:'@q'}, {
+		search: { method: 'GET', isArray: false},
+		get: { method: 'GET', isArray: false, url:'/unknownpublications.json/?id=:id', params: {id:'@id'}},
+		save: { method: 'POST', isArray: false, url:'/unknownpublications.json'}
+	});
+})
+
+
 .factory('WebSearchPublication',function($resource){
 	return $resource('https://api.mendeley.com:port/search/catalog/?access_token=:token&:query',
 		{token : '@token',
