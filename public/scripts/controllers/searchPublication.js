@@ -2,11 +2,22 @@
 
 angular.module('publication')
 
-.controller('searchPublicationController', function($scope, $window, $q, $translate, Page, Publication, WebSearchPublication, Person, User, GetApiToken, ToastService) {
+.controller('searchPublicationController', function($scope, $routeParams, $location, $window, $q, $translate, Page, Publication, WebSearchPublication, Person, User, GetApiToken, ToastService) {
 
     $translate('SEARCH_A_PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
     });
+
+    if($routeParams.q) {
+        var tags = $routeParams.q.split('@');
+        $scope.keyword = tags.shift();
+        for(var i in tags) {
+            if(tags[i] === 'title') $scope.checkTitle = true;
+            if(tags[i] === 'authors') $scope.checkAuthor = true;
+            if(tags[i] === 'journal') $scope.checkJournal = true;
+            if(tags[i] === 'conference') $scope.checkConference = true;
+        }
+    }
 
     $scope.searching = function(){ return true;};
 
@@ -162,6 +173,7 @@ angular.module('publication')
                 ToastService.showToast(translated + ': ' + keyword + ' :' + data.statusText, true);
             });
         });
+        $location.search({q: query});
     };
 
 });
