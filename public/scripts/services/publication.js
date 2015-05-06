@@ -11,7 +11,8 @@ angular.module('publication')
 .factory('UnknownPublication', function($resource) {
 	return $resource('/unknownpublications.json?q=:q', {q:'@q'}, {
 		search: { method: 'GET', isArray: false},
-		get: { method: 'GET', isArray: false, url:'/unknownpublications.json/?id=:id', params: {id:'@id'}}
+		get: { method: 'GET', isArray: false, url:'/unknownpublications.json/?id=:id', params: {id:'@id'}},
+		save: { method: 'POST', isArray: false, url:'/unknownpublications.json'}
 	});
 })
 

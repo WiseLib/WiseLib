@@ -376,6 +376,11 @@ module.exports = {
 		getMultiple(req, res, core.UnknownPublication, 'publications');
 	},
 
+	
+	postUnknownPublications: function(req, res){
+		postSingle(req, res, core.UnknownPublication);
+	},
+
 	/**
 	 * Answers a HTTP request with all publications satisfying the request parameters 
 	 * @param  {Object} req HTTP request containing parameters
