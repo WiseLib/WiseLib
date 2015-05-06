@@ -20,14 +20,13 @@ Publication.prototype = Object.create(Rankable.prototype);
 Publication.prototype.variables = ['title', 'type', 'numberOfPages', 'year', 'url', 'abstract', 'authors','uploader','references', 'unknownReferences', 'UnknownPublicationsToDelete'];
 Publication.prototype.variables.push.apply(Publication.prototype.variables, Rankable.prototype.variables);
 Publication.prototype.representation = PublicationRepr;
-Publication.prototype.calculateRank = function() {
 
-	/*
-		Journal/Conference = ligt vast (in database)
-		Persoon = combinatie van aantal gepubliceerde publicaties en publicaties per jaar
-		Publicatie = combinatie van rank van auteurs, aantal citaties en rank van Journal/Conference
-	 */
-	
+/**
+ * Calculates the rank of this publication with the following formula: average author rank * number of references
+ * @return {Promise} A promise of a publication object, extended with a rank property.
+ * @implements {Rankable}
+ */
+Publication.prototype.calculateRank = function() {
 	var numberOfCitations = 0;
 	if (this.references) {
 		numberOfCitations = this.references.length;
@@ -55,7 +54,9 @@ Publication.prototype.calculateRank = function() {
 			return publication;
 		});
 };
-/* rank is NOT calculated with fetch
+/**
+ * [fetch description]
+ * @return {[type]} [description]
  */
 Publication.prototype.fetch = function() {
 	var writeable = this;
@@ -72,6 +73,11 @@ Publication.prototype.fetch = function() {
 			}
 		});
 };
+
+/**
+ * [fetchAll description]
+ * @return {[type]} [description]
+ */
 Publication.prototype.fetchAll = function() {
 	var rankable = this;
 	return DBManager.get(rankable, Publication.prototype.representation)
@@ -92,6 +98,13 @@ Publication.prototype.fetchAll = function() {
 			return rankables;
 		});
 };
+
+/**
+ * Extended save method of a publication. In case the publication describes (an) unknown publicatio(s) in the database, thi(e)s(e) unknown publication(s) should be deleted
+ * and the publications referencing thi(e)s(e) publication(s) should be updated to reference this new publication instead
+ * @return {Promis} a promise of the newly added publication object
+ * @extends {Writeable.save}
+ */
 Publication.prototype.save = function() {
 
 	var UnknownPublications = this.UnknownPublicationsToDelete;
@@ -105,7 +118,6 @@ Publication.prototype.save = function() {
 				//entry should be referenced_by_id + id of new publication.
 				//row in unknown_publication should be deleted. 
 				
-
 				var newId = publication.id;
 
 				for (var i = 0; i < UnknownPublications.length; i++) {

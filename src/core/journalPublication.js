@@ -20,6 +20,12 @@ JournalPublication.prototype = Object.create(Publication.prototype);
 JournalPublication.prototype.variables = ['journal', 'volume', 'number'];
 JournalPublication.prototype.variables.push.apply(JournalPublication.prototype.variables, Publication.prototype.variables);
 JournalPublication.prototype.representation = JournalPublicationRepr;
+
+/**
+ * Calculates the rank of this Journalpublication with the following formula: rank of the superclass publication * rank of the journal (fixed)
+ * @return {Promise} A promise of a Journalpublication object, extended with a rank property.
+ * @implements {Rankable}
+ */
 JournalPublication.prototype.calculateRank = function() {
 	var publication = this;
 	var promise = Publication.prototype.calculateRank.call(this)
@@ -34,6 +40,11 @@ JournalPublication.prototype.calculateRank = function() {
 		});
 	return promise;
 };
+
+/**
+ * [fetch description]
+ * @return {[type]} [description]
+ */
 JournalPublication.prototype.fetch = function() {
 	var journalPublication = this;
 	var promise = Publication.prototype.fetch.call(this);
@@ -45,6 +56,11 @@ JournalPublication.prototype.fetch = function() {
 			return journalPublication;
 		});
 };
+
+/**
+ * [fetchAll description]
+ * @return {[type]} [description]
+ */
 JournalPublication.prototype.fetchAll = function() {
 	var jp = this;
 	//db will only search on Representation.relationSearch and Representation[searchKey]
@@ -96,6 +112,11 @@ JournalPublication.prototype.fetchAll = function() {
 		return Promise.all(publications);
 	});
 };
+
+/**
+ * [save description]
+ * @return {[type]} [description]
+ */
 JournalPublication.prototype.save = function() {
 	var journalPublication = this;
 	var save = journalPublication.id ? DBManager.put : DBManager.post;
@@ -107,6 +128,11 @@ JournalPublication.prototype.save = function() {
 			return journalPublication;
 		});
 };
+
+/**
+ * [destroy description]
+ * @return {[type]} [description]
+ */
 JournalPublication.prototype.destroy = function() {
 	var journalPublication = this;
 	//need to hold on the ID
