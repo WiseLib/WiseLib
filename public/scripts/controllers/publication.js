@@ -55,9 +55,7 @@ module.controller('publicationController', function($scope, $window, $routeParam
 
     Publication.get({id: $routeParams.id}, function(pub) {
         function getPerson(id) {
-            Person.get({
-                id: id
-            }, function(person) {
+            Person.get({ id: id }, function(person) {
                 $scope.persons[id] = person;
             }, function(data) {
                 console.log('error: ' + data.error);

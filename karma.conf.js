@@ -46,9 +46,13 @@ module.exports = function(config) {
       'public/scripts/services/*.js',
 
       //'test/ClientTests/addUsertest.js'
-      //'test/ClientTests/addPersonTest.js'
+      'test/ClientTests/addPersonTest.js'
       //'test/ClientTests/editUserTest.js'
-      'test/ClientTests/loginUserTest.js'
+      //'test/ClientTests/loginUserTest.js'
+      //'test/ClientTests/libraryTest.js'
+      //'test/ClientTests/MyPublicationTest.js'
+      //'test/ClientTests/PersonTest.js'
+      //'test/ClientTests/PublicationTest.js'
     ],
 
 
@@ -68,9 +72,9 @@ module.exports = function(config) {
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['progress','html'],
 
-    htmlReporter: {
-      outputDir: './units.html'
-    },
+    //htmlReporter: {
+    //  outputDir: 'test/units.html'
+    //},
 
     // web server port
     port: 9876,

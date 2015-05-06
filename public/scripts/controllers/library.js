@@ -37,7 +37,7 @@ angular.module('publication')
             .cancel(translations.CANCEL);
             return $mdDialog.show(confirm);
         })
-        .then(function() {
+        .then(function() { 
             var removeIndex;
             for (var i = $scope.user.library.length - 1; i >= 0; i--) { 
                 if($scope.user.library[i].id === pub.id) {
@@ -57,7 +57,8 @@ angular.module('publication')
                     ToastService.showToast(translated, false);
                 });
 
-            }, function(data) {
+                },
+                function(data) {
                 //revert library back to original state
                 $scope.user.library.splice(removeIndex,0, {id: pub.id});
                 $translate('ERROR_REMOVING_PUBLICATION').then(function(translated) {

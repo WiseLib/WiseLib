@@ -1,7 +1,7 @@
 'use strict';
 describe('TESTNAME',function(){
 
-	describe('CONTROLLERNAMEHERE',function(){
+	describe('CONTROLLERNAME',function(){
 		var $controller = null, $scope = null,$location = null,$mdToast = null;
 		var httpBackend = null, location= null,mdToast =null, Person =null, PersonState =null, Affiliation =null;
 		var controller;
@@ -9,7 +9,7 @@ describe('TESTNAME',function(){
 		var Page= {title : '',setTitle: function (text){title= text;}};
 
 		beforeEach(function(){
-			angular.mock.module('MODULENAMEHERE');
+			angular.mock.module('MODULENAME');
 		});
 		beforeEach(inject(function(_$controller_){
     		$controller = _$controller_;
@@ -20,7 +20,7 @@ describe('TESTNAME',function(){
 			httpBackend = $httpBackend;
 			location = $location;
 
-			controller = $controller('CONTROLLERNAMEHERE', {
+			controller = $controller('CONTROLLERNAME', {
 				Page: Page,
 				$scope: $scope,
 			});
