@@ -16,7 +16,7 @@ module.exports = Person;
 var Publication = require('./publication.js');
 
 Person.prototype = Object.create(Rankable.prototype);
-Person.prototype.variables = ['firstName', 'lastName', 'affiliation', 'publications', 'picture'];
+Person.prototype.variables = ['firstName', 'lastName', 'affiliation', 'publications', 'picture', 'disciplines'];
 Person.prototype.variables.push.apply(Person.prototype.variables, Rankable.prototype.variables);
 Person.prototype.representation = PersonRepr;
 
