@@ -41,12 +41,10 @@
 	             <h2>{{'PUBLICATIONS_WRITTEN_BY' | translate}} {{person.firstName}}</h2>
 				<md-progress-circular md-mode="indeterminate" ng-if="!publications.length && !error"></md-progress-circular>
 				<md-list class="publications-list">
-					<md-item ng-repeat="publication in publications">
-						<md-item-content>
+					<md-list-item ng-repeat="publication in publications">
 							<div class="md-tile-content">
 								<publicationmin publication="publication"></publicationmin>
 							</div>
-						</md-item-content>
 						<md-divider md-inset ng-if="!$last"></md-divider>
 					</md-item>
 				</md-list>

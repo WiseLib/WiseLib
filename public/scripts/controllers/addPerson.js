@@ -89,7 +89,8 @@ angular.module('person')
         });
     };
     $scope.addAffiliation = function(toAdd) {
-        if(toAdd !== undefined) {
+        if(toAdd) {
+            console.log(toAdd);
             $scope.affiliations.push(toAdd);
             $scope.person.affiliation = toAdd.id;
             $scope.affiliationsParent = toAdd.id;
