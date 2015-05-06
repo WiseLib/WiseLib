@@ -101,9 +101,9 @@ module.controller('publicationController', function($scope, $window, $routeParam
                 getPublication(publication.id);
             });
         }
-    }, function(data) {
-        $translate('ERROR').then(function(translated) {
-            ToastService.showToast(translated + ': ' + data.statusText, true);
+    }, function() {
+        $translate(['PUBLICATION', 'WAS_NOT_FOUND_LC']).then(function(translations) {
+            $scope.error = translations.PUBLICATION + ' ' + translations.WAS_NOT_FOUND_LC;
         });
     });
 

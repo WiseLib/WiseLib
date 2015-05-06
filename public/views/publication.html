@@ -1,4 +1,5 @@
-<md-content layout-align="center">
+<md-toolbar class="md-accent" ng-if="error">{{'ERROR' | translate}}: {{error}}</md-toolbar>
+<md-content layout-align="center" ng-if="publication">
 	<md-progress-circular md-mode="indeterminate" ng-if="!publication"></md-progress-circular>
 	<div class="page-title">{{publication.title}}</div>
 	<md-tabs md-selected="selectedIndex">

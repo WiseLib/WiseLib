@@ -1,7 +1,7 @@
-<md-content>
-	<md-toolbar class="md-accent" ng-if="error">{{'ERROR' | translate}}: {{error}}</md-toolbar>
-	<md-progress-circular md-mode="indeterminate" ng-if="!person && !error"></md-progress-circular>
-	<div layout="row">
+<md-toolbar class="md-accent" ng-if="error">{{'ERROR' | translate}}: {{error}}</md-toolbar>
+<md-progress-circular md-mode="indeterminate" ng-if="!person && !error"></md-progress-circular>
+<md-content ng-if="person">
+	<div layout="row" ng-if="person">
 		<div><img ng-src="{{person.picture || '/assets/dummy.jpg'}}"  class="profile-image-big" alt="{{'PROFILE_IMAGE' | translate}}"></img></div>
 		<div class="page-title" layout="row" layout-align="start center">{{person.firstName}} {{person.lastName}}</div>
 		</div>
