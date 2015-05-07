@@ -20,6 +20,10 @@ Person.prototype.variables = ['firstName', 'lastName', 'affiliation', 'publicati
 Person.prototype.variables.push.apply(Person.prototype.variables, Rankable.prototype.variables);
 Person.prototype.representation = PersonRepr;
 //gemiddelde aantal publicaties (per jaar) * (1 + publicaties dit jaar)
+/**
+ * Calculate the rank of the Person for which the function is called. This is calculated by: mean nr of published publications/year * (1 + nr of published publications this year)
+ * @return {Thenable<Number>} Thenable which holds the rank as a number
+ */
 Person.prototype.calculateRank = function() {
 	var person = this;
 	if(!this.publications) {
@@ -52,6 +56,10 @@ Person.prototype.calculateRank = function() {
 	});
 };
 
+/**
+ * Get persons that are connected with the person for which the function is called. Contacts of a person include co-authors and persons who do research in the same discipline
+ * @return {Thenable<Array>} Thenable which hold the Person's contacts as an Array
+ */
 Person.prototype.getContacts = function() {
 	var person = this;
 	var contacts = new Person(person.id).fetch().then(function(p) {

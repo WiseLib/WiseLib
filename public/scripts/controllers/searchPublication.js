@@ -37,9 +37,9 @@ angular.module('publication')
     };
 
     $scope.empty = function(arrays) {
-        for (var i = 0; i < arrays.length; i++) {
-            arrays[i].length = 0;
-        }
+        arrays.forEach(function(array) {
+            array.length = 0;
+        });
     };
 
     $scope.addFilters = function(keyword) {
@@ -84,8 +84,7 @@ angular.module('publication')
                 if(authors.length === 0) {
                     authors.push({id: publication.uploader});
                 }
-                for (var j = 0; j < authors.length; j++) {
-                    var author = authors[j];
+                authors.forEach(function(author) {
                     //needed to make `deferred` local (see javascript function/loop/closure scopes)
                     var success = function() {
                         var deferred = $q.defer();
@@ -97,7 +96,7 @@ angular.module('publication')
                     Person.get({id: author.id}, success(), function(personData) {
                         ToastService.showToast(personData.statusText, false);
                     });
-                }
+                });
                 $q.all(promises).then(function(personDataArray) {
                     //first promise is uploader
                     publication.uploader = personDataArray[0];
@@ -108,7 +107,9 @@ angular.module('publication')
                     //add to results
                     $scope.add($scope.foundPublications, publication);
                 }, function(reason) {
-                    ToastService.showToast(reason, true);
+                    $translate('ERROR').then(function(translated) {
+                        ToastService.showToast(translated + ': ' + reason, true);
+                    });
                 });
 
             })(publication);
@@ -118,10 +119,9 @@ angular.module('publication')
 
     $scope.HandleExternData = function(data) { //arrary of id,title,authors(array of {first_name:?,last_name?}),link,abstract,year,source
 
-        for (var i = 0; i < data.length; i++) {
-            var externPub = data[i];
+        data.forEach(function(externPub) {
             $scope.add($scope.foundPublications, externPub);
-        }
+        });
     };
 
     $scope.accessToken = undefined;
@@ -137,7 +137,7 @@ angular.module('publication')
                 $scope.HandleExternData(data);
             }, function(data) { //error from server
                 $translate('COULD_NOT_GET_A_RESULT').then(function(translated) {
-                    ToastService.showToast(translated + ': ' + keyword + ' :' + data.status, true);
+                    ToastService.showToast(translated + ': ' + keyword + ' :' + data.statusText, true);
                 });
             });
         };
@@ -170,7 +170,7 @@ angular.module('publication')
             $scope.handleData(data.publications);
         }, function(data) { //error from server
             $translate('COULD_NOT_GET_A_RESULT').then(function(translated) {
-                ToastService.showToast(translated + ': ' + keyword + ' :' + data.status, true);
+                ToastService.showToast(translated + ': ' + keyword + ' :' + data.statusText, true);
             });
         });
         $location.search({q: query});

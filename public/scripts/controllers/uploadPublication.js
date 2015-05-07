@@ -2,11 +2,19 @@
 var module = angular.module('publication');
 
 module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, Person, PersonState, Journal, Proceeding, Publication, TokenService, ToastService) {
-    var user = TokenService.getUser();
 
     $translate('UPLOAD_PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
     });
+
+    try {
+        var user = TokenService.getUser();
+    } catch(error) {
+        $translate('LOGGED_IN_VIEW_REQUIREMENT').then(function(translated) {
+            $scope.error = translated;
+        });
+        return;
+    }
     $scope.authors = [];
     $scope.pdfAuthors =[];
     $scope.disciplines = [];
@@ -124,9 +132,9 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
             }
 
         }).
-        error(function(data, status, headers, config) {
+        error(function(data) {
             $translate('UPLOADED_FILE_NOT_PDF').then(function(translated) {
-                ToastService.showToast(translated, true);
+                ToastService.showToast(translated + ': ' + data.statusText, true);
             });
         });
     };
@@ -141,7 +149,7 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
             headers: {'Content-Type': undefined },
             transformRequest: angular.identity
         }).
-        success(function(data, status, headers, config) {
+        success(function(data) {
 
             var index;
             $scope.JSONreferences=[];
@@ -154,9 +162,9 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 $scope.add($scope.references,title);
             }
         }).
-        error(function(data, status, headers, config) {
+        error(function(data) {
             $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
-                ToastService.showToast(translated, true);
+                ToastService.showToast(translated + ': ' + data.statusText, true);
             });
         });
     };
@@ -183,11 +191,11 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         function upload(){
             console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
 
-            Publication.save(JSON.stringify(toPost),function(data){
+            Publication.save(JSON.stringify(toPost),function(){
                 $location.path('/mypublications');
             },function(data){
                 $translate('ERROR').then(function(translated) {
-                ToastService.showToast(translated + ': ' + data.status, true);
+                    ToastService.showToast(translated + ': ' + data.statusText, true);
                 });
             });
 
@@ -235,6 +243,10 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 Person.save(author,function(person){
                     toPost.authors.push({id:person.id});
                     if(toPost.authors.length === $scope.authors.length)upload();
+                }, function(data) {
+                    $translate('ERROR').then(function(translated) {
+                        ToastService.showToast(translated + ': ' + data.statusText, true);
+                    });
                 });
             }
         }

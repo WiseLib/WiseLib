@@ -34,9 +34,11 @@ module.controller('publicationController', function($scope, $window, $routeParam
             User.put(userAddPublication, function(resource) {
                 TokenService.setToken(resource.token);
                 $scope.authenticatedUser = TokenService.getUser();
-                $translate('ADDED_TO_LIBRARY').then(function(translated){ToastService.showToast(translated);});
-            }, function(errorData) {
-                console.log(errorData.error);
+                $translate('ADDED_TO_LIBRARY').then(function(translated){ToastService.showToast(translated, false);});
+            }, function(data) {
+                $translate('ERROR').then(function(translated) {
+                    ToastService.showToast(translated + ': ' + data.statusText, true);
+                });
             });
         }
     };
@@ -61,41 +63,48 @@ module.controller('publicationController', function($scope, $window, $routeParam
                 getPerson(user.person);
             }
         }, function(data) {
-            console.log('error: ' + data.error);
+            $translate('ERROR').then(function(translated) {
+                ToastService.showToast(translated + ': ' + data.statusText, true);
+            });
         });
         $scope.publication = pub;
-        for (var i = pub.authors.length - 1; i >= 0; i--) {
-            var id = pub.authors[i].id;
+
+        pub.authors.forEach(function(author) {
+            var id = author.id;
             $scope.authors.push(id);
             if(!$scope.persons[id]) {
                 getPerson(id);
             }
-        }
+        });
 
         if(pub.editors !== undefined){
-            for (i = pub.editors.length - 1; i >= 0; i--) {
-               var id = pub.editors[i].id;
+            pub.editors.forEach(function(editor) {
+                var id = editor.id;
                 $scope.editors.push(id);
-               if(!$scope.persons[id]) {
+                if(!$scope.persons[id]) {
                     getPerson(id);
                 }
-            }
+            });
         }
 
         function getPublication(id) {
             Publication.get({id: id}, function(publication) {
                 $scope.publications.push(publication);
             }, function(data) {
-                console.log('error: ' + data.error);
+                $translate('ERROR').then(function(translated) {
+                    ToastService.showToast(translated + ': ' + data.statusText, true);
+                });
             });
         }
-        if(pub.editors !== undefined){
-            for (i = pub.referencedPublications.length - 1; i >= 0; i--) {
-             getPublication(pub.referencedPublications[i].id);
-            }
+        if(pub.referencedPublications !== undefined){
+            pub.referencedPublications.forEach(function(publication) {
+                getPublication(publication.id);
+            });
         }
-    }, function(data) {
-        console.log('Error getting publication: ' + JSON.stringify(data));
+    }, function() {
+        $translate(['PUBLICATION', 'WAS_NOT_FOUND_LC']).then(function(translations) {
+            $scope.error = translations.PUBLICATION + ' ' + translations.WAS_NOT_FOUND_LC;
+        });
     });
 
 });

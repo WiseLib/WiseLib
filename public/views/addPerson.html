@@ -34,7 +34,7 @@
                 <h4>{{'PROFILE_IMAGE' | translate}}</h4>
                 <img ng-src="{{person.profileImageSrc || '/assets/dummy.jpg'}}" class="profile-image" ng-model="person.profileImageSrc" name="profileImage" alt="profile image" />
                 <md-input-container>
-                    <input type="file" accept="image/*" onchange="angular.element(this).scope().fileNameChanged(this)" />
+                    <input type="file" accept="image/*" onchange="angular.element(this).scope().fileNameChanged(this)" aria-label="upload profile image"/>
                 </md-input-container>
             </div>
             <div class="form-block" ng-show="!person.id">

@@ -1,4 +1,5 @@
-<md-content layout="column">
+<md-toolbar class="md-accent" ng-if="error">{{'ERROR' | translate}}: {{error}}</md-toolbar>
+<md-content layout="column" ng-if="!error">
     <div class="uploadfield">
         <md-button type="button" class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadpdf').click();">
             <md-icon md-svg-src='/assets/upload.svg'></md-icon>
