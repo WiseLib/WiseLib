@@ -2,11 +2,19 @@
 var module = angular.module('publication');
 
 module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, Person, PersonState, Journal, Proceeding, Publication, TokenService, ToastService) {
-    var user = TokenService.getUser();
 
     $translate('UPLOAD_PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
     });
+
+    try {
+        var user = TokenService.getUser();
+    } catch(error) {
+        $translate('LOGGED_IN_VIEW_REQUIREMENT').then(function(translated) {
+            $scope.error = translated;
+        });
+        return;
+    }
     $scope.authors = [];
     $scope.pdfAuthors =[];
     $scope.disciplines = [];

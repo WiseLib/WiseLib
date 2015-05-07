@@ -46,6 +46,7 @@
 	"LOG_IN": "Log in",
 	"LOG_OUT": "Log out",
 	"LOGGED_IN_REQUIREMENT": "You have to be logged in to do this",
+	"LOGGED_IN_VIEW_REQUIREMENT": "You have to be logged in to view this.",
     "MY_PROFILE": "My profile",
 	"MY_PUBLICATIONS": "My publications",
 	"MY_LIBRARY": "My library",

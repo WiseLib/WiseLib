@@ -11,7 +11,7 @@ function NotFoundError(name) {
 NotFoundError.prototype = Object.create(Error.prototype);
 
 /**
- * An error ti signal that a certain functionality isn't implemented
+ * An error to signal that a certain functionality isn't implemented
  */
 function NotImplementedError() {
 	this.status = 501;

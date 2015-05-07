@@ -5,11 +5,19 @@ angular.module('publication')
     $translate('MY_PUBLICATIONS').then(function(translated) {
         Page.setTitle(translated);
     });
+    var user;
     $scope.error = null;
     $scope.publications = [];
     $scope.showLoading = true;
-
-    var user = TokenService.getUser();
+    try {
+    user = TokenService.getUser();
+    } catch(error) {
+        $translate('LOGGED_IN_VIEW_REQUIREMENT').then(function(translated) {
+            $scope.error = translated;
+        });
+        $scope.showLoading = false;
+        return;
+    }
     Person.publications({id: user.person}, function(data) {
         $scope.showLoading = false;
         if(data.publications.length > 0) {

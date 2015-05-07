@@ -8,7 +8,15 @@ angular.module('publication')
     $scope.error = null;
     $scope.publications = [];
     $scope.showLoading = true;
-    $scope.user = TokenService.getUser();
+    try {
+        $scope.user = TokenService.getUser();
+    } catch(error) {
+        $translate('LOGGED_IN_VIEW_REQUIREMENT').then(function(translated) {
+            $scope.error = translated;
+        });
+        $scope.showLoading = false;
+        return;
+    }
 
     $scope.getLibrary = function(user) {
         User.library({id: user.id}, function(data) {

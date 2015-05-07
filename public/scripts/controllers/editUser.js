@@ -9,6 +9,13 @@ angular.module('user')
     $scope.userEditForm = {};
     $scope.personEditForm = {};
 
+    if(!TokenService.getToken()) {
+        $translate('LOGGED_IN_VIEW_REQUIREMENT').then(function(translated) {
+            $scope.error = translated;
+        });
+        return;
+    }
+
     /**
    * Sends a request to the server to register a user using form input
    * @return {None}
