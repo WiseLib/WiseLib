@@ -530,6 +530,8 @@ var ProceedingPublication = bookshelf.Model.extend({
         return this.belongsTo(Proceeding, 'part_of_conference_id');
     }
 });
+proceedingPublicationRepr[searchKey] = [];
+proceedingPublicationRepr.relationSearch = ['proceeding'];
 proceedingPublicationRepr.model = ProceedingPublication;
 proceedingPublicationRepr.relations = ['proceeding'];
 //proceedingPublicationRepr.super = publicationRepr;
