@@ -161,3 +161,14 @@ personmin a {
 	padding-bottom: 0;
 	margin: 0;
 }
+
+md-content {
+	height: 100%;
+}
+
+#cy {
+    height: 400px;
+    width: 100%;
+    position: relative;
+    clear: both;
+}

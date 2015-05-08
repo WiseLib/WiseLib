@@ -96,4 +96,64 @@ Person.prototype.getContacts = function() {
 	});
 	return contacts;
 };
+Person.prototype.getNetwork = function() {
+	var result = [];
+	var person = this;
+	return new Person(person.id).fetch().then(function(p) {
+		person = p;
+		return new Publication({authors: [{id: person.id}]}).fetchAll();
+	})
+	.then(function(publications) {
+		return Promise.all(publications);
+	})
+	.then(function(publications) {
+		var addedIds = [];
+		var authors = [];
+		publications.forEach(function(publication) {
+		publication.id = 'pub' + publication.id;
+		result.push({group: 'nodes', data: publication});
+			publication.authors.forEach(function(author) {
+				var authorNetworkId = 'per' + author.id;
+					result.push({group: 'edges', data: {id: authorNetworkId + publication.id,
+											  weight: 1,
+											  source: authorNetworkId,
+											  target: publication.id}});
+				if(author.id !== person.id && !_.contains(addedIds, author.id)) { //Only fetch other persons and persons that aren't in the addedIds array yet
+					authors.push(new Person(author).fetch());
+					addedIds.push(author.id);
+				}
+			});
+		});
+		return Promise.all(authors);
+	})
+	.then(function(coWriters) {
+		if(person.affiliation) {
+			return new Person({affiliation: person.affiliation}).fetchAll().then(function(persons) {
+				return Promise.join(persons, coWriters, function(persons, coWriters){return [persons, coWriters];});
+			});
+		} else {
+			return Promise.all(coWriters);
+		}
+	})
+	.then(function(total) {
+		var persons = _.uniq(_.flatten(total), function(person) {return person.id;}); //Make 1 array of 2, remove duplicates and remove person of which to get the contacts
+		var personNetworkId = 'per' + person.id;
+		console.log(personNetworkId);
+		persons.forEach(function(relatedPerson) {
+			relatedPerson.id = 'per' + relatedPerson.id;
+			relatedPerson.title = relatedPerson.firstName + ' ' + relatedPerson.lastName;
+			result.push({group: 'nodes',data: relatedPerson});
+			if(relatedPerson.id !== personNetworkId) {
+				result.push({group: 'edges',
+							data: {id: personNetworkId + relatedPerson.id,
+								   weight: 1,
+								   source: personNetworkId,
+								   target: relatedPerson.id}});
+			}
+
+
+		});
+		return result;
+	});
+};
 Person.prototype.constructor = Person;

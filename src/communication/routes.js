@@ -67,6 +67,9 @@ module.exports = function(app) {
     app.route('/persons/:id/contacts.json')
     .get(routeFunctions.getPersonContacts);
 
+    app.route('/persons/:id/network.json')
+    .get(routeFunctions.getPersonNetwork);
+
     app.route('/users.json')
     .post(routeFunctions.postUser);
 

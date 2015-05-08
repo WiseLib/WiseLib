@@ -198,6 +198,16 @@ module.exports = {
 		});
 	},
 
+	getPersonNetwork: function(req, res) {
+		new core.Person(req.params.id).getNetwork()
+		.then(function(network) {
+			res.json({network: network});
+		})
+		.catch(function(error) {
+			reportError(res, error);
+		});
+	},
+
 	postPerson: function(req, res) {
 		postSingle(req, res, core.Person);
 	},

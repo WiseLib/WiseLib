@@ -10,7 +10,7 @@ angular.module('publication')
     $scope.publications = [];
     $scope.showLoading = true;
     try {
-    user = TokenService.getUser();
+        user = TokenService.getUser();
     } catch(error) {
         $translate('LOGGED_IN_VIEW_REQUIREMENT').then(function(translated) {
             $scope.error = translated;
