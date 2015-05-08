@@ -146,8 +146,7 @@ Person.prototype.getNetwork = function() {
 		}
 	})
 	.then(function(total) {
-		var persons = _.uniq(_.flatten([total.coWriters, total.sameAfflPersons]), function(person) {return person.id;}); //Make 1 array of 2, remove duplicates and remove person of which to get the contacts
-		//var personNetworkId = 'per' + person.id;
+		var persons = _.uniq(_.flatten([total.coWriters, total.sameAfflPersons]), function(person) {return person.id;}); //Make 1 array of 2 and remove duplicates
 		persons.forEach(function(relatedPerson) {
 			relatedPerson.id = 'per' + relatedPerson.id;
 			relatedPerson.title = relatedPerson.firstName + ' ' + relatedPerson.lastName;

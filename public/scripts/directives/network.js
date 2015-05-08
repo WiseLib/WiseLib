@@ -8,9 +8,9 @@ angular.module('person')
 		template :'<div id="cy"></div>',
 		replace: true,
 		scope: {
-			network: '=network'
+			network: '=network',
             // controller function to be triggered when clicking on a node
-            //cyClick:'&'
+            onElementClick:'&'
         },
         link: function(scope, element, attrs, fn) {
         	scope.typeColors = {
@@ -35,19 +35,19 @@ angular.module('person')
         	 			var type = element.data.id.substring(0,3);
         	 			switch(type) {
         	 				case 'pub':
-        	 					element.data.shape = 'ellipse';
-        	 					break;
+        	 				element.data.shape = 'ellipse';
+        	 				break;
         	 				case 'per':
-        	 					element.data.shape = 'triangle';
-        	 					break;
+        	 				element.data.shape = 'triangle';
+        	 				break;
         	 				case 'aff':
-        	 					element.data.shape = 'rectangle';
+        	 				element.data.shape = 'rectangle';
         	 			}
         	 			element.data.shapeColor = scope.typeColors[element.data.shape];
         	 		}
 
         	 	});
-        	 	cytoscape({
+        	 	var cy = cytoscape({
         	 		container: $('#cy')[0],
         	 		style: cytoscape.stylesheet()
         	 		.selector('node')
@@ -98,12 +98,32 @@ angular.module('person')
         	 				node.data('weight', weight);
 
         	 			});
+        	 			function generateTooltip(object) {
+        	 				object = object._private.data;
+        	 				var content = '';
+        	 				var type = object.id.substring(0,3);
+        	 				if(type === 'pub') {
+        	 					content += '<h3><a href="/publications/' + object.id.slice(3) + '">' + object.title + '</a></h3>';
+        	 					content += object.abstract;
+        	 				} else if(type === 'per') {
+        	 					content += '<h3><a href="/persons/' + object.id.slice(3) + '">' + object.title + '</a></h3>';
+        	 					content += '<img src="' + (object.picture ? object.picture : '/assets/dummy.jpg')  + '" class="profile-image" />';
+        	 				} else {
+        	 					content += '<h3>' + object.title + '</h3>';
+        	 				}
+        	 				return content;
+        	 			}
+        	 			cy.nodes().qtip ({
+        	 				content: function(){return generateTooltip(this);},
+        	 				position: { my: 'top center',at: 'bottom center'},
+        	 				style: {classes: 'qtip-bootstrap',tip: {width: 16,height: 8}}
+        	 			});
         	 		}
         	 	});
-};
-$rootScope.$on('appChanged', function(){
-	scope.makeGraph();
-});
-}
-};
+			};
+			$rootScope.$on('appChanged', function(){
+				scope.makeGraph();
+			});
+		}
+	};
 });
