@@ -4,10 +4,10 @@ var Publication = require('../../src/core/publication.js');
 var _ = require('lodash');
 
 describe('Publication test', function() {
-	
-	var fromJSON = new Publication({title:'A test publication', 
-		                            url:'www.atest.com', 
-		                            numberOfPages:20, 
+
+	var fromJSON = new Publication({title:'A test publication',
+		                            url:'www.atest.com',
+		                            numberOfPages:20,
 		                            year:2015,
 		                            type:'unknown',
 		                            authors: [{id:9022}, {id:9050}],
@@ -55,7 +55,7 @@ describe('Publication test', function() {
 			publications.length.should.be.equal(2);
 			done();
 		});
-		
+
 	});
 	it('should add and delete Publication', function(done) {
 		toAdd.save().then(function(publication) {
@@ -66,6 +66,6 @@ describe('Publication test', function() {
 			publication.should.have.property('id',undefined);
 			done();
 		});
-		
+
 	});
 });

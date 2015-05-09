@@ -1,6 +1,7 @@
 'use strict';
 var Promise = require('bluebird');
 var DBManager = require('./dbmanager.js');
+var errors = require('../core/errors.js');
 
 /* Writeable : provides interaction with database, must subclass this to communicate with it
  * (see fetch, fetchAll, save, destroy)
@@ -84,7 +85,7 @@ Writeable.prototype.fetch = function() {
 			return writeable;
 		}
 		else {
-			Promise.reject(writeable.id);
+			throw new errors.NotFoundError('Resource'); //Real name not always available
 		}
 	});
 };

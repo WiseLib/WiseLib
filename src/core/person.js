@@ -57,8 +57,8 @@ Person.prototype.calculateRank = function() {
 };
 
 /**
- * [getContacts description]
- * @return {[type]} [description]
+ * Get persons that are connected with the person for which the function is called. Contacts of a person include co-authors and persons who do research in the same discipline
+ * @return {Promise<Array>} Thenable which hold the Person's contacts as an Array
  */
 Person.prototype.getContacts = function() {
 	var person = this;

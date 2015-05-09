@@ -24,7 +24,7 @@ angular.module('user')
                 });
             }).error(function(data) {
                 $translate('ERROR').then(function(translated) {
-                    ToastService.showToast(translated + ': ' + data.error, true);
+                    ToastService.showToast(translated + ': ' + data.statusText, true);
                 });
             });
         } else {

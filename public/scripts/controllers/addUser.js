@@ -54,14 +54,14 @@ angular.module('user')
             $scope.userForm.person = person.id;
             return $scope.postUser($scope.userForm);
         })
-        .then(function(user) {
+        .then(function() {
             return $translate('SUCCESSFULLY_REGISTERED');
         })
         .then(function(translation) {
             ToastService.showToast(translation, false);
         })
-        .catch(function(errorData) {
-            ToastService.showToast(JSON.stringify(errorData), true);
+        .catch(function(data) {
+            ToastService.showToast(JSON.stringify(data.statusText), true);
         });
     };
 
