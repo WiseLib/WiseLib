@@ -59,6 +59,7 @@ angular.module('user')
         })
         .then(function(translation) {
             ToastService.showToast(translation, false);
+            PersonState.person={};
         })
         .catch(function(data) {
             ToastService.showToast(JSON.stringify(data.statusText), true);
