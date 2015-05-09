@@ -5,11 +5,19 @@ angular.module('publication')
     $translate('MY_PUBLICATIONS').then(function(translated) {
         Page.setTitle(translated);
     });
+    var user;
     $scope.error = null;
     $scope.publications = [];
     $scope.showLoading = true;
-
-    var user = TokenService.getUser();
+    try {
+    user = TokenService.getUser();
+    } catch(error) {
+        $translate('LOGGED_IN_VIEW_REQUIREMENT').then(function(translated) {
+            $scope.error = translated;
+        });
+        $scope.showLoading = false;
+        return;
+    }
     Person.publications({id: user.person}, function(data) {
         $scope.showLoading = false;
         if(data.publications.length > 0) {
@@ -20,7 +28,7 @@ angular.module('publication')
         });
         }
     }, function(error) {
-        $scope.error = error.status + ' ' + error.statusText;
+        $scope.error = error.status + ' ' + error.text;
     });
 
     $scope.deletePublication = function(pub) {
@@ -47,7 +55,7 @@ angular.module('publication')
 
       }, function(data) {
         $translate('ERROR_REMOVING_PUBLICATION').then(function(translated) {
-            ToastService.showToast(translated + ': ' + data.error, true);
+            ToastService.showToast(translated + ': ' + data.text, true);
         });
       });
     }, function() {

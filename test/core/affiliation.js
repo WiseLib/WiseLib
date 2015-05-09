@@ -4,7 +4,7 @@ var Affiliation = require('../../src/core/affiliation.js');
 var _ = require('lodash');
 
 describe('Affiliation test', function() {
-	
+
 	var fromJSON = new Affiliation({name:'affiliation', q:'search'});
 	var fromID = new Affiliation(2).fetch();
 	var fetched = new Affiliation({name: 'Vrije Universiteit Brussel'}).fetchAll();
@@ -27,7 +27,7 @@ describe('Affiliation test', function() {
 			affiliations.length.should.be.equal(1);
 			done();
 		});
-		
+
 	});
 	it('should add and delete Affiliation', function(done) {
 		toAdd.save().then(function(affiliation) {
@@ -38,6 +38,5 @@ describe('Affiliation test', function() {
 			affiliation.should.have.property('id',undefined);
 			done();
 		});
-		
 	});
 });

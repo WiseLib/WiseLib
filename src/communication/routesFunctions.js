@@ -17,18 +17,14 @@ var crypto = require('crypto');
 //For login
 var jwt = require('jsonwebtoken');
 
-
-//need to add authentification options
-var getMultiple = function(req, res, CoreClass, name) {
-	var params = req.query;
-	new CoreClass(params).fetchAll()
-	.then(function(instances) {
-		var result = {};
-		result[name] = instances;
-		res.json(result);
-	});
+/**
+ * Send an error back to the client based on error information or error 500 otherwise
+ * @param  {Object} res   result Object from Express
+ * @param  {Object} error Error to send to user
+ */
+var reportError = function(res, error) {
+	res.status(error.status ? error.status : 500).json({text: error.statusText ? error.statusText : 'A server error occurred'});
 };
-
 /**
  * sign used to split Arrays in the splitInArray function
  * @type {String}
@@ -76,8 +72,21 @@ var getSingle = function(req, res, CoreClass) {
 	.then(function(instance) {
 		res.json(instance);
 	})
-	.catch(function(id) {
-		console.log(id);
+	.catch(function(error) {
+		reportError(res, error);
+	});
+};
+
+var getMultiple = function(req, res, CoreClass, name) {
+	var params = req.query;
+	new CoreClass(params).fetchAll()
+	.then(function(instances) {
+		var result = {};
+		result[name] = instances;
+		res.json(result);
+	})
+	.catch(function(error) {
+		reportError(res, error);
 	});
 };
 
@@ -86,6 +95,9 @@ var postSingle = function(req, res, CoreClass) {
 	new CoreClass(req.body).save()
 	.then(function(instance) {
 		res.status(201).json({id: instance.id});
+	})
+	.catch(function(error) {
+		reportError(res, error);
 	});
 };
 
@@ -94,6 +106,9 @@ var putSingle = function(req, res, CoreClass) {
 	new CoreClass(req.body).save()
 	.then(function(instance) {
 		res.status(200).json({id: instance.id});
+	})
+	.catch(function(error) {
+		reportError(res, error);
 	});
 };
 
@@ -178,6 +193,9 @@ module.exports = {
 		new core.Person(req.params.id).getContacts()
 		.then(function(persons) {
 			res.json({persons: persons});
+		})
+		.catch(function(error) {
+			reportError(res, error);
 		});
 	},
 
@@ -222,6 +240,9 @@ module.exports = {
 			var result = {};
 			result.publications = instances;
 			res.json(result);
+		})
+		.catch(function(error) {
+			reportError(res, error);
 		});
 	},
 
@@ -235,6 +256,9 @@ module.exports = {
 			var result = {};
 			result.publications = p[0].concat(p[1]);
 			res.json(result);
+		})
+		.catch(function(error) {
+			reportError(res, error);
 		});
 	},
 
@@ -256,6 +280,9 @@ module.exports = {
 		})
 		.then(function(instance) {
 			res.json(instance);
+		})
+		.catch(function(error) {
+			reportError(res, error);
 		});
 	},
 
@@ -269,13 +296,16 @@ module.exports = {
 		})
 		.then(function() {
 			res.status(200).end();
+		})
+		.catch(function(error) {
+			reportError(res, error);
 		});
 	},
 
 	postPublication: function(req, res) {
 		if (req.body.type === 'Journal') postSingle(req, res, core.JournalPublication);
 		else if(req.body.type === 'Proceeding') postSingle(req, res, core.ProceedingPublication);
-		else req.status(401).json({error:'Wrong type' + req.body.type});
+		else req.status(401).json({text: 'Wrong type' + req.body.type});
 	},
 
 	getPublicationAuthors: function(req, res) {
@@ -287,7 +317,7 @@ module.exports = {
 		var email = req.body.email;
 		var password = req.body.password;
 		if(email === '' || password === '') {
-			res.sendStatus(401);
+			res.status(401).json({text: 'Email or password not provided.'});
 		}
 		new core.User({email: email}).fetchAll()
 		.then(function(users) {
@@ -295,8 +325,11 @@ module.exports = {
 				var token = jwt.sign(users[0], config.secretToken, { expiresInMinutes: 60 });
 				res.json({token: token});
 			} else {
-				res.status(401).json({error: 'Wrong email or password'});
+				res.status(401).json({text: 'Wrong email or password'});
 			}
+		})
+		.catch(function(error) {
+			reportError(res, error);
 		});
 	},
 
@@ -306,12 +339,18 @@ module.exports = {
 			new core.PDFParser(file).extract()
 			.then(function(data) {
 				res.json(data);
+			})
+			.catch(function(error) {
+				reportError(res, error);
 			});
 		}
 		else if (core.BibtexParser.prototype.isSupported(file.mimetype)) {
 			new core.BibtexParser(file).extract()
 			.then(function(data) {
 				res.json(data);
+			})
+			.catch(function(error) {
+				reportError(res, error);
 			});
 		}
 		else {

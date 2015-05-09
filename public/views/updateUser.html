@@ -1,4 +1,5 @@
-<md-content layout="column">
+<md-toolbar class="md-accent" ng-if="error">{{'ERROR' | translate}}: {{error}}</md-toolbar>
+<md-content layout="column" ng-if="!error">
 	<form ng-submit="updateUser()" layout="column" ng-model="userEditForm" name="userForm">
 		<div class="form-block">
 			<h4>{{'USER_SETTINGS' | translate}}</h4>
