@@ -59,50 +59,77 @@ describe('Person test', function() {
 		});
 
 	});
-	it('Should get the contact persons correctly', function(done) {
+
+	var executeOnTestSet = function(fnToTest) {
 		var created = [];
-		var affiliation = new Affiliation({name: 'getContactsAffiliation'});
-		created.push(affiliation);
-		affiliation.save().then(function(savedAffl) {
-			var person = new Person({firstName: 'getContacts',
-									 lastName: 'test',
-									 affiliation: savedAffl.id,
-									 publications: []});
-			created.push(person);
-			var sameAfflPerson = new Person({firstName: 'sameAffl',
-											lastName: 'contactsTest',
-											affiliation: savedAffl.id,
-											publications: []});
-			created.push(sameAfflPerson);
-			var samePubPerson = new Person({firstName: 'samePub',
-											lastName: 'contactsTest',
-											publications: []});
-			created.push(samePubPerson);
-			return Promise.all([person.save(), sameAfflPerson.save(), samePubPerson.save()]);
-		})
-		.then(function(persons) {
-			var publication = new Publication({title:'getContactsTest',
-		                            url:'http://getContactsTest.com',
+		var toReturn, targetPerson, savedAffiliation, publication;
+		var affiliation = new Affiliation({name: 'testAffiliation'});
+		return affiliation.save()
+		.then(function(savedAffl) {
+			created.push(savedAffl);
+			savedAffiliation = savedAffl;
+			var publication = new Publication({title:'publicationTest',
+		                            url:'http://pubtest.com',
 		                            numberOfPages:20,
 		                            year:2015,
 		                            type:'unknown',
-		                            authors: [{id: persons[0].id}, {id: persons[2].id}],
 		                            q:'search'});
-			created.push(publication);
-			persons.push(publication.save());
-			return Promise.all(persons);
+			return publication.save();
 		})
-		.then(function(persons) {
-			return persons[0].getContacts();
+		.then(function(savedPublication) {
+			created.push(savedPublication);
+			publication = savedPublication;
+			var person = new Person({firstName: 'targetPerson',
+									 lastName: 'test',
+									 affiliation: savedAffiliation.id,
+									 publications: [{id: publication.id}]});
+			return person.save();
+		}).then(function(savedPerson) {
+			created.push(savedPerson);
+			targetPerson = savedPerson;
+			var sameAfflPerson = new Person({firstName: 'sameAffil',
+											lastName: 'test',
+											affiliation: savedAffiliation.id});
+			created.push(sameAfflPerson);
+			return sameAfflPerson.save();
+		}).then(function(savedSameAfflPerson) {
+			created.push(savedSameAfflPerson);
+			var samePubPerson = new Person({firstName: 'samePub',
+											lastName: 'test',
+											publications: [{id: publication.id}]});
+			created.push(samePubPerson);
+			return samePubPerson.save();
 		})
-		.then(function(contacts) {
-			contacts.should.be.instanceof(Array).and.have.lengthOf(2);
+		.then(function(SavedSamePubPerson) {
+			created.push(SavedSamePubPerson);
+			return targetPerson[fnToTest]();
+		})
+		.then(function(returnValue) {
+			toReturn = returnValue;
 			created = created.map(function(object) {
 				return object.destroy();
 			});
 			return Promise.all(created);
 		})
 		.then(function() {
+			return toReturn;
+		});
+	};
+
+	it('should get the contact persons correctly', function(done) {
+		executeOnTestSet('getContacts')
+		.then(function(contacts) {
+			contacts.should.be.instanceof(Array).and.have.lengthOf(2);
+			done();
+		})
+		.catch(function(error) {
+			done(error);
+		});
+	});
+	it('should get the contact persons correctly', function(done) {
+		executeOnTestSet('getNetwork')
+		.then(function(network) {
+			network.should.be.instanceof(Array).and.have.lengthOf(9);
 			done();
 		})
 		.catch(function(error) {
