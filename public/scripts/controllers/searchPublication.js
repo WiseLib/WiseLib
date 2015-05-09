@@ -47,7 +47,7 @@ angular.module('publication')
         if ($scope.checkTitle) query += 'title=' + keyword + '&';
         if ($scope.checkAuthor) query += 'author=' + keyword + '&';
         if ($scope.checkJournal) query += 'journal=' + keyword + '&';
-        if ($scope.checkConference) query += 'conference=' + keyword + '&';
+        if ($scope.checkConference) query += 'proceeding=' + keyword + '&';
 
         return query;
     };
@@ -57,7 +57,7 @@ angular.module('publication')
         if ($scope.checkTitle) query += '@title';
         if ($scope.checkAuthor) query += '@authors';
         if ($scope.checkJournal) query += '@journal';
-        if ($scope.checkConference) query += '@conference';
+        if ($scope.checkConference) query += '@proceeding';
 
         return query;
     };

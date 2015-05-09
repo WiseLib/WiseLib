@@ -56,7 +56,12 @@ Representation.prototype.formatSearch = function(json) {
         var temp  = like.shift();
         var parameters = like;
         like= temp;
-        like = like.split(' ');
+        if(this.searchSplit) {
+            like = like.split(' ');
+        }
+        else {
+            like = [like];
+        }
         like = _.map(like, function(word) {return '%' + word + '%';});
 
         var PubObj = this;
@@ -90,7 +95,12 @@ Representation.prototype.formatSearchRelations = function(json) {
         var temp  = like.shift();
         var parameters = like;
         like= temp;
-        like = like.split(' ');
+        if(this.searchSplit) {
+            like = like.split(' ');
+        }
+        else {
+            like = [like];
+        }
         like = _.map(like, function(word) {return '%' + word + '%';});
 
         if(parameters.length > 0 ){
@@ -264,6 +274,8 @@ Representation.prototype.toQuery = function(jsonObj) {
     return model.query(queryFunction);
 };
 
+Representation.prototype.searchSplit = false;
+
 //discipline
 var disciplineRepr = new Representation();
 disciplineRepr.id = {
@@ -291,6 +303,7 @@ disciplineRepr[searchKey] = [disciplineRepr.name];
 disciplineRepr.relationSearch = [];
 disciplineRepr.model = AcademicDiscipline;
 disciplineRepr.relations = ['parent', 'journals', 'proceedings'];
+disciplineRepr.searchSplit = true;
 
 //affiliation
 var affiliationRepr = new Representation();
@@ -313,6 +326,7 @@ affiliationRepr[searchKey] = [affiliationRepr.name];
 affiliationRepr.relationSearch = [];
 affiliationRepr.model = Affiliation;
 affiliationRepr.relations = ['parent'];
+affiliationRepr.searchSplit = true;
 
 //Person
 var personRepr = new Representation();
@@ -349,6 +363,7 @@ personRepr[searchKey] = [personRepr.firstName, personRepr.lastName];
 personRepr.relationSearch = ['publications', 'affiliation'];
 personRepr.model = Person;
 personRepr.relations = ['publications', 'affiliation', 'disciplines'];
+personRepr.searchSplit = true;
 
 //User
 var userRepr = new Representation();
@@ -530,6 +545,8 @@ var ProceedingPublication = bookshelf.Model.extend({
         return this.belongsTo(Proceeding, 'part_of_conference_id');
     }
 });
+proceedingPublicationRepr[searchKey] = [];
+proceedingPublicationRepr.relationSearch = ['proceeding'];
 proceedingPublicationRepr.model = ProceedingPublication;
 proceedingPublicationRepr.relations = ['proceeding'];
 //proceedingPublicationRepr.super = publicationRepr;
