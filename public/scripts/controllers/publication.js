@@ -1,7 +1,7 @@
 'use strict';
-var module = angular.module('publication', ['ngMaterial', 'ngAnimate', 'journal', 'proceeding', 'ngMessages']);
+var module = angular.module('publication', ['ngMaterial', 'ngAnimate', 'journal', 'user', 'proceeding', 'ngMessages']);
 
-module.controller('publicationController', function($scope, $routeParams, $translate, Page, Publication, Person, User) {
+module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication, Person, User, AuthenticationService, TokenService,ToastService) {
     $translate('PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
     });
@@ -10,6 +10,36 @@ module.controller('publicationController', function($scope, $routeParams, $trans
     $scope.authors = [];
     $scope.editors = [];
     $scope.publications = [];
+    $scope.authenticatedUser = undefined;
+
+    if(AuthenticationService.isAuthenticated) {
+        var user = TokenService.getUser();
+        $scope.authenticatedUser = user;
+    }
+
+    $scope.isInLibrary = function(publication) {
+        var inLibrary = false;
+        if($scope.authenticatedUser && publication) {
+            $scope.authenticatedUser.library.forEach(function(libraryPublication) {
+                inLibrary = inLibrary || libraryPublication.id === publication.id;
+            });
+        }
+        return inLibrary;
+    };
+
+    $scope.addToLibrary = function(publication) {
+        if(!$scope.isInLibrary()) {
+            var userAddPublication = {id: $scope.authenticatedUser.id, library: $scope.authenticatedUser.library};
+            userAddPublication.library.push({id:publication.id});
+            User.put(userAddPublication, function(resource) {
+                TokenService.setToken(resource.token);
+                $scope.authenticatedUser = TokenService.getUser();
+                $translate('ADDED_TO_LIBRARY').then(function(translated){ToastService.showToast(translated);});
+            }, function(errorData) {
+                console.log(errorData.error);
+            });
+        }
+    };
 
     $scope.incrementSelectedIndex = function(i) {
         $scope.selectedIndex = $scope.selectedIndex + i;
@@ -42,11 +72,13 @@ module.controller('publicationController', function($scope, $routeParams, $trans
             }
         }
 
-        for (i = pub.editors.length - 1; i >= 0; i--) {
-            var id = pub.editors[i].id;
-            $scope.editors.push(id);
-            if(!$scope.persons[id]) {
-                getPerson(id);
+        if(pub.editors !== undefined){
+            for (i = pub.editors.length - 1; i >= 0; i--) {
+               var id = pub.editors[i].id;
+                $scope.editors.push(id);
+               if(!$scope.persons[id]) {
+                    getPerson(id);
+                }
             }
         }
 
@@ -57,8 +89,10 @@ module.controller('publicationController', function($scope, $routeParams, $trans
                 console.log('error: ' + data.error);
             });
         }
-        for (i = pub.referencedPublications.length - 1; i >= 0; i--) {
-            getPublication(pub.referencedPublications[i].id);
+        if(pub.editors !== undefined){
+            for (i = pub.referencedPublications.length - 1; i >= 0; i--) {
+             getPublication(pub.referencedPublications[i].id);
+            }
         }
     }, function(data) {
         console.log('Error getting publication: ' + JSON.stringify(data));

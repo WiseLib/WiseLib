@@ -64,6 +64,9 @@ module.exports = function(app) {
     app.route('/persons/:id/publications.json')
     .get(routeFunctions.getPersonPublications);
 
+    app.route('/persons/:id/contacts.json')
+    .get(routeFunctions.getPersonContacts);
+
     app.route('/users.json')
     .post(routeFunctions.postUser);
 
@@ -72,7 +75,7 @@ module.exports = function(app) {
     .put(auth, routeFunctions.putUser);
 
     app.route('/users/:id/library.json')
-    .get(function(req, res) {res.status(501).end();});
+    .get(routeFunctions.getUserLibrary);
 
     app.route('/publications.json')
     .get(routeFunctions.getPublications)

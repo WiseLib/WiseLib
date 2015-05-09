@@ -63,13 +63,13 @@ angular.module('person')
         }, function(error) {console.log('error! ' + error); });
     };
     $scope.filterAffiliations = function(name) {
-        var aff = $scope.choiceAffiliations;
+        var affs = $scope.choiceAffiliations;
         var filtered = [];
-        for(var i in aff) {
-            if(aff[i].name.toLowerCase().indexOf(name.toLowerCase()) > -1) {
-                filtered.push(aff[i]);
+        affs.forEach(function(aff) {
+            if(aff.name.toLowerCase().indexOf(name.toLowerCase()) > -1) {
+                filtered.push(aff);
             }
-        }
+        });
         return filtered;
     };
     $scope.postAffiliation = function(name) {
