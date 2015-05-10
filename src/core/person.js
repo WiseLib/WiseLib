@@ -41,13 +41,19 @@ Person.prototype.calculateRank = function() {
 				}));
 		});
 		return Promise.all(yearsPromise).then(function(years) {
-			years.sort();
-
-			var yearsOfWriting = years[years.length - 1] - years[0];
-			var date = new Date();
-			var thisYearIndex = years.indexOf(date.getFullYear());
-			var publicationsThisYear = years.length - thisYearIndex;
-			person.rank = (person.publications.length / (yearsOfWriting + 1)) * (1 + publicationsThisYear); // years + 1 because of terrible test data --> /0 errors
+			var current = new Date().getFullYear();
+			var decreaseSpeed = 0.05;
+			var minWeight = 0.5;
+			var maxWeight = 1.0;
+			var rank = 0;
+			years.forEach(function(year) {
+				var weight = maxWeight - (current - year)*decreaseSpeed;
+				if(weight < minWeight) {
+					weight = minWeight;
+				}
+				rank += weight;
+			});
+			person.rank = rank;
 			return person;
 		});
 	}
