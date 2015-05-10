@@ -78,6 +78,7 @@
 	"REMOVE": "Verwijder",
 	"REMOVE_PUBLICATION_CONFIRM_TITLE": "Wil je deze publicatie echt verwijderen?",
 	"REMOVE_PUBLICATION_DIALOG": "Verwijder publicatie dialoog",
+	"REPLACE_REFERENCES":"Deze publicaties zijn al een referentie in the database, gelieve de publicaties, die u probeert te uploaden, te selecteren",
 	"RESULTS": "Resultaten",
 	"SAVE_CHANGES": "Bewaar wijzigingen",
 	"SAVED_CHANGES": "Wijzigingen opgeslagen",
