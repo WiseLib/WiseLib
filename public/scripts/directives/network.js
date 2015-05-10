@@ -12,7 +12,7 @@ angular.module('person')
             // controller function to be triggered when clicking on a node
             onElementClick:'&'
         },
-        link: function(scope, element, attrs, fn) {
+        link: function(scope) {
         	scope.typeColors = {
         		'ellipse':'#E03616',
         		'triangle':'#395E66',
@@ -55,8 +55,9 @@ angular.module('person')
         	 			'content': 'data(title)',
         	 			'shape': 'data(shape)',
         	 			'background-color': 'data(shapeColor)',
-        	 			'height': 80,
-        	 			'width': 200,
+        	 			'height': 60,
+        	 			'width': 100,
+                        'font-size': 10,
         	 			'text-valign': 'center',
         	 			'color': 'white',
         	 			'text-outline-width': 2,
@@ -82,7 +83,7 @@ angular.module('person')
 
         	 		layout: {
         	 			name: 'cose',
-        	 			padding: 10
+        	 			padding: 10,
         	 		},
 
         	 		elements: scope.network,

@@ -1,5 +1,5 @@
 <md-toolbar class="md-accent" ng-if="error">{{'ERROR' | translate}}: {{error}}</md-toolbar>
 <md-progress-circular md-mode="indeterminate" ng-if="showLoading"></md-progress-circular>
-<md-content>
+<md-content layout-fill flex>
 	<networkgraph network="network"></networkgraph>
 </md-content>

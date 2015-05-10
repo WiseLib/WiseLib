@@ -162,12 +162,8 @@ personmin a {
 	margin: 0;
 }
 
-md-content {
-	height: 100%;
-}
-
 #cy {
-    height: 400px;
+    height: 500px;
     width: 100%;
     position: relative;
     clear: both;
