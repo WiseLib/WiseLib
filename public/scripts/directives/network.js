@@ -2,17 +2,18 @@
 
 angular.module('person')
 
-.directive('networkgraph', function($rootScope) {
+.directive('networkgraph', function($rootScope, $window) {
 	return {
 		restrict: 'E',
-		template :'<div id="cy"></div>',
+		template :'<div id="cy" layout-fill flex></div>',
 		replace: true,
 		scope: {
 			network: '=network',
             // controller function to be triggered when clicking on a node
             onElementClick:'&'
         },
-        link: function(scope) {
+        link: function(scope, element) {
+            element.height($(window).height() - $('md-toolbar').height());
         	scope.typeColors = {
         		'ellipse':'#E03616',
         		'triangle':'#395E66',
@@ -121,6 +122,20 @@ angular.module('person')
         	 			});
         	 		}
         	 	});
+                var windowSize = {};
+                var w = angular.element($window);
+                scope.$watch(function(){
+                    if(w.height() !== windowSize.height || w.width() !== windowSize.width) {
+                        windowSize = {'height': w.height(), 'width': w.width()};
+                    }
+                    return windowSize;
+                }, function() {
+                    element.height($(window).height() - $('md-toolbar').height());
+                    cy.fit();
+                }, true);
+                w.bind('resize', function () {
+                    scope.$apply();
+                });
 			};
 			$rootScope.$on('appChanged', function(){
 				scope.makeGraph();
