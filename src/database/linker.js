@@ -163,7 +163,7 @@ Representation.prototype.toModel = function(jsonObj) {
                 relation.attach(queryRelations[i]);
             }
         }
-        else {
+        else if(_.isEqual(relation.relatedData.type, 'belongsTo')) {
             model.set(relation.relatedData.foreignKey, queryRelations[i]);
         }
     }
@@ -487,17 +487,19 @@ var Publication = bookshelf.Model.extend({
     editors: function() {
         return this.belongsToMany(Person, 'publication_edited_by_person', 'publication_id', 'person_id');
     },
-    referencedPublications: function() {
-     return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
- },
-
-
- representation: publicationRepr
+    references: function() {
+       return this.belongsToMany(Publication, 'publication_references_publication', 'id', 'referenced_id');
+    },
+    unknownReferences: function() {
+       return this.hasMany(UnknownPublication, 'referenced_by_id');
+    },
+    representation: publicationRepr
 });
+
 publicationRepr[searchKey] = [publicationRepr.title];
 publicationRepr.relationSearch = ['authors'];
 publicationRepr.model = Publication;
-publicationRepr.relations = ['uploader', 'authors', 'editors', 'referencedPublications'];
+publicationRepr.relations = ['uploader', 'authors', 'editors', 'references', 'unknownReferences'];
 
 //journalPublication
 var journalPublicationRepr = new Representation();
@@ -551,6 +553,34 @@ proceedingPublicationRepr.model = ProceedingPublication;
 proceedingPublicationRepr.relations = ['proceeding'];
 //proceedingPublicationRepr.super = publicationRepr;
 
+
+// unknownPersonPublication
+
+var unknownPublicationRepr = new Representation();
+unknownPublicationRepr.id = {
+    fieldName: 'id',
+    name: 'id'
+};
+unknownPublicationRepr.title = {
+    fieldName: 'title',
+    name: 'title'
+};
+unknownPublicationRepr.authors = {
+    fieldName: 'authors',
+    name: 'authors'
+};
+var UnknownPublication = bookshelf.Model.extend({
+    tableName: 'unknown_publication',
+    reference: function() {
+        return this.belongsTo(Publication, 'referenced_by_id');
+    },
+    representation: unknownPublicationRepr
+});
+unknownPublicationRepr.model = UnknownPublication;
+unknownPublicationRepr.relations = ['reference'];
+unknownPublicationRepr[searchKey] = [unknownPublicationRepr.title];
+
+
 module.exports.searchKey = searchKey;
 module.exports.affiliationRepr = affiliationRepr;
 module.exports.disciplineRepr = disciplineRepr;
@@ -563,3 +593,4 @@ module.exports.proceedingRepr = proceedingRepr;
 module.exports.publicationRepr = publicationRepr;
 module.exports.journalPublicationRepr = journalPublicationRepr;
 module.exports.proceedingPublicationRepr = proceedingPublicationRepr;
+module.exports.unknownPublicationRepr = unknownPublicationRepr;

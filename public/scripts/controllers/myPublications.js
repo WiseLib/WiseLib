@@ -32,16 +32,16 @@ angular.module('publication')
     });
 
     $scope.deletePublication = function(pub) {
-        var confirm;
         $translate(['REMOVE_PUBLICATION_CONFIRM_TITLE', 'CANT_UNDO', 'REMOVE_PUBLICATION_DIALOG', 'REMOVE', 'CANCEL']).then(function(translations) {
-            confirm = $mdDialog.confirm()
+           var confirm = $mdDialog.confirm()
             .title(translations.REMOVE_PUBLICATION_CONFIRM_TITLE)
             .content(translations.CANT_UNDO)
             .ariaLabel(translations.REMOVE_PUBLICATION_DIALOG)
             .ok(translations.REMOVE)
             .cancel(translations.CANCEL);
-        });
-    $mdDialog.show(confirm).then(function() {
+            return $mdDialog.show(confirm);
+        })
+        .then(function() {
       Publication.delete({id: pub.id}, function() {
         for (var i = $scope.publications.length - 1; i >= 0; i--) { //Remove publication from list
           if($scope.publications[i].id === pub.id) {

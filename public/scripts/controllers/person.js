@@ -37,7 +37,6 @@ module.controller('personController', function($scope, $routeParams, $translate,
 		}
 
 		person.disciplines.forEach(function(discipline) {searchDiscipline(discipline.id);});
-
 		Person.contacts({id: person.id}, function(data) {
 			$scope.contacts = data.persons;
 		}, function(data) {
@@ -53,11 +52,15 @@ module.controller('personController', function($scope, $routeParams, $translate,
 		});
 	});
 
+	$scope.PubError = null; 
 	Person.publications({id: $routeParams.id}, function(data) {
-		$scope.publications = data.publications;
-	}, function(data) {
+			$scope.publications = data.publications;
+			if(data.publications.length == 0){
+				 $translate('NO_PUBLICATIONS_FOUND').then(function(translated) {
+                	$scope.PubError = translated;})
+			}
+		}, function(data) {
 		$translate('ERROR').then(function(translated) {
-			$scope.error = translated + ': ' + data.statusText;
-		});
+			$scope.error = translated + ': ' + data.statusText;});
 	});
 });

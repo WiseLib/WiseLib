@@ -1,7 +1,8 @@
 'use strict';
 var module = angular.module('publication');
 
-module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, Person, PersonState, Journal, Proceeding, Publication, TokenService, ToastService) {
+module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, Person, PersonState, Journal, Proceeding, Publication, UnknownPublication, TokenService, ToastService) {
+    var user = TokenService.getUser();
 
     $translate('UPLOAD_PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
@@ -15,14 +16,32 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         });
         return;
     }
+
+    $scope.newPublication={};
     $scope.authors = [];
     $scope.pdfAuthors =[];
     $scope.disciplines = [];
     $scope.references = [];
-    $scope.JSONreferences = [];
-    $scope.searchJournal;
-    $scope.searchProceeding;
+    $scope.unknownpublications=[];
+    $scope.unknownreferences = [];
+    $scope.knownreferences = [];
+    $scope.searchJournal={};
+    $scope.searchProceeding={};
     $scope.PersonState = PersonState;
+
+    $scope.$watch('newPublication.title', function () {
+        $scope.searchUnknownPublications($scope.newPublication.title);
+    });
+
+    $scope.searchUnknownPublications = function(title){
+        if(title == undefined || title.length < 4){
+            $scope.unknownpublications=[];
+            return;}
+        UnknownPublication.search({q:title},function(data){
+            $scope.unknownpublications = data.publications;
+            console.log('got:' + data)
+        },function(data){})
+    }
 
     var lastSearch;
     var persons = [];
@@ -84,13 +103,15 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     };
 
     $scope.chooseJournal = function(jour){
-        $scope.searchJournal='';
+        $scope.searchJournal.value='';
         $scope.journal = jour;
+        $scope.type ='Journal'
     };
 
     $scope.chooseProceeding = function(proc){
-        $scope.searchProceeding='';
+        $scope.searchProceeding.value='';
         $scope.proceeding = proc;
+        $scope.type === 'Proceeding'
     };
 
     $scope.add = function (array, element) {
@@ -120,9 +141,9 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
 
             $scope.localfile = true;
 
-            $scope.title = data.title;
-            $scope.numberOfPages=data.numberofpages;
-            $scope.url = data.path;
+            $scope.newPublication.title = data.title;
+            $scope.newPublication.numberOfPages=data.numberofpages;
+            $scope.newPublication.url = data.path;
 
             $scope.authors = [];
             Person.query({id:user.person},function(person){$scope.add($scope.authors,person.persons[0]);});
@@ -152,15 +173,16 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         success(function(data) {
 
             var index;
-            $scope.JSONreferences=[];
-            $scope.references=[];
-            for (index = 0; index < data.length; ++index) {
-                var reference = data[index];
-                $scope.add($scope.JSONreferences,reference);
-
-                var title = reference.entryTags.title;
-                $scope.add($scope.references,title);
-            }
+            $scope.knownreferences=[];
+            $scope.unknownreferences=[];
+            for (index = 0; index < data.references.length; index++) {
+                var knownreference = data.references[index];
+                $scope.add($scope.knownreferences,knownreference);
+            };
+            for (index = 0; index < data.unknownReferences.length; index++) {
+                var unknownreference = data.unknownReferences[index];
+                $scope.add($scope.unknownreferences, unknownreference);
+            };
         }).
         error(function(data) {
             $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
@@ -189,47 +211,53 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     $scope.post = function () {
 
         function upload(){
-            console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
-
-            Publication.save(JSON.stringify(toPost),function(){
+            //console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
+            Publication.save(JSON.stringify(toPost),function(data){
+                var index;
+                for(index = 0; index < $scope.unknownreferences.length; index++) {
+                    $scope.unknownreferences[index].reference = data.id;
+                    UnknownPublication.save(JSON.stringify($scope.unknownreferences[index]), function(data) {});
+                }
                 $location.path('/mypublications');
             },function(data){
                 $translate('ERROR').then(function(translated) {
                     ToastService.showToast(translated + ': ' + data.statusText, true);
                 });
             });
-
-        /*  $http.post('users/'+user.id+'/publications.json', toPost)
-            .success(function(data, status, headers, config) {
-                $location.path('/mypublications')
-            })
-            .error(function(data, status, headers, config) {
-                ToastService.showToast("Something went wrong:" + status, true);
-            });*/
         }
 
         var toPost = {};
-        toPost.title = $scope.title;
-        toPost.numberOfPages = $scope.numberOfPages;
-        toPost.year = $scope.year;
-        toPost.url = $scope.url;
-        toPost.abstract = $scope.abstract;
-        toPost.references = $scope.JSONreferences;
+        toPost.title = $scope.newPublication.title;
+        toPost.numberOfPages = $scope.newPublication.numberOfPages;
+        toPost.year = $scope.newPublication.year;
+        toPost.url = $scope.newPublication.url;
+        toPost.abstract = $scope.newPublication.abstract;
+        toPost.references = $scope.knownreferences;
         toPost.type = $scope.type;
         if ($scope.type === 'Journal') {
             toPost.journal = $scope.journal.id;
-            toPost.volume = $scope.volume;
-            toPost.number = $scope.number;
+            toPost.volume = $scope.newPublication.volume;
+            toPost.number = $scope.newPublication.number;
         }
         else {
             toPost.proceedingId = $scope.proceeding.id;
-            toPost.editors = $scope.editors;
-            toPost.publisher = $scope.publisher;
-            toPost.city = $scope.city;
+            toPost.editors = $scope.newPublication.editors;
+            toPost.publisher =$scope.newPublication.publisher;
+            toPost.city = $scope.newPublication.city;
         }
 
         toPost.uploader = user.id;
         toPost.authors=[];
+
+        toPost.UnknownPublicationsToDelete=[];
+
+        for (var i = 0; i < $scope.unknownpublications.length; i++) {
+            var pub= $scope.unknownpublications[i];
+            if(pub.status == undefined || pub.status==false)continue;
+            else{
+                toPost.UnknownPublicationsToDelete.push(pub);
+            }
+        };
 
         for (var i = 0; i < $scope.authors.length; i++) {
             var author = $scope.authors[i];
@@ -250,5 +278,6 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 });
             }
         }
+
     };
 });
