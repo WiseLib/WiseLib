@@ -34,6 +34,8 @@ describe('Publication test', function() {
 			publication.should.have.property('numberOfPages', 25);
 			publication.authors.length.should.be.equal(2);
 			done();
+		}).catch(function(error) {
+			done(error);
 		});
 	});
 	it('should calculate rank correctly', function(done) {
@@ -54,6 +56,8 @@ describe('Publication test', function() {
 		fetched.then(function(publications) {
 			publications.length.should.be.equal(2);
 			done();
+		}).catch(function(error) {
+			done(error);
 		});
 
 	});

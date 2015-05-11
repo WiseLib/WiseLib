@@ -61,7 +61,7 @@ var processQueryArrays = function(query, names) {
 
 /**
  * Returns the instance of the CoreClass with the id given in the query, if the instance should have a rank, it is calculated here.
- * @param  {Object} req       	HTTP request, contains query 
+ * @param  {Object} req       	HTTP request, contains query
  * @param  {Object} res       	HTTP response, the object to which the result is send
  * @param  {Object} CoreClass 	The type of core object we are requesting
  * @return {Void}           	No return value
@@ -86,7 +86,7 @@ var getSingle = function(req, res, CoreClass) {
 
 /**
  * Returns 1 or more instances of the CoreClass satisfying the parameters from the query. Instances willl be filled with data coming from the database
- * @param  {Object} req       	HTTP request, contains query 
+ * @param  {Object} req       	HTTP request, contains query
  * @param  {Object} res       	HTTP response, the object to which the result is send
  * @param  {Object} CoreClass 	The type of core object we are requesting
  * @param  {Object} name      	The name of the array, containing the results, will have in the response.
@@ -107,7 +107,7 @@ var getMultiple = function(req, res, CoreClass, name) {
 
 /**
  * Post a new core object to the database with the data provide from the body of the request
- * @param  {Object} req       	HTTP request, contains body with data 
+ * @param  {Object} req       	HTTP request, contains body with data
  * @param  {Object} res       	HTTP response, expects the id of the newly created object
  * @param  {Object} CoreClass 	The type of core object we are creating
  * @return {void}           	No return value
@@ -142,7 +142,7 @@ var putSingle = function(req, res, CoreClass) {
 module.exports = {
 
 	/**
-	 * Answers a HTTP request with all disciplines satisfying the request parameters 
+	 * Answers a HTTP request with all disciplines satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -163,7 +163,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all Journals satisfying the request parameters 
+	 * Answers a HTTP request with all Journals satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -184,7 +184,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all disciplines of the journal with a given id 
+	 * Answers a HTTP request with all disciplines of the journal with a given id
 	 * @param  {Object} req HTTP request containing parameters (should only contain id)
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -196,7 +196,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all proceedings satisfying the request parameters 
+	 * Answers a HTTP request with all proceedings satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -217,7 +217,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all disciplines of the proceeding with a given id 
+	 * Answers a HTTP request with all disciplines of the proceeding with a given id
 	 * @param  {Object} req HTTP request containing parameters (should only contain id)
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -229,7 +229,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all affiliations satisfying the request parameters 
+	 * Answers a HTTP request with all affiliations satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -259,7 +259,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all persons satisfying the request parameters 
+	 * Answers a HTTP request with all persons satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -302,6 +302,16 @@ module.exports = {
 		new core.Person(req.params.id).getContacts()
 		.then(function(persons) {
 			res.json({persons: persons});
+		})
+		.catch(function(error) {
+			reportError(res, error);
+		});
+	},
+
+	getPersonNetwork: function(req, res) {
+		new core.Person(req.params.id).getNetwork()
+		.then(function(network) {
+			res.json({network: network});
 		})
 		.catch(function(error) {
 			reportError(res, error);
@@ -392,7 +402,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all (unknown) publications satisfying the request parameters 
+	 * Answers a HTTP request with all (unknown) publications satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -401,13 +411,13 @@ module.exports = {
 		getMultiple(req, res, core.UnknownPublication, 'publications');
 	},
 
-	
+
 	postUnknownPublications: function(req, res){
 		postSingle(req, res, core.UnknownPublication);
 	},
 
 	/**
-	 * Answers a HTTP request with all publications satisfying the request parameters 
+	 * Answers a HTTP request with all publications satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -434,9 +444,9 @@ module.exports = {
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
 	 */
-	getPublication: function(req, res) { 
+	getPublication: function(req, res) {
 		new core.Publication(req.params.id).fetch()
-		.then(function(instance) { 
+		.then(function(instance) {
 			if(instance == undefined){
 				throw new Error("not found");
 			}
@@ -535,7 +545,7 @@ module.exports = {
 	/**
 	 * Handles the upload of both pdfs and BIBTEX files. Files get parsed as they are uploaded. Relevant information from the files is returned to the uploader
 	 * @param  {Object} req HTTP request containg file
-	 * @param  {Object} res HTTP response expects ectracted data 
+	 * @param  {Object} res HTTP response expects ectracted data
 	 * @return {void}     	No return value
 	 */
 	postUploadFile: function(req,res){
