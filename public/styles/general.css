@@ -76,6 +76,11 @@ personmin a {
 	margin-top:10px;
 }
 
+#unknownpublicationlist{
+	margin-top:10px;
+	display:block ;
+}
+
 .persons-list .md-item-text.compact {
 	padding-top: 8px;
 	padding-bottom: 8px;

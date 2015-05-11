@@ -13,6 +13,11 @@ var SpecializedPublication = function(arg) {
 };
 
 SpecializedPublication.prototype = Object.create(Publication.prototype);
+
+/**
+ * [fetch description]
+ * @return {[type]} [description]
+ */
 SpecializedPublication.prototype.fetch = function() {
 	var specializedPublication = this;
 	var promise = Publication.prototype.fetch.call(this);
@@ -24,6 +29,11 @@ SpecializedPublication.prototype.fetch = function() {
 		return specializedPublication;
 	});
 };
+
+/**
+ * [fetchAll description]
+ * @return {[type]} [description]
+ */
 SpecializedPublication.prototype.fetchAll = function() {
 	var sp = this;
 	//db will only search on Representation.relationSearch and Representation[searchKey]
@@ -75,6 +85,7 @@ SpecializedPublication.prototype.fetchAll = function() {
 		return Promise.all(publications);
 	});
 };
+
 SpecializedPublication.prototype.save = function() {
 	var specializedPublication = this;
 	var save = specializedPublication.id ? DBManager.put : DBManager.post;

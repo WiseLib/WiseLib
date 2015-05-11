@@ -20,10 +20,11 @@ Person.prototype = Object.create(Rankable.prototype);
 Person.prototype.variables = ['firstName', 'lastName', 'affiliation', 'publications', 'picture', 'disciplines'];
 Person.prototype.variables.push.apply(Person.prototype.variables, Rankable.prototype.variables);
 Person.prototype.representation = PersonRepr;
-//gemiddelde aantal publicaties (per jaar) * (1 + publicaties dit jaar)
+
 /**
- * Calculate the rank of the Person for which the function is called. This is calculated by: mean nr of published publications/year * (1 + nr of published publications this year)
- * @return {Thenable<Number>} Thenable which holds the rank as a number
+ * Calculates the rank of this person with the following formula: average amount of publications (per year) * (1 + publications this year)
+ * @return {Promise} A promise of a person object, extended with a rank property.
+ * @implements {Rankable}
  */
 Person.prototype.calculateRank = function() {
 	var person = this;
@@ -65,7 +66,7 @@ Person.prototype.calculateRank = function() {
 
 /**
  * Get persons that are connected with the person for which the function is called. Contacts of a person include co-authors and persons who do research in the same discipline
- * @return {Thenable<Array>} Thenable which hold the Person's contacts as an Array
+ * @return {Promise<Array>} Thenable which hold the Person's contacts as an Array
  */
 Person.prototype.getContacts = function() {
 	var person = this;

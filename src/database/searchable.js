@@ -16,6 +16,12 @@ Searchable.prototype.searchKey = 'q';
 Searchable.prototype.variables = [Searchable.prototype.searchKey];
 Searchable.prototype.variables.push.apply(Searchable.prototype.variables, Writeable.prototype.variables);
 Searchable.prototype.tagCharacter = '@';
+
+/**
+ * [removeInvalidTags description]
+ * @param  {[type]} filter [description]
+ * @return {[type]}        [description]
+ */
 Searchable.prototype.removeInvalidTags = function(filter) {
 	if(!filter) {
 		filter = this.variables;

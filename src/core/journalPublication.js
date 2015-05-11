@@ -1,6 +1,7 @@
 'use strict';
 var Promise = require('bluebird');
 var SpecializedPublication = require('./specializedPublication.js');
+var Publication = require('./publication.js');
 var Journal = require('./journal.js');
 var JournalPublicationRepr = require('../database/linker.js').journalPublicationRepr;
 

@@ -14,6 +14,11 @@ var ejwt = require('express-jwt');
 
 var auth = ejwt({secret: config.secretToken});
 
+/**
+ * Declaration of all routes used by the server. The functions declared here, are defined in routesFunctions.js
+ * @param {Object} [app] [Express application]
+ */
+
 module.exports = function(app) {
 
     app.route('/affiliations.json')
@@ -79,6 +84,10 @@ module.exports = function(app) {
 
     app.route('/users/:id/library.json')
     .get(routeFunctions.getUserLibrary);
+
+    app.route('/unknownpublications.json')
+    .get(routeFunctions.getUnknownPublications)
+    .post(auth, routeFunctions.postUnknownPublications); 
 
     app.route('/publications.json')
     .get(routeFunctions.getPublications)
