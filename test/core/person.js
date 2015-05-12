@@ -1,10 +1,13 @@
 'use strict';
 var should = require('should');
 var Person = require('../../src/core/person.js');
+var Publication = require('../../src/core/publication.js');
+var Affiliation = require('../../src/core/affiliation.js');
 var _ = require('lodash');
+var Promise = require('bluebird');
 
 describe('Person test', function() {
-	
+
 	var fromJSON = new Person({firstName:'Son', lastName:'Goku', affiliation:1, q:'search'});
 	var fromID = new Person(9050).fetch();
 	var fetched = new Person({lastName: 'Modaal'}).fetchAll();
@@ -54,6 +57,83 @@ describe('Person test', function() {
 			person.should.have.property('id',undefined);
 			done();
 		});
-		
+
+	});
+
+	var executeOnTestSet = function(fnToTest) {
+		var created = [];
+		var toReturn, targetPerson, savedAffiliation, publication;
+		var affiliation = new Affiliation({name: 'testAffiliation'});
+		return affiliation.save()
+		.then(function(savedAffl) {
+			created.push(savedAffl);
+			savedAffiliation = savedAffl;
+			var publication = new Publication({title:'publicationTest',
+		                            url:'http://pubtest.com',
+		                            numberOfPages:20,
+		                            year:2015,
+		                            type:'unknown',
+		                            q:'search'});
+			return publication.save();
+		})
+		.then(function(savedPublication) {
+			created.push(savedPublication);
+			publication = savedPublication;
+			var person = new Person({firstName: 'targetPerson',
+									 lastName: 'test',
+									 affiliation: savedAffiliation.id,
+									 publications: [{id: publication.id}]});
+			return person.save();
+		}).then(function(savedPerson) {
+			created.push(savedPerson);
+			targetPerson = savedPerson;
+			var sameAfflPerson = new Person({firstName: 'sameAffil',
+											lastName: 'test',
+											affiliation: savedAffiliation.id});
+			created.push(sameAfflPerson);
+			return sameAfflPerson.save();
+		}).then(function(savedSameAfflPerson) {
+			created.push(savedSameAfflPerson);
+			var samePubPerson = new Person({firstName: 'samePub',
+											lastName: 'test',
+											publications: [{id: publication.id}]});
+			created.push(samePubPerson);
+			return samePubPerson.save();
+		})
+		.then(function(SavedSamePubPerson) {
+			created.push(SavedSamePubPerson);
+			return targetPerson[fnToTest]();
+		})
+		.then(function(returnValue) {
+			toReturn = returnValue;
+			created = created.map(function(object) {
+				return object.destroy();
+			});
+			return Promise.all(created);
+		})
+		.then(function() {
+			return toReturn;
+		});
+	};
+
+	it('should get the contact persons correctly', function(done) {
+		executeOnTestSet('getContacts')
+		.then(function(contacts) {
+			contacts.should.be.instanceof(Array).and.have.lengthOf(2);
+			done();
+		})
+		.catch(function(error) {
+			done(error);
+		});
+	});
+	it('should get the contact persons correctly', function(done) {
+		executeOnTestSet('getNetwork')
+		.then(function(network) {
+			network.should.be.instanceof(Array).and.have.lengthOf(9);
+			done();
+		})
+		.catch(function(error) {
+			done(error);
+		});
 	});
 });

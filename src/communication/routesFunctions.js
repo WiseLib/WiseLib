@@ -12,28 +12,20 @@
 var Promise = require('bluebird');
 var config = require('../config.js');
 var core = require('../core/exports.js');
+var crypto = require('crypto');
 
 //For login
 var jwt = require('jsonwebtoken');
 
-/**
- * Returns 1 or more instances of the CoreClass satisfying the parameters from the query. Instances willl be filled with data coming from the database
- * @param  {Object} req       	HTTP request, contains query 
- * @param  {Object} res       	HTTP response, the object to which the result is send
- * @param  {Object} CoreClass 	The type of core object we are requesting
- * @param  {Object} name      	The name of the array, containing the results, will have in the response.
- * @return {void}           	No return value
- */
-var getMultiple = function(req, res, CoreClass, name) {
-	var params = req.query;
-	new CoreClass(params).fetchAll()
-	.then(function(instances) {
-		var result = {};
-		result[name] = instances;
-		res.json(result);
-	});
-};
 
+/**
+ * Send an error back to the client based on error information or error 500 otherwise
+ * @param  {Object} res   result Object from Express
+ * @param  {Object} error Error to send to user
+ */
+var reportError = function(res, error) {
+	res.status(error.status ? error.status : 500).json({text: error.statusText ? error.statusText : 'A server error occurred'});
+};
 /**
  * sign used to split Arrays in the splitInArray function
  * @type {String}
@@ -69,7 +61,7 @@ var processQueryArrays = function(query, names) {
 
 /**
  * Returns the instance of the CoreClass with the id given in the query, if the instance should have a rank, it is calculated here.
- * @param  {Object} req       	HTTP request, contains query 
+ * @param  {Object} req       	HTTP request, contains query
  * @param  {Object} res       	HTTP response, the object to which the result is send
  * @param  {Object} CoreClass 	The type of core object we are requesting
  * @return {Void}           	No return value
@@ -87,14 +79,35 @@ var getSingle = function(req, res, CoreClass) {
 	.then(function(instance) {
 		res.json(instance);
 	})
-	.catch(function(id) {
-		console.log(id);
+	.catch(function(error) {
+		reportError(res, error);
+	});
+};
+
+/**
+ * Returns 1 or more instances of the CoreClass satisfying the parameters from the query. Instances willl be filled with data coming from the database
+ * @param  {Object} req       	HTTP request, contains query
+ * @param  {Object} res       	HTTP response, the object to which the result is send
+ * @param  {Object} CoreClass 	The type of core object we are requesting
+ * @param  {Object} name      	The name of the array, containing the results, will have in the response.
+ * @return {void}           	No return value
+ */
+var getMultiple = function(req, res, CoreClass, name) {
+	var params = req.query;
+	new CoreClass(params).fetchAll()
+	.then(function(instances) {
+		var result = {};
+		result[name] = instances;
+		res.json(result);
+	})
+	.catch(function(error) {
+		reportError(res, error);
 	});
 };
 
 /**
  * Post a new core object to the database with the data provide from the body of the request
- * @param  {Object} req       	HTTP request, contains body with data 
+ * @param  {Object} req       	HTTP request, contains body with data
  * @param  {Object} res       	HTTP response, expects the id of the newly created object
  * @param  {Object} CoreClass 	The type of core object we are creating
  * @return {void}           	No return value
@@ -103,6 +116,9 @@ var postSingle = function(req, res, CoreClass) {
 	new CoreClass(req.body).save()
 	.then(function(instance) {
 		res.status(201).json({id: instance.id});
+	})
+	.catch(function(error) {
+		reportError(res, error);
 	});
 };
 
@@ -117,13 +133,16 @@ var putSingle = function(req, res, CoreClass) {
 	new CoreClass(req.body).save()
 	.then(function(instance) {
 		res.status(200).json({id: instance.id});
+	})
+	.catch(function(error) {
+		reportError(res, error);
 	});
 };
 
 module.exports = {
 
 	/**
-	 * Answers a HTTP request with all disciplines satisfying the request parameters 
+	 * Answers a HTTP request with all disciplines satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -144,7 +163,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all Journals satisfying the request parameters 
+	 * Answers a HTTP request with all Journals satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -165,7 +184,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all disciplines of the journal with a given id 
+	 * Answers a HTTP request with all disciplines of the journal with a given id
 	 * @param  {Object} req HTTP request containing parameters (should only contain id)
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -178,7 +197,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all proceedings satisfying the request parameters 
+	 * Answers a HTTP request with all proceedings satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -199,7 +218,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all disciplines of the proceeding with a given id 
+	 * Answers a HTTP request with all disciplines of the proceeding with a given id
 	 * @param  {Object} req HTTP request containing parameters (should only contain id)
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -211,7 +230,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all affiliations satisfying the request parameters 
+	 * Answers a HTTP request with all affiliations satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -241,7 +260,7 @@ module.exports = {
 	},
 
 	/**
-	 * Answers a HTTP request with all persons satisfying the request parameters 
+	 * Answers a HTTP request with all persons satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -284,6 +303,19 @@ module.exports = {
 		new core.Person(req.params.id).getContacts()
 		.then(function(persons) {
 			res.json({persons: persons});
+		})
+		.catch(function(error) {
+			reportError(res, error);
+		});
+	},
+
+	getPersonNetwork: function(req, res) {
+		new core.Person(req.params.id).getNetwork()
+		.then(function(network) {
+			res.json({network: network});
+		})
+		.catch(function(error) {
+			reportError(res, error);
 		});
 	},
 
@@ -364,11 +396,14 @@ module.exports = {
 			var result = {};
 			result.publications = instances;
 			res.json(result);
+		})
+		.catch(function(error) {
+			reportError(res, error);
 		});
 	},
 
 	/**
-	 * Answers a HTTP request with all (unknown) publications satisfying the request parameters 
+	 * Answers a HTTP request with all (unknown) publications satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -377,13 +412,13 @@ module.exports = {
 		getMultiple(req, res, core.UnknownPublication, 'publications');
 	},
 
-	
+
 	postUnknownPublications: function(req, res){
 		postSingle(req, res, core.UnknownPublication);
 	},
 
 	/**
-	 * Answers a HTTP request with all publications satisfying the request parameters 
+	 * Answers a HTTP request with all publications satisfying the request parameters
 	 * @param  {Object} req HTTP request containing parameters
 	 * @param  {Object} res HTTP response
 	 * @return {void}   No return value
@@ -398,6 +433,9 @@ module.exports = {
 			var result = {};
 			result.publications = p[0].concat(p[1]);
 			res.json(result);
+		})
+		.catch(function(error) {
+			reportError(res, error);
 		});
 	},
 
@@ -429,8 +467,8 @@ module.exports = {
 		.then(function(instance) {
 			res.json(instance);
 		})
-		.catch(function(){
-			res.status(404).end();
+		.catch(function(error) {console.log(error)
+			reportError(res, error);
 		});
 	},
 
@@ -450,6 +488,9 @@ module.exports = {
 		})
 		.then(function() {
 			res.status(200).end();
+		})
+		.catch(function(error) {
+			reportError(res, error);
 		});
 	},
 
@@ -462,7 +503,7 @@ module.exports = {
 	postPublication: function(req, res) {
 		if (req.body.type === 'Journal') postSingle(req, res, core.JournalPublication);
 		else if(req.body.type === 'Proceeding') postSingle(req, res, core.ProceedingPublication);
-		else req.status(401).json({error:'Wrong type' + req.body.type});
+		else req.status(401).json({text: 'Wrong type' + req.body.type});
 	},
 
 	/**
@@ -486,23 +527,26 @@ module.exports = {
 		var email = req.body.email;
 		var password = req.body.password;
 		if(email === '' || password === '') {
-			res.sendStatus(401);
+			res.status(401).json({text: 'Email or password not provided.'});
 		}
-		new core.User({email: email, password: password}).fetchAll()
+		new core.User({email: email}).fetchAll()
 		.then(function(users) {
-			if(users.length === 1) {
+			if(users.length === 1 && crypto.createHash('sha1').update(password).digest('hex') === users[0].password) {
 				var token = jwt.sign(users[0], config.secretToken, { expiresInMinutes: 60 });
 				res.json({token: token});
 			} else {
-				res.status(401).json({error: 'Wrong email or password'});
+				res.status(401).json({text: 'Wrong email or password'});
 			}
+		})
+		.catch(function(error) {
+			reportError(res, error);
 		});
 	},
 
 	/**
 	 * Handles the upload of both pdfs and BIBTEX files. Files get parsed as they are uploaded. Relevant information from the files is returned to the uploader
 	 * @param  {Object} req HTTP request containg file
-	 * @param  {Object} res HTTP response expects ectracted data 
+	 * @param  {Object} res HTTP response expects ectracted data
 	 * @return {void}     	No return value
 	 */
 	postUploadFile: function(req,res){
@@ -511,12 +555,18 @@ module.exports = {
 			new core.PDFParser(file).extract()
 			.then(function(data) {
 				res.json(data);
+			})
+			.catch(function(error) {
+				reportError(res, error);
 			});
 		}
 		else if (core.BibtexParser.prototype.isSupported(file.mimetype)) {
 			new core.BibtexParser(file).extract()
 			.then(function(data) {
 				res.json(data);
+			})
+			.catch(function(error) {
+				reportError(res, error);
 			});
 		}
 		else {

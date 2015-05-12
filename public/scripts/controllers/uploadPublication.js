@@ -7,6 +7,17 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     $translate('UPLOAD_PUBLICATION').then(function(translated) {
         Page.setTitle(translated);
     });
+
+    try {
+        var user = TokenService.getUser();
+    } catch(error) {
+        $translate('LOGGED_IN_VIEW_REQUIREMENT').then(function(translated) {
+            $scope.error = translated;
+        });
+        return;
+    }
+
+    $scope.newPublication={};
     $scope.authors = [];
     $scope.pdfAuthors =[];
     $scope.disciplines = [];
@@ -14,12 +25,12 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     $scope.unknownpublications=[];
     $scope.unknownreferences = [];
     $scope.knownreferences = [];
-    $scope.searchJournal;
-    $scope.searchProceeding;
+    $scope.searchJournal={};
+    $scope.searchProceeding={};
     $scope.PersonState = PersonState;
 
-    $scope.$watch('title', function () {
-        $scope.searchUnknownPublications($scope.title);
+    $scope.$watch('newPublication.title', function () {
+        $scope.searchUnknownPublications($scope.newPublication.title);
     });
 
     $scope.searchUnknownPublications = function(title){
@@ -92,13 +103,15 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     };
 
     $scope.chooseJournal = function(jour){
-        $scope.searchJournal='';
+        $scope.searchJournal.value='';
         $scope.journal = jour;
+        $scope.type ='Journal'
     };
 
     $scope.chooseProceeding = function(proc){
-        $scope.searchProceeding='';
+        $scope.searchProceeding.value='';
         $scope.proceeding = proc;
+        $scope.type === 'Proceeding'
     };
 
     $scope.add = function (array, element) {
@@ -128,9 +141,9 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
 
             $scope.localfile = true;
 
-            $scope.title = data.title;
-            $scope.numberOfPages=data.numberofpages;
-            $scope.url = data.path;
+            $scope.newPublication.title = data.title;
+            $scope.newPublication.numberOfPages=data.numberofpages;
+            $scope.newPublication.url = data.path;
 
             $scope.authors = [];
             Person.query({id:user.person},function(person){
@@ -143,9 +156,9 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
             }
 
         }).
-        error(function(data, status, headers, config) {
+        error(function(data) {
             $translate('UPLOADED_FILE_NOT_PDF').then(function(translated) {
-                ToastService.showToast(translated, true);
+                ToastService.showToast(translated + ': ' + data.statusText, true);
             });
         });
     };
@@ -160,7 +173,7 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
             headers: {'Content-Type': undefined },
             transformRequest: angular.identity
         }).
-        success(function(data, status, headers, config) {
+        success(function(data) {
 
             var index;
             $scope.knownreferences=[];
@@ -174,9 +187,9 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 $scope.add($scope.unknownreferences, unknownreference);
             };
         }).
-        error(function(data, status, headers, config) {
+        error(function(data) {
             $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
-                ToastService.showToast(translated, true);
+                ToastService.showToast(translated + ': ' + data.statusText, true);
             });
         });
     };
@@ -201,7 +214,7 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     $scope.post = function () {
 
         function upload(){
-            console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
+            //console.log('POST to('+user.id +'): ' + JSON.stringify(toPost));
             Publication.save(JSON.stringify(toPost),function(data){
                 var index;
                 for(index = 0; index < $scope.unknownreferences.length; index++) {
@@ -211,29 +224,29 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 $location.path('/mypublications');
             },function(data){
                 $translate('ERROR').then(function(translated) {
-                ToastService.showToast(translated + ': ' + data.status, true);
+                    ToastService.showToast(translated + ': ' + data.statusText, true);
                 });
             });
         }
 
         var toPost = {};
-        toPost.title = $scope.title;
-        toPost.numberOfPages = $scope.numberOfPages;
-        toPost.year = $scope.year;
-        toPost.url = $scope.url;
-        toPost.abstract = $scope.abstract;
+        toPost.title = $scope.newPublication.title;
+        toPost.numberOfPages = $scope.newPublication.numberOfPages;
+        toPost.year = $scope.newPublication.year;
+        toPost.url = $scope.newPublication.url;
+        toPost.abstract = $scope.newPublication.abstract;
         toPost.references = $scope.knownreferences;
         toPost.type = $scope.type;
         if ($scope.type === 'Journal') {
             toPost.journal = $scope.journal.id;
-            toPost.volume = $scope.volume;
-            toPost.number = $scope.number;
+            toPost.volume = $scope.newPublication.volume;
+            toPost.number = $scope.newPublication.number;
         }
         else {
             toPost.proceedingId = $scope.proceeding.id;
-            toPost.editors = $scope.editors;
-            toPost.publisher = $scope.publisher;
-            toPost.city = $scope.city;
+            toPost.editors = $scope.newPublication.editors;
+            toPost.publisher =$scope.newPublication.publisher;
+            toPost.city = $scope.newPublication.city;
         }
 
         toPost.uploader = user.id;
@@ -261,6 +274,10 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
                 Person.save(author,function(person){
                     toPost.authors.push({id:person.id});
                     if(toPost.authors.length === $scope.authors.length)upload();
+                }, function(data) {
+                    $translate('ERROR').then(function(translated) {
+                        ToastService.showToast(translated + ': ' + data.statusText, true);
+                    });
                 });
             }
         }

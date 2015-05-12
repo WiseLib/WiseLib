@@ -1,4 +1,5 @@
-<md-content layout="column">
+<md-toolbar class="md-accent" ng-if="error">{{'ERROR' | translate}}: {{error}}</md-toolbar>
+<md-content layout="column" ng-if="!error">
     <div class="uploadfield">
         <md-button type="button" class="md-fab md-primary" aria-label="Upload" onclick="document.getElementById('uploadpdf').click();">
             <md-icon md-svg-src='/assets/upload.svg'></md-icon>
@@ -13,14 +14,14 @@
             <h4>{{'PUBLICATION_INFORMATION' | translate}}</h4>
             <md-input-container>
                 <label>{{'TITLE' | translate}}</label>
-                <input id="title" type="text" ng-model="title" name="title" required>
+                <input id="title" type="text" ng-model="newPublication.title" name="title" required>
                 <div ng-messages="PublicationInfoForm.title.$error">
                     <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
                 </div>
             </md-input-container>
             <div>
             <div ng-show="unknownpublications.length > 0">
-                <label ng-show="unknownpublication == undefined">These publications are already a reference in the database, please choose the publications you are trying to upload </label>
+                <label ng-show="unknownpublication == undefined">{{'REPLACE_REFERENCES' | translate}}</label>
                 
                 <label id="unknownpublicationlist" ng-repeat="p in unknownpublications">
                     <md-checkbox class="md-no-ink"value="p.title" ng-model="p.status"> {{p.title + ' by ' + p.authors}}</md-checkbox>
@@ -30,7 +31,7 @@
             </div>
             <md-input-container>
                 <label>{{'YEAR' | translate}}</label>
-                <input id="year" type="number" name="year" ng-model="year" required>
+                <input id="year" type="number" name="year" ng-model="newPublication.year" required>
                 <div ng-messages="PublicationInfoForm.year.$error">
                     <div ng-message="required">{{'FIELD_REQUIRED' | translate}}</div>
                     <div ng-message="number">{{'FILL_IN_NUMBER' | translate}}</div>
@@ -38,21 +39,21 @@
             </md-input-container>
             <md-input-container>
                 <label>{{'NR_OF_PAGES' | translate}}</label>
-                <input id="nb-pages" name="numberOfPages" type="number" min="1" ng-model="numberOfPages">
+                <input id="nb-pages" name="numberOfPages" type="number" min="1" ng-model="newPublication.numberOfPages">
                 <div ng-messages="PublicationInfoForm.numberOfPages.$error">
                     <div ng-message="number">{{'FILL_IN_NUMBER' | translate}}</div>
                 </div>
             </md-input-container>
             <md-input-container>
                 <label ng-hide="localfile">{{'URL'}}</label>
-                <input ng-hide="localfile" id="url" type="url" name="url" ng-model="url" requiered>
+                <input ng-hide="localfile" id="url" type="url" name="url" ng-model="newPublication.url" requiered>
                 <div ng-hide="localfile" ng-messages="PublicationInfoForm.url.$error">
                     <div ng-message="url">{{'FILL_IN_VALID_URL' | translate}}</div>
                 </div>
             </md-input-container>
             <md-input-container>
                 <label>{{'ABSTRACT' | translate}}</label>
-                <textarea ng-model="abstract" columns="1" md-maxlength="5000"></textarea>
+                <textarea ng-model="newPublication.abstract" columns="1" md-maxlength="5000"></textarea>
             </md-input-container>
         </div>
     </form>
@@ -88,10 +89,10 @@
             <div ng-show="type == 'Proceeding'">
                 <md-input-container>
                     <label>{{'SEARCH_A_PROCEEDING' | translate}}</label>
-                    <input id="proceeding" type="text" ng-model="searchProceeding">
+                    <input id="proceeding" type="text" ng-model="searchProceeding.value">
                 </md-input-container>
                 <ul class="choices">
-                    <li ng-click="chooseProceeding(possibleProceeding)" ng-repeat="possibleProceeding in fetchProceedings(searchProceeding)|limitTo:5">
+                    <li ng-click="chooseProceeding(possibleProceeding)" ng-repeat="possibleProceeding in fetchProceedings(searchProceeding.value)|limitTo:5">
                         <proceedingmin proceeding="possibleProceeding"></proceedingmin>
                     </li>
                 </ul>
@@ -104,24 +105,24 @@
                 </div>
                 <md-input-container>
                     <label>{{'EDITORS' | translate}}</label>
-                    <input id="city" type="text" ng-model="editors">
+                    <input id="city" type="text" ng-model="newPublication.editors">
                 </md-input-container>
                 <md-input-container>
                     <label>{{'PUBLISHER' | translate}}</label>
-                    <input id="publisher" type="text" ng-model="publisher">
+                    <input id="publisher" type="text" ng-model="newPublication.publisher">
                 </md-input-container>
                 <md-input-container>
                     <label>{{'CITY' | translate}}</label>
-                    <input id="city" type="text" ng-model="city">
+                    <input id="city" type="text" ng-model="newPublication.city">
                 </md-input-container>
             </div>
             <div ng-show="type == 'Journal'">
                 <md-input-container>
                     <label for="searchjournal">{{'SEARCH_A_JOURNAL' | translate}}</label>
-                    <input id="searchjournal" type="text" ng-model="searchJournal">
+                    <input id="searchjournal" type="text" ng-model="searchJournal.value">
                 </md-input-container>
                 <ul class="choices">
-                    <li ng-click="chooseJournal(possibleJournal);" ng-repeat="possibleJournal in fetchJournals(searchJournal)|limitTo:5">
+                    <li ng-click="chooseJournal(possibleJournal);" ng-repeat="possibleJournal in fetchJournals(searchJournal.value)|limitTo:5">
                             <proceedingmin  proceeding="possibleJournal"></proceedingmin>
                     </li>
                 </ul>
@@ -134,11 +135,11 @@
                 </div>
                 <md-input-container>
                     <label>{{'VOLUME' | translate}}</label>
-                    <input type="number" ng-model="volume">
+                    <input type="number" ng-model="newPublication.volume">
                 </md-input-container>
                 <md-input-container>
                     <label>{{'NUMBER' | translate}}</label>
-                    <input type="number" ng-model="number">
+                    <input type="number" ng-model="newPublication.number">
                 </md-input-container>
             </div>
         </div>
@@ -157,7 +158,7 @@
 
     </form>
 
-        <md-button type="button" class="md-raised md-primary reserve-tooltip-space" ng-disable="(PublicationInfoForm.$invalid && !localfile) ||JournalConferenceForm.$invalid || authors.length < 1" ng-click="post()">
+        <md-button type="button" class="md-raised md-primary reserve-tooltip-space" ng-disabled="(PublicationInfoForm.$invalid && !localfile) ||JournalConferenceForm.$invalid || authors.length < 1" ng-click="post()">
             <!-- md-direction doesn't work in this version of angular-material. Temporary fix in the css file -->
             <md-tooltip md-direction="top">{{'UPLOAD_YOUR_PUBLICATION' | translate}}</md-tooltip>
             {{'SEND' | translate}}

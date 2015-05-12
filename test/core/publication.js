@@ -4,10 +4,10 @@ var Publication = require('../../src/core/publication.js');
 var _ = require('lodash');
 
 describe('Publication test', function() {
-	
-	var fromJSON = new Publication({title:'A test publication', 
-		                            url:'www.atest.com', 
-		                            numberOfPages:20, 
+
+	var fromJSON = new Publication({title:'A test publication',
+		                            url:'www.atest.com',
+		                            numberOfPages:20,
 		                            year:2015,
 		                            type:'unknown',
 		                            authors: [{id:9022}, {id:9050}],
@@ -34,6 +34,8 @@ describe('Publication test', function() {
 			publication.should.have.property('numberOfPages', 25);
 			publication.authors.length.should.be.equal(2);
 			done();
+		}).catch(function(error) {
+			done(error);
 		});
 	});
 	it('should calculate rank correctly', function(done) {
@@ -54,8 +56,10 @@ describe('Publication test', function() {
 		fetched.then(function(publications) {
 			publications.length.should.be.equal(2);
 			done();
+		}).catch(function(error) {
+			done(error);
 		});
-		
+
 	});
 	it('should add and delete Publication', function(done) {
 		toAdd.save().then(function(publication) {
@@ -66,6 +70,6 @@ describe('Publication test', function() {
 			publication.should.have.property('id',undefined);
 			done();
 		});
-		
+
 	});
 });

@@ -8,7 +8,15 @@ angular.module('publication')
     $scope.error = null;
     $scope.publications = [];
     $scope.showLoading = true;
-    $scope.user = TokenService.getUser();
+    try {
+        $scope.user = TokenService.getUser();
+    } catch(error) {
+        $translate('LOGGED_IN_VIEW_REQUIREMENT').then(function(translated) {
+            $scope.error = translated;
+        });
+        $scope.showLoading = false;
+        return;
+    }
 
     $scope.getLibrary = function(user) {
         User.library({id: user.id}, function(data) {
@@ -18,10 +26,12 @@ angular.module('publication')
             } else {
                 $translate('NO_PUBLICATIONS_FOUND').then(function(translated) {
                     $scope.error = translated;
-            });
+                });
             }
-        }, function(error) {
-            $scope.error = error.status + ' ' + error.statusText;
+        }, function(data) {
+            $translate('ERROR').then(function(translated) {
+                $scope.error = translated + ': ' + data.statusText;
+            });
         });
     };
     $scope.getLibrary($scope.user);
@@ -39,7 +49,7 @@ angular.module('publication')
         })
         .then(function() { 
             var removeIndex;
-            for (var i = $scope.user.library.length - 1; i >= 0; i--) { 
+            for (var i = $scope.user.library.length - 1; i >= 0; i--) {
                 if($scope.user.library[i].id === pub.id) {
                     //change library list for put request
                     removeIndex = i;
@@ -62,7 +72,7 @@ angular.module('publication')
                 //revert library back to original state
                 $scope.user.library.splice(removeIndex,0, {id: pub.id});
                 $translate('ERROR_REMOVING_PUBLICATION').then(function(translated) {
-                    ToastService.showToast(translated + ': ' + data.error, true);
+                    ToastService.showToast(translated + ': ' + data.statusText, true);
                 });
             });
         }, function() {

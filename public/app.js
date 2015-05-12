@@ -35,12 +35,16 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
         reloadOnSearch: false
     })
     .when('/mypublications', {
-        templateUrl: 'views/myPublications.html',
+        templateUrl: 'views/publicationsList.html',
         controller: 'myPublicationsController'
     })
     .when('/library', {
-        templateUrl: 'views/library.html',
+        templateUrl: 'views/publicationsList.html',
         controller: 'myLibraryController'
+    })
+    .when('/network', {
+        templateUrl: 'views/network.html',
+        controller: 'networkController'
     })
     .when('/publications/:id', {
         templateUrl: 'views/publication.html',

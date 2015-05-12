@@ -42,9 +42,11 @@ module.controller('publicationController', function($scope, $window, $routeParam
             User.put(userAddPublication, function(resource) {
                 TokenService.setToken(resource.token);
                 $scope.authenticatedUser = TokenService.getUser();
-                $translate('ADDED_TO_LIBRARY').then(function(translated){ToastService.showToast(translated);});
-            }, function(errorData) {
-                console.log(errorData.error);
+                $translate('ADDED_TO_LIBRARY').then(function(translated){ToastService.showToast(translated, false);});
+            }, function(data) {
+                $translate('ERROR').then(function(translated) {
+                    ToastService.showToast(translated + ': ' + data.statusText, true);
+                });
             });
         }
     };
@@ -66,38 +68,47 @@ module.controller('publicationController', function($scope, $window, $routeParam
             id: pub.uploader
         }, function(user) {
             $scope.uploaderPersonId = user.person;
-            if ($scope.persons[user.person] !== undefined) {
+            if (!$scope.persons[user.person]) {
                 getPerson(user.person);
             }
         }, function(data) {
-            console.log('error: ' + data.error);
+            $translate('ERROR').then(function(translated) {
+                ToastService.showToast(translated + ': ' + data.statusText, true);
+            });
         });
         $scope.publication = pub;
-        for (var i = pub.authors.length - 1; i >= 0; i--) {
-            var id = pub.authors[i].id;
+
+        pub.authors.forEach(function(author) {
+            var id = author.id;
             $scope.authors.push(id);
             if (!$scope.persons[id]) {
                 getPerson(id);
             }
-        }
+        });
 
-        if (pub.editors !== undefined) {
-            for (i = pub.editors.length - 1; i >= 0; i--) {
-                var id = pub.editors[i].id;
+        if(pub.editors !== undefined){
+            pub.editors.forEach(function(editor) {
+                var id = editor.id;
                 $scope.editors.push(id);
-                if (!$scope.persons[id]) {
+                if(!$scope.persons[id]) {
                     getPerson(id);
                 }
-            }
+            });
         }
-        if (pub.references !== undefined) {
-            for (i = pub.references.length - 1; i >= 0; i--) {
-                Publication.get({id: pub.references[i].id}, function(publication) {
-                    $scope.referencedPublications.push(publication);
-                }, function(data) {
-                    console.log('error: ' + data.error);
+        
+        function getPublication(id) {
+            Publication.get({id: id}, function(publication) {
+                $scope.referencedPublications.push(publication);
+            }, function(data) {
+                $translate('ERROR').then(function(translated) {
+                    ToastService.showToast(translated + ': ' + data.statusText, true);
                 });
-            }
+            });
+        }
+        if(pub.references !== undefined){
+            pub.references.forEach(function(publication) {
+                getPublication(publication.id);
+            });
         }
 
         if(pub.unknownReferences !== undefined){
@@ -108,8 +119,10 @@ module.controller('publicationController', function($scope, $window, $routeParam
                 },function(){})
             };
         }
-    }, function(data) {
-        console.log('Error getting publication: ' + JSON.stringify(data));
+    }, function() {
+        $translate(['PUBLICATION', 'WAS_NOT_FOUND_LC']).then(function(translations) {
+            $scope.error = translations.PUBLICATION + ' ' + translations.WAS_NOT_FOUND_LC;
+        });
     });
 
 });

@@ -4,6 +4,7 @@ var Rankable = require('./rankable.js');
 var PublicationRepr = require('../database/linker.js').publicationRepr;
 var DBManager = require('../database/dbmanager.js');
 var core = require('../core/exports.js');
+var errors = require('./errors.js');
 
 /* A publication written by a number of persons
  * @superclass Rankable
@@ -60,18 +61,19 @@ Publication.prototype.calculateRank = function() {
  */
 Publication.prototype.fetch = function() {
 	var writeable = this;
-	if (!writeable.id) {
-		return Promise.reject(writeable);
+	if(!writeable.id) {
+		return Promise.reject(new Error('Object to fetch has no id'));
 	}
 	return DBManager.get(this, Publication.prototype.representation)
-		.then(function(res) {
-			if (res.length > 0) {
-				writeable.assignVariables(res[0]);
-				return writeable;
-			} else {
-				Promise.reject(writeable.id);
-			}
-		});
+	.then(function(res) {
+		if(res.length > 0) {
+			writeable.assignVariables(res[0]);
+			return writeable;
+		}
+		else {
+			throw new errors.NotFoundError('Publication');
+		}
+	});
 };
 
 /**

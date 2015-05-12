@@ -1,0 +1,16 @@
+<md-toolbar class="md-accent" ng-if="error">{{'ERROR' | translate}}: {{error}}</md-toolbar>
+<md-progress-circular md-mode="indeterminate" ng-if="showLoading"></md-progress-circular>
+<md-content layout="row" layout-align="center" ng-if="!error && !showLoading">
+	<md-list class="publications-list" ng-if="publications.length > 0">
+	<md-subheader class="md-no-sticky">{{'AMOUNT' | translate}}: {{publications.length}}</md-subheader>
+		<md-list-item ng-repeat="publication in publications">
+			<div class="md-tile-item-text">
+				<publicationmin publication="publication"></publicationmin>
+			</div>
+			<md-button class="md-fab md-warn" aria-label="Delete publication" ng-click="deletePublication(publication)">
+       			<md-icon md-svg-src="/assets/delete.svg"></md-icon>
+   			</md-button>
+			<md-divider md-inset ng-if="!$last"></md-divider>
+		</md-item>
+	</md-list>
+</md-content>
