@@ -13,7 +13,7 @@ describe('Publication test', function() {
 		                            authors: [{id:9022}, {id:9050}],
 		                            q:'search'});
 	var fromID = new Publication(9).fetch();
-	var fetched = new Publication({title: 'test'}).fetchAll();
+	var fetched = new Publication({title: 'My publication'}).fetchAll();
 	var toAdd = fromJSON;
 
 	it('should create Publication from JSON', function() {
@@ -32,7 +32,7 @@ describe('Publication test', function() {
 			publication.should.have.property('type', 'Journal');
 			publication.should.have.property('year', 2015);
 			publication.should.have.property('numberOfPages', 25);
-			publication.authors.length.should.be.equal(2);
+			publication.authors.length.should.be.equal(3);
 			done();
 		}).catch(function(error) {
 			done(error);
@@ -54,7 +54,7 @@ describe('Publication test', function() {
 	});
 	it('should fetch all corresponding Publications', function(done) {
 		fetched.then(function(publications) {
-			publications.length.should.be.equal(2);
+			publications.length.should.be.equal(1);
 			done();
 		}).catch(function(error) {
 			done(error);
@@ -62,7 +62,7 @@ describe('Publication test', function() {
 
 	});
 	it('should add and delete Publication', function(done) {
-		toAdd.save().then(function(publication) {
+		toAdd.save().then(function(publication) { console.log(publication)
 			publication.should.not.have.property('id',undefined);
 			return publication.destroy();
 		})

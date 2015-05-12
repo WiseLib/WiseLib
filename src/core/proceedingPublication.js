@@ -1,11 +1,12 @@
 'use strict';
 var Promise = require('bluebird');
 var SpecializedPublication = require('./specializedPublication.js');
+var Publication = require('./publication.js');
 var Proceeding = require('./proceeding.js');
 var ProceedingPublicationRepr = require('../database/linker.js').proceedingPublicationRepr;
 
-/* A publication that is pubished in a Journal
- * the 'type' is always 'Journal'
+/* A publication that is published in a Proceeding
+ * the 'type' is always 'Proceeding'
  * @superclass Publication
  * @constructor
  */
@@ -13,6 +14,7 @@ var ProceedingPublication = function(arg) {
 	this.assignVariables({type: 'Proceeding'});
 	SpecializedPublication.call(this, arg);
 };
+
 
 ProceedingPublication.prototype = Object.create(SpecializedPublication.prototype);
 ProceedingPublication.prototype.variables = ['publisher', 'editors', 'city', 'proceeding'];

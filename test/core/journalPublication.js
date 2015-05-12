@@ -38,7 +38,7 @@ describe('JournalPublication test', function() {
 			publication.should.have.property('type', 'Journal');
 			publication.should.have.property('year', 2015);
 			publication.should.have.property('numberOfPages', 25);
-			publication.authors.length.should.be.equal(2);
+			publication.authors.length.should.be.equal(3);
 			publication.should.have.property('journal', 7);
 			publication.should.have.property('volume', 25);
 			publication.should.have.property('number',1);

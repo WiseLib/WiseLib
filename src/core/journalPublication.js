@@ -14,7 +14,6 @@ var JournalPublication = function(arg) {
 	this.assignVariables({type: 'Journal'});
 	SpecializedPublication.call(this, arg);
 };
-
 JournalPublication.prototype = Object.create(SpecializedPublication.prototype);
 JournalPublication.prototype.variables = ['journal', 'volume', 'number'];
 JournalPublication.prototype.variables.push.apply(JournalPublication.prototype.variables, SpecializedPublication.prototype.variables);

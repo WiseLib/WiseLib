@@ -37,13 +37,14 @@ describe('Publication test',function(){
 				httpBackend.expectGET('/users/2.json').respond(201,{person:2})
 
 
-				httpBackend.expectGET('/persons/3.json').respond(201,{id:3})
-
 				httpBackend.expectGET('/persons/2.json').respond(201,{id:2})
+
+				httpBackend.expectGET('/persons/3.json').respond(201,{id:3})
 
 				httpBackend.expectGET('/publications/4.json').respond(201,{id:4});
 
 				httpBackend.expectGET('/unknownpublications.json/?id=5').respond(201,{publications:[{id:4}]});
+
 
 				httpBackend.flush()
 

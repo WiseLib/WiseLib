@@ -3,7 +3,7 @@ var Promise = require('bluebird');
 var Rankable = require('./rankable.js');
 var PublicationRepr = require('../database/linker.js').publicationRepr;
 var DBManager = require('../database/dbmanager.js');
-var core = require('../core/exports.js');
+var UnknownPublication =  require('./unknownPublication.js')
 var errors = require('./errors.js');
 
 /* A publication written by a number of persons
@@ -104,7 +104,7 @@ Publication.prototype.fetchAll = function() {
 /**
  * Extended save method of a publication. In case the publication describes (an) unknown publicatio(s) in the database, thi(e)s(e) unknown publication(s) should be deleted
  * and the publications referencing thi(e)s(e) publication(s) should be updated to reference this new publication instead
- * @return {Promis} a promise of the newly added publication object
+ * @return {Promise} a promise of the newly added publication object
  * @extends {Writeable.save}
  */
 Publication.prototype.save = function() {
@@ -113,7 +113,7 @@ Publication.prototype.save = function() {
 	delete this.UnknownPublicationsToDelete;//Just a precaution so save doesn't complain about unknown field
 
 	return this.saveWithRepresentation(Publication.prototype.representation)
-	.then(function(publication) {
+	.then(function(publication) { console.log(publication)
 
 			if (UnknownPublications !== undefined) {
 				//Add an entry in publication_references_publication for every element in UnknownPublications.
@@ -125,13 +125,13 @@ Publication.prototype.save = function() {
 				for (var i = 0; i < UnknownPublications.length; i++) {
 					var referencingId = UnknownPublications[i].reference;
 
-					new core.Publication(referencingId).fetch()
-					.then(function(instance) {
+					new Publication(referencingId).fetch()
+					.then(function(instance) { console.log(instance)
 							instance.references.push({id:newId});
 							instance.save();
 					});
 
-					new core.UnknownPublication({id:UnknownPublications[i].id}).fetchAll()
+					new UnknownPublication({id:UnknownPublications[i].id}).fetchAll()
 					.then(function(UnknownPub){
 						UnknownPub[0].destroy();
 					})

@@ -35,7 +35,6 @@ module.controller('personController', function($scope, $routeParams, $translate,
 				});
 			});
 		}
-
 		person.disciplines.forEach(function(discipline) {searchDiscipline(discipline.id);});
 		Person.contacts({id: person.id}, function(data) {
 			$scope.contacts = data.persons;
@@ -45,16 +44,8 @@ module.controller('personController', function($scope, $routeParams, $translate,
 			});
 		});
 
-		Person.contacts({id: person.id}, function(data) {
-			$scope.contacts = data.persons;
 		}, function(data) {
 			$scope.error = data.error;
-			console.log('error: ' + JSON.stringify(data.error));
-		});
-
-		}, function(data) {
-			$scope.error = data.error;
-			console.log('error: ' + JSON.stringify(data.error));
 	}, function() {
 		$translate(['PERSON', 'WAS_NOT_FOUND_LC']).then(function(translations) {
 			console.log(translations);

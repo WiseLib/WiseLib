@@ -34,11 +34,12 @@ describe('Person test',function(){
 		describe('Load page test',function(){
 			it('should make the correct requests',function(){
 
-				httpBackend.expectGET('/persons/1.json').respond(201,{id:1,affiliation:1});
+				httpBackend.expectGET('/persons/1.json').respond(201,{id:1,affiliation:1,disciplines:[1]});
 
 				httpBackend.expectGET('/persons/1/publications.json').respond(201,{publications:[{id:1}]});
 				httpBackend.whenGET('/affiliations/1.json').respond(201,{name:'VUB'});
 
+				httpBackend.expectGET('/disciplines.json').respond(201,{});
 
 				httpBackend.expectGET('/persons/1/contacts.json').respond(201,{persons:[{id:2},{id:3}]});
 

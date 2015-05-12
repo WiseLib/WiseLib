@@ -12,7 +12,6 @@ module.exports = function(config) {
     // plugins
 
     plugins : [
-	'karma-htmlfile-reporter',
 	'karma-mocha',
 	'karma-chai',
 	'karma-chrome-launcher'
@@ -46,13 +45,13 @@ module.exports = function(config) {
       'public/scripts/services/*.js',
 
       //'test/ClientTests/addUsertest.js'
-      'test/ClientTests/addPersonTest.js'
+      //'test/ClientTests/addPersonTest.js'
       //'test/ClientTests/editUserTest.js'
       //'test/ClientTests/loginUserTest.js'
       //'test/ClientTests/libraryTest.js'
       //'test/ClientTests/MyPublicationTest.js'
       //'test/ClientTests/PersonTest.js'
-      //'test/ClientTests/PublicationTest.js'
+      'test/ClientTests/PublicationTest.js'
     ],
 
 
@@ -77,7 +76,7 @@ module.exports = function(config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress','html'],
+    reporters: ['progress'],
 
     //htmlReporter: {
     //  outputDir: 'test/units.html'

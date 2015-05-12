@@ -73,6 +73,7 @@ describe('Person test', function() {
 		                            numberOfPages:20,
 		                            year:2015,
 		                            type:'unknown',
+		                            authors:[{id:'1'}],
 		                            q:'search'});
 			return publication.save();
 		})
