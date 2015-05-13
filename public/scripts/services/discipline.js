@@ -18,7 +18,6 @@ module.factory('fetchDisciplines', ['Discipline', function(Discipline) {
 				found = data.disciplines;
 			};
 			var err = function(error) {
-				console.log('error! ' + error);
 			};
 			Discipline.query(options, res, err);
 		}

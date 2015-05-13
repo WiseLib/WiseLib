@@ -59,7 +59,9 @@ angular.module('publication')
         });
       });
     }, function() {
-      console.log('Clicked cancel!');
+       $translate('CANCEL').then(function(translated) {
+            ToastService.showToast(translated, true);
+        });
     });
     };
 });

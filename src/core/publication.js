@@ -3,7 +3,7 @@ var Promise = require('bluebird');
 var Rankable = require('./rankable.js');
 var PublicationRepr = require('../database/linker.js').publicationRepr;
 var DBManager = require('../database/dbmanager.js');
-var core = require('../core/exports.js');
+var UnknownPublication =  require('./unknownPublication.js')
 var errors = require('./errors.js');
 
 /* A publication written by a number of persons
@@ -125,16 +125,13 @@ Publication.prototype.save = function() {
 				for (var i = 0; i < UnknownPublications.length; i++) {
 					var referencingId = UnknownPublications[i].reference;
 
-					new core.Publication(referencingId).fetch()
+					new Publication(referencingId).fetch()
 					.then(function(instance) {
 							instance.references.push({id:newId});
 							instance.save();
 					});
 
-					new core.UnknownPublication({id:UnknownPublications[i].id}).fetchAll()
-					.then(function(UnknownPub){
-						UnknownPub[0].destroy();
-					})
+					new UnknownPublication(UnknownPublications[i].id).destroy();
 
 				};
 			}

@@ -36,13 +36,13 @@
       <h4>{{'RESULTS' | translate}}</h4>
       <p ng-show= "foundPublications.length == 0">{{'NO_RESULTS' | translate}}</p>
       <ul ng-show="extern">
-       <li ng-repeat="foundpublication in foundPublications">
+       <li class="searchresults" ng-repeat="foundpublication in foundPublications">
         <externpublicationmin publication="foundpublication" ng-click="view(publication)"></externpublicationmin>
       </li>
     </ul>
 
-    <ul ne-show="!extern">
-      <li ng-repeat="foundpublication in foundPublications">
+    <ul ng-show="!extern">
+      <li class="searchresults" ng-repeat="foundpublication in foundPublications">
         <publicationmin publication="foundpublication" ng-click="view(publication)"></publicationmin>
       </li>
     </ul>

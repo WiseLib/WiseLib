@@ -154,6 +154,22 @@
                 <md-tooltip>{{'UPLOAD_BIBTEX_FILE' | translate}}</md-tooltip>
             </md-button>
         </div>
+
+        <ul ng-show="knownreferences.length > 0" class="choices">
+            <li ng-repeat="reference in knownreferences">
+                {{reference}}
+                <div id="overlay" ng-click="remove(references, reference)">{{'REMOVE' | translate}}</div>
+            </li>
+        </ul>
+
+        <ul ng-show="unknownreferences.length > 0" class="choices">
+            <li ng-repeat="reference in unknownreferences">
+                <div class="choice" >
+                    <div>{{reference.title + " by " + reference.authors}}</div>
+                    <div id="overlay" ng-click="remove(unknownreferences, reference)">{{'REMOVE' | translate}}</div>
+                </div>
+            </li>
+        </ul>
         <input ng-hide="true" id="uploadbib" type="file" class="file" name="file" onchange="angular.element(this).scope().uploadbibtex(this.files)" />
 
     </form>

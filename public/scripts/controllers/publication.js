@@ -62,7 +62,9 @@ module.controller('publicationController', function($scope, $window, $routeParam
             }, function(person) {
                 $scope.persons[id] = person;
             }, function(data) {
-                console.log('error: ' + data.error);
+                 $translate('ERROR').then(function(translated) {
+                    ToastService.showToast(translated + ': ' + data.error, true);
+                });
             });
         }
 

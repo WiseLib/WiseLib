@@ -47,7 +47,6 @@ module.controller('personController', function($scope, $routeParams, $translate,
 
 	}, function() {
 		$translate(['PERSON', 'WAS_NOT_FOUND_LC']).then(function(translations) {
-			console.log(translations);
 			$scope.error = translations.PERSON + ' ' + translations.WAS_NOT_FOUND_LC;
 		});
 	});

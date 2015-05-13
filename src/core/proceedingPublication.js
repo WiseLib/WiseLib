@@ -4,8 +4,8 @@ var SpecializedPublication = require('./specializedPublication.js');
 var Proceeding = require('./proceeding.js');
 var ProceedingPublicationRepr = require('../database/linker.js').proceedingPublicationRepr;
 
-/* A publication that is pubished in a Journal
- * the 'type' is always 'Journal'
+/* A publication that is published in a Proceeding
+ * the 'type' is always 'Proceeding'
  * @superclass Publication
  * @constructor
  */

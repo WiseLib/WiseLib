@@ -22,3 +22,12 @@
 div.results ul{
 	list-style-type: circle;
 }
+
+li.searchresults{
+	border-bottom: 1px solid rgba(0,0,0,0.5);
+	padding-bottom: 5px;
+}
+
+li.searchresults:last-child{
+	border-bottom: 1px solid rgba(0,0,0,0);
+}

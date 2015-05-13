@@ -23,11 +23,12 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     $scope.disciplines = [];
     $scope.references = [];
     $scope.unknownpublications=[];
-    $scope.unknownreferences = [];
     $scope.knownreferences = [];
     $scope.searchJournal={};
     $scope.searchProceeding={};
     $scope.PersonState = PersonState;
+    $scope.knownreferences=[];
+    $scope.unknownreferences=[];
 
     $scope.$watch('newPublication.title', function () {
         $scope.searchUnknownPublications($scope.newPublication.title);
@@ -39,7 +40,6 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
             return;}
         UnknownPublication.search({q:title},function(data){
             $scope.unknownpublications = data.publications;
-            console.log('got:' + data)
         },function(data){})
     }
 
@@ -173,8 +173,6 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         success(function(data) {
 
             var index;
-            $scope.knownreferences=[];
-            $scope.unknownreferences=[];
             for (index = 0; index < data.references.length; index++) {
                 var knownreference = data.references[index];
                 $scope.add($scope.knownreferences,knownreference);
