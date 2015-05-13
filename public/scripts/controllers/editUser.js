@@ -3,9 +3,7 @@
 angular.module('user')
 
 .controller('updateUserController', function($scope, $location, $translate, Page, AuthenticationService, User, Person, TokenService, ToastService) {
-    $translate('UPDATE_PROFILE').then(function(translated) {
-    Page.setTitle(translated);
-  });
+    Page.setTitleTranslationKey('UPDATE_PROFILE');
     $scope.userEditForm = {};
     $scope.personEditForm = {};
 

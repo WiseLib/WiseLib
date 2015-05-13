@@ -3,9 +3,7 @@
 angular.module('user')
 
 .controller('registerUserController', function($scope, $location, $translate, $q, Page, AuthenticationService, User, Person, PersonState, Affiliation, TokenService, ToastService) {
-    $translate('REGISTER').then(function(register) {
-        Page.setTitle(register);
-    });
+    Page.setTitleTranslationKey('REGISTER');
     $scope.userForm = {};
 
     $scope.authenticate = function(token) {

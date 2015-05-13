@@ -22,7 +22,7 @@
             <div>
             <div ng-show="unknownpublications.length > 0">
                 <label ng-show="unknownpublication == undefined">{{'REPLACE_REFERENCES' | translate}}</label>
-                
+
                 <label id="unknownpublicationlist" ng-repeat="p in unknownpublications">
                     <md-checkbox class="md-no-ink"value="p.title" ng-model="p.status"> {{p.title + ' by ' + p.authors}}</md-checkbox>
                 </label>

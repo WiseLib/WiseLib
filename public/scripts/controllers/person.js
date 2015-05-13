@@ -2,9 +2,7 @@
 var module = angular.module('person', ['proceeding', 'ngMaterial', 'ngMessages', 'affiliation', 'discipline']);
 
 module.controller('personController', function($scope, $routeParams, $translate, Page, Person, Affiliation, Discipline) {
-	$translate('PERSON').then(function(translated) {
-		Page.setTitle(translated);
-	});
+	Page.setTitleTranslationKey('PERSON');
 
 	function getFullAffiliation(id){
 		Affiliation.get({id: id}, function(affiliation) {

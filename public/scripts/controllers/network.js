@@ -1,9 +1,7 @@
 'use strict';
 var module = angular.module('person');
 module.controller('networkController', function($scope, $routeParams, $translate, Page, Person, TokenService, $rootScope) {
-	$translate('NETWORK').then(function(translated) {
-		Page.setTitle(translated);
-	});
+	Page.setTitleTranslationKey('NETWORK');
 	$scope.showLoading = true;
 	$scope.network = [];
 	var user;
