@@ -96,6 +96,7 @@
 	"SEND": "Verstuur",
 	"SKIP":"Sla over",
 	"SKIP_TOOLTIP":"Sla deze auteur over",
+	"START": "Start",
 	"SUCCESFULLY_REMOVED_PUBLICATION": "Publicatie succesvol verwijderd",
 	"SUCCESSFULLY_LOGGED_IN": "Succesvol ingelogd",
 	"SUCCESSFULLY_REGISTERED": "Succesvol geregistreerd",
@@ -120,6 +121,7 @@
 	"WELCOME": "Welkom bij WiseLib",
 	"WELCOME_SUB": "Een doorzoekbare onderzoeksdatabank",
 	"WISELIB_DESCR": "WiseLib laat je papers delen met anderen en papers zoeken die gedeeld werden door anderen.",
+	"WRONG_EMAIL_OR_PASSWORD": "Verkeerd email adres of wachtwoord",
 	"YEAR": "Jaar",
 	"YEAR_OF_PUBLISHING": "Jaar van publicering"
 }

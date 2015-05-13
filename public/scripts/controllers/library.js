@@ -73,9 +73,6 @@ angular.module('publication')
                 });
             });
         }, function() {
-             $translate('CANCEL').then(function(translated) {
-                ToastService.showToast(translated);
-            });
         });
     };
 });

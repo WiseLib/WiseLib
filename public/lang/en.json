@@ -96,6 +96,7 @@
 	"SEND": "Send",
 	"SKIP":"Skip",
 	"SKIP_TOOLTIP":"Skip this author",
+	"START": "Start",
 	"SUCCESFULLY_REMOVED_PUBLICATION": "Successfully removed publication",
 	"SUCCESSFULLY_LOGGED_IN": "Successfully logged in",
 	"SUCCESSFULLY_REGISTERED": "Successfully registered",
@@ -120,6 +121,7 @@
 	"WELCOME": "Welcome to WiseLib",
 	"WELCOME_SUB": "A browsable research database",
 	"WISELIB_DESCR": "WiseLib lets you share your papers and search through papers shared by others colleagues.",
+	"WRONG_EMAIL_OR_PASSWORD": "Wrong email or password",
 	"YEAR": "Year",
 	"YEAR_OF_PUBLISHING": "Year of publishing"
 }

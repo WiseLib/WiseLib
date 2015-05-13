@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('user')
+angular.module('user', ['affiliation', 'ngMaterial','ngMessages', 'ngStorage','ngResource','pascalprecht.translate','person','toast'])
 
 .controller('loginUserController',function($scope, $location, UserService, AuthenticationService, $translate, Page, TokenService, ToastService) {
     Page.setTitleTranslationKey('LOG_IN');
@@ -20,9 +20,10 @@ angular.module('user')
                 $translate('SUCCESSFULLY_LOGGED_IN').then(function(translated) {
                     ToastService.showToast(translated, false);
                 });
-            }).error(function(data) {
-                $translate('ERROR').then(function(translated) {
-                    ToastService.showToast(translated + ': ' + data.text, true);
+            }).error(function(data, status) {
+                var wrongCreds = status === 401;
+                $translate(wrongCreds ? ['ERROR', 'WRONG_EMAIL_OR_PASSWORD'] : ['ERROR']).then(function(translations) {
+                    ToastService.showToast(translations.ERROR + ': ' + wrongCreds ? translations.WRONG_EMAIL_OR_PASSWORD : data.text, true);
                 });
             });
         } else {
