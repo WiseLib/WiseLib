@@ -448,7 +448,7 @@ module.exports = {
 		new core.Publication(req.params.id).fetch()
 		.then(function(instance) {
 			if(instance == undefined){
-				throw new Error("not found");
+				throw new core.errors.NotFoundError('publication');
 			}
 			else if(instance.type === 'Journal') {
 				return new core.JournalPublication(req.params.id).fetch();
@@ -466,7 +466,7 @@ module.exports = {
 		.then(function(instance) {
 			res.json(instance);
 		})
-		.catch(function(error) {console.log(error)
+		.catch(function(error) {console.log(error);
 			reportError(res, error);
 		});
 	},

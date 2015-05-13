@@ -2,10 +2,7 @@
 var module = angular.module('publication', ['ngMaterial', 'ngAnimate', 'journal', 'user', 'proceeding', 'ngMessages']);
 
 module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication,UnknownPublication, Person, User, AuthenticationService, TokenService, ToastService) {
-    $translate('PUBLICATION')
-        .then(function(translated) {
-            Page.setTitle(translated);
-        });
+    Page.setTitleTranslationKey('PUBLICATION');
     $scope.publication = undefined;
     $scope.persons = {};
     $scope.authors = [];

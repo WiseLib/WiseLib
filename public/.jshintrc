@@ -3,7 +3,9 @@
   "browser": true,
   "globals": {
     "console": true,
-    "angular": true
+    "angular": true,
+    "$": true,
+    "$q": true
   },
   "strict": true
 }

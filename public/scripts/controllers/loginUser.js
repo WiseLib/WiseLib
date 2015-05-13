@@ -3,9 +3,7 @@
 angular.module('user')
 
 .controller('loginUserController',function($scope, $location, UserService, AuthenticationService, $translate, Page, TokenService, ToastService) {
-    $translate('LOG_IN').then(function(translated) {
-    Page.setTitle(translated);
-  });
+    Page.setTitleTranslationKey('LOG_IN');
     $scope.loginUserForm = {};
 
     /**

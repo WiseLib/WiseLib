@@ -4,9 +4,7 @@ angular.module('publication')
 
 .controller('searchPublicationController', function($scope, $routeParams, $location, $window, $q, $translate, Page, Publication, WebSearchPublication, Person, User, GetApiToken, ToastService) {
 
-    $translate('SEARCH_A_PUBLICATION').then(function(translated) {
-        Page.setTitle(translated);
-    });
+    Page.setTitleTranslationKey('SEARCH_A_PUBLICATION');
 
     if($routeParams.q) {
         var tags = $routeParams.q.split('@');

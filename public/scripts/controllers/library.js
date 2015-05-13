@@ -2,9 +2,7 @@
 angular.module('publication')
 
 .controller('myLibraryController', function($scope, $translate, Page, Publication, $mdDialog, User, TokenService, ToastService) {
-    $translate('MY_LIBRARY').then(function(translated) {
-        Page.setTitle(translated);
-    });
+    Page.setTitleTranslationKey('LIBRARY');
     $scope.error = null;
     $scope.publications = [];
     $scope.showLoading = true;
