@@ -50,7 +50,7 @@
 					</tr>
 				</tbody>
 			</table>
-			<md-button class="md-primary md-raised paddedbutton" ng-disabled="!authenticatedUser || isInLibrary(publication)" ng-click="addToLibrary(publication)">
+			<md-button class="md-primary md-raised paddedbutton" ng-hide="!authenticatedUser" ng-disabled="isInLibrary(publication)" ng-click="addToLibrary(publication)">
 				<md-tooltip ng-if="!authenticatedUser">
 					{{'LOGGED_IN_REQUIREMENT' | translate}}
 				</md-tooltip>
