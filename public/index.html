@@ -23,7 +23,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.4/hammer.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.0/angular-material.min.js"></script>
         <script src="/app.js"></script>
-        <script src="/scripts/controllers/user.js"></script>
         <script src="/scripts/controllers/loginUser.js"></script>
         <script src="/scripts/controllers/addUser.js"></script>
         <script src="/scripts/controllers/editUser.js"></script>
@@ -104,7 +103,9 @@
                         <md-button class="md-button md-default-theme" href="/network" ng-show="auth.isAuthenticated" ng-click="ToggleMenu()">{{'NETWORK' | translate }}</md-button>
                     </li>
                     <li>
-                        <md-button class="md-button md-default-theme" href="/upload" ng-show="auth.isAuthenticated" ng-click="ToggleMenuIfAuthed()">{{'UPLOAD_PUBLICATION' | translate }}</md-button>
+                        <md-button class="md-button md-default-theme" href="/upload" ng-show="auth.isAuthenticated" ng-click="ToggleMenuIfAuthed()">
+                        {{'UPLOAD_PUBLICATION' | translate }}
+                        </md-button>
                     </li>
                 </ul>
             </md-content>

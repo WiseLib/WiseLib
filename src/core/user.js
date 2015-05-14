@@ -20,10 +20,12 @@ User.prototype.constructor = User;
 
 User.prototype.save = function(){
 
-	var hash = crypto.createHash('sha1');
-	var password = this.password;
-	var hashedPassword = hash.update(password).digest('hex');
-	this.password=hashedPassword;
+	if (password !== undefined){
+		var hash = crypto.createHash('sha1');
+		var password = this.password;
+		var hashedPassword = hash.update(password).digest('hex');
+		this.password=hashedPassword;
+	}
 	return this.saveWithRepresentation(this.representation);
 };
 

@@ -3,10 +3,7 @@
 var module = angular.module('publication', ['ngMaterial', 'ngAnimate', 'journal', 'user', 'proceeding', 'ngMessages']);
 
 module.controller('publicationController', function($scope, $window, $routeParams, $translate, Page, Publication,UnknownPublication, Person, User, AuthenticationService, TokenService, ToastService) {
-    $translate('PUBLICATION')
-        .then(function(translated) {
-            Page.setTitle(translated);
-        });
+    Page.setTitleTranslationKey('PUBLICATION');
     $scope.publication = undefined;
     $scope.persons = {};
     $scope.authors = [];
@@ -60,7 +57,9 @@ module.controller('publicationController', function($scope, $window, $routeParam
             Person.get({ id: id }, function(person) {
                 $scope.persons[id] = person;
             }, function(data) {
-                console.log('error: ' + data.error);
+                 $translate('ERROR').then(function(translated) {
+                    ToastService.showToast(translated + ': ' + data.error, true);
+                });
             });
         }
 

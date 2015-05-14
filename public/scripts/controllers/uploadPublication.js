@@ -2,11 +2,8 @@
 var module = angular.module('publication');
 
 module.controller('uploadPublicationController', function($scope, $http, $translate,$location,Page, Person, PersonState, Journal, Proceeding, Publication, UnknownPublication, TokenService, ToastService) {
-    var user = TokenService.getUser();
 
-    $translate('UPLOAD_PUBLICATION').then(function(translated) {
-        Page.setTitle(translated);
-    });
+    Page.setTitleTranslationKey('UPLOAD_PUBLICATION');
 
     try {
         var user = TokenService.getUser();
@@ -23,25 +20,24 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     $scope.disciplines = [];
     $scope.references = [];
     $scope.unknownpublications=[];
-    $scope.unknownreferences = [];
-    $scope.knownreferences = [];
     $scope.searchJournal={};
     $scope.searchProceeding={};
     $scope.PersonState = PersonState;
+    $scope.knownreferences=[];
+    $scope.unknownreferences=[];
 
     $scope.$watch('newPublication.title', function () {
         $scope.searchUnknownPublications($scope.newPublication.title);
     });
 
     $scope.searchUnknownPublications = function(title){
-        if(title == undefined || title.length < 4){
+        if(title === undefined || title.length < 4){
             $scope.unknownpublications=[];
             return;}
         UnknownPublication.search({q:title},function(data){
             $scope.unknownpublications = data.publications;
-            console.log('got:' + data)
-        },function(data){})
-    }
+        },function(){});
+    };
 
     var lastSearch;
     var persons = [];
@@ -105,13 +101,13 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
     $scope.chooseJournal = function(jour){
         $scope.searchJournal.value='';
         $scope.journal = jour;
-        $scope.type ='Journal'
+        $scope.type ='Journal';
     };
 
     $scope.chooseProceeding = function(proc){
         $scope.searchProceeding.value='';
         $scope.proceeding = proc;
-        $scope.type === 'Proceeding'
+        $scope.type = 'Proceeding';
     };
 
     $scope.add = function (array, element) {
@@ -176,16 +172,14 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
         success(function(data) {
 
             var index;
-            $scope.knownreferences=[];
-            $scope.unknownreferences=[];
             for (index = 0; index < data.references.length; index++) {
                 var knownreference = data.references[index];
                 $scope.add($scope.knownreferences,knownreference);
-            };
+            }
             for (index = 0; index < data.unknownReferences.length; index++) {
                 var unknownreference = data.unknownReferences[index];
                 $scope.add($scope.unknownreferences, unknownreference);
-            };
+            }
         }).
         error(function(data) {
             $translate('UPLOADED_FILE_NOT_BIBTEX').then(function(translated) {
@@ -256,11 +250,11 @@ module.controller('uploadPublicationController', function($scope, $http, $transl
 
         for (var i = 0; i < $scope.unknownpublications.length; i++) {
             var pub= $scope.unknownpublications[i];
-            if(pub.status == undefined || pub.status==false)continue;
+            if(pub.status == undefined || pub.status == false)continue;
             else{
                 toPost.UnknownPublicationsToDelete.push(pub);
             }
-        };
+        }
 
         for (var i = 0; i < $scope.authors.length; i++) {
             var author = $scope.authors[i];

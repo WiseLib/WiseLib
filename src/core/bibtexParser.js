@@ -36,8 +36,8 @@ BibtexParser.prototype.isSupported = function(mimetype) {
 };
 
 BibtexParser.prototype.getBibtexData = function(obj) {
-	var promise = new Promise(function(resolve, reject){
-		fs.readFile(obj.path, 'utf8', function (err,data) {
+	var promise = new Promise(function(resolve, reject) {
+		fs.readFile(obj.path, 'utf8', function(err, data) {
 			if (err) {
 				reject(console.log(err));
 			}
@@ -48,46 +48,57 @@ BibtexParser.prototype.getBibtexData = function(obj) {
 	return promise
 };
 
-BibtexParser.prototype.makeSimplifiedReferences = function(references){
+BibtexParser.prototype.makeSimplifiedReferences = function(references) {
 	var simplifiedReferences = [];
-	for(var r in references){
+	for (var r in references) {
 		var title = references[r].entryTags.title || references[r].entryTags.Title || references[r].entryTags.TITLE;
 		var authors = references[r].entryTags.author || references[r].entryTags.Author || references[r].entryTags.AUTHOR;
-		var reference = {title: title, authors: authors};
+		var reference = {
+			title: title,
+			authors: authors
+		};
 		simplifiedReferences.push(reference);
 	}
 	return simplifiedReferences;
 };
 
-BibtexParser.prototype.checkReferences = function(references){
+BibtexParser.prototype.checkReferences = function(references) {
 	references = BibtexParser.prototype.makeSimplifiedReferences(references);
 	var knownReferences = [];
 	var unknownReferences = [];
 	var promises = [];
 	var ret;
-	for(var i = 0; i < references.length; i++) {
+	for (var i = 0; i < references.length; i++) {
 		var reference = references[i];
-		var promise = DBManager.get({title: reference.title}, Publication.prototype.representation);
-		var res = promise
-		.then(function(res){
-			if (res.length === 1) {
-				knownReferences.push(res[0]);
-			} else {
-				unknownReferences.push(reference);
-			}
-		})
-		.catch(function(err){
-			console.log(err);
-		});
-		promises.push(res);
+		(function(reference) {
+			var promise = DBManager.get({
+				title: reference.title
+			}, Publication.prototype.representation);
+			var res = promise
+				.then(function(res) {
+					if (res.length === 1) {
+						knownReferences.push(res[0]);
+					} else {
+						unknownReferences.push(reference);
+					}
+				})
+				.catch(function(err) {
+					console.log(err);
+				});
+			promises.push(res);
+		})(reference);
 	};
 
-	return Promise.all(promises).then(function () {
-		var jsonObj = {references: knownReferences, unknownReferences: unknownReferences};
-	 	return new Promise(function(resolve, reject) {
-			resolve(jsonObj);
+	return Promise.all(promises)
+		.then(function() {
+			var jsonObj = {
+				references: knownReferences,
+				unknownReferences: unknownReferences
+			};
+			return new Promise(function(resolve, reject) {
+				resolve(jsonObj);
+			});
 		});
-	});
 };
 
 BibtexParser.prototype.constructor = BibtexParser;

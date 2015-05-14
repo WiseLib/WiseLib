@@ -18,9 +18,12 @@ Searchable.prototype.variables.push.apply(Searchable.prototype.variables, Writea
 Searchable.prototype.tagCharacter = '@';
 
 /**
- * [removeInvalidTags description]
- * @param  {[type]} filter [description]
- * @return {[type]}        [description]
+ * It is possible to search on specific variables only, by using tags.
+ * This method removes invalid tags from the search variable.
+ * If all tags are invalid, it removes the search variable.
+ * A filter can optionally be specified, tags not specified in the filter will then be removed.
+ * @param  {Array<String>} filter : An optional Array containing variables
+ * @return {void}
  */
 Searchable.prototype.removeInvalidTags = function(filter) {
 	if(!filter) {

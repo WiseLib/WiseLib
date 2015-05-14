@@ -56,8 +56,7 @@ Publication.prototype.calculateRank = function() {
 		});
 };
 /**
- * [fetch description]
- * @return {[type]} [description]
+ * @see Writable.fetch
  */
 Publication.prototype.fetch = function() {
 	var writeable = this;
@@ -77,8 +76,7 @@ Publication.prototype.fetch = function() {
 };
 
 /**
- * [fetchAll description]
- * @return {[type]} [description]
+ * @see Writable.fetchAll
  */
 Publication.prototype.fetchAll = function() {
 	var rankable = this;
@@ -126,16 +124,11 @@ Publication.prototype.save = function() {
 					var referencingId = UnknownPublications[i].reference;
 
 					new Publication(referencingId).fetch()
-					.then(function(instance) { console.log(instance)
+					.then(function(instance) {
 							instance.references.push({id:newId});
 							instance.save();
 					});
-
-					new UnknownPublication({id:UnknownPublications[i].id}).fetchAll()
-					.then(function(UnknownPub){
-						UnknownPub[0].destroy();
-					})
-
+					new UnknownPublication(UnknownPublications[i].id).destroy();
 				};
 			}
 		})

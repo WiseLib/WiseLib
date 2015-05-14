@@ -27,10 +27,8 @@ angular.module('person')
     * @return {None}
     */
     $scope.fileNameChanged = function(element) {
-        console.log('filename changed');
         var reader = new FileReader();
         reader.onload = function(e) {
-            console.log('image loaded');
             $scope.$apply(function() {
                 $scope.person.profileImageSrc = e.target.result;
             });
@@ -54,13 +52,13 @@ angular.module('person')
         }
         Person.query({firstName: firstName, lastName: lastName}, function(data) {
             $scope.persons = data.persons;
-        }, function(data) {console.log('error! ' + data.statusText); });
+        }, function(data) {ToastService.showToast(data.statusText,true); });
     };
 
     $scope.searchAffiliations = function(id) {
         Affiliation.query({parent: id}, function(data) {
             $scope.choiceAffiliations = data.affiliations;
-        }, function(data) {console.log('error! ' + data.statusText); });
+        }, function(data) {ToastService.showToast(data.statusText,true);});
     };
     $scope.filterAffiliations = function(name) {
         var affs = $scope.choiceAffiliations;
@@ -80,7 +78,6 @@ angular.module('person')
         }
         Affiliation.save(toPost, function(data) {
             toPost.id = data.id;
-            console.log('posted :' + JSON.stringify(toPost));
             $scope.addAffiliation(toPost);
         }, function(data) {
             $translate('ERROR').then(function(translated) {
@@ -90,7 +87,6 @@ angular.module('person')
     };
     $scope.addAffiliation = function(toAdd) {
         if(toAdd) {
-            console.log(toAdd);
             $scope.affiliations.push(toAdd);
             $scope.person.affiliation = toAdd.id;
             $scope.affiliationsParent = toAdd.id;

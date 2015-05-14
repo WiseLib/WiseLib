@@ -2,9 +2,7 @@
 angular.module('publication')
 
 .controller('myPublicationsController', function($scope, $translate, Page, Publication, $mdDialog, Person, TokenService, ToastService) {
-    $translate('MY_PUBLICATIONS').then(function(translated) {
-        Page.setTitle(translated);
-    });
+    Page.setTitleTranslationKey('MY_PUBLICATIONS');
     var user;
     $scope.error = null;
     $scope.publications = [];
@@ -59,7 +57,9 @@ angular.module('publication')
         });
       });
     }, function() {
-      console.log('Clicked cancel!');
+       $translate('CANCEL').then(function(translated) {
+            ToastService.showToast(translated, true);
+        });
     });
     };
 });

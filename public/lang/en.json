@@ -6,7 +6,7 @@
 	"ADD": "Add",
 	"ADD_AFFILIATION": "Add Affiliation",
 	"ADD_AUTHOR": "Add Author",
-    "ADD_PERSON" : "Click to add person to the database",
+    	"ADD_PERSON" : "Click to add person to the database",
 	"ADD_PERSON_TO_DATABASE":"Or add new person to database",
 	"ADD_TO_LIBRARY":"Add to library",
 	"ADDED_TO_LIBRARY":"Added to library",
@@ -46,7 +46,7 @@
 	"LOG_OUT": "Log out",
 	"LOGGED_IN_REQUIREMENT": "You have to be logged in to do this",
 	"LOGGED_IN_VIEW_REQUIREMENT": "You have to be logged in to view this.",
-    "MY_PROFILE": "My profile",
+    	"MY_PROFILE": "My profile",
 	"MY_PUBLICATIONS": "My publications",
 	"MY_LIBRARY": "My library",
 	"NAME_WILL_BE_ADDED_TO_DATABASE": "Name will be added to the database.",
@@ -96,6 +96,7 @@
 	"SEND": "Send",
 	"SKIP":"Skip",
 	"SKIP_TOOLTIP":"Skip this author",
+	"START": "Start",
 	"SUCCESFULLY_REMOVED_PUBLICATION": "Successfully removed publication",
 	"SUCCESSFULLY_LOGGED_IN": "Successfully logged in",
 	"SUCCESSFULLY_REGISTERED": "Successfully registered",
@@ -120,6 +121,7 @@
 	"WELCOME": "Welcome to WiseLib",
 	"WELCOME_SUB": "A browsable research database",
 	"WISELIB_DESCR": "WiseLib lets you share your papers and search through papers shared by others colleagues.",
+	"WRONG_EMAIL_OR_PASSWORD": "Wrong email or password",
 	"YEAR": "Year",
 	"YEAR_OF_PUBLISHING": "Year of publishing"
 }

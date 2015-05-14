@@ -77,11 +77,22 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
     $httpProvider.interceptors.push('TokenInterceptor');
 })
 
-.factory('Page', function(){
+.factory('Page', function($translate){
     var title = '';
+    var titleTranslationKey = '';
     return {
         title: function() {return title; },
-        setTitle: function(newTitle) {title = newTitle; }
+        setTitleTranslationKey: function(newTitle) {
+            titleTranslationKey = newTitle;
+            $translate(titleTranslationKey).then(function(translated) {
+                title = translated;
+            });
+        },
+        translateTitle: function() {
+            $translate(titleTranslationKey).then(function(translated) {
+                title = translated;
+            });
+        }
     };
 })
 
@@ -107,10 +118,11 @@ angular.module('client', ['ngMaterial', 'ngRoute', 'publication', 'ngResource', 
 
     $scope.changeLanguage = function(lang) {
         $translate.use(lang);
+        Page.translateTitle();
         $mdSidenav('left').toggle();
     };
 })
 
 .controller('mainController', function (Page) {
-    Page.setTitle('Start');
+    Page.setTitleTranslationKey('START');
 });

@@ -2,9 +2,7 @@
 var module = angular.module('person', ['ngMaterial', 'ngMessages', 'affiliation', 'discipline','ngResource','pascalprecht.translate']);
 
 module.controller('personController', function($scope, $routeParams, $translate, Page, Person, Affiliation, Discipline) {
-	$translate('PERSON').then(function(translated) {
-		Page.setTitle(translated);
-	});
+	Page.setTitleTranslationKey('PERSON');
 
 	function getFullAffiliation(id){
 		Affiliation.get({id: id}, function(affiliation) {
@@ -48,7 +46,6 @@ module.controller('personController', function($scope, $routeParams, $translate,
 			$scope.error = data.error;
 	}, function() {
 		$translate(['PERSON', 'WAS_NOT_FOUND_LC']).then(function(translations) {
-			console.log(translations);
 			$scope.error = translations.PERSON + ' ' + translations.WAS_NOT_FOUND_LC;
 		});
 	});

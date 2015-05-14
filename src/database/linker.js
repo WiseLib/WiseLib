@@ -19,8 +19,25 @@ var searchKey = 'q';
 
 var Publication, Journal, Proceeding;
 
+/**
+ * A Representation is the link between a Writable and its database counterpart.
+ * Representation instances have their Writable variables mapped onto their sql names.
+ * They are used in a bookshelf (http://bookshelfjs.org/) model.
+ * They define which fields are searchable.
+ */
 var Representation = function() {};
+
+/**
+ * Bookshelf defines fields and relations. 
+ * Relations are links to other tables (such as foreign keys)
+ * Each Representation instance needs to define which fields are relations
+ */
 Representation.prototype.relations = [];
+
+/**
+ * Convert the Writables variables to their SQL counterpart.
+ * This method is specific for fields.
+ */
 Representation.prototype.format = function(json) {
     var queryParams = {};
     for(var variable in this) {
@@ -31,6 +48,11 @@ Representation.prototype.format = function(json) {
 
     return queryParams;
 };
+/**
+ * Convert the Writables variables to their SQL counterpart.
+ * This method is specific for relations.
+ * Many-to relations are stored in Arrays.
+ */
 Representation.prototype.formatRelations = function(json) {
     var queryParams = {};
     this.relations.forEach(function(relationsItem) {
@@ -48,6 +70,12 @@ Representation.prototype.formatRelations = function(json) {
     });
     return queryParams;
 };
+/**
+ * Format the Search parameter from a Searchable in a map,
+ * with as keys the Representation's searchable parameters,
+ * optionally filtered by tags.
+ * This methods is specific for fields.
+ */
 Representation.prototype.formatSearch = function(json) {
     var like = json[searchKey];
     var search = [];
@@ -87,6 +115,12 @@ Representation.prototype.formatSearch = function(json) {
     }
     return search;
 };
+/**
+ * Format the Search parameter from a Searchable in a map,
+ * with as keys the Representation's searchable parameters,
+ * optionally filtered by tags.
+ * This methods is specific for relations.
+ */
 Representation.prototype.formatSearchRelations = function(json) {
     var like = json[searchKey];
     var search = [];
@@ -125,6 +159,9 @@ Representation.prototype.formatSearchRelations = function(json) {
     }
     return search;
 };
+/**
+ * Parse a SQL representation to its Writable counterpart
+ */
 Representation.prototype.parse = function(toParse) {
     var json = {};
     for(var variable in this) {
@@ -148,6 +185,9 @@ Representation.prototype.parse = function(toParse) {
 
     return json;
 };
+/**
+ * Convert a Writable to a bookshelf model.
+ */
 //only when id is given (for put, delete) because of bookshelf attach restrictions
 Representation.prototype.toModel = function(jsonObj) {
     var queryParams = this.format(jsonObj);
@@ -169,12 +209,19 @@ Representation.prototype.toModel = function(jsonObj) {
     }
     return model;
 };
-
+/**
+ * Completes a given query with filters.
+ * This method is specific for fields.
+ */
 Representation.prototype.filterFields = function(jsonObj, query) {
     var queryParams = this.format(jsonObj);
     return query.where(queryParams);
 };
-
+/**
+ * Completes a given query with filters.
+ * This method is specific for relations.
+ * As this method requires inner joins, the global query is required to apply the join on.
+ */
 Representation.prototype.filterRelations = function(jsonObj, query, superQuery) {
     var queryRelations = this.formatRelations(jsonObj);
     var model = new this.model();
@@ -208,7 +255,10 @@ Representation.prototype.filterRelations = function(jsonObj, query, superQuery) 
 
     return query;
 };
-
+/**
+ * Completes a given query with search.
+ * This method is specific for fields.
+ */
 Representation.prototype.searchFields = function(jsonObj, query) {
     var searchParams = this.formatSearch(jsonObj);
     if(searchParams.length > 0) {
@@ -220,7 +270,11 @@ Representation.prototype.searchFields = function(jsonObj, query) {
     }
     return query;
 };
-//TODO
+/**
+ * Completes a given query with search.
+ * This method is specific for relations.
+ * As this method requires inner joins, the global query is required to apply the join on.
+ */
 Representation.prototype.searchRelations = function(jsonObj, query, superQuery) {
     var searchRelations = this.formatSearchRelations(jsonObj);
     var model = new this.model();
@@ -250,7 +304,9 @@ Representation.prototype.searchRelations = function(jsonObj, query, superQuery) 
     });
     return query;
 };
-
+/**
+ * Build a query based on the given Writables filters and search parameters
+ */
 Representation.prototype.toQuery = function(jsonObj) {
     var queryParams = this.format(jsonObj);
     var relationParams = this.formatRelations(jsonObj);
@@ -273,7 +329,10 @@ Representation.prototype.toQuery = function(jsonObj) {
     };
     return model.query(queryFunction);
 };
-
+/**
+ * Determines for a Representation if the Search query needs to be split on spaces,
+ * thus making a search for each separate word, or not (making one search for the whole string)
+ */
 Representation.prototype.searchSplit = false;
 
 //discipline
