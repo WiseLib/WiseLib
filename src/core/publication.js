@@ -56,8 +56,7 @@ Publication.prototype.calculateRank = function() {
 		});
 };
 /**
- * [fetch description]
- * @return {[type]} [description]
+ * @see Writable.fetch
  */
 Publication.prototype.fetch = function() {
 	var writeable = this;
@@ -77,8 +76,7 @@ Publication.prototype.fetch = function() {
 };
 
 /**
- * [fetchAll description]
- * @return {[type]} [description]
+ * @see Writable.fetchAll
  */
 Publication.prototype.fetchAll = function() {
 	var rankable = this;

@@ -6,7 +6,7 @@ var ProceedingPublicationRepr = require('../database/linker.js').proceedingPubli
 
 /* A publication that is published in a Proceeding
  * the 'type' is always 'Proceeding'
- * @superclass Publication
+ * @superclass SpecializedPublication
  * @constructor
  */
 var ProceedingPublication = function(arg) {

@@ -2,10 +2,20 @@
 var _ = require('lodash');
 
 /**
- * [DBManager description]
+ * The DBManager is responsible for communicating with the database.
+ * It provides post, get, put, and delete methods to respectively
+ * add, get, update and remove Writables from the database.
+ * It is a singleton
+ * @constructor
  */
  var DBManager = function() {};
 
+ /**
+  * Post a Writable in the database, its id must be undefined, or not already in the database.
+  * @param {Writable} writable : The Writable instance to post
+  * @param {Representation} repr : an optional representation that will be used instead of the Writable one
+  * @return {Promise<Writable>} the updated writable
+  */
  DBManager.prototype.post = function(writeable, repr) {
     var representation;
     if(repr) {
@@ -22,6 +32,12 @@ var _ = require('lodash');
     });
 };
 
+/**
+  * Get all Searchables from the database that correspond to the given Searchable
+  * @param {Searchable} writable : The Searchable instance that is used to get
+  * @param {Representation} repr : an optional representation that will be used instead of the Searchable one
+  * @return {Promise<Array<Searchable>>} all Searchables matching the given Searchable
+  */
 DBManager.prototype.get = function(searchable, repr) {
     var representation;
     if(repr) {
@@ -39,6 +55,13 @@ DBManager.prototype.get = function(searchable, repr) {
     });
 };
 
+/**
+  * Update a Writable
+  * @required id : the Writable's id
+  * @param {Writable} writable : The Writable instance to update
+  * @param {Representation} repr : an optional representation that will be used instead of the Writable one
+  * @return {Promise<Writable>} the updated writable
+  */
 //id is required, maybe check in event 'updating' (see bookshelf.js)
 DBManager.prototype.put = function(writeable, repr) {
     var representation;
@@ -54,6 +77,13 @@ DBManager.prototype.put = function(writeable, repr) {
     });
 };
 
+/**
+  * Removes a Writable from the database
+  * @required id : the Writable's id
+  * @param {Writable} writable : The Writable instance to delete
+  * @param {Representation} repr : an optional representation that will be used instead of the Writable one
+  * @return {Promise<void>}
+  */
 //id is required, maybe check in event 'destroying' (see bookshelf.js)
 DBManager.prototype.delete = function(writeable, repr) {
     var representation;
