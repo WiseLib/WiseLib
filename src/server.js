@@ -4,7 +4,7 @@
  * server
  * https://github.com/WiseLib/WiseLib
  *
- * Copyright (c) 2014 WiseLib
+ * Copyright (c) 2015 WiseLib
  * Licensed under the GPL-2.0 license.
  */
 
@@ -15,7 +15,6 @@ var methodOverride = require('method-override'); // simulate DELETE and PUT (exp
 var routes = require('./communication/routes.js');
 
 module.exports = function(app) {
-    // log every request to the console
     app.use(bodyParser.urlencoded({'extended': 'true'}));            // parse application/x-www-form-urlencoded
     app.use(bodyParser.json());                                     // parse application/json
     app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json

@@ -192,7 +192,6 @@ module.exports = {
 	getJournalDisciplines: function(req, res) {
 		req.query.journals = {id:req.params.id};
 		//processQueryArrays(req.query, ['journals']);
-		console.log(req.query)
 		getMultiple(req, res, core.Discipline, 'disciplines');
 	},
 
@@ -467,7 +466,7 @@ module.exports = {
 		.then(function(instance) {
 			res.json(instance);
 		})
-		.catch(function(error) {console.log(error);
+		.catch(function(error) {
 			reportError(res, error);
 		});
 	},
