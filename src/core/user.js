@@ -20,7 +20,7 @@ User.prototype.constructor = User;
 
 User.prototype.save = function(){
 
-	if (password !== undefined){
+	if (this.password !== undefined){
 		var hash = crypto.createHash('sha1');
 		var password = this.password;
 		var hashedPassword = hash.update(password).digest('hex');
