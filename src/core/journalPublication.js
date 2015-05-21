@@ -7,7 +7,7 @@ var JournalPublicationRepr = require('../database/linker.js').journalPublication
 
 /* A publication that is pubished in a Journal
  * the 'type' is always 'Journal'
- * @superclass Publication
+ * @superclass SpecializedPublication
  * @constructor
  */
 var JournalPublication = function(arg) {
